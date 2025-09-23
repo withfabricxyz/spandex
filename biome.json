@@ -1,0 +1,39 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.3.3/schema.json",
+  "files": {
+    "maxSize": 2097152,
+    "ignore": [
+      "node_modules/**"
+    ]
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "ignore": ["*.test.ts"],
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "noUnusedImports": "warn",
+        "noUnusedVariables": "warn"
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error",
+          "fix": "safe",
+          "options": {
+            "attributes": ["className"]
+          }
+        }
+      }
+    }
+  }
+}

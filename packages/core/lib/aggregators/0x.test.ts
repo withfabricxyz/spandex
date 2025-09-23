@@ -1,0 +1,21 @@
+import { describe, expect, it } from "bun:test";
+import { ZeroXAggregator } from "./0x";
+import { defaultSwapParams } from "../../test/utils";
+
+describe("0x API test", () => {
+  it("generates a quote", async () => {
+    const quoter = new ZeroXAggregator({
+      apiKey: process.env.ZEROX_API_KEY || "",
+    });
+    const quote = await quoter.fetchQuote(defaultSwapParams);
+
+    expect(quote).toBeDefined();
+    expect(quote.outputAmount).toBeGreaterThan(0n);
+    expect(quote.networkFee).toBeGreaterThan(0n);
+    expect(quote.blockNumber).toBeGreaterThan(0n);
+    expect(quote.txData).toBeDefined();
+    expect(quote.txData.data).toBeDefined();
+    expect(quote.txData.to).toBeDefined();
+    // expect(quote.details).toBeDefined();
+  });
+});

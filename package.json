@@ -1,0 +1,12 @@
+{
+  "name": "@withfabric/swap-quoter-meta",
+  "version": "0.1.0",
+  "description": "A library for quoting swaps on various DEXs via aggregators",
+  "workspaces": ["packages/*"],
+  "private": true,
+  "scripts": {
+    "build": "bun build index.ts --outdir=dist --target=es2024 --external:typescript",
+    "lint": "biome check --formatter-enabled=true --linter-enabled=true --organize-imports-enabled=true",
+    "lint:fix": "biome check --formatter-enabled=true --linter-enabled=true --organize-imports-enabled=true --write ./"
+  }
+}
