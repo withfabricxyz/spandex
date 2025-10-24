@@ -1,6 +1,5 @@
 import { MetaAggregator } from "./lib/aggregator";
-import type { MetaAggregatorConfig, ProviderConfig } from "./lib/types";
-import { LifiAggregator } from "./lib/aggregators/lifi";
+import type { MetaAggregatorConfig, AggregatorConfig } from "./lib/types";
 import { ZeroXAggregator } from "./lib/aggregators/0x";
 import { KyberAggregator } from "./lib/aggregators/kyber";
 import { FabricAggregator } from "./lib/aggregators/fabric";
@@ -15,22 +14,28 @@ const kyberClientId = process.env.QUOTER_KYBERSWAP_CLIENT_ID;
  * @returns A MetaAggregator instance with default providers configured.
  */
 export function defaultMetaAggregator() {
-  const providers: ProviderConfig[] = [{
+  const aggregators: AggregatorConfig[] = [{
     provider: "fabric",
+    config: {},
   }, {
     provider: "kyberswap",
-    clientId: kyberClientId || "swap-quoter",
+    config: {
+      clientId: kyberClientId || "smal",
+    },
   }];
 
   if (zeroXApiKey) {
-    providers.push({
+    aggregators.push({
       provider: "0x",
-      apiKey: zeroXApiKey,
+      config: {
+        apiKey: zeroXApiKey,
+      }
+
     });
   }
 
   return buildMetaAggregator({
-    providers,
+    aggregators,
   });
 }
 
@@ -51,19 +56,16 @@ export function defaultMetaAggregator() {
 export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregator {
   const providers = [];
 
-  for (const providerConfig of config.providers) {
-    switch (providerConfig.provider) {
-      case "lifi":
-        providers.push(new LifiAggregator(providerConfig));
-        break;
+  for (const agg of config.aggregators) {
+    switch (agg.provider) {
       case "0x":
-        providers.push(new ZeroXAggregator(providerConfig));
+        providers.push(new ZeroXAggregator(agg.config));
         break;
       case "kyberswap":
-        providers.push(new KyberAggregator(providerConfig));
+        providers.push(new KyberAggregator(agg.config));
         break;
       case "fabric":
-        providers.push(new FabricAggregator(providerConfig));
+        providers.push(new FabricAggregator(agg.config));
         break;
       default:
         throw new Error(`Unknown provider configured`);
@@ -77,3 +79,6 @@ export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregato
 
   return new MetaAggregator([]);
 }
+
+
+export type * from "./lib/types";

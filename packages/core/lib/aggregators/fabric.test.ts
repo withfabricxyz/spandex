@@ -4,9 +4,10 @@ import { baseClient, defaultSwapParams } from "../../test/utils";
 
 describe("Fabric Router API test", () => {
   it("generates a quote", async () => {
-    const quoter = new FabricAggregator(); // -1 to prevent prool issues
+    const quoter = new FabricAggregator({
+      url: "https://booda.defi.withfabric.xyz",
+    });
     const quote = await quoter.fetchQuote(defaultSwapParams);
-
     expect(quote).toBeDefined();
     expect(quote.outputAmount).toBeGreaterThan(0n);
     expect(quote.txData).toBeDefined();

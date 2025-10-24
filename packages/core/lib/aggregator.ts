@@ -1,25 +1,23 @@
-import { type Address, type SwapParams, type TimedQuote, type QuoteDetail, QuoteError } from "./types";
+import { type Address, type SwapParams, type ProviderKey, type Quote, type SuccessfulQuote, QuoteError } from "./types";
 
 export abstract class Aggregator {
-  abstract fetchQuote(params: SwapParams): Promise<QuoteDetail>;
-  abstract name(): string;
+  abstract fetchQuote(params: SwapParams): Promise<SuccessfulQuote>;
+  abstract name(): ProviderKey;
 
-  async fetchQuoteTimed(params: SwapParams): Promise<TimedQuote> {
+  async fetchQuoteTimed(params: SwapParams): Promise<Quote> {
     try {
       const start = performance.now();
       const quote = await this.fetchQuote(params);
       const stop = performance.now();
       return {
-        success: true,
-        provider: this.name(),
+        ...quote,
         latency: stop - start,
-        quote,
       };
     } catch (error) {
       return {
         success: false,
         provider: this.name(),
-        error: error as Error,
+        error: error as QuoteError,
       };
     }
   }
@@ -32,14 +30,14 @@ export class MetaAggregator {
     return this.aggregators.map((a) => a.name());
   }
 
-  async fetchQuotes(params: SwapParams): Promise<TimedQuote[]> {
+  async fetchQuotes(params: SwapParams): Promise<Quote[]> {
     const quotes = await this.getQuotes(params);
     return quotes.filter((q) => q.success).sort((a, b) => {
-      return Number(b.quote.outputAmount - a.quote.outputAmount);
+      return Number(b.outputAmount - a.outputAmount);
     });
   }
 
-  private async getQuotes(params: SwapParams): Promise<TimedQuote[]> {
+  private async getQuotes(params: SwapParams): Promise<Quote[]> {
     return Promise.all(
       this.aggregators.map(async (aggregator) => {
         return aggregator.fetchQuoteTimed(params);

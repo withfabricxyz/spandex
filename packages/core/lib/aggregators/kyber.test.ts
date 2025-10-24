@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { KyberAggregator } from "./kyber";
+import { KyberAggregator, kyberRouteGraph } from "./kyber";
 import { defaultSwapParams } from "../../test/utils";
 
 describe("Kyberwap", () => {
@@ -13,4 +13,12 @@ describe("Kyberwap", () => {
     expect(quote.txData.to).toBeDefined();
     expect(quote.txData.data).toBeDefined();
   }, 30_000);
+
+  it("generates a route DAG", async () => {
+    const file = await Bun.file(`${import.meta.dir}/../../test/fixtures/kyber1.json`).json();
+    const dag = kyberRouteGraph(file);
+    expect(dag).toBeDefined();
+    expect(dag.nodes.length).toBeGreaterThan(0);
+    expect(dag.edges.length).toBeGreaterThan(0);
+  }, 500);
 });

@@ -1,5 +1,6 @@
+import { extract } from "viem/utils";
 import { Aggregator } from "../aggregator";
-import { type QuoteDetail, QuoteError, type SwapParams } from "../types";
+import { QuoteError, type PoolEdge, type ProviderKey, type RouteGraph, type SuccessfulQuote, type SwapParams } from "../types";
 
 const chainNameLookup: Record<number, string> = {
   8453: "base", // Base Mainnet
@@ -25,28 +26,36 @@ export type KyberConfig = {
   clientId: string;
 };
 
+export type KyberQuoteResponse = {
+  inputAmount: string;
+  outputAmount: string;
+}
+
 export class KyberAggregator extends Aggregator {
   constructor(
-    private config: KyberConfig = { clientId: "swap-quoter" },
+    private config: KyberConfig = { clientId: "smal" },
   ) {
     super();
   }
 
-  name(): string {
+  name(): ProviderKey {
     return "kyberswap";
   }
 
-  async fetchQuote(request: SwapParams): Promise<QuoteDetail> {
+  async fetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.getRoute(request);
     const networkFee = BigInt(response.totalGas) * BigInt(Math.round(Number(response.gasPriceGwei) * (10 ** 9)));
     return {
+      success: true,
+      provider: "kyberswap",
+      details: response,
+      latency: 0, // Filled in by MetaAggregator
       outputAmount: BigInt(response.outputAmount),
       networkFee,
       txData: {
         to: response.routerAddress,
         data: response.encodedSwapData,
       },
-      // details: toJson(response),
     };
   }
 
@@ -66,7 +75,7 @@ export class KyberAggregator extends Aggregator {
       {
         headers: {
           accept: "application/json",
-          "X-Client-Id": this.config.clientId || "swap-quoter",
+          "X-Client-Id": this.config.clientId,
         },
       },
     ).then(async (response) => {
@@ -80,3 +89,37 @@ export class KyberAggregator extends Aggregator {
     return output;
   }
 }
+
+export function kyberRouteGraph(response: any): RouteGraph {
+  const nodes = Object.values(response.tokens as Record<string,any>).map(token => ({
+    address: token.address,
+    symbol: token.symbol,
+    decimals: token.decimals,
+  }));
+
+  const edges = extractEdges(response.swaps);
+
+  return {
+    nodes,
+    edges
+  }
+}
+
+export function extractEdges(swaps: any): PoolEdge[] {
+  let result: PoolEdge[] = [];
+  if (Array.isArray(swaps)) {
+    for (const item of swaps) {
+      result = result.concat(extractEdges(item));
+    }
+  } else {
+    result.push({
+      source: swaps.tokenIn,
+      target: swaps.tokenOut,
+      address: swaps.pool,
+      key: swaps.pool,
+      value: Number(swaps.swapAmount || 0),
+    });
+  }
+  return result;
+}
+

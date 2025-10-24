@@ -1,8 +1,12 @@
 import { Aggregator } from "../aggregator";
-import { type QuoteDetail, type SwapParams, QuoteError } from "../types";
+import { type ProviderKey, type RouteGraph, type SuccessfulQuote, type SwapParams, QuoteError } from "../types";
 
 export type ZeroXConfig = {
   apiKey: string;
+};
+
+export type ZeroXQuoteResponse = {
+  buyAmount: string;
 };
 
 export class ZeroXAggregator extends Aggregator {
@@ -10,22 +14,26 @@ export class ZeroXAggregator extends Aggregator {
     super();
   }
 
-  name(): string {
+  name(): ProviderKey {
     return "0x";
   }
 
-  async fetchQuote(request: SwapParams): Promise<QuoteDetail> {
+  async fetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.makeRequest(request);
 
     return {
+      success: true,
+      provider: "fabric",
+      details: response,
+      latency: 0, // Filled in by MetaAggregator
       outputAmount: BigInt(response.buyAmount),
-      networkFee: BigInt(response.totalNetworkFee),
-      blockNumber: Number(response.blockNumber) + 1,
+      networkFee: BigInt(response.totalNetworkFee), // TODO
+      // blockNumber: response.blockNumber,
       txData: {
         to: response.transaction.to,
         data: response.transaction.data,
       },
-      // details: toJson(response),
+      route: zeroXRouteGraph(response),
     };
   }
 
@@ -61,4 +69,32 @@ export class ZeroXAggregator extends Aggregator {
     }
     return body;
   }
+}
+
+function zeroXRouteGraph(quote: ZeroXQuoteResponse): RouteGraph {
+  return {
+    nodes: [],
+    edges: [],
+  }
+  // const route = quote.route;
+
+  // const nodes = Object.entries(quote.tokens).map(([address, token]) => ({
+  //   address: address as Address,
+  //   symbol: token.symbol,
+  //   decimals: token.decimals,
+  // }));
+
+  // // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // const edges = (route as any[]).map((hop) => ({
+  //   source: hop.token_in,
+  //   target: hop.token_out,
+  //   address: hop.pool,
+  //   key: hop.pool,
+  //   value: Number(hop.amount_in),
+  // }));
+
+  // return {
+  //   nodes,
+  //   edges,
+  // };
 }

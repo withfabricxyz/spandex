@@ -12,10 +12,8 @@ describe("0x API test", () => {
     expect(quote).toBeDefined();
     expect(quote.outputAmount).toBeGreaterThan(0n);
     expect(quote.networkFee).toBeGreaterThan(0n);
-    expect(quote.blockNumber).toBeGreaterThan(0n);
     expect(quote.txData).toBeDefined();
     expect(quote.txData.data).toBeDefined();
     expect(quote.txData.to).toBeDefined();
-    // expect(quote.details).toBeDefined();
-  });
+  }, 30_000);
 });

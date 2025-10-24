@@ -1,7 +1,7 @@
 {
-  "name": "@withfabric/swap-quoter-meta",
+  "name": "@withfabric/smal",
   "version": "0.1.0",
-  "description": "A library for quoting swaps on various DEXs via aggregators",
+  "description": "SMAL Meta Aggregator Library - Get the best swap rates across multiple DEXs and aggregators",
   "workspaces": ["packages/*"],
   "private": true,
   "scripts": {
