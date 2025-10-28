@@ -1,10 +1,11 @@
 import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x";
 import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric";
 import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber";
+import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos";
 
 export type Address = `0x${string}`;
 
-export type ProviderKey = "fabric" | "0x" | "kyberswap";
+export type ProviderKey = "fabric" | "0x" | "kyberswap" | "odos";
 
 type GenericAggregatorConfig<P extends ProviderKey, T> = {
   provider: P;
@@ -14,7 +15,8 @@ type GenericAggregatorConfig<P extends ProviderKey, T> = {
 export type AggregatorConfig =
   | GenericAggregatorConfig<"fabric", FabricConfig>
   | GenericAggregatorConfig<"0x", ZeroXConfig>
-  | GenericAggregatorConfig<"kyberswap", KyberConfig>;
+  | GenericAggregatorConfig<"kyberswap", KyberConfig>
+  | GenericAggregatorConfig<"odos", OdosConfig>;
 
 /// Discriminated union types for quote responses and errors
 
@@ -32,7 +34,8 @@ export type GenericQuote<P extends ProviderKey, T> = {
 export type SuccessfulQuote =
   | GenericQuote<"0x", ZeroXQuoteResponse>
   | GenericQuote<"kyberswap", KyberQuoteResponse>
-  | GenericQuote<"fabric", FabricQuoteResponse>;
+  | GenericQuote<"fabric", FabricQuoteResponse>
+  | GenericQuote<"odos", OdosQuoteResponse>;
 
 export class QuoteError extends Error {
   details: unknown;

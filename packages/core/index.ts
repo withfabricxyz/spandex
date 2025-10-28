@@ -2,6 +2,7 @@ import { MetaAggregator } from "./lib/aggregator";
 import { ZeroXAggregator } from "./lib/aggregators/0x";
 import { FabricAggregator } from "./lib/aggregators/fabric";
 import { KyberAggregator } from "./lib/aggregators/kyber";
+import { OdosAggregator } from "./lib/aggregators/odos";
 import type { AggregatorConfig, MetaAggregatorConfig } from "./lib/types";
 
 // Extract required and optional environment variables
@@ -24,6 +25,10 @@ export function defaultMetaAggregator() {
       config: {
         clientId: kyberClientId || "smal",
       },
+    },
+    {
+      provider: "odos",
+      config: {},
     },
   ];
 
@@ -69,8 +74,11 @@ export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregato
       case "fabric":
         providers.push(new FabricAggregator(agg.config));
         break;
+      case "odos":
+        providers.push(new OdosAggregator(agg.config));
+        break;
       default:
-        throw new Error(`Unknown provider configured`);
+        throw new Error("Unknown provider configured");
     }
   }
 
