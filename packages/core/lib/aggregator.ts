@@ -1,4 +1,4 @@
-import { type Address, type SwapParams, type ProviderKey, type Quote, type SuccessfulQuote, QuoteError } from "./types";
+import type { ProviderKey, Quote, QuoteError, SuccessfulQuote, SwapParams } from "./types";
 
 export abstract class Aggregator {
   abstract fetchQuote(params: SwapParams): Promise<SuccessfulQuote>;
@@ -32,9 +32,11 @@ export class MetaAggregator {
 
   async fetchQuotes(params: SwapParams): Promise<Quote[]> {
     const quotes = await this.getQuotes(params);
-    return quotes.filter((q) => q.success).sort((a, b) => {
-      return Number(b.outputAmount - a.outputAmount);
-    });
+    return quotes
+      .filter((q) => q.success)
+      .sort((a, b) => {
+        return Number(b.outputAmount - a.outputAmount);
+      });
   }
 
   private async getQuotes(params: SwapParams): Promise<Quote[]> {

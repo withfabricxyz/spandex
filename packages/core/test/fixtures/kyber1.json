@@ -30,7 +30,7 @@
         },
         "extra": {
           "MaxAmountIn": 60000000,
-          "MaxExchangeRate": 3.0423010664921253e+32,
+          "MaxExchangeRate": 3.0423010664921253e32,
           "ExchangeRateDenom": 18446744073709552000,
           "Nonce": 0,
           "ExpiryTime": 1758662939,
@@ -74,7 +74,7 @@
         },
         "extra": {
           "MaxAmountIn": 240000000,
-          "MaxExchangeRate": 4.4221919721790253e+27,
+          "MaxExchangeRate": 4.4221919721790253e27,
           "ExchangeRateDenom": 18446744073709552000,
           "Nonce": 0,
           "ExpiryTime": 1758662939,

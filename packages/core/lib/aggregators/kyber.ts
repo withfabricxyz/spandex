@@ -1,6 +1,12 @@
-import { extract } from "viem/utils";
 import { Aggregator } from "../aggregator";
-import { QuoteError, type PoolEdge, type ProviderKey, type RouteGraph, type SuccessfulQuote, type SwapParams } from "../types";
+import {
+  type PoolEdge,
+  type ProviderKey,
+  QuoteError,
+  type RouteGraph,
+  type SuccessfulQuote,
+  type SwapParams,
+} from "../types";
 
 const chainNameLookup: Record<number, string> = {
   8453: "base", // Base Mainnet
@@ -29,12 +35,10 @@ export type KyberConfig = {
 export type KyberQuoteResponse = {
   inputAmount: string;
   outputAmount: string;
-}
+};
 
 export class KyberAggregator extends Aggregator {
-  constructor(
-    private config: KyberConfig = { clientId: "smal" },
-  ) {
+  constructor(private config: KyberConfig = { clientId: "smal" }) {
     super();
   }
 
@@ -44,7 +48,8 @@ export class KyberAggregator extends Aggregator {
 
   async fetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.getRoute(request);
-    const networkFee = BigInt(response.totalGas) * BigInt(Math.round(Number(response.gasPriceGwei) * (10 ** 9)));
+    const networkFee =
+      BigInt(response.totalGas) * BigInt(Math.round(Number(response.gasPriceGwei) * 10 ** 9));
     return {
       success: true,
       provider: "kyberswap",
@@ -91,7 +96,7 @@ export class KyberAggregator extends Aggregator {
 }
 
 export function kyberRouteGraph(response: any): RouteGraph {
-  const nodes = Object.values(response.tokens as Record<string,any>).map(token => ({
+  const nodes = Object.values(response.tokens as Record<string, any>).map((token) => ({
     address: token.address,
     symbol: token.symbol,
     decimals: token.decimals,
@@ -101,8 +106,8 @@ export function kyberRouteGraph(response: any): RouteGraph {
 
   return {
     nodes,
-    edges
-  }
+    edges,
+  };
 }
 
 export function extractEdges(swaps: any): PoolEdge[] {
@@ -122,4 +127,3 @@ export function extractEdges(swaps: any): PoolEdge[] {
   }
   return result;
 }
-

@@ -11,12 +11,14 @@ describe("Provider configuration", () => {
 
   it("supports manual configuration", async () => {
     const aggregator = buildMetaAggregator({
-      aggregators: [{
-        provider: "0x",
-        config: {
-          apiKey: "test",
-        }
-      }]
+      aggregators: [
+        {
+          provider: "0x",
+          config: {
+            apiKey: "test",
+          },
+        },
+      ],
     });
 
     expect(aggregator).toBeDefined();
