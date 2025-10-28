@@ -1,5 +1,11 @@
 import { Aggregator } from "../aggregator";
-import { type ProviderKey, type RouteGraph, type SuccessfulQuote, type SwapParams, QuoteError } from "../types";
+import {
+  type ProviderKey,
+  QuoteError,
+  type RouteGraph,
+  type SuccessfulQuote,
+  type SwapParams,
+} from "../types";
 
 export type ZeroXConfig = {
   apiKey: string;
@@ -71,11 +77,11 @@ export class ZeroXAggregator extends Aggregator {
   }
 }
 
-function zeroXRouteGraph(quote: ZeroXQuoteResponse): RouteGraph {
+function zeroXRouteGraph(_quote: ZeroXQuoteResponse): RouteGraph {
   return {
     nodes: [],
     edges: [],
-  }
+  };
   // const route = quote.route;
 
   // const nodes = Object.entries(quote.tokens).map(([address, token]) => ({

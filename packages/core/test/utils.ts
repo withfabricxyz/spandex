@@ -1,6 +1,6 @@
-import type { SwapParams } from "../lib/types";
-import { http, createPublicClient } from "viem";
+import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
+import type { SwapParams } from "../lib/types";
 
 export const baseClient = createPublicClient({
   chain: base,

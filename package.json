@@ -2,11 +2,13 @@
   "name": "@withfabric/smal",
   "version": "0.1.0",
   "description": "SMAL Meta Aggregator Library - Get the best swap rates across multiple DEXs and aggregators",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "private": true,
   "scripts": {
     "build": "bun build index.ts --outdir=dist --target=es2024 --external:typescript",
-    "lint": "biome check --formatter-enabled=true --linter-enabled=true --organize-imports-enabled=true",
-    "lint:fix": "biome check --formatter-enabled=true --linter-enabled=true --organize-imports-enabled=true --write ./"
+    "lint": "biome check --formatter-enabled=true --linter-enabled=true",
+    "lint:fix": "biome check --formatter-enabled=true --linter-enabled=true --write --unsafe ./"
   }
 }

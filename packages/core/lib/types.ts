@@ -1,18 +1,22 @@
-import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber";
 import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x";
 import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric";
+import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber";
+import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos";
 
 export type Address = `0x${string}`;
 
-export type ProviderKey = 'fabric' | '0x' | 'kyberswap';
+export type ProviderKey = "fabric" | "0x" | "kyberswap" | "odos";
 
 type GenericAggregatorConfig<P extends ProviderKey, T> = {
   provider: P;
   config: T;
-}
+};
 
-export type AggregatorConfig = GenericAggregatorConfig<'fabric', FabricConfig> | GenericAggregatorConfig<'0x', ZeroXConfig> | GenericAggregatorConfig<'kyberswap', KyberConfig>;
-
+export type AggregatorConfig =
+  | GenericAggregatorConfig<"fabric", FabricConfig>
+  | GenericAggregatorConfig<"0x", ZeroXConfig>
+  | GenericAggregatorConfig<"kyberswap", KyberConfig>
+  | GenericAggregatorConfig<"odos", OdosConfig>;
 
 /// Discriminated union types for quote responses and errors
 
@@ -25,9 +29,13 @@ export type GenericQuote<P extends ProviderKey, T> = {
   networkFee: bigint; // in wei
   txData: QuoteTxData; // Common transaction data
   route?: RouteGraph; // Optional route graph (not all providers supply this)
-}
+};
 
-export type SuccessfulQuote = GenericQuote<'0x', ZeroXQuoteResponse> | GenericQuote<'kyberswap', KyberQuoteResponse> | GenericQuote<'fabric', FabricQuoteResponse>;
+export type SuccessfulQuote =
+  | GenericQuote<"0x", ZeroXQuoteResponse>
+  | GenericQuote<"kyberswap", KyberQuoteResponse>
+  | GenericQuote<"fabric", FabricQuoteResponse>
+  | GenericQuote<"odos", OdosQuoteResponse>;
 
 export class QuoteError extends Error {
   details: unknown;
@@ -53,7 +61,7 @@ export type SwapParams = {
   inputAmount: bigint;
   slippageBps: number;
   swapperAccount: Address;
-}
+};
 
 export type QuoteTxData = {
   to: Address;
@@ -66,7 +74,7 @@ export type TokenNode = {
   symbol?: string;
   decimals?: number;
   logoURI?: string;
-}
+};
 
 export type PoolEdge = {
   source: Address;
@@ -74,12 +82,12 @@ export type PoolEdge = {
   address: Address;
   key: string;
   value: number;
-}
+};
 
 export type RouteGraph = {
   nodes: TokenNode[];
   edges: PoolEdge[];
-}
+};
 
 /// Aggregator config and types
 

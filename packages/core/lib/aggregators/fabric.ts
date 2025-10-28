@@ -1,11 +1,15 @@
 import type { Hex } from "viem";
 import { Aggregator } from "../aggregator";
-import { type SwapParams, type Address, type RouteGraph, type PoolEdge, type ProviderKey, type SuccessfulQuote, QuoteError } from "../types";
+import {
+  type Address,
+  type ProviderKey,
+  QuoteError,
+  type RouteGraph,
+  type SuccessfulQuote,
+  type SwapParams,
+} from "../types";
 
 const FABRIC_BASE_URL = process.env.FABRIC_BASE_URL || "http://booda.defi.withfabric.xyz";
-
-
-
 
 type FabricQuoteRequest = {
   chainId: number;
@@ -30,40 +34,37 @@ export type FabricQuoteResponse = {
     token: Address;
     amount: string;
     spender: Address;
-  },
+  };
   transaction: {
     to: Address;
     data: `0x${string}`;
     value: string;
-  },
+  };
 };
 
 type Swap = {
-  key: Hex,
-  address: Address,
-  protocol: string,
-  fork: string,
-  tokenIn: Address,
-  tokenOut: Address,
-  inputPrice: number,
-  outputPrice: number,
-  amountIn: string,
-  amountOut: string,
+  key: Hex;
+  address: Address;
+  protocol: string;
+  fork: string;
+  tokenIn: Address;
+  tokenOut: Address;
+  inputPrice: number;
+  outputPrice: number;
+  amountIn: string;
+  amountOut: string;
 };
 
 type Route = {
   swaps: Swap[][];
 };
 
-
 export type FabricConfig = {
   url?: string;
 };
 
 export class FabricAggregator extends Aggregator {
-  constructor(
-    private config: FabricConfig = { url: FABRIC_BASE_URL },
-  ) {
+  constructor(private config: FabricConfig = { url: FABRIC_BASE_URL }) {
     super();
   }
 
@@ -94,8 +95,7 @@ export class FabricAggregator extends Aggregator {
   }
 
   private async makeRequest(params: SwapParams): Promise<FabricQuoteResponse> {
-
-     const query = new URLSearchParams({
+    const query = new URLSearchParams({
       chainId: params.chainId.toString(),
       buyToken: params.outputToken,
       sellToken: params.inputToken,
@@ -116,7 +116,6 @@ export class FabricAggregator extends Aggregator {
     });
   }
 }
-
 
 export function fabricRouteGraph(quote: FabricQuoteResponse): RouteGraph {
   const swaps = quote.route.swaps.flat();
@@ -139,5 +138,4 @@ export function fabricRouteGraph(quote: FabricQuoteResponse): RouteGraph {
     nodes,
     edges,
   };
-
 }
