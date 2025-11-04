@@ -1,4 +1,15 @@
-import type { ProviderKey, Quote, QuoteError, SuccessfulQuote, SwapParams } from "./types";
+import type { PublicClient } from "viem";
+import { simulateSwap } from "./simulation";
+import type {
+  ProviderKey,
+  Quote,
+  QuoteError,
+  SimulatedQuoteResult,
+  SuccessfulQuote,
+  SwapParams,
+} from "./types";
+
+type AnyPublicClient = Pick<PublicClient, "request" | "readContract">;
 
 export abstract class Aggregator {
   abstract fetchQuote(params: SwapParams): Promise<SuccessfulQuote>;
@@ -24,16 +35,41 @@ export abstract class Aggregator {
 }
 
 export class MetaAggregator {
-  constructor(private aggregators: Aggregator[]) {}
+  constructor(
+    private aggregators: Aggregator[],
+    private client: AnyPublicClient,
+  ) {}
 
   get providers(): string[] {
     return this.aggregators.map((a) => a.name());
   }
 
-  async fetchQuotes(params: SwapParams): Promise<Quote[]> {
+  async fetchQuotes(params: SwapParams): Promise<SimulatedQuoteResult[]> {
     const quotes = await this.getQuotes(params);
-    return quotes
-      .filter((q) => q.success)
+    const successfulQuotes = quotes.filter((q) => q.success) as SuccessfulQuote[];
+    const client = this.client;
+
+    const simulatedQuotes = await Promise.all(
+      successfulQuotes.map(async (quote) => {
+        const simulation = await simulateSwap(client, {
+          from: params.swapperAccount,
+          to: quote.txData.to,
+          data: quote.txData.data,
+          value: quote.txData.value,
+          tokenIn: params.inputToken,
+          tokenOut: params.outputToken,
+          amountIn: params.inputAmount,
+        });
+
+        return {
+          ...quote,
+          simulation,
+        };
+      }),
+    );
+
+    return simulatedQuotes
+      .filter((q) => q.simulation.success)
       .sort((a, b) => {
         return Number(b.outputAmount - a.outputAmount);
       });

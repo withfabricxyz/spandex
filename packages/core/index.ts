@@ -1,3 +1,4 @@
+import type { PublicClient } from "viem";
 import { MetaAggregator } from "./lib/aggregator";
 import { ZeroXAggregator } from "./lib/aggregators/0x";
 import { FabricAggregator } from "./lib/aggregators/fabric";
@@ -12,9 +13,10 @@ const kyberClientId = process.env.QUOTER_KYBERSWAP_CLIENT_ID;
 /**
  * A default MetaAggregator instance with common, high performing providers configured. This may change over time.
  *
+ * @param client - viem PublicClient for simulation support
  * @returns A MetaAggregator instance with default providers configured.
  */
-export function defaultMetaAggregator() {
+export function defaultMetaAggregator(client: PublicClient): MetaAggregator {
   const aggregators: AggregatorConfig[] = [
     {
       provider: "fabric",
@@ -41,9 +43,12 @@ export function defaultMetaAggregator() {
     });
   }
 
-  return buildMetaAggregator({
-    aggregators,
-  });
+  return buildMetaAggregator(
+    {
+      aggregators,
+    },
+    client,
+  );
 }
 
 /**
@@ -58,9 +63,13 @@ export function defaultMetaAggregator() {
  *
  * Build a MetaAggregator from the given config to query multiple providers for token swap quotes.
  * @param config - configuration for the meta-aggregator
+ * @param client - viem PublicClient for simulation support
  * @returns MetaAggregator instance which can fetch quotes from the configured providers
  */
-export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregator {
+export function buildMetaAggregator(
+  config: MetaAggregatorConfig,
+  client: PublicClient,
+): MetaAggregator {
   const providers = [];
 
   for (const agg of config.aggregators) {
@@ -83,10 +92,11 @@ export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregato
   }
 
   if (providers.length > 0) {
-    return new MetaAggregator(providers);
+    return new MetaAggregator(providers, client);
   }
 
-  return new MetaAggregator([]);
+  return new MetaAggregator([], client);
 }
 
+export { simulateSwap } from "./lib/simulation";
 export type * from "./lib/types";

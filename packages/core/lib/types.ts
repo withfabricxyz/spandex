@@ -18,6 +18,17 @@ export type AggregatorConfig =
   | GenericAggregatorConfig<"kyberswap", KyberConfig>
   | GenericAggregatorConfig<"odos", OdosConfig>;
 
+export type SimulationResult =
+  | {
+      success: true;
+      outputAmount: bigint;
+      gasUsed?: bigint;
+    }
+  | {
+      success: false;
+      error: string;
+    };
+
 /// Discriminated union types for quote responses and errors
 
 export type GenericQuote<P extends ProviderKey, T> = {
@@ -31,11 +42,21 @@ export type GenericQuote<P extends ProviderKey, T> = {
   route?: RouteGraph; // Optional route graph (not all providers supply this)
 };
 
+export type SimulatedQuote<P extends ProviderKey, T> = GenericQuote<P, T> & {
+  simulation: SimulationResult; // Simulation result added by MetaAggregator
+};
+
 export type SuccessfulQuote =
   | GenericQuote<"0x", ZeroXQuoteResponse>
   | GenericQuote<"kyberswap", KyberQuoteResponse>
   | GenericQuote<"fabric", FabricQuoteResponse>
   | GenericQuote<"odos", OdosQuoteResponse>;
+
+export type SimulatedSuccessfulQuote =
+  | SimulatedQuote<"0x", ZeroXQuoteResponse>
+  | SimulatedQuote<"kyberswap", KyberQuoteResponse>
+  | SimulatedQuote<"fabric", FabricQuoteResponse>
+  | SimulatedQuote<"odos", OdosQuoteResponse>;
 
 export class QuoteError extends Error {
   details: unknown;
@@ -53,6 +74,8 @@ export type FailedQuote = {
 };
 
 export type Quote = SuccessfulQuote | FailedQuote;
+
+export type SimulatedQuoteResult = SimulatedSuccessfulQuote | FailedQuote;
 
 export type SwapParams = {
   chainId: number;
