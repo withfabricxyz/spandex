@@ -40,6 +40,6 @@ export class SimulatedMetaAggregator {
       }),
     );
 
-    return simulatedQuotes.filter((q: SimulatedQuote) => q.simulation.success);
+    return simulatedQuotes;
   }
 }

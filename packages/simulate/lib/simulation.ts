@@ -1,47 +1,27 @@
+import type { QuoteTxData } from "@withfabric/smal";
 import type { Address, PublicClient } from "viem";
-import { keccak256 } from "viem";
+import { encodeFunctionData, erc20Abi, keccak256, pad, parseEther } from "viem";
 import { simulateCalls } from "viem/actions";
 import type { SimulationResult } from "./SimulatedMetaAggregator/types";
 
-type SimulateSwapParams = {
+type SimulateSwapParams = QuoteTxData & {
   from: Address;
-  to: Address;
-  data: `0x${string}`;
-  value?: bigint;
   tokenIn: Address;
   tokenOut: Address;
   amountIn: bigint;
 };
 
-const ERC20_ABI = [
-  {
-    constant: true,
-    inputs: [{ name: "_owner", type: "address" }],
-    name: "balanceOf",
-    outputs: [{ name: "balance", type: "uint256" }],
-    type: "function",
-  },
-] as const;
-
-function pad64(input: string): string {
-  return input.padStart(64, "0");
-}
-
-/**
- * Calculate the storage slot for an ERC20 token balance in a mapping(address => uint256)
- * Most ERC20 tokens use slot 0 for balances, but this can vary
- */
+// TODO: scan for correct storage slot? assuming 0 for balance slot - likely differs across contracts
 function getBalanceStorageSlot(userAddress: Address, slot = 0): `0x${string}` {
-  // Solidity storage slot calculation for mapping: keccak256(abi.encode(key, slot))
-  const paddedSlot = pad64(slot.toString(16));
-  const paddedAddress = pad64(userAddress.slice(2));
+  const paddedSlot = pad(`0x${slot.toString(16)}`, { size: 64 });
+  const paddedAddress = pad(`0x${userAddress.slice(2)}`, { size: 64 });
   const concatenated = `0x${paddedAddress}${paddedSlot}` as `0x${string}`;
   return keccak256(concatenated);
 }
 
 function prepareStateOverrides(tokenAddress: Address, userAddress: Address, amount: bigint) {
-  const balanceSlot = getBalanceStorageSlot(userAddress, 0); // TODO: detect actual slot?
-  const balanceHex = `0x${pad64(amount.toString(16))}` as `0x${string}`;
+  const balanceSlot = getBalanceStorageSlot(userAddress, 0);
+  const balanceHex = `${pad(`0x${amount.toString(16)}`, { size: 32 })}` as `0x${string}`;
 
   return [
     {
@@ -53,6 +33,11 @@ function prepareStateOverrides(tokenAddress: Address, userAddress: Address, amou
         },
       ],
     },
+    // need eth for gas
+    {
+      address: userAddress,
+      balance: parseEther("100"),
+    },
   ];
 }
 
@@ -63,7 +48,7 @@ async function getTokenBalance(
 ): Promise<bigint> {
   return (await client.readContract({
     address: tokenAddress,
-    abi: ERC20_ABI,
+    abi: erc20Abi,
     functionName: "balanceOf",
     args: [ownerAddress],
     blockTag: "latest",
@@ -77,9 +62,16 @@ export async function simulateSwap(
   try {
     const preBalance = await getTokenBalance(client, params.tokenOut, params.from);
     const stateOverrides = prepareStateOverrides(params.tokenIn, params.from, params.amountIn);
-    const approveData =
-      `0x095ea7b3${pad64(params.to)}${pad64(params.amountIn.toString(16))}` as `0x${string}`;
-    const balanceOfData = `0x70a08231${pad64(params.from)}` as `0x${string}`;
+    const approveData = encodeFunctionData({
+      abi: erc20Abi,
+      functionName: "approve",
+      args: [params.to, params.amountIn],
+    });
+    const balanceOfData = encodeFunctionData({
+      abi: erc20Abi,
+      functionName: "balanceOf",
+      args: [params.from],
+    });
 
     const result = await simulateCalls(client, {
       account: params.from,
@@ -104,38 +96,50 @@ export async function simulateSwap(
       stateOverrides,
     });
 
-    const approveCall = result.results[0];
-    const swapCall = result.results[1];
-    const balanceCall = result.results[2];
+    const approveResult = result.results[0];
+    const swapResult = result.results[1];
+    const balanceResult = result.results[2];
 
-    if (!approveCall || !swapCall || !balanceCall) {
+    if (!approveResult || !swapResult || !balanceResult) {
       return {
         success: false,
         error: "Missing calls in simulation response",
       };
     }
 
-    if (approveCall.status === "failure") {
+    if (approveResult.status === "failure") {
       return {
         success: false,
-        error: `Approval failed: ${approveCall.error?.message || "unknown reason"}`,
+        error: `Approval failed: ${approveResult.error?.message || "unknown reason"}`,
       };
     }
 
-    if (swapCall.status === "failure") {
+    if (swapResult.status === "failure") {
       return {
         success: false,
-        error: `Swap reverted: ${swapCall.error?.message || "unknown reason"}`,
+        error: `Swap reverted: ${swapResult.error?.message || "unknown reason"}`,
       };
     }
 
-    const postBalance = BigInt(balanceCall.data || "0x0");
+    if (balanceResult.status === "failure") {
+      return {
+        success: false,
+        error: `Balance read reverted: ${balanceResult.error?.message || "unknown reason"}`,
+      };
+    }
+
+    if ((balanceResult.logs?.length || 0) > 0) {
+      console.error("Balance call reverted with logs:", balanceResult.logs);
+    }
+
+    const postBalance = BigInt(balanceResult.data || "0x0");
     const outputAmount = postBalance - preBalance;
 
     return {
       success: true,
       outputAmount,
-      gasUsed: swapCall.gasUsed,
+      callsResults: result.results,
+      gasUsed: swapResult.gasUsed,
     };
   } catch (error) {
     return {
