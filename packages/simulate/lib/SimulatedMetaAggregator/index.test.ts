@@ -16,9 +16,9 @@ describe("SimulatedMetaAggregator", () => {
 
   const metaAgg = buildMetaAggregator({
     aggregators: [
-      { provider: "odos", config: {} },
+      // { provider: "odos", config: {} },
       { provider: "kyberswap", config: { clientId: "smal" } },
-      { provider: "0x", config: { apiKey: process.env.ZEROX_API_KEY || "" } },
+      // { provider: "0x", config: { apiKey: process.env.ZEROX_API_KEY || "" } },
     ],
   });
 

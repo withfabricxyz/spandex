@@ -10,5 +10,8 @@
     "build": "bun build index.ts --outdir=dist --target=es2024 --external:typescript",
     "lint": "biome check --formatter-enabled=true --linter-enabled=true",
     "lint:fix": "biome check --formatter-enabled=true --linter-enabled=true --write --unsafe ./"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
   }
 }

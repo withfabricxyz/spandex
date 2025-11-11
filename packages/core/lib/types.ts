@@ -63,6 +63,9 @@ export type SwapParams = {
   swapperAccount: Address;
 };
 
+// TODO: We need union for exact_out style quoting
+
+
 export type QuoteTxData = {
   to: Address;
   data: `0x${string}`;
@@ -90,6 +93,8 @@ export type RouteGraph = {
 };
 
 /// Aggregator config and types
+// TODO: We need global configuration for top level, eg: timeouts, retries, fee config, prefered strategy, etc.
+// TODO: Initial strategies: fastest, price, gas efficient, custom (fn parameter that takes a set of quotes and returns one)
 
 export type MetaAggregatorConfig = {
   aggregators: AggregatorConfig[];

@@ -9,7 +9,16 @@ type SimulateSwapParams = QuoteTxData & {
   tokenIn: Address;
   tokenOut: Address;
   amountIn: bigint;
+  stateOverrides?: unknown[],
+  // stateOverride: bool
+  balanceOverride?: bigint;
 };
+
+// TODO: Fetch output balance once for a batch of simulations to reduce RPC calls
+// TODO: Fetch storage slot once for a batch of simulations to reduce RPC calls
+// TODO: Iterate over multiple possible storage by poking storage slots until balance matches
+// TODO: Consider supporting "real" user token and not adjusting balance for real-world impls
+// TODO: ETH as input or output requires different handling for balance IO
 
 // TODO: scan for correct storage slot? assuming 0 for balance slot - likely differs across contracts
 function getBalanceStorageSlot(userAddress: Address, slot = 0): `0x${string}` {
@@ -36,7 +45,7 @@ function prepareStateOverrides(tokenAddress: Address, userAddress: Address, amou
     // need eth for gas
     {
       address: userAddress,
-      balance: parseEther("100"),
+      balance: parseEther("10000"), // large amount to cover gas costs + swap value
     },
   ];
 }
@@ -94,6 +103,7 @@ export async function simulateSwap(
         },
       ],
       stateOverrides,
+      traceAssetChanges: true,
     });
 
     const approveResult = result.results[0];
@@ -134,6 +144,8 @@ export async function simulateSwap(
 
     const postBalance = BigInt(balanceResult.data || "0x0");
     const outputAmount = postBalance - preBalance;
+
+    console.log(result.assetChanges);
 
     return {
       success: true,

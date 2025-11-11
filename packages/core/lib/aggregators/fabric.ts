@@ -25,10 +25,11 @@ type FabricQuoteRequest = {
 
 export type FabricQuoteResponse = {
   blockNumber: number;
-  amount: string;
+  amountIn: string;
+  amountOut: string;
   price: number;
   description: string;
-  tokens: Record<string, any>;
+  tokens: TokenData[];
   route: Route;
   approval?: {
     token: Address;
@@ -40,6 +41,21 @@ export type FabricQuoteResponse = {
     data: `0x${string}`;
     value: string;
   };
+  fees: Fee[];
+  id: string;
+};
+
+type Fee = {
+  recipient: Address;
+  token: Address;
+  amount: string;
+};
+
+type TokenData = {
+  symbol: string;
+  decimals: number;
+  address: Address;
+  priceUsd?: number;
 };
 
 type Swap = {
@@ -49,18 +65,19 @@ type Swap = {
   fork: string;
   tokenIn: Address;
   tokenOut: Address;
-  inputPrice: number;
-  outputPrice: number;
   amountIn: string;
   amountOut: string;
 };
 
 type Route = {
   swaps: Swap[][];
+  amountIn: string;
+  amountOut: string;
 };
 
 export type FabricConfig = {
   url?: string;
+  apiKey?: string;
 };
 
 export class FabricAggregator extends Aggregator {
@@ -74,8 +91,7 @@ export class FabricAggregator extends Aggregator {
 
   async fetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.makeRequest(request);
-    const amountOut = response.amount;
-    const to = "0xaf79c73c73a5411f372864b50f56eeedf8a29aab"; // Temporary until deployed
+    const amountOut = response.amountOut;
 
     return {
       success: true,
@@ -86,7 +102,7 @@ export class FabricAggregator extends Aggregator {
       networkFee: 0n, // TODO
       // blockNumber: response.blockNumber,
       txData: {
-        to,
+        to: response.transaction.to,
         data: response.transaction.data,
         value: BigInt(response.transaction.value),
       },
@@ -119,13 +135,7 @@ export class FabricAggregator extends Aggregator {
 
 export function fabricRouteGraph(quote: FabricQuoteResponse): RouteGraph {
   const swaps = quote.route.swaps.flat();
-
-  const nodes = Object.entries(quote.tokens).map(([address, token]) => ({
-    address: address as Address,
-    symbol: token.symbol,
-    decimals: token.decimals,
-  }));
-
+  const nodes = quote.tokens;
   const edges = swaps.map((swap) => ({
     source: swap.tokenIn,
     target: swap.tokenOut,
