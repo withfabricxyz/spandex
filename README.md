@@ -21,20 +21,22 @@ npm i viem @withfabric/smal @withfabric/smal-simulate
 Simplest example:
 
 ```ts
+// Import
 import { buildMetaAggregator } from "@withfabric/smal";
 
-// Initialize the const aggregator. This can be shared.
+// Configure your aggregators
 const metaAggregator = buildMetaAggregator({
   providers: [
     { provider: "fabric" },
-    { provider: "0x", apiKey: process.env.ZEROX_API_KEY },
+    { provider: "0x", apiKey: "..." },
   ],
   defaults: {
-    strategy: "fallback", // fallback, first, best_price, cheapest_gas, or function(items: Promise<>) -> quote
+    strategy: "bestQuote",
   }
 });
 
-const results = await metaAggregator.fetchQuotes({
+// Fetch the best quote using the configured strategy
+const quote = await metaAggregator.fetchBestQuote({
   chainId: 8453,
   inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   outputToken: "0x4200000000000000000000000000000000000006",
@@ -43,6 +45,7 @@ const results = await metaAggregator.fetchQuotes({
   swapperAccount: "0xdead00000000000000000000000000000000beef",
 });
 
+console.log(quote.summary())
 ```
 
 

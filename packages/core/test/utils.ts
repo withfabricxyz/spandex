@@ -1,6 +1,6 @@
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
-import { Aggregator } from "../lib/aggregator.ts";
+import { Aggregator } from "../lib/aggregator.js";
 import type { ProviderKey, Quote, SuccessfulQuote, SwapParams } from "../lib/types.js";
 
 export const baseClient = createPublicClient({

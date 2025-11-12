@@ -13,6 +13,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      - name: Install deps
+        run: bun install
       - name: Audit dependencies
         run: bun audit
       - name: Lint & Format
@@ -27,11 +29,10 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
+      - name: Install deps
+        run: bun install
       - name: Build packages
         run: bun run build
-        env:
-          ZEROX_API_KEY: ${{ secrets.ZEROX_API_KEY }}
       - name: Run tests
         run: bun test
         env:

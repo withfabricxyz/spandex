@@ -1,4 +1,4 @@
-import { applyStrategy } from "./strategies.ts";
+import { applyStrategy } from "./strategies.js";
 import type {
   AggregationOptions,
   MetaAggregationOptions,
