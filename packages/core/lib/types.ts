@@ -92,9 +92,18 @@ export type RouteGraph = {
 };
 
 /// Aggregator config and types
-// TODO: We need global configuration for top level, eg: timeouts, retries, fee config, prefered strategy, etc.
-// TODO: Initial strategies: fastest, price, gas efficient, custom (fn parameter that takes a set of quotes and returns one)
+
+export type QuoteSelectionFn = (quotes: Array<Promise<Quote>>) => Promise<SuccessfulQuote | null>;
+export type QuoteSelectionName = "fastest" | "quotedPrice" | "quotedGas" | "priority";
+export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;
+
+export type MetaAggregationOptions = {
+  strategy?: QuoteSelectionStrategy;
+  timeoutMs?: number;
+  numRetries?: number;
+};
 
 export type MetaAggregatorConfig = {
   aggregators: AggregatorConfig[];
+  defaults?: MetaAggregationOptions;
 };

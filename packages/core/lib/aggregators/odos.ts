@@ -57,7 +57,7 @@ export class OdosAggregator extends Aggregator {
    * 1. generate a quote to get a pathId
    * 2. assemble the tx using the pathId
    */
-  async fetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
+  protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.getQuote(request);
     // TODO: is this right? copied from kyber
     const networkFee =

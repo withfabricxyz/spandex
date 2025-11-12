@@ -83,7 +83,7 @@ export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregato
   }
 
   if (providers.length > 0) {
-    return new MetaAggregator(providers);
+    return new MetaAggregator(providers, config.defaults);
   }
 
   return new MetaAggregator([]);

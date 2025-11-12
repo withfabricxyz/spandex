@@ -24,7 +24,7 @@ export class ZeroXAggregator extends Aggregator {
     return "0x";
   }
 
-  async fetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
+  protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.makeRequest(request);
 
     return {

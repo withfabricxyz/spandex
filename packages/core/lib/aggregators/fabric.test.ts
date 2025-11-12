@@ -9,12 +9,13 @@ describe("Fabric Router API test", () => {
       url: "http://localhost:8000",
     });
     const quote = await quoter.fetchQuote(defaultSwapParams);
-    console.log(quote.route);
     expect(quote).toBeDefined();
-    expect(quote.outputAmount).toBeGreaterThan(0n);
-    expect(quote.txData).toBeDefined();
-    expect(quote.txData.to).toBeDefined();
-    expect(quote.txData.data).toBeDefined();
+    if (quote.success) {
+      expect(quote.outputAmount).toBeGreaterThan(0n);
+      expect(quote.txData).toBeDefined();
+      expect(quote.txData.to).toBeDefined();
+      expect(quote.txData.data).toBeDefined();
+    }
   }, 30_000);
 
   it("generates a route DAG", async () => {

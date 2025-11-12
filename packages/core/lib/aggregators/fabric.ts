@@ -77,7 +77,7 @@ export class FabricAggregator extends Aggregator {
     return "fabric";
   }
 
-  async fetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
+  protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.makeRequest(request);
     const amountOut = response.amountOut;
 

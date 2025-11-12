@@ -46,7 +46,7 @@ export class KyberAggregator extends Aggregator {
     return "kyberswap";
   }
 
-  async fetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
+  protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.getRoute(request);
     const networkFee =
       BigInt(response.totalGas) * BigInt(Math.round(Number(response.gasPriceGwei) * 10 ** 9));
