@@ -98,6 +98,8 @@ export async function simulateSwap(
         },
         {
           // read post-swap balance
+          // without this read, the asset is not tracked in result.assetChanges. this "touches" the asset and ensures it's tracked
+          // perhaps there's a better way to make sure it's tracked, or manually calling balanceOf on it is better?
           to: params.tokenOut,
           data: balanceOfData,
         },
@@ -138,14 +140,11 @@ export async function simulateSwap(
       };
     }
 
-    if ((balanceResult.logs?.length || 0) > 0) {
-      console.error("Balance call reverted with logs:", balanceResult.logs);
-    }
-
-    const postBalance = BigInt(balanceResult.data || "0x0");
+    const outputAsset = result.assetChanges.find(
+      (asset) => asset.token.address.toLowerCase() === params.tokenOut.toLowerCase()
+    );
+    const postBalance = outputAsset?.value.post ?? 0n;
     const outputAmount = postBalance - preBalance;
-
-    console.log(result.assetChanges);
 
     return {
       success: true,
