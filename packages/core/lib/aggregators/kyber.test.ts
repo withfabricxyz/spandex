@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils";
-import { KyberAggregator, kyberRouteGraph } from "./kyber";
+import { defaultSwapParams } from "../../test/utils.js";
+import { KyberAggregator, kyberRouteGraph } from "./kyber.js";
 
 describe("Kyberwap", () => {
   it("generates a quote (legacy)", async () => {

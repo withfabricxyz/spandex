@@ -1,10 +1,18 @@
 import { describe, expect, it } from "bun:test";
-import { buildMetaAggregator } from "@withfabric/smal";
-import { defaultSwapParams } from "@withfabric/smal/test/utils";
+import { buildMetaAggregator, type SwapParams } from "@withfabric/smal";
 import type { PublicClient } from "viem";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
-import { SimulatedMetaAggregator } from "./";
+import { SimulatedMetaAggregator } from "./index.js";
+
+const defaultSwapParams: SwapParams = {
+  chainId: 8453,
+  inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  outputToken: "0x4200000000000000000000000000000000000006",
+  inputAmount: 500_000_000n,
+  slippageBps: 100,
+  swapperAccount: "0xdead00000000000000000000000000000000beef",
+};
 
 const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
 
@@ -16,9 +24,9 @@ describe("SimulatedMetaAggregator", () => {
 
   const metaAgg = buildMetaAggregator({
     aggregators: [
-      // { provider: "odos", config: {} },
+      { provider: "odos", config: {} },
       { provider: "kyberswap", config: { clientId: "smal" } },
-      // { provider: "0x", config: { apiKey: process.env.ZEROX_API_KEY || "" } },
+      { provider: "0x", config: { apiKey: process.env.ZEROX_API_KEY || "" } },
     ],
   });
 

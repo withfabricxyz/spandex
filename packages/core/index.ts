@@ -1,9 +1,9 @@
-import { MetaAggregator } from "./lib/aggregator";
-import { ZeroXAggregator } from "./lib/aggregators/0x";
-import { FabricAggregator } from "./lib/aggregators/fabric";
-import { KyberAggregator } from "./lib/aggregators/kyber";
-import { OdosAggregator } from "./lib/aggregators/odos";
-import type { AggregatorConfig, MetaAggregatorConfig } from "./lib/types";
+import { MetaAggregator } from "./lib/aggregator.js";
+import { ZeroXAggregator } from "./lib/aggregators/0x.js";
+import { FabricAggregator } from "./lib/aggregators/fabric.js";
+import { KyberAggregator } from "./lib/aggregators/kyber.js";
+import { OdosAggregator } from "./lib/aggregators/odos.js";
+import type { AggregatorConfig, MetaAggregatorConfig } from "./lib/types.js";
 
 // Extract required and optional environment variables
 const zeroXApiKey = process.env.QUOTER_0X_API_KEY;
@@ -89,5 +89,5 @@ export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregato
   return new MetaAggregator([]);
 }
 
-export { MetaAggregator } from "./lib/aggregator";
-export type * from "./lib/types";
+export { MetaAggregator } from "./lib/aggregator.js";
+export type * from "./lib/types.js";

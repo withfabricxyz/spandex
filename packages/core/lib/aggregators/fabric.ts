@@ -1,5 +1,5 @@
 import type { Hex } from "viem";
-import { Aggregator } from "../aggregator";
+import { Aggregator } from "../aggregator.js";
 import {
   type Address,
   type ProviderKey,
@@ -7,21 +7,9 @@ import {
   type RouteGraph,
   type SuccessfulQuote,
   type SwapParams,
-} from "../types";
+} from "../types.js";
 
 const FABRIC_BASE_URL = process.env.FABRIC_BASE_URL || "http://booda.defi.withfabric.xyz";
-
-type FabricQuoteRequest = {
-  chainId: number;
-  sellToken: Address;
-  buyToken: Address;
-  sellAmount?: string;
-  buyAmount?: string;
-  feeBps?: number;
-  feeRecipient?: Address;
-  slippageBps?: number;
-  receiver?: Address;
-};
 
 export type FabricQuoteResponse = {
   blockNumber: number;

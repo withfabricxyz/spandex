@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils";
-import { OdosAggregator, odosRouteGraph } from "./odos";
+import { defaultSwapParams } from "../../test/utils.js";
+import { OdosAggregator, odosRouteGraph } from "./odos.js";
 
 describe("Odos", () => {
   it("generates a quote", async () => {

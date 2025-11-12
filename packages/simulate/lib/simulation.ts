@@ -2,14 +2,14 @@ import type { QuoteTxData } from "@withfabric/smal";
 import type { Address, PublicClient } from "viem";
 import { encodeFunctionData, erc20Abi, keccak256, pad, parseEther } from "viem";
 import { simulateCalls } from "viem/actions";
-import type { SimulationResult } from "./SimulatedMetaAggregator/types";
+import type { SimulationResult } from "./SimulatedMetaAggregator/types.js";
 
 type SimulateSwapParams = QuoteTxData & {
   from: Address;
   tokenIn: Address;
   tokenOut: Address;
   amountIn: bigint;
-  stateOverrides?: unknown[],
+  stateOverrides?: unknown[];
   // stateOverride: bool
   balanceOverride?: bigint;
 };

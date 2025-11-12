@@ -1,4 +1,4 @@
-import { Aggregator } from "../aggregator";
+import { Aggregator } from "../aggregator.js";
 import {
   type PoolEdge,
   type ProviderKey,
@@ -6,7 +6,7 @@ import {
   type RouteGraph,
   type SuccessfulQuote,
   type SwapParams,
-} from "../types";
+} from "../types.js";
 
 const chainNameLookup: Record<number, string> = {
   8453: "base", // Base Mainnet
@@ -64,7 +64,7 @@ export class KyberAggregator extends Aggregator {
     };
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // biome-ignore lint/suspicious/noExplicitAny: temporary
   private async getRoute(query: SwapParams): Promise<any> {
     const chain = chainNameLookup[query.chainId];
     const params = new URLSearchParams({
@@ -95,7 +95,9 @@ export class KyberAggregator extends Aggregator {
   }
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: temporary todo
 export function kyberRouteGraph(response: any): RouteGraph {
+  // biome-ignore lint/suspicious/noExplicitAny: temporary todo
   const nodes = Object.values(response.tokens as Record<string, any>).map((token) => ({
     address: token.address,
     symbol: token.symbol,
@@ -110,7 +112,8 @@ export function kyberRouteGraph(response: any): RouteGraph {
   };
 }
 
-export function extractEdges(swaps: any): PoolEdge[] {
+// biome-ignore lint/suspicious/noExplicitAny: temporary todo
+function extractEdges(swaps: any): PoolEdge[] {
   let result: PoolEdge[] = [];
   if (Array.isArray(swaps)) {
     for (const item of swaps) {

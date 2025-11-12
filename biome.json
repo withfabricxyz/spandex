@@ -1,8 +1,10 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "maxSize": 2097152
+    "maxSize": 2097152,
+    "includes": ["**/*.ts", "!**/node_modules", "!**/dist"]
   },
+
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,

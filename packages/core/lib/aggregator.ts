@@ -1,4 +1,4 @@
-import type { ProviderKey, Quote, QuoteError, SuccessfulQuote, SwapParams } from "./types";
+import type { ProviderKey, Quote, QuoteError, SuccessfulQuote, SwapParams } from "./types.js";
 
 export abstract class Aggregator {
   abstract fetchQuote(params: SwapParams): Promise<SuccessfulQuote>;

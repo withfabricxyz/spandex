@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils";
-import { FabricAggregator, fabricRouteGraph } from "./fabric";
+import { defaultSwapParams } from "../../test/utils.js";
+import { FabricAggregator, fabricRouteGraph } from "./fabric.js";
 
 describe("Fabric Router API test", () => {
   it("generates a quote", async () => {

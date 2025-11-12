@@ -1,8 +1,8 @@
-import type { MetaAggregator } from "@withfabric/smal/lib/aggregator";
+import type { MetaAggregator } from "@withfabric/smal";
 import type { SuccessfulQuote, SwapParams } from "@withfabric/smal/lib/types";
 import type { PublicClient } from "viem";
-import { simulateSwap } from "../simulation";
-import type { SimulationResult } from "./types";
+import { simulateSwap } from "../simulation.js";
+import type { SimulationResult } from "./types.js";
 
 export type SimulatedQuote = SuccessfulQuote & {
   simulation: SimulationResult;

@@ -1,7 +1,7 @@
-import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x";
-import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric";
-import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber";
-import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos";
+import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x.js";
+import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js";
+import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
+import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
 
 export type Address = `0x${string}`;
 
@@ -64,7 +64,6 @@ export type SwapParams = {
 };
 
 // TODO: We need union for exact_out style quoting
-
 
 export type QuoteTxData = {
   to: Address;

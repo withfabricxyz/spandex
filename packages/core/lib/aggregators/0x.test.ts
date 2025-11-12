@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils";
-import { ZeroXAggregator } from "./0x";
+import { defaultSwapParams } from "../../test/utils.js";
+import { ZeroXAggregator } from "./0x.js";
 
 describe("0x API test", () => {
   it("generates a quote", async () => {
