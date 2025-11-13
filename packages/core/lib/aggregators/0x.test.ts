@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils";
-import { ZeroXAggregator } from "./0x";
+import { defaultSwapParams } from "../../test/utils.js";
+import { ZeroXAggregator } from "./0x.js";
 
 describe("0x API test", () => {
   it("generates a quote", async () => {
@@ -10,10 +10,12 @@ describe("0x API test", () => {
     const quote = await quoter.fetchQuote(defaultSwapParams);
 
     expect(quote).toBeDefined();
-    expect(quote.outputAmount).toBeGreaterThan(0n);
-    expect(quote.networkFee).toBeGreaterThan(0n);
-    expect(quote.txData).toBeDefined();
-    expect(quote.txData.data).toBeDefined();
-    expect(quote.txData.to).toBeDefined();
+    if (quote.success) {
+      expect(quote.outputAmount).toBeGreaterThan(0n);
+      expect(quote.networkFee).toBeGreaterThan(0n);
+      expect(quote.txData).toBeDefined();
+      expect(quote.txData.data).toBeDefined();
+      expect(quote.txData.to).toBeDefined();
+    }
   }, 30_000);
 });

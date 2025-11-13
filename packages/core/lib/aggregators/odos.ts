@@ -1,4 +1,4 @@
-import { Aggregator } from "../aggregator";
+import { Aggregator } from "../aggregator.js";
 import {
   type PoolEdge,
   type ProviderKey,
@@ -6,7 +6,7 @@ import {
   type RouteGraph,
   type SuccessfulQuote,
   type SwapParams,
-} from "../types";
+} from "../types.js";
 
 export type OdosConfig = {
   referralCode?: number;
@@ -44,8 +44,7 @@ export type OdosQuoteResponse = {
 };
 
 export class OdosAggregator extends Aggregator {
-  // biome-ignore lint/correctness/noUnusedFunctionParameters: unused for now
-  constructor(config: OdosConfig = {}) {
+  constructor(private readonly config: OdosConfig = {}) {
     super();
   }
 
@@ -58,7 +57,7 @@ export class OdosAggregator extends Aggregator {
    * 1. generate a quote to get a pathId
    * 2. assemble the tx using the pathId
    */
-  async fetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
+  protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.getQuote(request);
     // TODO: is this right? copied from kyber
     const networkFee =
@@ -105,6 +104,7 @@ export class OdosAggregator extends Aggregator {
       slippageLimitPercent: slippageBps / 100,
       userAddr: swapperAccount,
       compact: true,
+      referralCode: this.config.referralCode,
     };
 
     const response = await fetch("https://api.odos.xyz/sor/quote/v2", {

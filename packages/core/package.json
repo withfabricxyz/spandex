@@ -1,19 +1,39 @@
 {
   "name": "@withfabric/smal",
   "version": "0.1.0",
-  "description": "A library for quoting swaps on various DEXs via aggregators",
-  "module": "index.ts",
+  "description": "Library for finding the best swap prices across all DEXs",
   "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "typings": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./lib/*": {
+      "types": "./dist/types/lib/*.d.ts",
+      "import": "./dist/esm/lib/*.js",
+      "require": "./dist/cjs/lib/*.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "bun build index.ts --outdir=dist --target=es2024 --external:typescript",
-    "test": "bun test"
+    "build": "bun ../../scripts/build-packages.ts core"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.4",
-    "@types/bun": "latest",
-    "viem": "^2.37.7"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": ">=5.0.4"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
   }
 }

@@ -1,14 +1,21 @@
 {
-  "name": "@withfabric/smal",
-  "version": "0.1.0",
+  "private": true,
   "description": "SMAL Meta Aggregator Library - Get the best swap rates across multiple DEXs and aggregators",
   "workspaces": [
-    "packages/*"
+    "packages/core",
+    "packages/simulate"
   ],
-  "private": true,
   "scripts": {
-    "build": "bun build index.ts --outdir=dist --target=es2024 --external:typescript",
     "lint": "biome check --formatter-enabled=true --linter-enabled=true",
-    "lint:fix": "biome check --formatter-enabled=true --linter-enabled=true --write --unsafe ./"
+    "lint:fix": "biome check --formatter-enabled=true --linter-enabled=true --write --unsafe ./",
+    "build": "bun ./scripts/build-packages.ts",
+    "build:core": "bun ./scripts/build-packages.ts core",
+    "build:simulate": "bun ./scripts/build-packages.ts simulate"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@biomejs/biome": "2.2.4",
+    "typescript": "^5.3.3",
+    "@types/node": "^24.10.1"
   }
 }

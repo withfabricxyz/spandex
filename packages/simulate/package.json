@@ -1,0 +1,30 @@
+{
+  "name": "@withfabric/smal-simulate",
+  "version": "0.1.0",
+  "description": "simulate swap outcomes",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "bun ../../scripts/build-packages.ts simulate",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "dependencies": {
+    "@withfabric/smal": "workspace:*",
+    "viem": "^2"
+  }
+}

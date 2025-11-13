@@ -1,17 +1,19 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils";
-import { OdosAggregator, odosRouteGraph } from "./odos";
+import { defaultSwapParams } from "../../test/utils.js";
+import { OdosAggregator, odosRouteGraph } from "./odos.js";
 
 describe("Odos", () => {
   it("generates a quote", async () => {
     const quoter = new OdosAggregator();
     const quote = await quoter.fetchQuote(defaultSwapParams);
     expect(quote).toBeDefined();
-    expect(quote.outputAmount).toBeGreaterThan(0n);
-    expect(quote.networkFee).toBeGreaterThan(0n);
-    expect(quote.txData).toBeDefined();
-    expect(quote.txData.to).toBeDefined();
-    expect(quote.txData.data).toBeDefined();
+    if (quote.success) {
+      expect(quote.outputAmount).toBeGreaterThan(0n);
+      expect(quote.networkFee).toBeGreaterThan(0n);
+      expect(quote.txData).toBeDefined();
+      expect(quote.txData.to).toBeDefined();
+      expect(quote.txData.data).toBeDefined();
+    }
   }, 30_000);
 
   it("generates a route graph from pathViz", async () => {

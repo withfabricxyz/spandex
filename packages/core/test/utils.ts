@@ -1,11 +1,5 @@
-import { createPublicClient, http } from "viem";
-import { base } from "viem/chains";
-import type { SwapParams } from "../lib/types";
-
-export const baseClient = createPublicClient({
-  chain: base,
-  transport: http(`https://rpc.ankr.com/base/${process.env.ANKR_API_KEY}`),
-});
+import { Aggregator } from "../lib/aggregator.js";
+import type { ProviderKey, Quote, SuccessfulQuote, SwapParams } from "../lib/types.js";
 
 export const defaultSwapParams: SwapParams = {
   chainId: 8453,
@@ -15,3 +9,26 @@ export const defaultSwapParams: SwapParams = {
   slippageBps: 100,
   swapperAccount: "0xdead00000000000000000000000000000000beef",
 };
+
+export class MockAggregator extends Aggregator {
+  private counter = 0;
+  constructor(private readonly quote: Quote) {
+    super();
+  }
+
+  get count() {
+    return this.counter;
+  }
+
+  name(): ProviderKey {
+    return this.quote.provider;
+  }
+
+  async tryFetchQuote(_: SwapParams): Promise<SuccessfulQuote> {
+    this.counter++;
+    if (!this.quote.success) {
+      throw new Error("Failed to fetch quote");
+    }
+    return this.quote as SuccessfulQuote;
+  }
+}

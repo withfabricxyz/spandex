@@ -1,11 +1,11 @@
-import { Aggregator } from "../aggregator";
+import { Aggregator } from "../aggregator.js";
 import {
   type ProviderKey,
   QuoteError,
   type RouteGraph,
   type SuccessfulQuote,
   type SwapParams,
-} from "../types";
+} from "../types.js";
 
 export type ZeroXConfig = {
   apiKey: string;
@@ -24,7 +24,7 @@ export class ZeroXAggregator extends Aggregator {
     return "0x";
   }
 
-  async fetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
+  protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.makeRequest(request);
 
     return {
@@ -43,7 +43,7 @@ export class ZeroXAggregator extends Aggregator {
     };
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // biome-ignore lint/suspicious/noExplicitAny: temporary
   private async makeRequest(request: SwapParams): Promise<any> {
     if (!this.config.apiKey) {
       throw new Error("0x API key is not set. Please set the ZEROX_API_KEY environment variable.");
@@ -82,25 +82,5 @@ function zeroXRouteGraph(_quote: ZeroXQuoteResponse): RouteGraph {
     nodes: [],
     edges: [],
   };
-  // const route = quote.route;
-
-  // const nodes = Object.entries(quote.tokens).map(([address, token]) => ({
-  //   address: address as Address,
-  //   symbol: token.symbol,
-  //   decimals: token.decimals,
-  // }));
-
-  // // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  // const edges = (route as any[]).map((hop) => ({
-  //   source: hop.token_in,
-  //   target: hop.token_out,
-  //   address: hop.pool,
-  //   key: hop.pool,
-  //   value: Number(hop.amount_in),
-  // }));
-
-  // return {
-  //   nodes,
-  //   edges,
-  // };
+  // TODO
 }

@@ -1,9 +1,10 @@
-import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x";
-import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric";
-import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber";
-import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos";
+import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x.js";
+import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js";
+import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
+import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
 
 export type Address = `0x${string}`;
+export type Hex = `0x${string}`;
 
 export type ProviderKey = "fabric" | "0x" | "kyberswap" | "odos";
 
@@ -63,6 +64,8 @@ export type SwapParams = {
   swapperAccount: Address;
 };
 
+// TODO: We need union for exact_out style quoting
+
 export type QuoteTxData = {
   to: Address;
   data: `0x${string}`;
@@ -89,8 +92,29 @@ export type RouteGraph = {
   edges: PoolEdge[];
 };
 
-/// Aggregator config and types
+export type AggregationOptions = {
+  /// The timeout for each individual aggregator request
+  timeoutMs?: number;
+  /// The number of retries for each individual aggregator request
+  numRetries?: number;
+  /// The initial delay between retries for each individual aggregator request, subsequently doubled for exponential backoff
+  initialRetryDelayMs?: number;
+};
+
+export type QuoteSelectionFn = (quotes: Array<Promise<Quote>>) => Promise<SuccessfulQuote | null>;
+export type QuoteSelectionName = "fastest" | "quotedPrice" | "quotedGas" | "priority";
+export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;
+
+export type MetaAggregationOptions = AggregationOptions & {
+  /// The strategy to use for selecting the best quote (only applies to methods returning a single quote)
+  strategy?: QuoteSelectionStrategy;
+  /// The maximum time to wait for the entire aggregation process
+  deadlineMs?: number;
+};
 
 export type MetaAggregatorConfig = {
+  /// The list of aggregators to use in the meta-aggregator
   aggregators: AggregatorConfig[];
+  /// Default options for meta-aggregation and individual aggregators
+  defaults?: MetaAggregationOptions;
 };
