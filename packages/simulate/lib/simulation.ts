@@ -1,4 +1,4 @@
-import type { Quote, SuccessfulQuote, SwapParams } from "@withfabric/smal";
+import type { Quote, SwapParams } from "@withfabric/smal";
 import type { PublicClient } from "viem";
 import { encodeFunctionData, erc20Abi, zeroAddress } from "viem";
 import { simulateCalls } from "viem/actions";
@@ -56,10 +56,10 @@ export async function simulateQuotes({
 }: {
   params: SwapParams;
   client: PublicClient;
-  quotes: SuccessfulQuote[];
+  quotes: Quote[];
 }): Promise<SimulatedQuote[]> {
   return Promise.all(
-    quotes.map(async (quote: SuccessfulQuote) => {
+    quotes.map(async (quote: Quote) => {
       const result = await simulateSwap({
         client,
         params,
