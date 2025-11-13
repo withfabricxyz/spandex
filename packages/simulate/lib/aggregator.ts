@@ -1,7 +1,7 @@
 import type { MetaAggregator } from "@withfabric/smal";
 import type { SuccessfulQuote, SwapParams } from "@withfabric/smal/lib/types";
 import type { PublicClient } from "viem";
-import { simulateSwap } from "../simulation.js";
+import { simulateSwap } from "./simulation.js";
 import type { SimulationResult } from "./types.js";
 
 export type SimulatedQuote = SuccessfulQuote & {
@@ -23,14 +23,10 @@ export class SimulatedMetaAggregator {
 
     const simulatedQuotes = await Promise.all(
       quotes.map(async (quote: SuccessfulQuote) => {
-        const simulation = await simulateSwap(this.client, {
-          from: params.swapperAccount,
-          to: quote.txData.to,
-          data: quote.txData.data,
-          value: quote.txData.value,
-          tokenIn: params.inputToken,
-          tokenOut: params.outputToken,
-          amountIn: params.inputAmount,
+        const simulation = await simulateSwap({
+          client: this.client,
+          params,
+          quote,
         });
 
         return {

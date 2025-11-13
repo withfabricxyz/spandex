@@ -1,3 +1,4 @@
+import type { Quote } from "@withfabric/smal";
 import type { SimulateCallsReturnType } from "viem";
 
 export type SimulationResult =
@@ -11,3 +12,7 @@ export type SimulationResult =
       success: false;
       error: string;
     };
+
+export type SimulatedQuote = Quote & {
+  simulation: SimulationResult;
+};

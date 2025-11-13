@@ -1,17 +1,17 @@
-import type { QuoteTxData } from "@withfabric/smal";
-import type { Address, PublicClient } from "viem";
+import type { Quote, SuccessfulQuote, SwapParams } from "@withfabric/smal";
+import type { PublicClient } from "viem";
 import { encodeFunctionData, erc20Abi, zeroAddress } from "viem";
 import { simulateCalls } from "viem/actions";
-import type { SimulationResult } from "./SimulatedMetaAggregator/types.js";
+import type { SimulationResult } from "./types.js";
 
-type SimulateSwapParams = QuoteTxData & {
-  from: Address;
-  tokenIn: Address;
-  tokenOut: Address;
-  amountIn: bigint;
-  stateOverrides?: unknown[];
-  balanceOverride?: bigint;
-};
+// type SimulateSwapParams = QuoteTxData & {
+//   from: Address;
+//   tokenIn: Address;
+//   tokenOut: Address;
+//   amountIn: bigint;
+//   stateOverrides?: unknown[];
+//   balanceOverride?: bigint;
+// };
 
 // TODO: Fetch output balance once for a batch of simulations to reduce RPC calls
 // TODO: Fetch storage slot once for a batch of simulations to reduce RPC calls
@@ -49,14 +49,45 @@ type SimulateSwapParams = QuoteTxData & {
 //     },
 //   ];
 // }
+export async function simulateQuotes({
+  params,
+  client,
+  quotes,
+}: {
+  params: SwapParams;
+  client: PublicClient;
+  quotes: SuccessfulQuote[];
+}): Promise<SimulationResult[]> {
+  return Promise.all(
+    quotes.map(async (quote: SuccessfulQuote) => {
+      return simulateSwap({
+        client,
+        params,
+        quote,
+      });
+    }),
+  );
+}
 
-export async function simulateSwap(
-  client: PublicClient,
-  params: SimulateSwapParams,
-): Promise<SimulationResult> {
+export async function simulateSwap({
+  client,
+  params,
+  quote,
+}: {
+  client: PublicClient;
+  params: SwapParams;
+  quote: Quote;
+}): Promise<SimulationResult> {
+  if (!quote.success) {
+    return {
+      success: false,
+      error: "Cannot simulate failed quote",
+    };
+  }
+
   try {
-    const isERC20In = params.tokenIn !== zeroAddress;
-    const isERC20Out = params.tokenOut !== zeroAddress;
+    const isERC20In = params.inputToken !== zeroAddress;
+    const isERC20Out = params.outputToken !== zeroAddress;
     // const stateOverrides = prepareStateOverrides(params.tokenIn, params.from, params.amountIn);
 
     // number and order of calls depends on whether tokenIn and tokenOut are ERC20 or native
@@ -71,11 +102,11 @@ export async function simulateSwap(
       approveIdx = 0;
 
       calls.push({
-        to: params.tokenIn,
+        to: params.inputToken,
         data: encodeFunctionData({
           abi: erc20Abi,
           functionName: "approve",
-          args: [params.to, params.amountIn],
+          args: [quote.txData.to, params.inputAmount],
         }),
         value: undefined,
       });
@@ -84,11 +115,7 @@ export async function simulateSwap(
     // swap always gets called
     swapIdx = calls.length;
 
-    calls.push({
-      to: params.to,
-      data: params.data,
-      value: params.value,
-    });
+    calls.push(quote.txData);
 
     // if ERC20 out, call balanceOf after swap so that the asset gets "touched" and is tracked in assetChanges
     // ERC20's don't otherwise get included in the assetResults list - i'm not sure why, something to do with to/from/spender?
@@ -97,18 +124,18 @@ export async function simulateSwap(
       balanceIdx = calls.length;
 
       calls.push({
-        to: params.tokenOut,
+        to: params.outputToken,
         data: encodeFunctionData({
           abi: erc20Abi,
           functionName: "balanceOf",
-          args: [params.from],
+          args: [params.swapperAccount],
         }),
         value: undefined,
       });
     }
 
     const result = await simulateCalls(client, {
-      account: params.from,
+      account: params.swapperAccount,
       calls,
       // stateOverrides,
       traceAssetChanges: true,
@@ -148,7 +175,7 @@ export async function simulateSwap(
     }
 
     const nativeAddr = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"; // this not being zeroAddress in the assetChanges list had me stuck for a while
-    const outputAssetAddress = !isERC20Out ? nativeAddr : params.tokenOut;
+    const outputAssetAddress = !isERC20Out ? nativeAddr : params.outputToken;
     const outputAsset = result.assetChanges.find(
       (asset) => asset.token.address.toLowerCase() === outputAssetAddress.toLowerCase(),
     );

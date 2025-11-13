@@ -3,7 +3,7 @@ import { buildMetaAggregator, type SwapParams } from "@withfabric/smal";
 import type { PublicClient } from "viem";
 import { createPublicClient, http, zeroAddress } from "viem";
 import { base } from "viem/chains";
-import { SimulatedMetaAggregator } from "./index.js";
+import { SimulatedMetaAggregator } from "./aggregator.js";
 
 const defaultSwapParams: SwapParams = {
   chainId: 8453,
