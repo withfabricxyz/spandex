@@ -10,7 +10,6 @@ type SimulateSwapParams = QuoteTxData & {
   tokenOut: Address;
   amountIn: bigint;
   stateOverrides?: unknown[];
-  // stateOverride: bool
   balanceOverride?: bigint;
 };
 
@@ -51,25 +50,6 @@ type SimulateSwapParams = QuoteTxData & {
 //   ];
 // }
 
-async function getTokenBalance(
-  client: PublicClient,
-  tokenAddress: Address,
-  ownerAddress: Address,
-): Promise<bigint> {
-  // for ETH, no erc20 call
-  if (tokenAddress === zeroAddress) {
-    return client.getBalance({ address: ownerAddress, blockTag: "latest" });
-  }
-
-  return (await client.readContract({
-    address: tokenAddress,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: [ownerAddress],
-    blockTag: "latest",
-  })) as bigint;
-}
-
 export async function simulateSwap(
   client: PublicClient,
   params: SimulateSwapParams,
@@ -78,7 +58,6 @@ export async function simulateSwap(
     const isERC20In = params.tokenIn !== zeroAddress;
     const isERC20Out = params.tokenOut !== zeroAddress;
     // const stateOverrides = prepareStateOverrides(params.tokenIn, params.from, params.amountIn);
-    const preBalance = await getTokenBalance(client, params.tokenOut, params.from);
 
     // number and order of calls depends on whether tokenIn and tokenOut are ERC20 or native
     const calls = [];
@@ -169,17 +148,17 @@ export async function simulateSwap(
     }
 
     const nativeAddr = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"; // this not being zeroAddress in the assetChanges list had me stuck for a while
-    const outputAssetAddress = params.tokenOut === zeroAddress ? nativeAddr : params.tokenOut;
+    const outputAssetAddress = !isERC20Out ? nativeAddr : params.tokenOut;
     const outputAsset = result.assetChanges.find(
       (asset) => asset.token.address.toLowerCase() === outputAssetAddress.toLowerCase(),
     );
-    const postBalance = outputAsset?.value.post ?? 0n;
-    const outputAmount = postBalance - preBalance;
+
+    const postBalance = outputAsset?.value.diff ?? 0n;
     const gasUsed = result.results[swapIdx]?.gasUsed;
 
     return {
       success: true,
-      outputAmount,
+      outputAmount: postBalance,
       callsResults: result.results,
       gasUsed,
     };

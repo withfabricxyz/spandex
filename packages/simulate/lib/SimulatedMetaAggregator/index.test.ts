@@ -60,8 +60,8 @@ describe("SimulatedMetaAggregator", () => {
       console.table(
         successful.map((quote) => ({
           provider: quote.provider,
-          outputAmount: quote.simulation.success ? quote.simulation.outputAmount.toString() : "N/A",
-          gasUsed: quote.simulation.success ? quote.simulation.gasUsed?.toString() : "N/A",
+          outputAmount: quote.simulation.success ? quote.simulation.outputAmount : "N/A",
+          gasUsed: quote.simulation.success ? quote.simulation.gasUsed : "N/A",
         })),
       );
     }
@@ -121,6 +121,16 @@ describe("SimulatedMetaAggregator", () => {
     expect(quotes).toBeDefined();
     expect(successful.length).toBeGreaterThan(0);
 
+    console.log("\nERC20 -> ETH swap results:");
+    console.table(
+      successful.map((quote) => ({
+        provider: quote.provider,
+        quote: quote.outputAmount,
+        actual: quote.simulation.success ? quote.simulation.outputAmount : "N/A",
+        diff: quote.simulation.success ? quote.simulation.outputAmount - quote.outputAmount : "N/A",
+      })),
+    );
+
     for (const quote of successful) {
       expect(quote.simulation).toBeDefined();
       expect(typeof quote.simulation.success).toBe("boolean");
@@ -132,7 +142,7 @@ describe("SimulatedMetaAggregator", () => {
         expect(quote.simulation.callsResults.every((res) => res.status === "success")).toBe(true);
         expect(quote.simulation.gasUsed).toBeDefined();
 
-        const tolerance = (quote.outputAmount * 5000n) / 10000n; // output within 50%
+        const tolerance = (quote.outputAmount * 500n) / 10000n; // output within 5%
         expect(quote.simulation.outputAmount).toBeGreaterThanOrEqual(
           quote.outputAmount - tolerance,
         );
@@ -164,6 +174,16 @@ describe("SimulatedMetaAggregator", () => {
 
     expect(successful.length).toBeGreaterThan(0);
 
+    console.log("\nERC20 -> ETH swap results:");
+    console.table(
+      successful.map((quote) => ({
+        provider: quote.provider,
+        quote: quote.outputAmount,
+        actual: quote.simulation.success ? quote.simulation.outputAmount : "N/A",
+        diff: quote.simulation.success ? quote.simulation.outputAmount - quote.outputAmount : "N/A",
+      })),
+    );
+
     for (const quote of successful) {
       expect(quote.simulation).toBeDefined();
       expect(typeof quote.simulation.success).toBe("boolean");
@@ -175,7 +195,7 @@ describe("SimulatedMetaAggregator", () => {
         expect(quote.simulation.callsResults.every((res) => res.status === "success")).toBe(true);
         expect(quote.simulation.gasUsed).toBeDefined();
 
-        const tolerance = (quote.outputAmount * 5000n) / 10000n; // output within 50%
+        const tolerance = (quote.outputAmount * 500n) / 10000n; // output within 5%
         expect(quote.simulation.outputAmount).toBeGreaterThanOrEqual(
           quote.outputAmount - tolerance,
         );
