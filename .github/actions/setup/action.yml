@@ -1,0 +1,14 @@
+name: "Setup action"
+description: "Setup repository and install deps"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+    - uses: actions/setup-node@v6
+      with:
+        node-version: 24
+    - name: Install deps
+      run: bun install

@@ -8,14 +8,15 @@
   "scripts": {
     "lint": "biome check --formatter-enabled=true --linter-enabled=true",
     "lint:fix": "biome check --formatter-enabled=true --linter-enabled=true --write --unsafe ./",
-    "build": "bun ./scripts/build-packages.ts",
-    "build:core": "bun ./scripts/build-packages.ts core",
-    "build:simulate": "bun ./scripts/build-packages.ts simulate"
+    "build": "bun ./scripts/build-packages.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@biomejs/biome": "2.2.4",
     "typescript": "^5.3.3",
     "@types/node": "^24.10.1"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.29.7"
   }
 }

@@ -1,38 +1,44 @@
 name: QA
 on:
+  workflow_call:
+  workflow_dispatch:
   push:
 
 jobs:
-  verify:
-    name: Style and Audit
+  lint:
+    name: Audit, Lint & Format
     runs-on: ubuntu-latest
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - name: Install deps
-        run: bun install
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Audit dependencies
         run: bun audit
       - name: Lint & Format
         run: bun run lint
 
-  test:
-    name: Build and Test
+  build:
+    name: Build
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - name: Install deps
-        run: bun install
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Build packages
         run: bun run build
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Run tests
         run: bun test
         env:
