@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { defaultSwapParams, MockAggregator } from "../test/utils.ts";
 import { MetaAggregator } from "./aggregator.js";
 import type { FabricQuoteResponse } from "./aggregators/fabric.js";
-import type { Quote } from "./types.js";
+import type { Quote, QuoteError } from "./types.js";
 
 const quoteSuccess: Quote = {
   success: true,
@@ -32,7 +32,7 @@ describe("aggregator", () => {
         numRetries: 0,
       },
     );
-    const quotes = await Promise.all(quoter.fetchAllQuotes(defaultSwapParams));
+    const quotes = await Promise.all(quoter.prepareQuotes(defaultSwapParams));
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(2);
     expect(quotes[0]?.success).toBe(true);
@@ -94,5 +94,24 @@ describe("aggregator", () => {
     expect(quotes.length).toBe(0);
     expect(failingAggregator.count).toBe(4); // 1 initial try + 3 retries
     expect(end - start).toBeGreaterThanOrEqual(5 + 10 + 20); // 5 + 10 ms delays
+  }, 10_000);
+
+  it("respects the deadline", async () => {
+    const failingAggregator = new MockAggregator(quoteFailure, 200);
+    const quoter = new MetaAggregator([failingAggregator], {
+      numRetries: 1,
+      deadlineMs: 50,
+    });
+    const start = Date.now();
+    const quotes = await quoter.fetchAllQuotes(defaultSwapParams);
+    const end = Date.now();
+    expect(quotes).toBeDefined();
+    expect(quotes.length).toBe(1);
+    expect(failingAggregator.count).toBe(1); // 1 initial try + 3 retries
+    expect(end - start).toBeGreaterThanOrEqual(50); // 5 + 10 ms delays
+    expect(quotes[0]?.success).toBe(false);
+    expect((quotes[0] as unknown as QuoteError).message).toMatch(
+      /MetaAggregator deadline exceeded/,
+    );
   }, 10_000);
 });

@@ -15,6 +15,8 @@ const DEFAULT_RETRIES = 1;
 const MIN_INITIAL_DELAY_MS = 20;
 const MAX_INITIAL_DELAY_MS = 10_000;
 const DEFAULT_INITIAL_DELAY_MS = 500;
+const MIN_DEADLINE_MS = 100;
+const MAX_DEADLINE_MS = 60_000;
 
 export abstract class Aggregator {
   protected abstract tryFetchQuote(params: SwapParams): Promise<SuccessfulQuote>;
@@ -84,7 +86,7 @@ export class MetaAggregator {
   ): Promise<SuccessfulQuote | null> {
     return applyStrategy(
       overrides?.strategy ?? this.defaults?.strategy ?? "quotedPrice",
-      this.fetchAllQuotes(params, overrides),
+      this.prepareQuotes(params, overrides),
     );
   }
 
@@ -92,12 +94,12 @@ export class MetaAggregator {
     params: SwapParams,
     overrides?: MetaAggregationOptions,
   ): Promise<SuccessfulQuote[]> {
-    const quotes = await Promise.all(this.fetchAllQuotes(params, overrides));
-    const successfulQuotes = quotes.filter((q) => q.success) as SuccessfulQuote[];
+    const quotes = await Promise.all(this.prepareQuotes(params, overrides));
+    return quotes.filter((q) => q.success) as SuccessfulQuote[];
+  }
 
-    return successfulQuotes.sort((a, b) => {
-      return Number(b.outputAmount - a.outputAmount);
-    });
+  async fetchAllQuotes(params: SwapParams, overrides?: MetaAggregationOptions): Promise<Quote[]> {
+    return Promise.all(this.prepareQuotes(params, overrides));
   }
 
   /*
@@ -105,14 +107,34 @@ export class MetaAggregator {
    * @param params Swap parameters
    * @returns Array of Promises resolving to Quote
    */
-  fetchAllQuotes(params: SwapParams, overrides?: MetaAggregationOptions): Array<Promise<Quote>> {
+  prepareQuotes(params: SwapParams, overrides?: MetaAggregationOptions): Array<Promise<Quote>> {
     const options = { ...this.defaults, ...overrides };
-
-    // TODO: Pass important options like timeouts, retries, etc.
-    // Extract the the overides
+    const deadlineMs = options.deadlineMs;
+    const deadlineSignal = createDeadlineSignal(deadlineMs);
 
     return this.aggregators.map(async (aggregator) => {
-      return aggregator.fetchQuote(params, options);
+      const quotePromise = aggregator.fetchQuote(params, options);
+      if (!deadlineSignal) {
+        return quotePromise;
+      }
+
+      const deadline = deadlineMs ?? 0;
+      return Promise.race([
+        quotePromise,
+        deadlineSignal.then<Quote>(() => ({
+          success: false,
+          provider: aggregator.name(),
+          message: `MetaAggregator deadline exceeded after ${deadline}ms`,
+        })),
+      ]);
     });
   }
+}
+
+function createDeadlineSignal(deadlineMs?: number): Promise<void> | undefined {
+  return deadlineMs !== undefined
+    ? new Promise((resolve) => {
+        setTimeout(resolve, Math.min(Math.max(deadlineMs, MIN_DEADLINE_MS), MAX_DEADLINE_MS));
+      })
+    : undefined;
 }

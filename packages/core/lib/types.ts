@@ -108,7 +108,7 @@ export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;
 export type MetaAggregationOptions = AggregationOptions & {
   /// The strategy to use for selecting the best quote (only applies to methods returning a single quote)
   strategy?: QuoteSelectionStrategy;
-  /// The maximum time to wait for the entire aggregation process
+  /// The maximum time to wait for the entire aggregation process (pending requests are aborted once this deadline is hit)
   deadlineMs?: number;
 };
 
