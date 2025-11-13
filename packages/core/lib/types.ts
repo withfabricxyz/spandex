@@ -3,118 +3,312 @@ import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js"
 import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
 
+/**
+ * Ethereum-style hexadecimal address literal prefixed with `0x`.
+ */
 export type Address = `0x${string}`;
+
+/**
+ * Generic hexadecimal literal prefixed with `0x`.
+ */
 export type Hex = `0x${string}`;
 
+/**
+ * Keys that identify which provider produced a quote.
+ */
 export type ProviderKey = "fabric" | "0x" | "kyberswap" | "odos";
 
+/**
+ * Basic configuration block shared by all aggregator-specific configs.
+ *
+ * @typeParam P - Provider identifier.
+ * @typeParam T - Config shape for the provider.
+ */
 type GenericAggregatorConfig<P extends ProviderKey, T> = {
+  /**
+   * Name of the provider this config applies to.
+   */
   provider: P;
+  /**
+   * Provider-specific options.
+   */
   config: T;
 };
 
+/**
+ * Configuration union for all supported aggregators.
+ */
 export type AggregatorConfig =
   | GenericAggregatorConfig<"fabric", FabricConfig>
   | GenericAggregatorConfig<"0x", ZeroXConfig>
   | GenericAggregatorConfig<"kyberswap", KyberConfig>
   | GenericAggregatorConfig<"odos", OdosConfig>;
 
-/// Discriminated union types for quote responses and errors
-
+/**
+ * Successful quote shape returned by an individual provider.
+ *
+ * @typeParam P - Provider identifier.
+ * @typeParam T - Raw quote payload returned by the provider.
+ */
 export type GenericQuote<P extends ProviderKey, T> = {
-  success: true; // Quote was successful
-  provider: P; // e.g., "0x", "kyberswap", "fabric"
-  details: T; // Raw quote details from the provider
-  latency: number; // in milliseconds
-  outputAmount: bigint; // in basew units of output token
-  networkFee: bigint; // in wei
-  txData: QuoteTxData; // Common transaction data
-  route?: RouteGraph; // Optional route graph (not all providers supply this)
+  /**
+   * Indicates that the quote succeeded.
+   */
+  success: true;
+  /**
+   * Provider that produced the quote.
+   */
+  provider: P;
+  /**
+   * Raw provider response kept for downstream consumers.
+   */
+  details: T;
+  /**
+   * Round-trip latency in milliseconds.
+   */
+  latency: number;
+  /**
+   * Amount of output token received (denominated in base units).
+   */
+  outputAmount: bigint;
+  /**
+   * Estimated network fee in wei.
+   */
+  networkFee: bigint;
+  /**
+   * Transaction data that can be submitted to perform the swap.
+   */
+  txData: QuoteTxData;
+  /**
+   * Optional route visualization supplied by the provider.
+   */
+  route?: RouteGraph;
 };
 
+/**
+ * Union of successful quote shapes for every supported provider.
+ */
 export type SuccessfulQuote =
   | GenericQuote<"0x", ZeroXQuoteResponse>
   | GenericQuote<"kyberswap", KyberQuoteResponse>
   | GenericQuote<"fabric", FabricQuoteResponse>
   | GenericQuote<"odos", OdosQuoteResponse>;
 
+/**
+ * Custom error used to surface provider-specific failures.
+ */
 export class QuoteError extends Error {
+  /**
+   * Provider-specific error payload.
+   */
   details: unknown;
+
+  /**
+   * Creates a new quote error.
+   *
+   * @param message - Human readable error description.
+   * @param details - Provider response payload for debugging.
+   */
   constructor(message: string, details: unknown) {
     super(message);
     this.details = details;
   }
 }
 
+/**
+ * Failed quote result returned when a provider cannot produce a swap.
+ */
 export type FailedQuote = {
+  /**
+   * Indicates that the quote failed.
+   */
   success: false;
+  /**
+   * Optional structured error returned by the provider.
+   */
   error?: QuoteError;
+  /**
+   * Optional human readable error message.
+   */
   message?: string;
+  /**
+   * Provider that failed to produce a quote.
+   */
   provider: ProviderKey;
 };
 
+/**
+ * Result union representing either a successful or failed quote.
+ */
 export type Quote = SuccessfulQuote | FailedQuote;
 
+/**
+ * Parameters required to request a swap quote.
+ */
 export type SwapParams = {
+  /**
+   * Chain identifier (EIP-155).
+   */
   chainId: number;
+  /**
+   * Address of the token being sold.
+   */
   inputToken: Address;
+  /**
+   * Address of the token being purchased.
+   */
   outputToken: Address;
+  /**
+   * Amount of `inputToken` in base units.
+   */
   inputAmount: bigint;
+  /**
+   * Allowed slippage expressed in basis points.
+   */
   slippageBps: number;
+  /**
+   * Account that will submit the swap transaction.
+   */
   swapperAccount: Address;
 };
 
-// TODO: We need union for exact_out style quoting
-
+/**
+ * Transaction payload emitted alongside a quote.
+ */
 export type QuoteTxData = {
+  /**
+   * Contract address that should receive the call.
+   */
   to: Address;
+  /**
+   * Calldata to execute for the swap.
+   */
   data: `0x${string}`;
+  /**
+   * Optional ETH amount (wei) to send with the transaction.
+   */
   value?: bigint;
 };
 
+/**
+ * Graph node describing a token involved in a swapping route.
+ */
 export type TokenNode = {
+  /**
+   * Token contract address.
+   */
   address: Address;
+  /**
+   * Short ticker symbol when available.
+   */
   symbol?: string;
+  /**
+   * Number of decimals used by the token.
+   */
   decimals?: number;
+  /**
+   * Optional logo URL for UI rendering.
+   */
   logoURI?: string;
 };
 
+/**
+ * Directed edge describing a pool hop between two tokens.
+ */
 export type PoolEdge = {
+  /**
+   * Token being sold on this hop.
+   */
   source: Address;
+  /**
+   * Token received on this hop.
+   */
   target: Address;
+  /**
+   * Liquidity pool contract address.
+   */
   address: Address;
+  /**
+   * Unique identifier for the edge within a route.
+   */
   key: string;
+  /**
+   * Amount routed through the edge (provider-specific units).
+   */
   value: number;
 };
 
+/**
+ * Route visualization returned by some providers.
+ */
 export type RouteGraph = {
+  /**
+   * Tokens involved in the swap path.
+   */
   nodes: TokenNode[];
+  /**
+   * Pool hops connecting the tokens.
+   */
   edges: PoolEdge[];
 };
 
+/**
+ * Options controlling retry and timeout behavior for a single provider.
+ */
 export type AggregationOptions = {
-  /// The timeout for each individual aggregator request
+  /**
+   * Timeout for each individual aggregator request in milliseconds.
+   */
   timeoutMs?: number;
-  /// The number of retries for each individual aggregator request
+  /**
+   * Number of retry attempts per provider.
+   */
   numRetries?: number;
-  /// The initial delay between retries for each individual aggregator request, subsequently doubled for exponential backoff
+  /**
+   * Initial delay before retrying failed requests (exponential backoff applied).
+   */
   initialRetryDelayMs?: number;
 };
 
+/**
+ * Custom strategy function used to pick a winning quote.
+ */
 export type QuoteSelectionFn = (quotes: Array<Promise<Quote>>) => Promise<SuccessfulQuote | null>;
+
+/**
+ * Built-in strategies for ranking quote responses.
+ */
 export type QuoteSelectionName = "fastest" | "quotedPrice" | "quotedGas" | "priority";
+
+/**
+ * Strategy reference, either by name or via custom function.
+ */
 export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;
 
+/**
+ * Options that apply to the meta-aggregator as well as downstream providers.
+ */
 export type MetaAggregationOptions = AggregationOptions & {
-  /// The strategy to use for selecting the best quote (only applies to methods returning a single quote)
+  /**
+   * Strategy used to select the "best" quote when only one should be returned.
+   */
   strategy?: QuoteSelectionStrategy;
-  /// The maximum time to wait for the entire aggregation process (pending requests are aborted once this deadline is hit)
+  /**
+   * Maximum duration for the entire aggregation process before aborting pending requests.
+   */
   deadlineMs?: number;
 };
 
+/**
+ * Configuration for constructing a MetaAggregator instance.
+ */
 export type MetaAggregatorConfig = {
-  /// The list of aggregators to use in the meta-aggregator
+  /**
+   * List of aggregator definitions that should be queried.
+   */
   aggregators: AggregatorConfig[];
-  /// Default options for meta-aggregation and individual aggregators
+  /**
+   * Default options applied to the meta-aggregator and the individual provider calls.
+   */
   defaults?: MetaAggregationOptions;
 };

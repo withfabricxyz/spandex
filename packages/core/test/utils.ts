@@ -1,4 +1,5 @@
 import { Aggregator } from "../lib/aggregator.js";
+import type { FabricQuoteResponse } from "../lib/aggregators/fabric.js";
 import type { ProviderKey, Quote, SuccessfulQuote, SwapParams } from "../lib/types.js";
 
 export const defaultSwapParams: SwapParams = {
@@ -8,6 +9,22 @@ export const defaultSwapParams: SwapParams = {
   inputAmount: 500_000_000n,
   slippageBps: 100,
   swapperAccount: "0xdead00000000000000000000000000000000beef",
+};
+
+export const quoteSuccess: SuccessfulQuote = {
+  success: true,
+  provider: "fabric",
+  details: {} as FabricQuoteResponse,
+  latency: 100,
+  outputAmount: 900_000n,
+  networkFee: 5_000n,
+  txData: { to: "0x0", data: "0x0" },
+};
+
+export const quoteFailure: Quote = {
+  success: false,
+  provider: "fabric",
+  message: "Failed to get quote",
 };
 
 export class MockAggregator extends Aggregator {

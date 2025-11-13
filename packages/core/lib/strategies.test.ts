@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { FabricQuoteResponse } from "./aggregators/fabric.js";
-import { applyStrategy } from "./strategies.ts";
+import { applyStrategy } from "./strategies.js";
 import type { Quote, SuccessfulQuote } from "./types.js";
 
 const quoteSuccess: Quote = {
