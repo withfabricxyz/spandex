@@ -26,5 +26,4 @@ jobs:
         uses: ./.github/actions/setup
       - name: Publish Prerelease
         run: |
-          pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact './src'
+          bunx pkg-pr-new publish --bun './packages/core' './packages/simulate'
