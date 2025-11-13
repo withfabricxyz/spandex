@@ -12,7 +12,10 @@ export const defaultSwapParams: SwapParams = {
 
 export class MockAggregator extends Aggregator {
   private counter = 0;
-  constructor(private readonly quote: Quote) {
+  constructor(
+    private readonly quote: Quote,
+    private delay?: number,
+  ) {
     super();
   }
 
@@ -26,6 +29,10 @@ export class MockAggregator extends Aggregator {
 
   async tryFetchQuote(_: SwapParams): Promise<SuccessfulQuote> {
     this.counter++;
+    if (this.delay) {
+      await new Promise((resolve) => setTimeout(resolve, this.delay));
+    }
+
     if (!this.quote.success) {
       throw new Error("Failed to fetch quote");
     }
