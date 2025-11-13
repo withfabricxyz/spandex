@@ -37,15 +37,27 @@ export type KyberQuoteResponse = {
   outputAmount: string;
 };
 
+/**
+ * Aggregator implementation for the KyberSwap routing API.
+ */
 export class KyberAggregator extends Aggregator {
+  /**
+   * @param config - Kyber-specific configuration, defaulting to the `smal` client id.
+   */
   constructor(private config: KyberConfig = { clientId: "smal" }) {
     super();
   }
 
+  /**
+   * @inheritdoc
+   */
   name(): ProviderKey {
     return "kyberswap";
   }
 
+  /**
+   * @inheritdoc
+   */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.getRoute(request);
     const networkFee =

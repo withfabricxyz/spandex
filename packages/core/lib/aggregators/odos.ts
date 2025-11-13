@@ -43,19 +43,28 @@ export type OdosQuoteResponse = {
   };
 };
 
+/**
+ * Aggregator implementation for the Odos routing API.
+ */
 export class OdosAggregator extends Aggregator {
+  /**
+   * @param config - Optional Odos-specific configuration such as referral codes.
+   */
   constructor(private readonly config: OdosConfig = {}) {
     super();
   }
 
+  /**
+   * @inheritdoc
+   */
   name(): ProviderKey {
     return "odos";
   }
 
-  /*
-   * odos router requires a 2-step approach to get a tx -
-   * 1. generate a quote to get a pathId
-   * 2. assemble the tx using the pathId
+  /**
+   * @inheritdoc
+   *
+   * Odos requires generating a quote to obtain a `pathId`, then assembling the transaction.
    */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.getQuote(request);
@@ -162,7 +171,6 @@ async function assembleOdosTx(
   };
 }
 
-// TODO: make private method?
 export function odosRouteGraph(pathViz: OdosQuoteResponse["pathViz"]): RouteGraph {
   if (!pathViz || !pathViz.nodes || !pathViz.edges) {
     return { nodes: [], edges: [] };

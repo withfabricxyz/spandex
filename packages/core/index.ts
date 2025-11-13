@@ -6,9 +6,11 @@ import { MetaAggregator } from "./lib/meta_aggregator.js";
 import type { AggregatorConfig, MetaAggregatorConfig } from "./lib/types.js";
 
 /**
- * A default MetaAggregator instance with common, high performing providers configured. This may change over time.
+ * Creates a MetaAggregator pre-configured with a curated set of high-performing providers.
  *
- * @returns A MetaAggregator instance with default providers configured.
+ * The default configuration may evolve over time as providers are added or removed.
+ *
+ * @returns MetaAggregator instance with default providers configured.
  */
 export function defaultMetaAggregator(): MetaAggregator {
   const aggregators: AggregatorConfig[] = [
@@ -34,19 +36,23 @@ export function defaultMetaAggregator(): MetaAggregator {
 }
 
 /**
- * Example:
- * const metaAggregator = buildMetaAggregator({
- *   providers: [
- *    { provider: "fabric" },
- *    { provider: "0x", apiKey: "..." },
- *    { provider: "odos" },
+ * Builds a MetaAggregator from the given configuration so multiple providers can be queried for
+ * token swap quotes.
+ *
+ * @param config - Configuration for the meta-aggregator.
+ * @returns MetaAggregator instance that can fetch quotes from the configured providers.
+ * @throws Error if no providers are configured.
+ *
+ * @example
+ * ```ts
+ * const meta = buildMetaAggregator({
+ *   aggregators: [
+ *     { provider: "fabric", config: {} },
+ *     { provider: "0x", config: { apiKey: "..." } },
+ *     { provider: "odos", config: {} },
  *   ],
  * });
- *
- * Build a MetaAggregator from the given config to query multiple providers for token swap quotes.
- * @param config - configuration for the meta-aggregator
- * @returns MetaAggregator instance which can fetch quotes from the configured providers
- * @throws Error if an unknown provider is configured or no providers are given
+ * ```
  */
 export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregator {
   const providers = [];

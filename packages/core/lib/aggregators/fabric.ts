@@ -68,15 +68,27 @@ export type FabricConfig = {
   apiKey?: string;
 };
 
+/**
+ * Aggregator implementation that queries the Fabric routing API.
+ */
 export class FabricAggregator extends Aggregator {
+  /**
+   * @param config - Fabric-specific configuration such as base URL or API key.
+   */
   constructor(private config: FabricConfig = { url: FABRIC_BASE_URL }) {
     super();
   }
 
+  /**
+   * @inheritdoc
+   */
   name(): ProviderKey {
     return "fabric";
   }
 
+  /**
+   * @inheritdoc
+   */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.makeRequest(request);
     const amountOut = response.amountOut;

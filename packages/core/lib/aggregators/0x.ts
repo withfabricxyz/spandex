@@ -15,15 +15,27 @@ export type ZeroXQuoteResponse = {
   buyAmount: string;
 };
 
+/**
+ * Aggregator implementation that sources quotes from the 0x API.
+ */
 export class ZeroXAggregator extends Aggregator {
+  /**
+   * @param config - 0x-specific configuration, currently just the API key.
+   */
   constructor(private config: ZeroXConfig) {
     super();
   }
 
+  /**
+   * @inheritdoc
+   */
   name(): ProviderKey {
     return "0x";
   }
 
+  /**
+   * @inheritdoc
+   */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.makeRequest(request);
 
