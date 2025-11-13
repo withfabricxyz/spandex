@@ -41,7 +41,7 @@ export class ZeroXAggregator extends Aggregator {
 
     return {
       success: true,
-      provider: "fabric",
+      provider: "0x",
       details: response,
       latency: 0, // Filled in by MetaAggregator
       outputAmount: BigInt(response.buyAmount),

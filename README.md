@@ -26,12 +26,12 @@ import { buildMetaAggregator } from "@withfabric/smal";
 
 // Configure your aggregators
 const metaAggregator = buildMetaAggregator({
-  providers: [
-    { provider: "fabric" },
-    { provider: "0x", apiKey: "..." },
+  aggregators: [
+    { provider: "fabric", config: {} },
+    { provider: "0x", config: { apiKey: "..." }},
   ],
   defaults: {
-    strategy: "bestQuote",
+    strategy: "quotedPrice",
   }
 });
 

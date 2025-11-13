@@ -10,6 +10,7 @@ describe("0x API test", () => {
     const quote = await quoter.fetchQuote(defaultSwapParams);
 
     expect(quote).toBeDefined();
+    expect(quote.provider).toBe("0x");
     if (quote.success) {
       expect(quote.outputAmount).toBeGreaterThan(0n);
       expect(quote.networkFee).toBeGreaterThan(0n);

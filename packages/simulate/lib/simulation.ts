@@ -2,7 +2,7 @@ import type { Quote, SuccessfulQuote, SwapParams } from "@withfabric/smal";
 import type { PublicClient } from "viem";
 import { encodeFunctionData, erc20Abi, zeroAddress } from "viem";
 import { simulateCalls } from "viem/actions";
-import type { SimulationResult } from "./types.js";
+import type { SimulatedQuote, SimulationResult } from "./types.js";
 
 // type SimulateSwapParams = QuoteTxData & {
 //   from: Address;
@@ -57,14 +57,19 @@ export async function simulateQuotes({
   params: SwapParams;
   client: PublicClient;
   quotes: SuccessfulQuote[];
-}): Promise<SimulationResult[]> {
+}): Promise<SimulatedQuote[]> {
   return Promise.all(
     quotes.map(async (quote: SuccessfulQuote) => {
-      return simulateSwap({
+      const result = await simulateSwap({
         client,
         params,
         quote,
       });
+
+      return {
+        ...quote,
+        simulation: result,
+      };
     }),
   );
 }
@@ -82,6 +87,7 @@ export async function simulateSwap({
     return {
       success: false,
       error: "Cannot simulate failed quote",
+      reverted: false,
     };
   }
 
@@ -149,6 +155,7 @@ export async function simulateSwap({
           approveError instanceof Error
             ? approveError.message
             : approveError || "Approval failed during simulation",
+        reverted: true,
       };
     }
 
@@ -160,6 +167,7 @@ export async function simulateSwap({
           swapError instanceof Error
             ? swapError.message
             : swapError || "Swap failed during simulation",
+        reverted: true,
       };
     }
 
@@ -171,6 +179,7 @@ export async function simulateSwap({
           balanceError instanceof Error
             ? balanceError.message
             : balanceError || "Balance check failed during simulation",
+        reverted: true,
       };
     }
 
@@ -193,6 +202,7 @@ export async function simulateSwap({
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown simulation error",
+      reverted: false,
     };
   }
 }

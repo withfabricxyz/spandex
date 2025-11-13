@@ -10,6 +10,7 @@ describe("Fabric Router API test", () => {
     });
     const quote = await quoter.fetchQuote(defaultSwapParams);
     expect(quote).toBeDefined();
+    expect(quote.provider).toBe("fabric");
     if (quote.success) {
       expect(quote.outputAmount).toBeGreaterThan(0n);
       expect(quote.txData).toBeDefined();

@@ -11,6 +11,7 @@ export type SimulationResult =
   | {
       success: false;
       error: string;
+      reverted: boolean;
     };
 
 export type SimulatedQuote = Quote & {

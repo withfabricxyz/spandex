@@ -7,6 +7,7 @@ describe("Kyberwap", () => {
     const quoter = new KyberAggregator();
     const quote = await quoter.fetchQuote(defaultSwapParams);
     expect(quote).toBeDefined();
+    expect(quote.provider).toBe("kyberswap");
     if (quote.success) {
       expect(quote.outputAmount).toBeGreaterThan(0n);
       expect(quote.networkFee).toBeGreaterThan(0n);
