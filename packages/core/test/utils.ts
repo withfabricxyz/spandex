@@ -1,12 +1,5 @@
-import { createPublicClient, http } from "viem";
-import { base } from "viem/chains";
 import { Aggregator } from "../lib/aggregator.js";
 import type { ProviderKey, Quote, SuccessfulQuote, SwapParams } from "../lib/types.js";
-
-export const baseClient = createPublicClient({
-  chain: base,
-  transport: http(`https://rpc.ankr.com/base/${process.env.ANKR_API_KEY}`),
-});
 
 export const defaultSwapParams: SwapParams = {
   chainId: 8453,

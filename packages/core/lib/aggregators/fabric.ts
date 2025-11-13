@@ -1,7 +1,7 @@
-import type { Hex } from "viem";
 import { Aggregator } from "../aggregator.js";
 import {
   type Address,
+  type Hex,
   type ProviderKey,
   QuoteError,
   type RouteGraph,

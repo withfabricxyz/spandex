@@ -24,9 +24,7 @@
     "@types/bun": "latest"
   },
   "dependencies": {
-    "@withfabric/smal": "workspace:*"
-  },
-  "peerDependencies": {
+    "@withfabric/smal": "workspace:*",
     "viem": "^2"
   }
 }

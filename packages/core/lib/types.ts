@@ -4,6 +4,7 @@ import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
 
 export type Address = `0x${string}`;
+export type Hex = `0x${string}`;
 
 export type ProviderKey = "fabric" | "0x" | "kyberswap" | "odos";
 
