@@ -1,13 +1,9 @@
-import { MetaAggregator } from "./lib/aggregator.js";
 import { ZeroXAggregator } from "./lib/aggregators/0x.js";
 import { FabricAggregator } from "./lib/aggregators/fabric.js";
 import { KyberAggregator } from "./lib/aggregators/kyber.js";
 import { OdosAggregator } from "./lib/aggregators/odos.js";
+import { MetaAggregator } from "./lib/meta_aggregator.js";
 import type { AggregatorConfig, MetaAggregatorConfig } from "./lib/types.js";
-
-// Extract required and optional environment variables
-const zeroXApiKey = process.env.QUOTER_0X_API_KEY;
-const kyberClientId = process.env.QUOTER_KYBERSWAP_CLIENT_ID;
 
 /**
  * A default MetaAggregator instance with common, high performing providers configured. This may change over time.
@@ -23,7 +19,7 @@ export function defaultMetaAggregator(): MetaAggregator {
     {
       provider: "kyberswap",
       config: {
-        clientId: kyberClientId || "smal",
+        clientId: "smal",
       },
     },
     {
@@ -31,15 +27,6 @@ export function defaultMetaAggregator(): MetaAggregator {
       config: {},
     },
   ];
-
-  if (zeroXApiKey) {
-    aggregators.push({
-      provider: "0x",
-      config: {
-        apiKey: zeroXApiKey,
-      },
-    });
-  }
 
   return buildMetaAggregator({
     aggregators,
@@ -51,14 +38,15 @@ export function defaultMetaAggregator(): MetaAggregator {
  * const metaAggregator = buildMetaAggregator({
  *   providers: [
  *    { provider: "fabric" },
- *    { provider: "0x", apiKey: process.env.ZEROX_API_KEY },
- *    { provider: "kyberswap" },
+ *    { provider: "0x", apiKey: "..." },
+ *    { provider: "odos" },
  *   ],
  * });
  *
  * Build a MetaAggregator from the given config to query multiple providers for token swap quotes.
  * @param config - configuration for the meta-aggregator
  * @returns MetaAggregator instance which can fetch quotes from the configured providers
+ * @throws Error if an unknown provider is configured or no providers are given
  */
 export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregator {
   const providers = [];
@@ -77,17 +65,12 @@ export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregato
       case "odos":
         providers.push(new OdosAggregator(agg.config));
         break;
-      default:
-        throw new Error("Unknown provider configured");
     }
   }
 
-  if (providers.length > 0) {
-    return new MetaAggregator(providers, config.defaults);
-  }
-
-  return new MetaAggregator([]);
+  return new MetaAggregator(providers, config.defaults);
 }
 
-export { MetaAggregator } from "./lib/aggregator.js";
+export { MetaAggregator, FabricAggregator, ZeroXAggregator, KyberAggregator, OdosAggregator };
+export { Aggregator } from "./lib/aggregator.js";
 export type * from "./lib/types.js";
