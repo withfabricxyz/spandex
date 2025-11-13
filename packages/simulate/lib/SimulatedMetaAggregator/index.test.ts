@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { buildMetaAggregator, type SwapParams } from "@withfabric/smal";
 import type { PublicClient } from "viem";
-import { createPublicClient, http } from "viem";
+import { createPublicClient, http, zeroAddress } from "viem";
 import { base } from "viem/chains";
 import { SimulatedMetaAggregator } from "./index.js";
 
@@ -15,6 +15,8 @@ const defaultSwapParams: SwapParams = {
 };
 
 const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
+const ETH_WHALE = "0x611f7bf868a6212f871e89f7e44684045ddfb09d";
+const USDC_WHALE = "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055";
 
 describe("SimulatedMetaAggregator", () => {
   const client = createPublicClient({
@@ -35,7 +37,7 @@ describe("SimulatedMetaAggregator", () => {
   it("composes MetaAggregator and returns simulated quotes", async () => {
     const quotes = await simulator.fetchQuotes({
       ...defaultSwapParams,
-      swapperAccount: "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055", // 🐳
+      swapperAccount: USDC_WHALE,
     });
 
     expect(quotes).toBeDefined();
@@ -83,6 +85,93 @@ describe("SimulatedMetaAggregator", () => {
         expect(quote.simulation.outputAmount).toBeDefined();
         expect(typeof quote.simulation.outputAmount).toBe("bigint");
         expect(quote.simulation.callsResults.length).toBe(3); // approve, swap, balance
+        expect(quote.simulation.callsResults.every((res) => res.status === "success")).toBe(true);
+        expect(quote.simulation.gasUsed).toBeDefined();
+
+        const tolerance = (quote.outputAmount * 5000n) / 10000n; // output within 50%
+        expect(quote.simulation.outputAmount).toBeGreaterThanOrEqual(
+          quote.outputAmount - tolerance,
+        );
+        expect(quote.simulation.outputAmount).toBeLessThanOrEqual(quote.outputAmount + tolerance);
+      }
+    }
+  }, 30000);
+
+  it("handles ETH -> ERC20", async () => {
+    const quotes = await simulator.fetchQuotes({
+      ...defaultSwapParams,
+      inputToken: zeroAddress,
+      inputAmount: 250000000000000000n, // .25 ETH
+      outputToken: defaultSwapParams.inputToken, // USDC
+      swapperAccount: ETH_WHALE,
+    });
+
+    const [successful, _failed] = quotes.reduce(
+      (acc, quote) => {
+        if (quote.simulation.success) {
+          acc[0].push(quote);
+        } else {
+          acc[1].push(quote);
+        }
+        return acc;
+      },
+      [[] as typeof quotes, [] as typeof quotes],
+    );
+
+    expect(quotes).toBeDefined();
+    expect(successful.length).toBeGreaterThan(0);
+
+    for (const quote of successful) {
+      expect(quote.simulation).toBeDefined();
+      expect(typeof quote.simulation.success).toBe("boolean");
+
+      if (quote.simulation.success) {
+        expect(quote.simulation.outputAmount).toBeDefined();
+        expect(typeof quote.simulation.outputAmount).toBe("bigint");
+        expect(quote.simulation.callsResults.length).toBe(2); // swap, balance
+        expect(quote.simulation.callsResults.every((res) => res.status === "success")).toBe(true);
+        expect(quote.simulation.gasUsed).toBeDefined();
+
+        const tolerance = (quote.outputAmount * 5000n) / 10000n; // output within 50%
+        expect(quote.simulation.outputAmount).toBeGreaterThanOrEqual(
+          quote.outputAmount - tolerance,
+        );
+        expect(quote.simulation.outputAmount).toBeLessThanOrEqual(quote.outputAmount + tolerance);
+      }
+    }
+  }, 30000);
+
+  it("handles ERC20 -> ETH", async () => {
+    const quotes = await simulator.fetchQuotes({
+      ...defaultSwapParams,
+      outputToken: zeroAddress,
+      swapperAccount: USDC_WHALE,
+    });
+
+    expect(quotes).toBeDefined();
+
+    const [successful, _failed] = quotes.reduce(
+      (acc, quote) => {
+        if (quote.simulation.success) {
+          acc[0].push(quote);
+        } else {
+          acc[1].push(quote);
+        }
+        return acc;
+      },
+      [[] as typeof quotes, [] as typeof quotes],
+    );
+
+    expect(successful.length).toBeGreaterThan(0);
+
+    for (const quote of successful) {
+      expect(quote.simulation).toBeDefined();
+      expect(typeof quote.simulation.success).toBe("boolean");
+
+      if (quote.simulation.success) {
+        expect(quote.simulation.outputAmount).toBeDefined();
+        expect(typeof quote.simulation.outputAmount).toBe("bigint");
+        expect(quote.simulation.callsResults.length).toBe(2); // swap, balance
         expect(quote.simulation.callsResults.every((res) => res.status === "success")).toBe(true);
         expect(quote.simulation.gasUsed).toBeDefined();
 
