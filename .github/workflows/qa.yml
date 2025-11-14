@@ -15,7 +15,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
       - name: Audit dependencies
-        run: bun audit
+        run: bun audit --audit-level=high
       - name: Lint & Format
         run: bun run lint
 
