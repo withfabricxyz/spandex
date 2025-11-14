@@ -28,7 +28,7 @@ describe("SimulatedMetaAggregator", () => {
     aggregators: [
       { provider: "odos", config: {} },
       { provider: "kyberswap", config: { clientId: "smal" } },
-      { provider: "fabric", config: { } },
+      { provider: "fabric", config: {} },
       { provider: "0x", config: { apiKey: process.env.ZEROX_API_KEY || "" } },
     ],
   });

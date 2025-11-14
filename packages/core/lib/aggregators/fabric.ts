@@ -75,7 +75,7 @@ export class FabricAggregator extends Aggregator {
   /**
    * @param config - Fabric-specific configuration such as base URL or API key.
    */
-  constructor(private config: FabricConfig = { }) {
+  constructor(private config: FabricConfig = {}) {
     super();
   }
 
