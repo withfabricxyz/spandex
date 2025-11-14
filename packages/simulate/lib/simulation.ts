@@ -1,54 +1,9 @@
-import type { Quote, SwapParams } from "@withfabric/smal";
-import type { PublicClient } from "viem";
-import { encodeFunctionData, erc20Abi, zeroAddress } from "viem";
+import type { Quote, QuoteTxData, SwapParams } from "@withfabric/smal";
+import type { Address, Block, PublicClient, SimulateCallsReturnType } from "viem";
+import { encodeFunctionData, erc20Abi, ethAddress, parseEther, zeroAddress } from "viem";
 import { simulateCalls } from "viem/actions";
-import type { SimulatedQuote, SimulationResult } from "./types.js";
+import { type SimulatedQuote, type SimulationResult, SimulationRevertError } from "./types.js";
 
-// type SimulateSwapParams = QuoteTxData & {
-//   from: Address;
-//   tokenIn: Address;
-//   tokenOut: Address;
-//   amountIn: bigint;
-//   stateOverrides?: unknown[];
-//   balanceOverride?: bigint;
-// };
-
-// TODO: Fetch output balance once for a batch of simulations to reduce RPC calls
-// TODO: Fetch storage slot once for a batch of simulations to reduce RPC calls
-// TODO: Iterate over multiple possible storage by poking storage slots until balance matches
-// TODO: Consider supporting "real" user token and not adjusting balance for real-world impls
-// TODO: ETH as input or output requires different handling for balance IO
-
-// TODO: maybe offload state overrides to caller. assume that any given address is able to perform swap and throw if revert?
-// ie, is it our responsibility to ensure sufficient simulated balance/allowance?
-// function getBalanceStorageSlot(userAddress: Address, slot = 0): `0x${string}` {
-//   const paddedSlot = pad(`0x${slot.toString(16)}`, { size: 64 });
-//   const paddedAddress = pad(`0x${userAddress.slice(2)}`, { size: 64 });
-//   const concatenated = `0x${paddedAddress}${paddedSlot}` as `0x${string}`;
-//   return keccak256(concatenated);
-// }
-
-// function prepareStateOverrides(tokenAddress: Address, userAddress: Address, amount: bigint) {
-//   const balanceSlot = getBalanceStorageSlot(userAddress, 0);
-//   const balanceHex = `${pad(`0x${amount.toString(16)}`, { size: 32 })}` as `0x${string}`;
-
-//   return [
-//     {
-//       address: tokenAddress,
-//       stateDiff: [
-//         {
-//           slot: balanceSlot,
-//           value: balanceHex,
-//         },
-//       ],
-//     },
-//     // need eth for gas
-//     {
-//       address: userAddress,
-//       balance: parseEther("10000"), // large amount to cover gas costs + swap value
-//     },
-//   ];
-// }
 export async function simulateQuotes({
   params,
   client,
@@ -60,7 +15,7 @@ export async function simulateQuotes({
 }): Promise<SimulatedQuote[]> {
   return Promise.all(
     quotes.map(async (quote: Quote) => {
-      const result = await simulateSwap({
+      const result = await simulateQuote({
         client,
         params,
         quote,
@@ -74,7 +29,7 @@ export async function simulateQuotes({
   );
 }
 
-export async function simulateSwap({
+export async function simulateQuote({
   client,
   params,
   quote,
@@ -86,123 +41,97 @@ export async function simulateSwap({
   if (!quote.success) {
     return {
       success: false,
-      error: "Cannot simulate failed quote",
-      reverted: false,
+      error: new Error("Cannot simulate failed quote"),
     };
   }
 
   try {
     const isERC20In = params.inputToken !== zeroAddress;
     const isERC20Out = params.outputToken !== zeroAddress;
-    // const stateOverrides = prepareStateOverrides(params.tokenIn, params.from, params.amountIn);
 
-    // number and order of calls depends on whether tokenIn and tokenOut are ERC20 or native
-    const calls = [];
+    // Dynamically build calls array based on whether we need approve / balanceOf (this activates ERC20 handling in assetChanges)
+    const calls = [
+      isERC20In
+        ? {
+            to: params.inputToken,
+            data: encodeFunctionData({
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [quote.txData.to, params.inputAmount],
+            }),
+          }
+        : undefined,
+      quote.txData,
+      isERC20Out
+        ? {
+            to: params.outputToken,
+            data: encodeFunctionData({
+              abi: erc20Abi,
+              functionName: "balanceOf",
+              args: [params.swapperAccount],
+            }),
+          }
+        : undefined,
+    ].filter((c): c is QuoteTxData => c !== undefined);
 
-    let approveIdx: number | null = null;
-    let swapIdx: number = 0;
-    let balanceIdx: number | null = null;
-
-    // if ERC20 in, approve first
-    if (isERC20In) {
-      approveIdx = 0;
-
-      calls.push({
-        to: params.inputToken,
-        data: encodeFunctionData({
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [quote.txData.to, params.inputAmount],
-        }),
-        value: undefined,
-      });
-    }
-
-    // swap always gets called
-    swapIdx = calls.length;
-
-    calls.push(quote.txData);
-
-    // if ERC20 out, call balanceOf after swap so that the asset gets "touched" and is tracked in assetChanges
-    // ERC20's don't otherwise get included in the assetResults list - i'm not sure why, something to do with to/from/spender?
-    // perhaps there's a better way for us to check ERC20 output balance?
-    if (isERC20Out) {
-      balanceIdx = calls.length;
-
-      calls.push({
-        to: params.outputToken,
-        data: encodeFunctionData({
-          abi: erc20Abi,
-          functionName: "balanceOf",
-          args: [params.swapperAccount],
-        }),
-        value: undefined,
-      });
-    }
-
-    const result = await simulateCalls(client, {
+    const time = performance.now();
+    const { results, assetChanges, block } = await simulateCalls(client, {
       account: params.swapperAccount,
       calls,
-      // stateOverrides,
+      stateOverrides: [
+        {
+          address: params.swapperAccount,
+          balance: parseEther("10000"), // large amount to cover gas costs + swap value
+        },
+      ],
       traceAssetChanges: true,
     });
+    const latency = performance.now() - time;
 
-    if (approveIdx !== null && result.results[approveIdx]?.status !== "success") {
-      const approveError = result.results[approveIdx]?.error;
-      return {
-        success: false,
-        error:
-          approveError instanceof Error
-            ? approveError.message
-            : approveError || "Approval failed during simulation",
-        reverted: true,
-      };
-    }
-
-    if (result.results[swapIdx]?.status === "failure") {
-      const swapError = result.results[swapIdx]?.error;
-      return {
-        success: false,
-        error:
-          swapError instanceof Error
-            ? swapError.message
-            : swapError || "Swap failed during simulation",
-        reverted: true,
-      };
-    }
-
-    if (balanceIdx !== null && result.results[balanceIdx]?.status !== "success") {
-      const balanceError = result.results[balanceIdx]?.error;
-      return {
-        success: false,
-        error:
-          balanceError instanceof Error
-            ? balanceError.message
-            : balanceError || "Balance check failed during simulation",
-        reverted: true,
-      };
-    }
-
-    const nativeAddr = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"; // this not being zeroAddress in the assetChanges list had me stuck for a while
-    const outputAssetAddress = !isERC20Out ? nativeAddr : params.outputToken;
-    const outputAsset = result.assetChanges.find(
-      (asset) => asset.token.address.toLowerCase() === outputAssetAddress.toLowerCase(),
-    );
-
-    const postBalance = outputAsset?.value.diff ?? 0n;
-    const gasUsed = result.results[swapIdx]?.gasUsed;
+    // If any call failed, extract error (TODO: consider treating approval failure differently?)
+    validateSimulation(results, calls, block);
 
     return {
       success: true,
-      outputAmount: postBalance,
-      callsResults: result.results,
-      gasUsed,
+      outputAmount: extractOutputAmount(assetChanges, params.outputToken),
+      callsResults: results,
+      latency,
+      gasUsed: isERC20In ? results[1]?.gasUsed : results[0]?.gasUsed,
+      blockNumber: block.number,
     };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown simulation error",
-      reverted: false,
+      error: error as Error,
     };
+  }
+}
+
+function extractOutputAmount(
+  assets: SimulateCallsReturnType["assetChanges"],
+  outputToken: Address,
+): bigint {
+  const comparator = outputToken === zeroAddress ? ethAddress : outputToken.toLowerCase();
+  return assets.find((asset) => asset.token.address === comparator)?.value.diff ?? 0n;
+}
+
+function validateSimulation(
+  results: SimulateCallsReturnType["results"],
+  calls: QuoteTxData[],
+  block: Block,
+) {
+  const errors = results
+    .map((result, i) => {
+      if (result.status === "success") return null;
+      return {
+        call: calls[i] as QuoteTxData,
+        result,
+        block,
+      };
+    })
+    .filter((e) => e !== null);
+
+  if (errors.length > 0) {
+    throw new SimulationRevertError(errors, block);
   }
 }

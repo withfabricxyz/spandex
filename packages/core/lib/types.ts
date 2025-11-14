@@ -227,7 +227,7 @@ export type PoolEdge = {
   /**
    * Liquidity pool contract address.
    */
-  address: Address;
+  address?: Address;
   /**
    * Unique identifier for the edge within a route.
    */

@@ -1,5 +1,6 @@
 import { Aggregator } from "../aggregator.js";
 import {
+  type Address,
   type PoolEdge,
   type ProviderKey,
   QuoteError,
@@ -30,11 +31,6 @@ const chainNameLookup: Record<number, string> = {
 
 export type KyberConfig = {
   clientId: string;
-};
-
-export type KyberQuoteResponse = {
-  inputAmount: string;
-  outputAmount: string;
 };
 
 /**
@@ -73,11 +69,11 @@ export class KyberAggregator extends Aggregator {
         to: response.routerAddress,
         data: response.encodedSwapData,
       },
+      route: kyberRouteGraph(response),
     };
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: temporary
-  private async getRoute(query: SwapParams): Promise<any> {
+  private async getRoute(query: SwapParams): Promise<KyberQuoteResponse> {
     const chain = chainNameLookup[query.chainId];
     const params = new URLSearchParams({
       tokenOut: query.outputToken,
@@ -103,20 +99,29 @@ export class KyberAggregator extends Aggregator {
       return body;
     });
 
-    return output;
+    return output as KyberQuoteResponse;
   }
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: temporary todo
-export function kyberRouteGraph(response: any): RouteGraph {
-  // biome-ignore lint/suspicious/noExplicitAny: temporary todo
-  const nodes = Object.values(response.tokens as Record<string, any>).map((token) => ({
-    address: token.address,
-    symbol: token.symbol,
-    decimals: token.decimals,
+export function kyberRouteGraph(response: KyberQuoteResponse): RouteGraph {
+  const nodes = Object.entries(response.tokens).map(([address, detail]) => ({
+    address: address as Address,
+    symbol: detail.symbol,
+    decimals: detail.decimals,
   }));
 
-  const edges = extractEdges(response.swaps);
+  const edges: PoolEdge[] = [];
+  for (const swap of response.swaps) {
+    for (const leg of swap) {
+      edges.push({
+        source: leg.tokenIn,
+        target: leg.tokenOut,
+        address: leg.pool,
+        key: leg.pool,
+        value: Number(leg.swapAmount),
+      });
+    }
+  }
 
   return {
     nodes,
@@ -124,21 +129,101 @@ export function kyberRouteGraph(response: any): RouteGraph {
   };
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: temporary todo
-function extractEdges(swaps: any): PoolEdge[] {
-  let result: PoolEdge[] = [];
-  if (Array.isArray(swaps)) {
-    for (const item of swaps) {
-      result = result.concat(extractEdges(item));
-    }
-  } else {
-    result.push({
-      source: swaps.tokenIn,
-      target: swaps.tokenOut,
-      address: swaps.pool,
-      key: swaps.pool,
-      value: Number(swaps.swapAmount || 0),
-    });
-  }
-  return result;
+//////// Types /////////
+// Extracted from 0x API documentation with GPT5
+////////////////////////
+
+interface TokenInfo {
+  address: Address;
+  symbol: string;
+  name: string;
+  price: number; // USD price
+  decimals: number;
+}
+
+/**
+ * One hop/leg within a path.
+ */
+interface SwapLeg {
+  pool: Address;
+  tokenIn: Address;
+  tokenOut: Address;
+  swapAmount: string; // amount of tokenIn sent to this pool
+  amountOut: string; // amount of tokenOut from this leg
+  exchange: string; // e.g. "uniswapv3"
+  poolType: string; // e.g. "univ3"
+}
+
+/**
+ * A path is an ordered list of legs. `swaps` is an array of paths.
+ */
+type SwapPath = SwapLeg[];
+
+// ---------- Main response type ----------
+
+/**
+ * Legacy Get Swap Info with Encoded Data
+ * GET https://aggregator-api.kyberswap.com/{chain}/route/encode
+ */
+export interface KyberQuoteResponse {
+  /**
+   * Input amount in tokenIn base units (wei).
+   */
+  inputAmount: string;
+
+  /**
+   * Output amount in tokenOut base units (wei).
+   */
+  outputAmount: string;
+
+  /**
+   * Total estimated gas units.
+   */
+  totalGas: number;
+
+  /**
+   * Gas price in Gwei, as a decimal string.
+   */
+  gasPriceGwei: string;
+
+  /**
+   * Estimated gas cost in USD.
+   */
+  gasUsd: number;
+
+  /**
+   * Value of inputAmount in USD.
+   */
+  amountInUsd: number;
+
+  /**
+   * Value of outputAmount in USD.
+   */
+  amountOutUsd: number;
+
+  /**
+   * Effective received USD after fees/slippage.
+   */
+  receivedUsd: number;
+
+  /**
+   * All candidate swap paths.
+   * Each element is a path, which is a sequence of pool hops.
+   */
+  swaps: SwapPath[];
+
+  /**
+   * Token metadata keyed by token address.
+   */
+  tokens: Record<Address, TokenInfo>;
+
+  /**
+   * Calldata to send to the KyberSwap router contract.
+   */
+  encodedSwapData: `0x${string}`;
+
+  /**
+   * KyberSwap router contract address for this swap.
+   */
+  routerAddress: Address;
 }

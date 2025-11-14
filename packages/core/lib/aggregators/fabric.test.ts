@@ -13,6 +13,9 @@ describe("Fabric Router API test", () => {
       expect(quote.txData).toBeDefined();
       expect(quote.txData.to).toBeDefined();
       expect(quote.txData.data).toBeDefined();
+      expect(quote.route).toBeDefined();
+      expect(quote.route?.edges?.length).toBeGreaterThan(0);
+      expect(quote.route?.nodes?.length).toBeGreaterThan(0);
     }
   }, 30_000);
 
