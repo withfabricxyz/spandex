@@ -4,10 +4,7 @@ import { FabricAggregator, fabricRouteGraph } from "./fabric.js";
 
 describe("Fabric Router API test", () => {
   it("generates a quote", async () => {
-    const quoter = new FabricAggregator({
-      // url: "https://booda.defi.withfabric.xyz",
-      url: "http://localhost:8000",
-    });
+    const quoter = new FabricAggregator();
     const quote = await quoter.fetchQuote(defaultSwapParams);
     expect(quote).toBeDefined();
     expect(quote.provider).toBe("fabric");

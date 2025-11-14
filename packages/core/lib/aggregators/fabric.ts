@@ -9,7 +9,7 @@ import {
   type SwapParams,
 } from "../types.js";
 
-const FABRIC_BASE_URL = process.env.FABRIC_BASE_URL || "http://booda.defi.withfabric.xyz";
+const DEFAULT_URL = "https://booda.defi.withfabric.xyz";
 
 export type FabricQuoteResponse = {
   blockNumber: number;
@@ -75,7 +75,7 @@ export class FabricAggregator extends Aggregator {
   /**
    * @param config - Fabric-specific configuration such as base URL or API key.
    */
-  constructor(private config: FabricConfig = { url: FABRIC_BASE_URL }) {
+  constructor(private config: FabricConfig = { }) {
     super();
   }
 
@@ -119,7 +119,7 @@ export class FabricAggregator extends Aggregator {
       slippageBps: params.slippageBps.toString(),
     });
 
-    return await fetch(`${this.config.url}/v1/quote?${query.toString()}`, {
+    return await fetch(`${this.config.url || DEFAULT_URL}/v1/quote?${query.toString()}`, {
       headers: {
         accept: "application/json",
       },
