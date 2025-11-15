@@ -9,11 +9,19 @@ import {
   SimulationRevertError,
 } from "./types.js";
 
-export async function simulateQuotes({
-  params,
-  client,
-  quotes,
-}: Omit<SimulationArgs, "quote"> & { quotes: Quote[] }): Promise<SimulatedQuote[]> {
+/**
+ * Simulate a batch of quotes given the shared params/client context.
+ *
+ * @param args - Shared simulation inputs describing client, params, and quotes to simulate.
+ * @param args.params - Swap parameters shared across all quotes.
+ * @param args.client - Public client used to perform the simulations.
+ * @param args.quotes - Quotes that should be simulated.
+ * @returns Quotes decorated with their simulation results.
+ */
+export async function simulateQuotes(
+  args: Omit<SimulationArgs, "quote"> & { quotes: Quote[] },
+): Promise<SimulatedQuote[]> {
+  const { params, client, quotes } = args;
   return Promise.all(
     quotes.map(async (quote: Quote) => {
       return simulateQuote({
@@ -25,8 +33,17 @@ export async function simulateQuotes({
   );
 }
 
-export async function simulateQuote(params: SimulationArgs): Promise<SimulatedQuote> {
-  return { ...params.quote, simulation: await performSimulation(params) };
+/**
+ * Simulate a single quote and decorate it with the result.
+ *
+ * @param args - Parameter bundle including the client, swap params, and quote.
+ * @param args.client - Client used to issue the simulation.
+ * @param args.params - Swap parameters attached to the quote.
+ * @param args.quote - Quote instance to simulate.
+ * @returns Quote data merged with its simulation result.
+ */
+export async function simulateQuote(args: SimulationArgs): Promise<SimulatedQuote> {
+  return { ...args.quote, simulation: await performSimulation(args) };
 }
 
 async function performSimulation({
