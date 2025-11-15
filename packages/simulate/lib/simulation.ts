@@ -2,34 +2,34 @@ import type { Quote, QuoteTxData, SwapParams } from "@withfabric/smal";
 import type { Address, Block, PublicClient, SimulateCallsReturnType } from "viem";
 import { encodeFunctionData, erc20Abi, ethAddress, parseEther, zeroAddress } from "viem";
 import { simulateCalls } from "viem/actions";
-import { type SimulatedQuote, type SimulationResult, SimulationRevertError } from "./types.js";
+import {
+  type SimulatedQuote,
+  type SimulationArgs,
+  type SimulationResult,
+  SimulationRevertError,
+} from "./types.js";
 
 export async function simulateQuotes({
   params,
   client,
   quotes,
-}: {
-  params: SwapParams;
-  client: PublicClient;
-  quotes: Quote[];
-}): Promise<SimulatedQuote[]> {
+}: Omit<SimulationArgs, "quote"> & { quotes: Quote[] }): Promise<SimulatedQuote[]> {
   return Promise.all(
     quotes.map(async (quote: Quote) => {
-      const result = await simulateQuote({
+      return simulateQuote({
         client,
         params,
         quote,
       });
-
-      return {
-        ...quote,
-        simulation: result,
-      };
     }),
   );
 }
 
-export async function simulateQuote({
+export async function simulateQuote(params: SimulationArgs): Promise<SimulatedQuote> {
+  return { ...params.quote, simulation: await performSimulation(params) };
+}
+
+async function performSimulation({
   client,
   params,
   quote,

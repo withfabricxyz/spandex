@@ -99,19 +99,16 @@ export type SuccessfulQuote =
  */
 export class QuoteError extends Error {
   /**
-   * Provider-specific error payload.
-   */
-  details: unknown;
-
-  /**
    * Creates a new quote error.
    *
    * @param message - Human readable error description.
-   * @param details - Provider response payload for debugging.
+   * @param details - Provider response payload for debugging - or `undefined` if not applicable.
    */
-  constructor(message: string, details: unknown) {
+  constructor(
+    message: string,
+    public readonly details?: unknown,
+  ) {
     super(message);
-    this.details = details;
   }
 }
 
@@ -127,10 +124,6 @@ export type FailedQuote = {
    * Optional structured error returned by the provider.
    */
   error?: QuoteError;
-  /**
-   * Optional human readable error message.
-   */
-  message?: string;
   /**
    * Provider that failed to produce a quote.
    */

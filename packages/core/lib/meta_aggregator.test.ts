@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { defaultSwapParams, MockAggregator, quoteFailure, quoteSuccess } from "../test/utils.js";
 import { MetaAggregator } from "./meta_aggregator.js";
-import type { QuoteError } from "./types.js";
+import type { FailedQuote } from "./types.js";
 
 describe("aggregator", () => {
   it("throws on misconfiguration", async () => {
@@ -15,7 +15,7 @@ describe("aggregator", () => {
         numRetries: 0,
       },
     );
-    const quotes = await Promise.all(quoter.prepareQuotes(defaultSwapParams));
+    const quotes = await quoter.fetchAllQuotes(defaultSwapParams);
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(2);
     expect(quotes[0]?.success).toBe(true);
@@ -93,8 +93,6 @@ describe("aggregator", () => {
     expect(failingAggregator.count).toBe(1); // 1 initial try + 3 retries
     expect(end - start).toBeGreaterThanOrEqual(50); // 5 + 10 ms delays
     expect(quotes[0]?.success).toBe(false);
-    expect((quotes[0] as unknown as QuoteError).message).toMatch(
-      /MetaAggregator deadline exceeded/,
-    );
+    expect((quotes[0] as FailedQuote).error?.message).toMatch(/MetaAggregator deadline exceeded/);
   }, 10_000);
 });

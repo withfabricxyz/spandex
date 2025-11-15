@@ -1,5 +1,5 @@
-import type { Quote, QuoteTxData } from "@withfabric/smal";
-import type { Block, SimulateCallsReturnType } from "viem";
+import type { Quote, QuoteTxData, SwapParams } from "@withfabric/smal";
+import type { Block, PublicClient, SimulateCallsReturnType } from "viem";
 
 export class SimulationRevertError extends Error {
   constructor(
@@ -21,6 +21,12 @@ export class SimulationRevertError extends Error {
     super(message);
   }
 }
+
+export type SimulationArgs = {
+  client: PublicClient;
+  params: SwapParams;
+  quote: Quote;
+};
 
 export type SimulationResult =
   | {

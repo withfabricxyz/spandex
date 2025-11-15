@@ -1,12 +1,8 @@
 import type { MetaAggregator } from "@withfabric/smal";
-import type { SuccessfulQuote, SwapParams } from "@withfabric/smal/lib/types";
+import type { SwapParams } from "@withfabric/smal/lib/types";
 import type { PublicClient } from "viem";
-import { simulateQuote } from "./simulation.js";
-import type { SimulationResult } from "./types.js";
-
-export type SimulatedQuote = SuccessfulQuote & {
-  simulation: SimulationResult;
-};
+import { simulateQuotes } from "./simulation.js";
+import type { SimulatedQuote } from "./types.js";
 
 export class SimulatedMetaAggregator {
   constructor(
@@ -19,23 +15,12 @@ export class SimulatedMetaAggregator {
   }
 
   async fetchQuotes(params: SwapParams): Promise<SimulatedQuote[]> {
-    const quotes = await this.metaAggregator.fetchQuotes(params);
+    const quotes = await this.metaAggregator.fetchAllQuotes(params);
 
-    const simulatedQuotes = await Promise.all(
-      quotes.map(async (quote: SuccessfulQuote) => {
-        const simulation = await simulateQuote({
-          client: this.client,
-          params,
-          quote,
-        });
-
-        return {
-          ...quote,
-          simulation,
-        };
-      }),
-    );
-
-    return simulatedQuotes;
+    return simulateQuotes({
+      client: this.client,
+      quotes,
+      params,
+    });
   }
 }
