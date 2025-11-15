@@ -1,7 +1,7 @@
 import type { MetaAggregator } from "@withfabric/smal";
-import type { SwapParams } from "@withfabric/smal/lib/types";
+import type { MetaAggregationOptions, Quote, SwapParams } from "@withfabric/smal/lib/types";
 import type { PublicClient } from "viem";
-import { simulateQuotes } from "./simulation.js";
+import { simulateQuote } from "./simulation.js";
 import type { SimulatedQuote } from "./types.js";
 
 /**
@@ -32,15 +32,25 @@ export class SimulatedMetaAggregator {
    * Fetch quotes for the provided params and simulate them using the configured client.
    *
    * @param params - Swap parameters describing the trade request.
+   * @param overrides - Optional per-request aggregation configuration. @see {@link MetaAggregationOptions}
    * @returns Quotes enhanced with simulation metadata.
    */
-  async fetchQuotes(params: SwapParams): Promise<SimulatedQuote[]> {
-    const quotes = await this.metaAggregator.fetchAllQuotes(params);
+  async fetchQuotes(
+    params: SwapParams,
+    overrides?: MetaAggregationOptions,
+  ): Promise<SimulatedQuote[]> {
+    const mapFn = async (quote: Quote): Promise<SimulatedQuote> => {
+      return simulateQuote({
+        client: this.client,
+        params,
+        quote,
+      });
+    };
 
-    return simulateQuotes({
-      client: this.client,
-      quotes,
+    return this.metaAggregator.fetchAllAndThen<SimulatedQuote>({
       params,
+      mapFn,
+      overrides,
     });
   }
 }
