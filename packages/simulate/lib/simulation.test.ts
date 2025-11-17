@@ -13,6 +13,7 @@ const defaultSwapParams: SwapParams = {
   inputAmount: 500_000_000n,
   slippageBps: 100,
   swapperAccount: "0xdead00000000000000000000000000000000beef",
+  mode: "exactInQuote",
 };
 
 const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
