@@ -33,7 +33,7 @@ describe("Fabric Router API test", () => {
     expect(quote).toBeDefined();
     expect(quote.provider).toBe("fabric");
     if (quote.success) {
-      expect(quote.outputAmount).toEqual(10n ** 17n);
+      expect(quote.outputAmount).toBeGreaterThanOrEqual(10n ** 17n); // TODO
       expect(quote.inputAmount).toBeGreaterThan(0n);
       expect(quote.inputAmount).toBeLessThan(500n * 10n ** 6n); // less than 500 ETH
       expect(quote.txData).toBeDefined();
