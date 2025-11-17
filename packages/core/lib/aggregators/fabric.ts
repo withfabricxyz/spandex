@@ -100,7 +100,6 @@ export class FabricAggregator extends Aggregator {
       inputAmount: BigInt(response.amountIn),
       outputAmount: BigInt(response.amountOut),
       networkFee: 0n, // TODO
-      // blockNumber: response.blockNumber,
       txData: {
         to: response.transaction.to,
         data: response.transaction.data,
@@ -125,7 +124,7 @@ export class FabricAggregator extends Aggregator {
         chainId: params.chainId.toString(),
         buyToken: params.outputToken,
         sellToken: params.inputToken,
-        buytAmount: params.outputAmount.toString(),
+        buyAmount: params.outputAmount.toString(),
         slippageBps: params.slippageBps.toString(),
       });
     }
