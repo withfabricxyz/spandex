@@ -1,6 +1,7 @@
 import { Aggregator } from "../aggregator.js";
 import {
   type Address,
+  type ExactInSwapParams,
   type Hex,
   type ProviderKey,
   QuoteError,
@@ -35,13 +36,18 @@ export class ZeroXAggregator extends Aggregator {
    * @inheritdoc
    */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
-    const response = await this.makeRequest(request);
+    if (request.mode === "exactOutputQuote") {
+      throw new QuoteError("0x aggregator does not support exact output quotes");
+    }
+
+    const response = await this.makeRequest(request as ExactInSwapParams);
 
     return {
       success: true,
       provider: "0x",
       details: response,
       latency: 0, // Filled in by MetaAggregator
+      inputAmount: BigInt(response.sellAmount),
       outputAmount: BigInt(response.buyAmount),
       networkFee: BigInt(response.totalNetworkFee || "0"),
       txData: {
@@ -52,7 +58,7 @@ export class ZeroXAggregator extends Aggregator {
     };
   }
 
-  private async makeRequest(request: SwapParams): Promise<ZeroXQuoteResponse> {
+  private async makeRequest(request: ExactInSwapParams): Promise<ZeroXQuoteResponse> {
     if (!this.config.apiKey) {
       throw new Error("0x API key is not set. Please set the ZEROX_API_KEY environment variable.");
     }

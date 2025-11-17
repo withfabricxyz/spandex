@@ -91,14 +91,14 @@ export class FabricAggregator extends Aggregator {
    */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.makeRequest(request);
-    const amountOut = response.amountOut;
 
     return {
       success: true,
       provider: "fabric",
       details: response,
       latency: 0, // Filled in by MetaAggregator
-      outputAmount: BigInt(amountOut),
+      inputAmount: BigInt(response.amountIn),
+      outputAmount: BigInt(response.amountOut),
       networkFee: 0n, // TODO
       // blockNumber: response.blockNumber,
       txData: {
@@ -111,13 +111,24 @@ export class FabricAggregator extends Aggregator {
   }
 
   private async makeRequest(params: SwapParams): Promise<FabricQuoteResponse> {
-    const query = new URLSearchParams({
-      chainId: params.chainId.toString(),
-      buyToken: params.outputToken,
-      sellToken: params.inputToken,
-      sellAmount: params.inputAmount.toString(),
-      slippageBps: params.slippageBps.toString(),
-    });
+    let query: URLSearchParams | null = null;
+    if (params.mode === "exactInQuote") {
+      query = new URLSearchParams({
+        chainId: params.chainId.toString(),
+        buyToken: params.outputToken,
+        sellToken: params.inputToken,
+        sellAmount: params.inputAmount.toString(),
+        slippageBps: params.slippageBps.toString(),
+      });
+    } else {
+      query = new URLSearchParams({
+        chainId: params.chainId.toString(),
+        buyToken: params.outputToken,
+        sellToken: params.inputToken,
+        sellAmount: params.outputAmount.toString(),
+        slippageBps: params.slippageBps.toString(),
+      });
+    }
 
     return await fetch(`${this.config.url || DEFAULT_URL}/v1/quote?${query.toString()}`, {
       headers: {

@@ -1,6 +1,7 @@
 import { Aggregator } from "../aggregator.js";
 import {
   type Address,
+  type ExactInSwapParams,
   type PoolEdge,
   type ProviderKey,
   QuoteError,
@@ -55,7 +56,11 @@ export class KyberAggregator extends Aggregator {
    * @inheritdoc
    */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
-    const response = await this.getRoute(request);
+    if (request.mode === "exactOutputQuote") {
+      throw new QuoteError("0x aggregator does not support exact output quotes");
+    }
+
+    const response = await this.getRoute(request as ExactInSwapParams);
     const networkFee =
       BigInt(response.totalGas) * BigInt(Math.round(Number(response.gasPriceGwei) * 10 ** 9));
     return {
@@ -64,6 +69,7 @@ export class KyberAggregator extends Aggregator {
       details: response,
       latency: 0, // Filled in by MetaAggregator
       outputAmount: BigInt(response.outputAmount),
+      inputAmount: BigInt(response.inputAmount),
       networkFee,
       txData: {
         to: response.routerAddress,
@@ -73,7 +79,7 @@ export class KyberAggregator extends Aggregator {
     };
   }
 
-  private async getRoute(query: SwapParams): Promise<KyberQuoteResponse> {
+  private async getRoute(query: ExactInSwapParams): Promise<KyberQuoteResponse> {
     const chain = chainNameLookup[query.chainId];
     const params = new URLSearchParams({
       tokenOut: query.outputToken,

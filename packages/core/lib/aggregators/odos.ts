@@ -1,5 +1,6 @@
 import { Aggregator } from "../aggregator.js";
 import {
+  type ExactInSwapParams,
   type PoolEdge,
   type ProviderKey,
   QuoteError,
@@ -67,13 +68,18 @@ export class OdosAggregator extends Aggregator {
    * Odos requires generating a quote to obtain a `pathId`, then assembling the transaction.
    */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
-    const response = await this.getQuote(request);
+    if (request.mode === "exactOutputQuote") {
+      throw new QuoteError("0x aggregator does not support exact output quotes");
+    }
+
+    const response = await this.getQuote(request as ExactInSwapParams);
     // TODO: is this right? copied from kyber
     const networkFee =
       BigInt(response.gasEstimate) * BigInt(Math.round(response.gweiPerGas * 10 ** 9));
 
     const txData = await assembleOdosTx(response.pathId, request.swapperAccount);
     const outputAmount = BigInt(response.outAmounts[0] || "0");
+    const inputAmount = BigInt(response.inAmounts[0] || "0");
     const route = response.pathViz ? odosRouteGraph(response.pathViz) : undefined;
 
     return {
@@ -81,6 +87,7 @@ export class OdosAggregator extends Aggregator {
       provider: "odos",
       details: response,
       latency: 0,
+      inputAmount,
       outputAmount,
       networkFee,
       txData,
@@ -95,7 +102,7 @@ export class OdosAggregator extends Aggregator {
     inputAmount,
     slippageBps,
     swapperAccount,
-  }: SwapParams): Promise<OdosQuoteResponse> {
+  }: ExactInSwapParams): Promise<OdosQuoteResponse> {
     const quoteGenParams = {
       chainId: chainId,
       inputTokens: [

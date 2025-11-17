@@ -68,9 +68,13 @@ export type GenericQuote<P extends ProviderKey, T> = {
    */
   latency: number;
   /**
-   * Amount of output token received (denominated in base units).
+   * Amount of output token received or bought (denominated in base units).
    */
   outputAmount: bigint;
+  /**
+   * Amount of input token sent or sold (denominated in base units).
+   */
+  inputAmount: bigint;
   /**
    * Estimated network fee in wei.
    */
@@ -135,10 +139,7 @@ export type FailedQuote = {
  */
 export type Quote = SuccessfulQuote | FailedQuote;
 
-/**
- * Parameters required to request a swap quote.
- */
-export type SwapParams = {
+type SwapBase = {
   /**
    * Chain identifier (EIP-155).
    */
@@ -152,10 +153,6 @@ export type SwapParams = {
    */
   outputToken: Address;
   /**
-   * Amount of `inputToken` in base units.
-   */
-  inputAmount: bigint;
-  /**
    * Allowed slippage expressed in basis points.
    */
   slippageBps: number;
@@ -164,6 +161,27 @@ export type SwapParams = {
    */
   swapperAccount: Address;
 };
+
+export type ExactInSwapParams = SwapBase & {
+  mode: "exactInQuote";
+  /**
+   * Amount of input token to sell (denominated in base units).
+   */
+  inputAmount: bigint;
+};
+
+export type ExactOutSwapParams = SwapBase & {
+  mode: "exactOutputQuote";
+  /**
+   * Amount of output token to purchase (denominated in base units).
+   */
+  outputAmount: bigint;
+};
+
+/**
+ * Parameters required to request a swap quote.
+ */
+export type SwapParams = ExactInSwapParams | ExactOutSwapParams;
 
 /**
  * Transaction payload emitted alongside a quote.
