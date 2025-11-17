@@ -74,7 +74,7 @@ async function performSimulation({
             data: encodeFunctionData({
               abi: erc20Abi,
               functionName: "approve",
-              args: [quote.txData.to, params.inputAmount],
+              args: [quote.txData.to, quote.inputAmount],
             }),
           }
         : undefined,

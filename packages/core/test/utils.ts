@@ -9,6 +9,7 @@ export const defaultSwapParams: SwapParams = {
   inputAmount: 500_000_000n,
   slippageBps: 100,
   swapperAccount: "0xdead00000000000000000000000000000000beef",
+  mode: "exactInQuote",
 };
 
 export const quoteSuccess: SuccessfulQuote = {
@@ -16,6 +17,7 @@ export const quoteSuccess: SuccessfulQuote = {
   provider: "fabric",
   details: {} as FabricQuoteResponse,
   latency: 100,
+  inputAmount: 1_000_000n,
   outputAmount: 900_000n,
   networkFee: 5_000n,
   txData: { to: "0x0", data: "0x0" },
@@ -24,7 +26,7 @@ export const quoteSuccess: SuccessfulQuote = {
 export const quoteFailure: Quote = {
   success: false,
   provider: "fabric",
-  message: "Failed to get quote",
+  error: new Error("Failed to get quote"),
 };
 
 export class MockAggregator extends Aggregator {

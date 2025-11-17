@@ -125,7 +125,7 @@ export class FabricAggregator extends Aggregator {
         chainId: params.chainId.toString(),
         buyToken: params.outputToken,
         sellToken: params.inputToken,
-        sellAmount: params.outputAmount.toString(),
+        buytAmount: params.outputAmount.toString(),
         slippageBps: params.slippageBps.toString(),
       });
     }
