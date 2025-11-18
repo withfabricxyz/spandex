@@ -3,7 +3,8 @@
   "description": "SMAL Meta Aggregator Library - Get the best swap rates across multiple DEXs and aggregators",
   "workspaces": [
     "packages/core",
-    "packages/simulate"
+    "packages/simulate",
+    "site"
   ],
   "scripts": {
     "lint": "biome check --formatter-enabled=true --linter-enabled=true",
