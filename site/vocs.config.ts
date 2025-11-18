@@ -1,35 +1,35 @@
-import { defineConfig } from 'vocs'
+import { defineConfig } from "vocs";
 
 export default defineConfig({
-  title: 'SMAL',
+  title: "SMAL",
   sidebar: [
     {
-      text: 'Getting Started',
-      link: '/getting-started',
+      text: "Getting Started",
+      link: "/getting-started",
     },
     {
-      text: 'Simulation',
-      link: '/simulation',
+      text: "Simulation",
+      link: "/simulation",
     },
     {
-      text: 'React',
-      link: '/react',
+      text: "React",
+      link: "/react",
     },
     {
-      text: 'Strategies',
-      link: '/strategies',
+      text: "Strategies",
+      link: "/strategies",
     },
     {
-      text: 'Advanced',
-      link: '/advanced',
+      text: "Advanced",
+      link: "/advanced",
     },
     {
-      text: 'Fee Config',
-      link: '/fees',
+      text: "Fee Config",
+      link: "/fees",
     },
   ],
   // vite: {
   // },
   // topNav: {
   // }
-})
+});

@@ -1,5 +1,5 @@
-import { buildMetaAggregator } from "@withfabric/smal";
 import type { ExactInSwapParams } from "@withfabric/smal";
+import { buildMetaAggregator } from "@withfabric/smal";
 
 const meta = buildMetaAggregator({
   aggregators: [
