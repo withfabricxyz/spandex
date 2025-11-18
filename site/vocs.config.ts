@@ -8,12 +8,28 @@ export default defineConfig({
       link: '/getting-started',
     },
     {
-      text: 'Example',
-      link: '/example',
+      text: 'Simulation',
+      link: '/simulation',
+    },
+    {
+      text: 'React',
+      link: '/react',
+    },
+    {
+      text: 'Strategies',
+      link: '/strategies',
+    },
+    {
+      text: 'Advanced',
+      link: '/advanced',
+    },
+    {
+      text: 'Fee Config',
+      link: '/fees',
     },
   ],
-  vite: {
-  },
+  // vite: {
+  // },
   // topNav: {
   // }
 })
