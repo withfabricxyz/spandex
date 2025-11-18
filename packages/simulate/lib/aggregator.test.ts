@@ -92,7 +92,9 @@ describe("SimulatedMetaAggregator", () => {
         expect(quote.simulation.outputAmount).toBeGreaterThanOrEqual(
           (quote as SuccessfulQuote).outputAmount - tolerance,
         );
-        expect(quote.simulation.outputAmount).toBeLessThanOrEqual((quote as SuccessfulQuote).outputAmount + tolerance);
+        expect(quote.simulation.outputAmount).toBeLessThanOrEqual(
+          (quote as SuccessfulQuote).outputAmount + tolerance,
+        );
       }
     }
   }, 30000);
@@ -126,7 +128,9 @@ describe("SimulatedMetaAggregator", () => {
         provider: quote.provider,
         quote: (quote as SuccessfulQuote).outputAmount,
         actual: quote.simulation.success ? quote.simulation.outputAmount : "N/A",
-        diff: quote.simulation.success ? quote.simulation.outputAmount - (quote as SuccessfulQuote).outputAmount : "N/A",
+        diff: quote.simulation.success
+          ? quote.simulation.outputAmount - (quote as SuccessfulQuote).outputAmount
+          : "N/A",
       })),
     );
 
@@ -145,7 +149,9 @@ describe("SimulatedMetaAggregator", () => {
         expect(quote.simulation.outputAmount).toBeGreaterThanOrEqual(
           (quote as SuccessfulQuote).outputAmount - tolerance,
         );
-        expect(quote.simulation.outputAmount).toBeLessThanOrEqual((quote as SuccessfulQuote).outputAmount + tolerance);
+        expect(quote.simulation.outputAmount).toBeLessThanOrEqual(
+          (quote as SuccessfulQuote).outputAmount + tolerance,
+        );
       }
     }
   }, 30000);
@@ -179,7 +185,9 @@ describe("SimulatedMetaAggregator", () => {
         provider: quote.provider,
         quote: (quote as SuccessfulQuote).outputAmount,
         actual: quote.simulation.success ? quote.simulation.outputAmount : "N/A",
-        diff: quote.simulation.success ? quote.simulation.outputAmount - (quote as SuccessfulQuote).outputAmount : "N/A",
+        diff: quote.simulation.success
+          ? quote.simulation.outputAmount - (quote as SuccessfulQuote).outputAmount
+          : "N/A",
       })),
     );
 
@@ -198,7 +206,9 @@ describe("SimulatedMetaAggregator", () => {
         expect(quote.simulation.outputAmount).toBeGreaterThanOrEqual(
           (quote as SuccessfulQuote).outputAmount - tolerance,
         );
-        expect(quote.simulation.outputAmount).toBeLessThanOrEqual((quote as SuccessfulQuote).outputAmount + tolerance);
+        expect(quote.simulation.outputAmount).toBeLessThanOrEqual(
+          (quote as SuccessfulQuote).outputAmount + tolerance,
+        );
       }
     }
   }, 30000);
