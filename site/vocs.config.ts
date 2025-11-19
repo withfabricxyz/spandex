@@ -12,10 +12,6 @@ export default defineConfig({
       link: "/simulation",
     },
     {
-      text: "React",
-      link: "/react",
-    },
-    {
       text: "Strategies",
       link: "/strategies",
     },
@@ -26,6 +22,10 @@ export default defineConfig({
     {
       text: "Fee Config",
       link: "/fees",
+    },
+    {
+      text: "React",
+      link: "/react",
     },
   ],
   // vite: {

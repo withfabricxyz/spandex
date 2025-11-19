@@ -1,18 +1,19 @@
 import type { ExactInSwapParams } from "@withfabric/smal";
 import { buildMetaAggregator } from "@withfabric/smal";
+import { createWalletClient, http } from "viem";
+import { base } from "viem/chains";
 
-const meta = buildMetaAggregator({
+const walletClient = createWalletClient({
+  account: "0xdead00000000000000000000000000000000beef",
+  chain: base,
+  transport: http(),
+});
+
+const metaAggregator = buildMetaAggregator({
   aggregators: [
     { provider: "fabric", config: {} },
-    { provider: "0x", config: { apiKey: "YOUR_ZEROX_API_KEY" } },
-    { provider: "odos", config: { referralCode: 1234 } },
+    // ... other providers
   ],
-  // TODO: advanced configuration
-  // defaults: {
-  //   strategy: "quotedPrice",
-  //   deadlineMs: 3_000,
-  //   numRetries: 2,
-  // },
 });
 
 const params: ExactInSwapParams = {
@@ -25,14 +26,13 @@ const params: ExactInSwapParams = {
   swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
 };
 
-const bestQuote = await meta.fetchBestQuote(params);
+// default strategy is "quotedPrice"; see Strategies for other options
+const bestQuote = await metaAggregator.fetchBestQuote(params);
 
 if (!bestQuote) {
   throw new Error("No providers responded in time");
 }
 
-console.log(
-  `Best quote from ${bestQuote.provider} returned ${bestQuote.outputAmount.toString()} after ${bestQuote.latency.toFixed(
-    0,
-  )}ms`,
-);
+const tx = await walletClient.sendTransaction(bestQuote.txData);
+
+console.log(`Tx: ${tx}`);

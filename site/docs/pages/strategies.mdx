@@ -1,3 +1,74 @@
 # Strategies
 
-Cover selection strategies
+## Overview
+
+SMAL supports multiple quote selection strategies to match different use cases. When you call `fetchBestQuote()`, the strategy determines which quote is "best" from all provider responses.
+
+## Built-in Strategies
+
+### `quotedPrice` (Default)
+
+Selects the quote with the highest output amount.
+
+**Use when:** Price is your primary concern and you can afford to wait for all providers.
+
+```ts twoslash
+// [!include ~/snippets/strategy-quoted-price.ts]
+```
+
+### `quotedGas`
+
+Selects the quote with the lowest estimated gas cost.
+
+**Use when:** You're optimizing for gas efficiency, especially on expensive chains like mainnet.
+
+```ts twoslash
+// [!include ~/snippets/strategy-quoted-gas.ts]
+```
+
+### `fastest`
+
+Returns the first successful quote that arrives.
+
+**Use when:** Response time matters more than price (e.g., user-facing UIs, time-sensitive arbitrage).
+
+```ts twoslash
+// [!include ~/snippets/strategy-fastest.ts]
+```
+
+### `priority`
+
+Evaluates providers sequentially and returns the first success.
+
+**Use when:** You have a preferred provider order (e.g., trusted sources first, fallbacks second).
+
+```ts twoslash
+// [!include ~/snippets/strategy-priority.ts]
+```
+
+## Custom Strategies
+
+You can define your own selection logic by passing a function instead of a strategy name:
+
+```ts twoslash
+// [!include ~/snippets/strategy-custom.ts]
+```
+
+**Custom strategy signature:**
+```typescript
+type QuoteSelectionFn = (
+  quotes: Array<Promise<Quote>>
+) => Promise<SuccessfulQuote | null>
+```
+
+Your function receives an array of quote promises and must return the selected quote or `null` if none are acceptable.
+
+## Comparison
+
+| Strategy | Waits for All | Selection Criteria | Best For |
+|----------|---------------|-------------------|----------|
+| `quotedPrice` | ✓ | Highest output | Price optimization |
+| `quotedGas` | ✓ | Lowest gas cost | Gas efficiency |
+| `fastest` | ✗ | First success | Speed/latency |
+| `priority` | ✗ | Provider order | Fallback chains |
+| Custom | Depends | Your logic | Special requirements |

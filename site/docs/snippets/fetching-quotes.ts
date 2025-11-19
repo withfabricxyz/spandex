@@ -1,18 +1,12 @@
 import type { ExactInSwapParams } from "@withfabric/smal";
 import { buildMetaAggregator } from "@withfabric/smal";
 
-const meta = buildMetaAggregator({
+const metaAggregator = buildMetaAggregator({
   aggregators: [
     { provider: "fabric", config: {} },
-    { provider: "0x", config: { apiKey: "YOUR_ZEROX_API_KEY" } },
+    { provider: "0x", config: { apiKey: "" } },
     { provider: "odos", config: { referralCode: 1234 } },
   ],
-  // TODO: advanced configuration
-  // defaults: {
-  //   strategy: "quotedPrice",
-  //   deadlineMs: 3_000,
-  //   numRetries: 2,
-  // },
 });
 
 const params: ExactInSwapParams = {
@@ -25,14 +19,14 @@ const params: ExactInSwapParams = {
   swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
 };
 
-const bestQuote = await meta.fetchBestQuote(params);
+const quotes = await metaAggregator.fetchQuotes(params);
 
-if (!bestQuote) {
+if (quotes.length === 0) {
   throw new Error("No providers responded in time");
 }
 
-console.log(
-  `Best quote from ${bestQuote.provider} returned ${bestQuote.outputAmount.toString()} after ${bestQuote.latency.toFixed(
-    0,
-  )}ms`,
-);
+for (const quote of quotes) {
+  console.log(
+    `${quote.provider}: returned ${quote.outputAmount.toString()} after ${quote.latency.toFixed(0)}ms`,
+  );
+}
