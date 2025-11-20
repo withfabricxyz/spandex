@@ -1,3 +1,270 @@
 # Usage in React Applications
 
-To use SMAL in a React application, you can follow these steps...
+## Overview
+
+SMAL provides React hooks for integrating swaps into your React applications. The hooks are
+designed to work with [Wagmi v3](https://wagmi.sh), automatically pulling chain and
+account information from the wallet connection.
+
+## Installation
+
+:::code-group
+
+```bash [npm]
+npm i @withfabric/smal-wagmi wagmi viem
+```
+
+```bash [bun]
+bun i @withfabric/smal-wagmi wagmi viem
+```
+
+```bash [pnpm]
+pnpm i @withfabric/smal-wagmi wagmi viem
+```
+
+:::
+
+## Setup
+
+Wrap your application with `SmalProvider`, within the WagmiProvider:
+
+```tsx
+import { WagmiProvider, createConfig, http } from "wagmi";
+import { base } from "wagmi/chains";
+import { SmalProvider } from "@withfabric/smal-wagmi";
+
+const wagmiConfig = createConfig({
+  chains: [base],
+  transports: {
+    [base.id]: http(),
+  },
+});
+
+const smalConfig = {
+  aggregators: [
+    { provider: "fabric", config: {} },
+    { provider: "0x", config: {} },
+  ],
+  defaults: {
+    strategy: "quotedPrice",
+  },
+};
+
+function App() {
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <SmalProvider config={smalConfig}>
+        <YourApp />
+      </SmalProvider>
+    </WagmiProvider>
+  );
+}
+```
+
+### Configuration
+
+The `SmalProvider` accepts a `config` prop with two properties:
+
+- **`aggregators`**: Array of aggregator configurations (see [Getting Started](/getting-started))
+- **`defaults`**: Optional default options including strategy (see [Strategies](/strategies))
+
+## Hooks
+
+### `useQuotes`
+
+Fetch quotes from all configured aggregators. Automatically merges wallet connection data (chain ID and account address) from Wagmi.
+
+```tsx
+import { useQuotes } from "@withfabric/smal-wagmi";
+
+function SwapComponent() {
+  const { quotes, isLoading, error, getQuotes } = useQuotes({
+    mode: "exactInQuote",
+    inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+    outputToken: "0x4200000000000000000000000000000000000006", // WETH
+    inputAmount: 1000000n, // 1 USDC
+    slippageBps: 100, // 1%
+  });
+
+  const handleFetch = async () => {
+    const fetchedQuotes = await getQuotes();
+    console.log("Received quotes:", fetchedQuotes);
+  };
+
+  if (isLoading) return <div>Fetching quotes...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      <button onClick={handleFetch}>Get Quotes</button>
+      {quotes?.map((quote) => (
+        <div key={quote.provider}>
+          {quote.provider}: {quote.outputAmount.toString()}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+#### Parameters
+
+The hook accepts all swap parameters except `chainId` and `swapperAccount`, which are automatically pulled from Wagmi's `useConnection()`:
+
+```typescript
+type UseQuotesParams = {
+  mode: "exactInQuote" | "exactOutputQuote";
+  inputToken: `0x${string}`;
+  outputToken: `0x${string}`;
+  inputAmount?: bigint; // Required for exactInQuote
+  outputAmount?: bigint; // Required for exactOutputQuote
+  slippageBps: number;
+  // Optional overrides:
+  chainId?: number; // Override connected chain
+  swapperAccount?: `0x${string}`; // Override connected account
+};
+```
+
+#### Return Value
+
+```typescript
+{
+  quotes: SuccessfulQuote[] | null;
+  isLoading: boolean;
+  error: Error | null;
+  getQuotes: () => Promise<SuccessfulQuote[] | null>;
+}
+```
+
+#### Automatic Wallet Integration
+
+The hook automatically uses the connected wallet's chain and account:
+
+```tsx
+// Automatically uses connected chain ID and account address
+const { getQuotes } = useQuotes({
+  mode: "exactInQuote",
+  inputToken: "0x...",
+  outputToken: "0x...",
+  inputAmount: 1000000n,
+  slippageBps: 100,
+});
+```
+
+You can override these values if needed:
+
+```tsx
+// Override chain ID and account
+const { getQuotes } = useQuotes({
+  mode: "exactInQuote",
+  chainId: 1, // Force Ethereum mainnet
+  swapperAccount: "0xSpecificAddress...",
+  inputToken: "0x...",
+  outputToken: "0x...",
+  inputAmount: 1000000n,
+  slippageBps: 100,
+});
+```
+
+If no chain or account is connected (and not provided), `getQuotes()` returns `null`.
+
+## Example: Complete Swap UI
+
+```tsx
+import { useQuotes } from "@withfabric/smal-wagmi";
+import { useConnection } from "wagmi";
+import { useState } from "react";
+
+function SwapUI() {
+  const connection = useConnection();
+  const [inputAmount, setInputAmount] = useState("");
+  
+  const { quotes, isLoading, error, getQuotes } = useQuotes({
+    mode: "exactInQuote",
+    inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    outputToken: "0x4200000000000000000000000000000000000006",
+    inputAmount: BigInt(inputAmount || "0"),
+    slippageBps: 100,
+  });
+
+  if (!connection.address) {
+    return <div>Please connect your wallet</div>;
+  }
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={inputAmount}
+        onChange={(e) => setInputAmount(e.target.value)}
+        placeholder="Amount to swap"
+      />
+      
+      <button onClick={getQuotes} disabled={isLoading || !inputAmount}>
+        {isLoading ? "Fetching..." : "Get Best Price"}
+      </button>
+
+      {error && <div>Error: {error.message}</div>}
+      
+      {quotes && quotes.length > 0 && (
+        <div>
+          <h3>Available Quotes:</h3>
+          {quotes.map((quote) => (
+            <div key={quote.provider}>
+              <strong>{quote.provider}</strong>: {quote.outputAmount.toString()}
+              {" "}(gas: {quote.networkFee?.toString() || "unknown"})
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### 1. Strategy Selection
+
+Choose the appropriate strategy based on your use case (see [Strategies](/strategies)):
+
+```tsx
+// In SmalProvider config
+const smalConfig = {
+  aggregators: [...],
+  defaults: {
+    strategy: "fastest", // For responsive UIs
+  },
+};
+```
+
+### 2. Error Handling
+
+Always handle errors gracefully:
+
+```tsx
+const { error } = useQuotes({ ... });
+
+if (error) {
+  // Log to error tracking service
+  console.error("Quote fetch failed:", error);
+  // Show user-friendly message
+  return <div>Unable to fetch quotes. Please try again.</div>;
+}
+```
+
+### 3. Loading States
+
+Provide clear feedback during quote fetching:
+
+```tsx
+const { isLoading, getQuotes } = useQuotes({ ... });
+
+<button onClick={getQuotes} disabled={isLoading}>
+  {isLoading ? "Fetching quotes..." : "Get Quotes"}
+</button>
+```
+
+### 4. Simulation
+
+TODO: `useSimulatedQuotes`

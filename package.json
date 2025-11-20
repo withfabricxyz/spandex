@@ -4,6 +4,7 @@
   "workspaces": [
     "packages/core",
     "packages/simulate",
+    "packages/wagmi",
     "site"
   ],
   "scripts": {

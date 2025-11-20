@@ -1,0 +1,6 @@
+[test]
+preload = ["./test-setup.ts"]
+
+# Use happy-dom for DOM globals
+[test.env]
+JSDOM = "happy-dom"
