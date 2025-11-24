@@ -1,5 +1,11 @@
-import type { ExactInSwapParams, ExactOutSwapParams, SuccessfulQuote } from "@withfabric/smal";
-import { useCallback, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type {
+  ExactInSwapParams,
+  ExactOutSwapParams,
+  MetaAggregator,
+  Quote,
+} from "@withfabric/smal";
+import { useMemo } from "react";
 import { useConnection } from "wagmi";
 import { useSmalConfig } from "../context/SmalProvider.js";
 
@@ -12,12 +18,23 @@ export type UseQuotesParams = (
   enabled?: boolean;
 };
 
-export function useQuotes(params: UseQuotesParams) {
+export type UseQuotesResult = {
+  quotes: Quote[] | null;
+  isLoading: boolean;
+  error: unknown;
+};
+
+async function fetchQuotes(
+  metaAggregator: MetaAggregator,
+  params: ExactInSwapParams | ExactOutSwapParams,
+): Promise<Quote[]> {
+  const fetchedQuotes = await metaAggregator.fetchAllQuotes(params);
+  return fetchedQuotes;
+}
+
+export function useQuotes(params: UseQuotesParams): UseQuotesResult {
   const { metaAggregator } = useSmalConfig();
   const connection = useConnection();
-  const [quotes, setQuotes] = useState<SuccessfulQuote[] | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
   const finalChainId = params.chainId ?? connection.chain?.id;
   const finalSwapperAccount = params.swapperAccount ?? connection.address;
@@ -50,29 +67,24 @@ export function useQuotes(params: UseQuotesParams) {
     };
   }, [finalChainId, finalSwapperAccount, params]);
 
-  const getQuotes = useCallback(async () => {
-    if (!fullParams) return null;
+  const {
+    data: quotes,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["smal-quotes", fullParams],
+    queryFn: () => {
+      if (!fullParams) throw new Error("Missing required parameters");
+      return fetchQuotes(metaAggregator, fullParams);
+    },
+    enabled: params.enabled !== false && fullParams !== null,
+    staleTime: 10_000,
+    retry: 2,
+  });
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const fetchedQuotes = await metaAggregator.fetchAllQuotes(fullParams);
-      // TODO: return failed quotes? UI's may be concerned with failed quotes too
-      const successfulQuotes = fetchedQuotes.filter((quote) => quote.success);
-
-      setQuotes(successfulQuotes);
-
-      return successfulQuotes;
-    } catch (err) {
-      setError(err as Error);
-      setQuotes(null);
-
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [metaAggregator, fullParams]);
-
-  return { quotes, isLoading, error, getQuotes };
+  return {
+    quotes: quotes ?? null,
+    isLoading,
+    error,
+  };
 }
