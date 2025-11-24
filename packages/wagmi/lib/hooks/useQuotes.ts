@@ -73,6 +73,11 @@ export function useQuotes(params: UseQuotesParams): UseQuotesResult {
     error,
   } = useQuery({
     queryKey: ["smal-quotes", fullParams],
+    // serialize bigints in quote params
+    queryKeyHashFn: (queryKey) =>
+      JSON.stringify(queryKey, (_key, value) =>
+        typeof value === "bigint" ? value.toString() : value,
+      ),
     queryFn: () => {
       if (!fullParams) throw new Error("Missing required parameters");
       return fetchQuotes(metaAggregator, fullParams);

@@ -1,4 +1,5 @@
 import { describe, expect, it, mock } from "bun:test";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import type { MetaAggregator } from "@withfabric/smal";
 import type { ReactNode } from "react";
@@ -18,18 +19,28 @@ mock.module("wagmi", () => ({
   }),
 }));
 
-// simulate app with SmalProvider
+// simulate app with SmalProvider and QueryClientProvider
 function createApp() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
   return function App({ children }: { children: ReactNode }) {
     return (
-      <SmalProvider
-        config={{
-          aggregators: [{ provider: "fabric", config: {} }],
-          defaults: { strategy: "quotedPrice" },
-        }}
-      >
-        {children}
-      </SmalProvider>
+      <QueryClientProvider client={queryClient}>
+        <SmalProvider
+          config={{
+            aggregators: [{ provider: "fabric", config: {} }],
+            defaults: { strategy: "quotedPrice" },
+          }}
+        >
+          {children}
+        </SmalProvider>
+      </QueryClientProvider>
     );
   };
 }
@@ -68,9 +79,8 @@ describe("useQuotes", () => {
       { wrapper: app },
     );
 
-    await result.current.getQuotes();
-
     await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
       expect(mockFetchAllQuotes).toHaveBeenCalledWith({
         mode: "exactInQuote",
         chainId: 8453,
@@ -80,6 +90,7 @@ describe("useQuotes", () => {
         inputAmount: 500_000_000n,
         slippageBps: 100,
       });
+      expect(result.current.quotes).toHaveLength(1);
     });
   });
 
@@ -107,9 +118,8 @@ describe("useQuotes", () => {
       { wrapper: app },
     );
 
-    await result.current.getQuotes();
-
     await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
       expect(mockFetchAllQuotes).toHaveBeenCalledWith(
         expect.objectContaining({
           chainId: 1,
@@ -147,9 +157,9 @@ describe("useQuotes", () => {
       { wrapper: app },
     );
 
-    const quotes = await result.current.getQuotes();
-
-    expect(quotes).toBeNull();
+    // Query should not run when required params are missing
+    expect(result.current.quotes).toBeNull();
+    expect(result.current.isLoading).toBe(false);
     expect(mockFetchAllQuotes).not.toHaveBeenCalled();
   });
 });
