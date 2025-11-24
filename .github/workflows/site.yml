@@ -1,9 +1,6 @@
 name: Site building
 on:
   pull_request:
-  paths:
-    -- .github/workflows/site.yml
-    -- site/**
 
 jobs:
   build:

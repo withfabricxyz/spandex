@@ -7,7 +7,7 @@ on:
 jobs:
   lint:
     name: Audit, Lint & Format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     steps:
       - name: Clone repository
@@ -22,7 +22,7 @@ jobs:
   build:
     name: Build & Test
     needs: lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
