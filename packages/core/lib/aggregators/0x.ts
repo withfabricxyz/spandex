@@ -1,6 +1,7 @@
 import { Aggregator } from "../aggregator.js";
 import {
   type Address,
+  type AggregatorFeature,
   type ExactInSwapParams,
   type Hex,
   type ProviderKey,
@@ -12,6 +13,7 @@ import {
 
 export type ZeroXConfig = {
   apiKey: string;
+  negotiateSurplus?: boolean;
 };
 
 /**
@@ -30,6 +32,14 @@ export class ZeroXAggregator extends Aggregator {
    */
   name(): ProviderKey {
     return "0x";
+  }
+
+  override features(): AggregatorFeature[] {
+    return [
+      "exactInQuote",
+      "integratorFees",
+      this.config.negotiateSurplus ? "integratorSurplus" : undefined,
+    ].filter((f): f is AggregatorFeature => f !== undefined);
   }
 
   /**

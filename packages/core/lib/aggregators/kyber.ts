@@ -1,6 +1,7 @@
 import { Aggregator } from "../aggregator.js";
 import {
   type Address,
+  type AggregatorFeature,
   type ExactInSwapParams,
   type PoolEdge,
   type ProviderKey,
@@ -50,6 +51,13 @@ export class KyberAggregator extends Aggregator {
    */
   name(): ProviderKey {
     return "kyberswap";
+  }
+
+  /**
+   * @inheritdoc
+   */
+  override features(): AggregatorFeature[] {
+    return ["exactInQuote", "integratorFees"];
   }
 
   /**

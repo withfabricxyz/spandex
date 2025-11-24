@@ -1,6 +1,7 @@
 import { Aggregator } from "../aggregator.js";
 import {
   type Address,
+  type AggregatorFeature,
   type Hex,
   type ProviderKey,
   QuoteError,
@@ -84,6 +85,13 @@ export class FabricAggregator extends Aggregator {
    */
   name(): ProviderKey {
     return "fabric";
+  }
+
+  /**
+   * @inheritdoc
+   */
+  override features(): AggregatorFeature[] {
+    return ["exactInQuote", "targetOutQuote", "integratorFees", "integratorSurplus"];
   }
 
   /**

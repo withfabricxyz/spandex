@@ -80,7 +80,7 @@ describe("aggregator", () => {
   }, 10_000);
 
   it("respects the deadline", async () => {
-    const failingAggregator = new MockAggregator(quoteFailure, 200);
+    const failingAggregator = new MockAggregator(quoteFailure, { delay: 200 });
     const quoter = new MetaAggregator([failingAggregator], {
       numRetries: 1,
       deadlineMs: 50,
@@ -95,4 +95,34 @@ describe("aggregator", () => {
     expect(quotes[0]?.success).toBe(false);
     expect((quotes[0] as FailedQuote).error?.message).toMatch(/MetaAggregator deadline exceeded/);
   }, 10_000);
+
+  it("respects target out filter", async () => {
+    const quoter = new MetaAggregator([
+      new MockAggregator(quoteSuccess, { features: ["targetOutQuote"] }),
+      new MockAggregator(quoteSuccess),
+    ]);
+    const quotes = await quoter.fetchAllQuotes({
+      ...defaultSwapParams,
+      mode: "exactOutputQuote",
+      outputAmount: 1_000_000n,
+    });
+    expect(quotes).toBeDefined();
+    expect(quotes.length).toBe(1);
+  }, 1_000);
+
+  it("respects surplus taking filter", async () => {
+    const quoter = new MetaAggregator(
+      [
+        new MockAggregator(quoteSuccess, { features: ["exactInQuote", "integratorSurplus"] }),
+        new MockAggregator(quoteSuccess),
+      ],
+      {
+        integratorSurplusBps: 10,
+        integratorFeeAddress: "0x0000000000000000000000000000000000000001" as `0x${string}`,
+      },
+    );
+    const quotes = await quoter.fetchAllQuotes(defaultSwapParams);
+    expect(quotes).toBeDefined();
+    expect(quotes.length).toBe(1);
+  }, 1_000);
 });

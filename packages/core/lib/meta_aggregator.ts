@@ -1,6 +1,7 @@
 import type { Aggregator } from "./aggregator.ts";
 import { applyStrategy } from "./strategies.js";
 import {
+  type AggregatorFeature,
   type MetaAggregationOptions,
   type Quote,
   QuoteError,
@@ -8,7 +9,7 @@ import {
   type SwapParams,
 } from "./types.js";
 
-const MIN_DEADLINE_MS = 100;
+const MIN_DEADLINE_MS = 250;
 const MAX_DEADLINE_MS = 60_000;
 
 const QuoteIdentifyFn = async (quote: Quote): Promise<Quote> => quote;
@@ -122,7 +123,20 @@ export class MetaAggregator {
   }): Array<Promise<T>> {
     const options = { ...this.defaults, ...overrides }; // TODO: Deep merge?
 
-    return this.aggregators.map(async (aggregator) => {
+    validateOptions(options);
+
+    // Get the required features for this request and filter aggregators accordingly
+    const features = [...queryFeatures(params), ...configFeatures(options)];
+    const candidates = this.aggregators.filter((a) =>
+      features.every((f) => a.features().includes(f)),
+    );
+    if (candidates.length === 0) {
+      throw new Error(
+        `No aggregators available that support all required features: ${features.join(", ")}. Consider adjusting your MetaAggregator configuration or request parameters.`,
+      );
+    }
+
+    return candidates.map(async (aggregator) => {
       const quotePromise = aggregator.fetchQuote(params, options).then(mapFn);
       if (!options.deadlineMs) {
         return quotePromise;
@@ -134,6 +148,47 @@ export class MetaAggregator {
       ]);
     });
   }
+}
+
+function validateOptions(options: MetaAggregationOptions): void {
+  if (
+    ((options.integratorSwapFeeBps || 0) > 0 || (options.integratorSurplusBps || 0) > 0) &&
+    !options.integratorFeeAddress
+  ) {
+    throw new Error(
+      "Swap fees or surplus bps provided without an integrator fee address. Set `integratorFeeAddress` in MetaAggregationOptions.",
+    );
+  }
+  if (
+    options.integratorFeeAddress &&
+    !options.integratorSwapFeeBps &&
+    !options.integratorSurplusBps
+  ) {
+    throw new Error(
+      "Integrator fee address provided without swap fees or surplus bps. Set `integratorSwapFeeBps` or `integratorSurplusBps` in MetaAggregationOptions.",
+    );
+  }
+}
+
+function configFeatures(options?: MetaAggregationOptions): AggregatorFeature[] {
+  const features: AggregatorFeature[] = [];
+  if ((options?.integratorSwapFeeBps || 0) > 0) {
+    features.push("integratorFees");
+  }
+  if ((options?.integratorSurplusBps || 0) > 0) {
+    features.push("integratorSurplus");
+  }
+  return features;
+}
+
+function queryFeatures(params: SwapParams): AggregatorFeature[] {
+  const features: AggregatorFeature[] = [];
+  if (params.mode === "exactInQuote") {
+    features.push("exactInQuote");
+  } else if (params.mode === "exactOutputQuote") {
+    features.push("targetOutQuote");
+  }
+  return features;
 }
 
 async function deadline<T>({

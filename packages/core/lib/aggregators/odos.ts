@@ -1,5 +1,6 @@
 import { Aggregator } from "../aggregator.js";
 import {
+  type AggregatorFeature,
   type ExactInSwapParams,
   type PoolEdge,
   type ProviderKey,
@@ -60,6 +61,13 @@ export class OdosAggregator extends Aggregator {
    */
   name(): ProviderKey {
     return "odos";
+  }
+
+  /**
+   * @inheritdoc
+   */
+  override features(): AggregatorFeature[] {
+    return ["exactInQuote", "integratorFees"];
   }
 
   /**

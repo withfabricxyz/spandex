@@ -19,6 +19,15 @@ export type Hex = `0x${string}`;
 export type ProviderKey = "fabric" | "0x" | "kyberswap" | "odos";
 
 /**
+ * Features that an aggregator may support. Used for capability detection and filtering.
+ */
+export type AggregatorFeature =
+  | "exactInQuote"
+  | "targetOutQuote"
+  | "integratorFees"
+  | "integratorSurplus";
+
+/**
  * Basic configuration block shared by all aggregator-specific configs.
  *
  * @typeParam P - Provider identifier.
@@ -268,9 +277,9 @@ export type RouteGraph = {
  */
 export type AggregationOptions = {
   /**
-   * Timeout for each individual aggregator request in milliseconds.
+   * Maximum duration for the entire aggregation process before aborting pending requests.
    */
-  timeoutMs?: number;
+  deadlineMs?: number;
   /**
    * Number of retry attempts per provider.
    */
@@ -279,6 +288,18 @@ export type AggregationOptions = {
    * Initial delay before retrying failed requests (exponential backoff applied).
    */
   initialRetryDelayMs?: number;
+  /**
+   * Address that should receive the integrator fee.
+   */
+  integratorFeeAddress?: Address;
+  /**
+   * Swap fee for the integrator (in basis points). Only applicable if the provider supports integrator fees.
+   */
+  integratorSwapFeeBps?: number;
+  /**
+   * Surplus share for the integrator (in basis points). Only applicable if the provider supports surplus sharing.
+   */
+  integratorSurplusBps?: number;
 };
 
 /**
@@ -303,11 +324,7 @@ export type MetaAggregationOptions = AggregationOptions & {
   /**
    * Strategy used to select the "best" quote when only one should be returned.
    */
-  strategy?: QuoteSelectionStrategy;
-  /**
-   * Maximum duration for the entire aggregation process before aborting pending requests.
-   */
-  deadlineMs?: number;
+  strategy?: QuoteSelectionStrategy; // TODO: Consider removing and enforcing always supplying a strategy when calling best quote
 };
 
 /**

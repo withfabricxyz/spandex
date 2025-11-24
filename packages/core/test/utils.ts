@@ -1,6 +1,12 @@
 import { Aggregator } from "../lib/aggregator.js";
 import type { FabricQuoteResponse } from "../lib/aggregators/fabric.js";
-import type { ProviderKey, Quote, SuccessfulQuote, SwapParams } from "../lib/types.js";
+import type {
+  AggregatorFeature,
+  ProviderKey,
+  Quote,
+  SuccessfulQuote,
+  SwapParams,
+} from "../lib/types.js";
 
 export const defaultSwapParams: SwapParams = {
   chainId: 8453,
@@ -29,11 +35,16 @@ export const quoteFailure: Quote = {
   error: new Error("Failed to get quote"),
 };
 
+export type MockOverrides = {
+  delay?: number;
+  features?: AggregatorFeature[];
+};
+
 export class MockAggregator extends Aggregator {
   private counter = 0;
   constructor(
     private readonly quote: Quote,
-    private delay?: number,
+    private readonly overrides: MockOverrides = {},
   ) {
     super();
   }
@@ -46,10 +57,14 @@ export class MockAggregator extends Aggregator {
     return this.quote.provider;
   }
 
+  override features(): AggregatorFeature[] {
+    return this.overrides.features || ["exactInQuote"];
+  }
+
   async tryFetchQuote(_: SwapParams): Promise<SuccessfulQuote> {
     this.counter++;
-    if (this.delay) {
-      await new Promise((resolve) => setTimeout(resolve, this.delay));
+    if (this.overrides.delay) {
+      await new Promise((resolve) => setTimeout(resolve, this.overrides.delay));
     }
 
     if (!this.quote.success) {
