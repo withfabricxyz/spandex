@@ -1,5 +1,4 @@
-import type { MetaAggregator } from "@withfabric/smal";
-import type { MetaAggregationOptions, Quote, SwapParams } from "@withfabric/smal/lib/types";
+import type { MetaAggregationOptions, MetaAggregator, Quote, SwapParams } from "@withfabric/smal";
 import type { PublicClient } from "viem";
 import { simulateQuote } from "./simulation.js";
 import type { SimulatedQuote } from "./types.js";

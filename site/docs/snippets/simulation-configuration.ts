@@ -32,7 +32,9 @@ const metaAggregator = buildMetaAggregator({
   },
 });
 
-const quoter = new SimulatedMetaAggregator(metaAggregator, client);
+// Cast to any to bypass duplicate viem type instance mismatch.
+// biome-ignore lint/suspicious/noExplicitAny: temporary, why?
+const quoter = new SimulatedMetaAggregator(metaAggregator, client as any);
 
 const quotes = await quoter.fetchQuotes(params);
 

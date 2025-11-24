@@ -65,8 +65,8 @@ function App() {
 
 The `SmalProvider` accepts a `config` prop with two properties:
 
-- **`aggregators`**: Array of aggregator configurations (see [Getting Started](/getting-started))
-- **`defaults`**: Optional default options including strategy (see [Strategies](/strategies))
+- **`aggregators`**: Array of aggregator configurations (see [Getting Started](/getting-started.mdx))
+- **`defaults`**: Optional default options including strategy (see [Strategies](/strategies.mdx))
 
 ## Hooks
 
@@ -178,7 +178,7 @@ import { useState } from "react";
 function SwapUI() {
   const connection = useConnection();
   const [inputAmount, setInputAmount] = useState("");
-  
+
   const { quotes, isLoading, error, getQuotes } = useQuotes({
     mode: "exactInQuote",
     inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -199,13 +199,13 @@ function SwapUI() {
         onChange={(e) => setInputAmount(e.target.value)}
         placeholder="Amount to swap"
       />
-      
+
       <button onClick={getQuotes} disabled={isLoading || !inputAmount}>
         {isLoading ? "Fetching..." : "Get Best Price"}
       </button>
 
       {error && <div>Error: {error.message}</div>}
-      
+
       {quotes && quotes.length > 0 && (
         <div>
           <h3>Available Quotes:</h3>
@@ -226,7 +226,7 @@ function SwapUI() {
 
 ### 1. Strategy Selection
 
-Choose the appropriate strategy based on your use case (see [Strategies](/strategies)):
+Choose the appropriate strategy based on your use case (see [Strategies](/strategies.mdx)):
 
 ```tsx
 // In SmalProvider config
