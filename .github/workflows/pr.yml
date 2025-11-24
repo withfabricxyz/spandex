@@ -28,5 +28,4 @@ jobs:
         run: bun run build
       - name: Publish Prerelease
         run: |
-          # bun pack
-          bunx pkg-pr-new publish './packages/core' './packages/simulate'
+          bunx pkg-pr-new publish './packages/core' './packages/simulate' './packages/wagmi'
