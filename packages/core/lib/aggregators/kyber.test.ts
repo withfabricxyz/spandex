@@ -7,12 +7,16 @@ describe("Kyberwap", () => {
     const quoter = new KyberAggregator();
     const quote = await quoter.fetchQuote(defaultSwapParams);
     expect(quote).toBeDefined();
+    expect(quote.provider).toBe("kyberswap");
     if (quote.success) {
       expect(quote.outputAmount).toBeGreaterThan(0n);
       expect(quote.networkFee).toBeGreaterThan(0n);
       expect(quote.txData).toBeDefined();
       expect(quote.txData.to).toBeDefined();
       expect(quote.txData.data).toBeDefined();
+      expect(quote.route).toBeDefined();
+      expect(quote.route?.edges?.length).toBeGreaterThan(0);
+      expect(quote.route?.nodes?.length).toBeGreaterThan(0);
     }
   }, 30_000);
 

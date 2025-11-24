@@ -1,6 +1,7 @@
 import { Aggregator } from "../aggregator.js";
 import {
   type Address,
+  type AggregatorFeature,
   type Hex,
   type ProviderKey,
   QuoteError,
@@ -9,7 +10,7 @@ import {
   type SwapParams,
 } from "../types.js";
 
-const FABRIC_BASE_URL = process.env.FABRIC_BASE_URL || "http://booda.defi.withfabric.xyz";
+const DEFAULT_URL = "https://booda.defi.withfabric.xyz";
 
 export type FabricQuoteResponse = {
   blockNumber: number;
@@ -75,7 +76,7 @@ export class FabricAggregator extends Aggregator {
   /**
    * @param config - Fabric-specific configuration such as base URL or API key.
    */
-  constructor(private config: FabricConfig = { url: FABRIC_BASE_URL }) {
+  constructor(private config: FabricConfig = {}) {
     super();
   }
 
@@ -89,18 +90,24 @@ export class FabricAggregator extends Aggregator {
   /**
    * @inheritdoc
    */
+  override features(): AggregatorFeature[] {
+    return ["exactInQuote", "targetOutQuote", "integratorFees", "integratorSurplus"];
+  }
+
+  /**
+   * @inheritdoc
+   */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     const response = await this.makeRequest(request);
-    const amountOut = response.amountOut;
 
     return {
       success: true,
       provider: "fabric",
       details: response,
       latency: 0, // Filled in by MetaAggregator
-      outputAmount: BigInt(amountOut),
+      inputAmount: BigInt(response.amountIn),
+      outputAmount: BigInt(response.amountOut),
       networkFee: 0n, // TODO
-      // blockNumber: response.blockNumber,
       txData: {
         to: response.transaction.to,
         data: response.transaction.data,
@@ -111,15 +118,26 @@ export class FabricAggregator extends Aggregator {
   }
 
   private async makeRequest(params: SwapParams): Promise<FabricQuoteResponse> {
-    const query = new URLSearchParams({
-      chainId: params.chainId.toString(),
-      buyToken: params.outputToken,
-      sellToken: params.inputToken,
-      sellAmount: params.inputAmount.toString(),
-      slippageBps: params.slippageBps.toString(),
-    });
+    let query: URLSearchParams | null = null;
+    if (params.mode === "exactInQuote") {
+      query = new URLSearchParams({
+        chainId: params.chainId.toString(),
+        buyToken: params.outputToken,
+        sellToken: params.inputToken,
+        sellAmount: params.inputAmount.toString(),
+        slippageBps: params.slippageBps.toString(),
+      });
+    } else {
+      query = new URLSearchParams({
+        chainId: params.chainId.toString(),
+        buyToken: params.outputToken,
+        sellToken: params.inputToken,
+        buyAmount: params.outputAmount.toString(),
+        slippageBps: params.slippageBps.toString(),
+      });
+    }
 
-    return await fetch(`${this.config.url}/v1/quote?${query.toString()}`, {
+    return await fetch(`${this.config.url || DEFAULT_URL}/v1/quote?${query.toString()}`, {
       headers: {
         accept: "application/json",
       },

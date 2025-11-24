@@ -19,6 +19,15 @@ export type Hex = `0x${string}`;
 export type ProviderKey = "fabric" | "0x" | "kyberswap" | "odos";
 
 /**
+ * Features that an aggregator may support. Used for capability detection and filtering.
+ */
+export type AggregatorFeature =
+  | "exactInQuote"
+  | "targetOutQuote"
+  | "integratorFees"
+  | "integratorSurplus";
+
+/**
  * Basic configuration block shared by all aggregator-specific configs.
  *
  * @typeParam P - Provider identifier.
@@ -68,9 +77,13 @@ export type GenericQuote<P extends ProviderKey, T> = {
    */
   latency: number;
   /**
-   * Amount of output token received (denominated in base units).
+   * Amount of output token received or bought (denominated in base units).
    */
   outputAmount: bigint;
+  /**
+   * Amount of input token sent or sold (denominated in base units).
+   */
+  inputAmount: bigint;
   /**
    * Estimated network fee in wei.
    */
@@ -99,19 +112,16 @@ export type SuccessfulQuote =
  */
 export class QuoteError extends Error {
   /**
-   * Provider-specific error payload.
-   */
-  details: unknown;
-
-  /**
    * Creates a new quote error.
    *
    * @param message - Human readable error description.
-   * @param details - Provider response payload for debugging.
+   * @param details - Provider response payload for debugging - or `undefined` if not applicable.
    */
-  constructor(message: string, details: unknown) {
+  constructor(
+    message: string,
+    public readonly details?: unknown,
+  ) {
     super(message);
-    this.details = details;
   }
 }
 
@@ -128,10 +138,6 @@ export type FailedQuote = {
    */
   error?: QuoteError;
   /**
-   * Optional human readable error message.
-   */
-  message?: string;
-  /**
    * Provider that failed to produce a quote.
    */
   provider: ProviderKey;
@@ -142,10 +148,7 @@ export type FailedQuote = {
  */
 export type Quote = SuccessfulQuote | FailedQuote;
 
-/**
- * Parameters required to request a swap quote.
- */
-export type SwapParams = {
+type SwapBase = {
   /**
    * Chain identifier (EIP-155).
    */
@@ -159,10 +162,6 @@ export type SwapParams = {
    */
   outputToken: Address;
   /**
-   * Amount of `inputToken` in base units.
-   */
-  inputAmount: bigint;
-  /**
    * Allowed slippage expressed in basis points.
    */
   slippageBps: number;
@@ -171,6 +170,27 @@ export type SwapParams = {
    */
   swapperAccount: Address;
 };
+
+export type ExactInSwapParams = SwapBase & {
+  mode: "exactInQuote";
+  /**
+   * Amount of input token to sell (denominated in base units).
+   */
+  inputAmount: bigint;
+};
+
+export type ExactOutSwapParams = SwapBase & {
+  mode: "exactOutputQuote";
+  /**
+   * Amount of output token to purchase (denominated in base units).
+   */
+  outputAmount: bigint;
+};
+
+/**
+ * Parameters required to request a swap quote.
+ */
+export type SwapParams = ExactInSwapParams | ExactOutSwapParams;
 
 /**
  * Transaction payload emitted alongside a quote.
@@ -227,7 +247,7 @@ export type PoolEdge = {
   /**
    * Liquidity pool contract address.
    */
-  address: Address;
+  address?: Address;
   /**
    * Unique identifier for the edge within a route.
    */
@@ -257,9 +277,9 @@ export type RouteGraph = {
  */
 export type AggregationOptions = {
   /**
-   * Timeout for each individual aggregator request in milliseconds.
+   * Maximum duration for the entire aggregation process before aborting pending requests.
    */
-  timeoutMs?: number;
+  deadlineMs?: number;
   /**
    * Number of retry attempts per provider.
    */
@@ -268,6 +288,18 @@ export type AggregationOptions = {
    * Initial delay before retrying failed requests (exponential backoff applied).
    */
   initialRetryDelayMs?: number;
+  /**
+   * Address that should receive the integrator fee.
+   */
+  integratorFeeAddress?: Address;
+  /**
+   * Swap fee for the integrator (in basis points). Only applicable if the provider supports integrator fees.
+   */
+  integratorSwapFeeBps?: number;
+  /**
+   * Surplus share for the integrator (in basis points). Only applicable if the provider supports surplus sharing.
+   */
+  integratorSurplusBps?: number;
 };
 
 /**
@@ -292,11 +324,7 @@ export type MetaAggregationOptions = AggregationOptions & {
   /**
    * Strategy used to select the "best" quote when only one should be returned.
    */
-  strategy?: QuoteSelectionStrategy;
-  /**
-   * Maximum duration for the entire aggregation process before aborting pending requests.
-   */
-  deadlineMs?: number;
+  strategy?: QuoteSelectionStrategy; // TODO: Consider removing and enforcing always supplying a strategy when calling best quote
 };
 
 /**

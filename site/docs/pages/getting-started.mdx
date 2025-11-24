@@ -1,0 +1,56 @@
+# Getting started
+
+## Overview
+
+SMAL makes token swap integration easy for developers by providing a simple and consistent interface to interact with multiple decentralized exchanges via multiple aggregators. This provides redundancy, better pricing, and expanded liquidity for token swaps.
+
+## Installation
+
+To install SMAL, run the following command:
+
+:::code-group
+
+```bash [npm]
+# Quoting only
+npm i @withfabic/smal
+
+# Quotes with onchain simulation (recommended)
+npm i viem @withfabric/smal @withfabric/smal-simulation
+```
+
+```bash [bun]
+# Quoting only
+bun i @withfabic/smal
+
+# Quotes with onchain simulation (recommended)
+bun i viem @withfabric/smal @withfabric/smal-simulation
+```
+
+```bash [pnpm]
+# Quoting only
+pnpm i @withfabic/smal
+
+# Quotes with onchain simulation (recommended)
+pnpm i viem @withfabric/smal @withfabric/smal-simulation
+```
+
+:::
+
+## Getting Quotes
+
+Note: link to see adavanced
+
+```ts twoslash
+// [!include ~/snippets/fetching-quotes.ts]
+```
+
+## Simulating Quotes
+
+See [simulation guide](/simulation.mdx) for more details.
+
+
+## Executing Quotes (viem)
+
+```ts twoslash
+// [!include ~/snippets/executing-quotes.ts]
+```

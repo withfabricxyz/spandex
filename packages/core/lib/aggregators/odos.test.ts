@@ -7,6 +7,7 @@ describe("Odos", () => {
     const quoter = new OdosAggregator();
     const quote = await quoter.fetchQuote(defaultSwapParams);
     expect(quote).toBeDefined();
+    expect(quote.provider).toBe("odos");
     if (quote.success) {
       expect(quote.outputAmount).toBeGreaterThan(0n);
       expect(quote.networkFee).toBeGreaterThan(0n);

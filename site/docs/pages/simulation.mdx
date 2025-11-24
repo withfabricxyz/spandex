@@ -1,0 +1,58 @@
+# Onchain Simulation
+
+## Overview
+
+While fetched quotes provide a good estimate of swap costs, simulating a swap
+can provide a more accurate picture of how the swap will perform when executed
+onchain.
+
+Simulation performs the swap and tracks state changes as if the transaction was executed onchain.
+This allows us to:
+
+- Confirm the accuracy of quotes by verifying that their quotes aren't stale or otherwise incorrect
+- Include gas costs to compare real costs across different aggregators
+- Verify swaps won't revert due to slippage, approvals, or insufficient balance
+
+Additionally, there are edge cases such as contracts that have allowlists or other unexpected
+behavior that can only be uncovered through simulation or a real transaction.
+
+Ultimately, simulation allows us to compare quotes against their simulated onchain output, not just
+quoted estimates.
+
+## Installation
+
+To install SMAL with onchain simulation support, first ensure that you have the core package
+installed:
+
+Then, install the simulation package along with `viem`:
+
+:::code-group
+
+```bash [npm]
+npm i viem @withfabric/smal-simulation
+```
+
+```bash [bun]
+bun i viem @withfabric/smal-simulation
+```
+
+```bash [pnpm]
+pnpm i viem @withfabric/smal-simulation
+```
+
+:::
+
+## Configuration
+
+> ⚠️ Some RPC providers do not support the underlying
+[`eth_simulateV1`](https://github.com/ethereum/execution-apis/pull/484) method required for
+simulation. Refer to your RPC provider's documentation to ensure that simulation is supported.
+
+To enable onchain simulation, you'll need:
+
+1. a viem `PublicClient` connected to the target chain
+2. a `MetaAggregator` instance from the core SMAL package with your desired aggregators configured
+
+```ts twoslash
+// [!include ~/snippets/simulation-configuration.ts]
+```

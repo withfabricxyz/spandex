@@ -1,36 +1,33 @@
 name: QA
 on:
+  workflow_call:
+  workflow_dispatch:
   push:
 
 jobs:
-  verify:
-    name: Style and Audit
-    runs-on: ubuntu-latest
+  lint:
+    name: Audit, Lint & Format
+    runs-on: ubuntu-slim
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - name: Install deps
-        run: bun install
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Audit dependencies
-        run: bun audit
+        run: bun audit --audit-level=high
       - name: Lint & Format
         run: bun run lint
 
-  test:
-    name: Build and Test
-    runs-on: ubuntu-latest
+  build:
+    name: Build & Test
+    needs: lint
+    runs-on: ubuntu-slim
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - name: Install deps
-        run: bun install
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Build packages
         run: bun run build
       - name: Run tests
@@ -38,3 +35,4 @@ jobs:
         env:
           ZEROX_API_KEY: ${{ secrets.ZEROX_API_KEY }}
           ANKR_API_KEY: ${{ secrets.ANKR_API_KEY }}
+

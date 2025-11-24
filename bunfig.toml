@@ -1,0 +1,2 @@
+[test]
+preload = ["./packages/wagmi/test-setup.ts"]

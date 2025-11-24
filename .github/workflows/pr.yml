@@ -1,0 +1,31 @@
+name: Pull request
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  qa:
+    name: QA
+    uses: ./.github/workflows/qa.yml
+    secrets: inherit
+
+  publish:
+    name: Publish Prerelease
+    runs-on: ubuntu-latest
+    needs: qa
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Build packages
+        run: bun run build
+      - name: Publish Prerelease
+        run: |
+          bunx pkg-pr-new publish './packages/core' './packages/simulate' './packages/wagmi'

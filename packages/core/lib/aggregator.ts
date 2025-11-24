@@ -1,5 +1,6 @@
 import type {
   AggregationOptions,
+  AggregatorFeature,
   ProviderKey,
   Quote,
   QuoteError,
@@ -32,6 +33,13 @@ export abstract class Aggregator {
    * @returns Provider key used in quote responses.
    */
   abstract name(): ProviderKey;
+
+  /**
+   * Features supported by this aggregator.
+   *
+   * @returns List of supported features.
+   */
+  abstract features(): AggregatorFeature[];
 
   /**
    * Attempts to fetch a quote, retrying according to the supplied aggregation options.

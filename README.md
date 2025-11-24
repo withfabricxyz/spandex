@@ -18,7 +18,7 @@ Install core package and optional simulate extension to validate quoted transact
 npm i viem @withfabric/smal @withfabric/smal-simulate
 ```
 
-Simplest example:
+Example:
 
 ```ts
 // Import
@@ -26,28 +26,40 @@ import { buildMetaAggregator } from "@withfabric/smal";
 
 // Configure your aggregators
 const metaAggregator = buildMetaAggregator({
-  providers: [
-    { provider: "fabric" },
-    { provider: "0x", apiKey: "..." },
+  aggregators: [
+    { provider: "fabric", config: {} },
+    { provider: "0x", config: { apiKey: "..." }},
   ],
   defaults: {
-    strategy: "bestQuote",
+    strategy: "quotedPrice",
   }
 });
 
-// Fetch the best quote using the configured strategy
-const quote = await metaAggregator.fetchBestQuote({
+const swapParams = {
   chainId: 8453,
   inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   outputToken: "0x4200000000000000000000000000000000000006",
   inputAmount: 500_000_000n,
   slippageBps: 100,
   swapperAccount: "0xdead00000000000000000000000000000000beef",
-});
+};
+
+// Fetch the best quote using the configured strategy
+const quote = await metaAggregator.fetchBestQuote(swapParams);
 
 console.log(quote.summary())
 ```
 
+Using simulation to verify the quote and get onchain pricing
+
+```ts
+import { simulateWith } from "@withfabric/smal-simulate";
+const aggregator = buildMetaAggregator({ //... });
+const quotes = await aggregator.fetchAllQuotes(swapParams)
+const simulated = await simulateQuotes({ client, swapParams, quotes });
+
+
+```
 
 
 ### WIP!!!
