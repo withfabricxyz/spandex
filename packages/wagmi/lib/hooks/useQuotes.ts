@@ -72,12 +72,20 @@ export function useQuotes(params: UseQuotesParams): UseQuotesResult {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["smal-quotes", fullParams],
-    // serialize bigints in quote params
-    queryKeyHashFn: (queryKey) =>
-      JSON.stringify(queryKey, (_key, value) =>
-        typeof value === "bigint" ? value.toString() : value,
-      ),
+    queryKey: fullParams
+      ? [
+          "smal-quotes",
+          fullParams.mode,
+          fullParams.chainId,
+          fullParams.inputToken,
+          fullParams.outputToken,
+          fullParams.slippageBps,
+          fullParams.swapperAccount,
+          fullParams.mode === "exactInQuote"
+            ? fullParams.inputAmount.toString()
+            : fullParams.outputAmount.toString(),
+        ]
+      : ["smal-quotes", null],
     queryFn: () => {
       if (!fullParams) throw new Error("Missing required parameters");
       return fetchQuotes(metaAggregator, fullParams);
