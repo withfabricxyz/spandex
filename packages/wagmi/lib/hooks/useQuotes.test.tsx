@@ -1,5 +1,5 @@
 import { describe, expect, it, mock } from "bun:test";
-import type { MetaAggregator } from "@withfabric/smal";
+import type { MetaAggregator, Quote } from "@withfabric/smal";
 import { TEST_ADDRESSES, TEST_CHAINS } from "../../test/constants.js";
 import { createMockQuote } from "../../test/mocks.js";
 import { renderHook, waitFor } from "../../test/utils.js";
@@ -47,7 +47,7 @@ describe("useQuotes", () => {
         inputAmount: 500_000_000n,
         slippageBps: 100,
       });
-      expect(result.current.quotes).toHaveLength(1);
+      expect(result.current.data).toHaveLength(1);
     });
   });
 
@@ -106,7 +106,59 @@ describe("useQuotes", () => {
       }),
     );
 
-    expect(result.current.quotes).toBeNull();
+    expect(result.current.data).toBeUndefined();
+    expect(result.current.isLoading).toBe(false);
+    expect(mockFetchAllQuotes).not.toHaveBeenCalled();
+  });
+
+  it("should recognize available tanstack query config - enabled", async () => {
+    const mockFetchAllQuotes = mock(() => Promise.resolve([]));
+
+    mockMetaAggregator = {
+      fetchAllQuotes: mockFetchAllQuotes,
+    } as unknown as MetaAggregator;
+
+    const { result } = renderHook(() =>
+      useQuotes({
+        mode: "exactInQuote",
+        inputToken: TEST_ADDRESSES.usdc,
+        outputToken: TEST_ADDRESSES.weth,
+        inputAmount: 500_000_000n,
+        slippageBps: 100,
+        query: {
+          enabled: false,
+        },
+      }),
+    );
+
+    expect(result.current.data).toBeUndefined();
+    expect(result.current.isLoading).toBe(false);
+    expect(mockFetchAllQuotes).not.toHaveBeenCalled();
+  });
+
+  it("should recognize available tanstack query config - transform", async () => {
+    const mockFetchAllQuotes = mock(() => Promise.resolve([]));
+
+    mockMetaAggregator = {
+      fetchAllQuotes: mockFetchAllQuotes,
+    } as unknown as MetaAggregator;
+
+    const { result } = renderHook(() =>
+      useQuotes({
+        mode: "exactInQuote",
+        inputToken: TEST_ADDRESSES.usdc,
+        outputToken: TEST_ADDRESSES.weth,
+        inputAmount: 500_000_000n,
+        slippageBps: 100,
+        query: {
+          select: (x: Quote[]) => {
+            return x.map((quote) => quote.provider);
+          },
+        },
+      }),
+    );
+
+    expect(result.current.data).toBeUndefined();
     expect(result.current.isLoading).toBe(false);
     expect(mockFetchAllQuotes).not.toHaveBeenCalled();
   });

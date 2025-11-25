@@ -1,27 +1,22 @@
-import { useQuery } from "@tanstack/react-query";
+import { type UseQueryOptions, type UseQueryResult, useQuery } from "@tanstack/react-query";
 import type {
   ExactInSwapParams,
   ExactOutSwapParams,
   MetaAggregator,
   Quote,
+  SwapParams,
 } from "@withfabric/smal";
 import { useMemo } from "react";
 import { useConnection } from "wagmi";
 import { useSmalConfig } from "../context/SmalProvider.js";
 
-export type UseQuotesParams = (
+export type UseQuotesParams<TSelectData = Quote[]> = (
   | Omit<ExactInSwapParams, "chainId" | "swapperAccount">
   | Omit<ExactOutSwapParams, "chainId" | "swapperAccount">
 ) & {
   chainId?: number;
   swapperAccount?: `0x${string}`;
-  enabled?: boolean;
-};
-
-export type UseQuotesResult = {
-  quotes: Quote[] | null;
-  isLoading: boolean;
-  error: unknown;
+  query?: Omit<UseQueryOptions<Quote[], Error, TSelectData>, "queryKey" | "queryFn">;
 };
 
 async function fetchQuotes(
@@ -32,9 +27,13 @@ async function fetchQuotes(
   return fetchedQuotes;
 }
 
-export function useQuotes(params: UseQuotesParams): UseQuotesResult {
+export function useQuotes<TSelectData = Quote[]>(
+  params: UseQuotesParams<TSelectData>,
+): UseQueryResult<TSelectData, Error> {
   const { metaAggregator } = useSmalConfig();
   const connection = useConnection();
+
+  const { query } = params;
 
   const finalChainId = params.chainId ?? connection.chain?.id;
   const finalSwapperAccount = params.swapperAccount ?? connection.address;
@@ -67,37 +66,33 @@ export function useQuotes(params: UseQuotesParams): UseQuotesResult {
     };
   }, [finalChainId, finalSwapperAccount, params]);
 
-  const {
-    data: quotes,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: fullParams
-      ? [
-          "smal-quotes",
-          fullParams.mode,
-          fullParams.chainId,
-          fullParams.inputToken,
-          fullParams.outputToken,
-          fullParams.slippageBps,
-          fullParams.swapperAccount,
-          fullParams.mode === "exactInQuote"
-            ? fullParams.inputAmount.toString()
-            : fullParams.outputAmount.toString(),
-        ]
-      : ["smal-quotes", null],
-    queryFn: () => {
-      if (!fullParams) throw new Error("Missing required parameters");
-      return fetchQuotes(metaAggregator, fullParams);
-    },
-    enabled: params.enabled !== false && fullParams !== null,
+  const defaults = {
     staleTime: 10_000,
-    retry: 2,
-  });
+  } as UseQueryOptions<Quote[], Error, TSelectData>;
 
-  return {
-    quotes: quotes ?? null,
-    isLoading,
-    error,
-  };
+  const requirements = {
+    queryKey: [
+      "smal",
+      fullParams?.mode,
+      fullParams?.chainId,
+      fullParams?.inputToken,
+      fullParams?.outputToken,
+      fullParams?.slippageBps,
+      fullParams?.swapperAccount,
+      fullParams?.mode === "exactInQuote"
+        ? fullParams?.inputAmount.toString()
+        : fullParams?.outputAmount.toString(),
+    ],
+    queryFn: () => {
+      return fetchQuotes(metaAggregator, fullParams as SwapParams);
+    },
+    retry: 0,
+    enabled: !!finalChainId && !!finalSwapperAccount && (query?.enabled ?? true),
+  } as UseQueryOptions<Quote[], Error, TSelectData>;
+
+  return useQuery({
+    ...defaults,
+    ...query,
+    ...requirements,
+  });
 }
