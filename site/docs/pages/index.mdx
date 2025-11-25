@@ -4,4 +4,41 @@ showLogo: false
 showTopNav: false
 ---
 
-<h1>Welcome to SMAL Documentation</h1>
+import { SDMALogo } from '../components/smal';
+import { Logo0x } from '../components/logo/0x';
+import { LifiLogo } from '../components/logo/lifi';
+import { FabricLogo } from '../components/logo/fabric';
+import { KyberSwapLogo } from '../components/logo/kyberswap';
+import { OneInchLogo } from '../components/logo/1inch';
+import { OdosLogo } from '../components/logo/odos';
+
+import '../styles.css'
+
+<div className="flex flex-col gap-12">
+
+  <SDMALogo />
+
+  <div className="flex flex-col gap-2">
+    <h2>Query multiple DEX aggregators and find the best price.</h2>
+    <div className="flex flex-col gap-1 text-sm text-gray-600">
+      <span>Expands tokens, pools, and chains beyond any single aggregator.</span>
+      <span>Provides multiple quotes to find the best price.</span>
+      <span>Provides redundancy when a provider fails.</span>
+    </div>
+  </div>
+
+  <div className="flex flex-row gap-8">
+    <Logo0x />
+    <LifiLogo />
+    <FabricLogo />
+    <KyberSwapLogo />
+    <OneInchLogo />
+    <OdosLogo />
+  </div>
+
+  ```ts twoslash
+  // [!include ~/snippets/fetching-quotes.ts]
+  ```
+
+</div>
+
