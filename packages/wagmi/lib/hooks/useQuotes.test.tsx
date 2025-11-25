@@ -1,9 +1,8 @@
 import { describe, expect, it, mock } from "bun:test";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook, waitFor } from "@testing-library/react";
 import type { MetaAggregator } from "@withfabric/smal";
-import type { ReactNode } from "react";
-import { SmalProvider } from "../context/SmalProvider.js";
+import { TEST_ADDRESSES, TEST_CHAINS } from "../../test/constants.js";
+import { createMockQuote } from "../../test/mocks.js";
+import { renderHook, waitFor } from "../../test/utils.js";
 import { useQuotes } from "./useQuotes.js";
 
 let mockMetaAggregator: MetaAggregator;
@@ -14,79 +13,37 @@ mock.module("@withfabric/smal", () => ({
 
 mock.module("wagmi", () => ({
   useConnection: () => ({
-    address: "0x1234567890123456789012345678901234567890" as const,
-    chain: { id: 8453 },
+    address: TEST_ADDRESSES.alice,
+    chain: { id: TEST_CHAINS.base.id },
   }),
 }));
 
-// simulate app with SmalProvider and QueryClientProvider
-function createApp() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-
-  return function App({ children }: { children: ReactNode }) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <SmalProvider
-          config={{
-            aggregators: [{ provider: "fabric", config: {} }],
-            defaults: { strategy: "quotedPrice" },
-          }}
-        >
-          {children}
-        </SmalProvider>
-      </QueryClientProvider>
-    );
-  };
-}
-
 describe("useQuotes", () => {
   it("should merge wagmi connection data with params", async () => {
-    const mockFetchAllQuotes = mock(() =>
-      Promise.resolve([
-        {
-          success: true,
-          provider: "fabric",
-          outputAmount: 1000000n,
-          inputAmount: 500000000n,
-          networkFee: 100000n,
-          latency: 150,
-          txData: { to: "0xabc", data: "0x123", value: 0n },
-        },
-      ]),
-    );
+    const mockFetchAllQuotes = mock(() => Promise.resolve([createMockQuote()]));
 
     mockMetaAggregator = {
       fetchAllQuotes: mockFetchAllQuotes,
     } as unknown as MetaAggregator;
 
-    const app = createApp();
-
-    const { result } = renderHook(
-      () =>
-        useQuotes({
-          mode: "exactInQuote",
-          inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-          outputToken: "0x4200000000000000000000000000000000000006",
-          inputAmount: 500_000_000n,
-          slippageBps: 100,
-        }),
-      { wrapper: app },
+    const { result } = renderHook(() =>
+      useQuotes({
+        mode: "exactInQuote",
+        inputToken: TEST_ADDRESSES.usdc,
+        outputToken: TEST_ADDRESSES.weth,
+        inputAmount: 500_000_000n,
+        slippageBps: 100,
+      }),
     );
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
       expect(mockFetchAllQuotes).toHaveBeenCalledWith({
         mode: "exactInQuote",
-        chainId: 8453,
-        swapperAccount: "0x1234567890123456789012345678901234567890",
-        inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        outputToken: "0x4200000000000000000000000000000000000006",
+        chainId: TEST_CHAINS.base.id,
+        swapperAccount: TEST_ADDRESSES.alice,
+        inputToken: TEST_ADDRESSES.usdc,
+        outputToken: TEST_ADDRESSES.weth,
         inputAmount: 500_000_000n,
         slippageBps: 100,
       });
@@ -101,29 +58,25 @@ describe("useQuotes", () => {
       fetchAllQuotes: mockFetchAllQuotes,
     } as unknown as MetaAggregator;
 
-    const app = createApp();
-
-    const { result } = renderHook(
-      () =>
-        useQuotes({
-          mode: "exactInQuote",
-          inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-          outputToken: "0x4200000000000000000000000000000000000006",
-          inputAmount: 500_000_000n,
-          slippageBps: 100,
-          // specify hook-level chain and address, overriding wagmi
-          chainId: 1,
-          swapperAccount: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
-        }),
-      { wrapper: app },
+    const { result } = renderHook(() =>
+      useQuotes({
+        mode: "exactInQuote",
+        inputToken: TEST_ADDRESSES.usdc,
+        outputToken: TEST_ADDRESSES.weth,
+        inputAmount: 500_000_000n,
+        slippageBps: 100,
+        // specify hook-level chain and address, overriding wagmi
+        chainId: TEST_CHAINS.mainnet.id,
+        swapperAccount: TEST_ADDRESSES.bob,
+      }),
     );
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
       expect(mockFetchAllQuotes).toHaveBeenCalledWith(
         expect.objectContaining({
-          chainId: 1,
-          swapperAccount: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
+          chainId: TEST_CHAINS.mainnet.id,
+          swapperAccount: TEST_ADDRESSES.bob,
         }),
       );
     });
@@ -143,21 +96,16 @@ describe("useQuotes", () => {
       fetchAllQuotes: mockFetchAllQuotes,
     } as unknown as MetaAggregator;
 
-    const app = createApp();
-
-    const { result } = renderHook(
-      () =>
-        useQuotes({
-          mode: "exactInQuote",
-          inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-          outputToken: "0x4200000000000000000000000000000000000006",
-          inputAmount: 500_000_000n,
-          slippageBps: 100,
-        }),
-      { wrapper: app },
+    const { result } = renderHook(() =>
+      useQuotes({
+        mode: "exactInQuote",
+        inputToken: TEST_ADDRESSES.usdc,
+        outputToken: TEST_ADDRESSES.weth,
+        inputAmount: 500_000_000n,
+        slippageBps: 100,
+      }),
     );
 
-    // Query should not run when required params are missing
     expect(result.current.quotes).toBeNull();
     expect(result.current.isLoading).toBe(false);
     expect(mockFetchAllQuotes).not.toHaveBeenCalled();

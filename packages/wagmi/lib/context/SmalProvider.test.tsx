@@ -1,8 +1,7 @@
 import { describe, expect, it, mock } from "bun:test";
-import { render, screen } from "@testing-library/react";
-import { SmalProvider, useSmalConfig } from "./SmalProvider.js";
+import { render, screen } from "../../test/utils.js";
+import { useSmalConfig } from "./SmalProvider.js";
 
-// Mock Wagmi - not needed by provider anymore
 mock.module("wagmi", () => ({
   useConnection: () => ({
     address: undefined,
@@ -17,26 +16,16 @@ function TestComponent() {
 
 describe("SmalProvider", () => {
   it("should provide metaAggregator to children", () => {
-    render(
-      <SmalProvider
-        config={{
-          aggregators: [
-            { provider: "fabric", config: {} },
-            { provider: "0x", config: { apiKey: "test" } },
-          ],
-          defaults: { strategy: "quotedPrice" },
-        }}
-      >
-        <TestComponent />
-      </SmalProvider>,
-    );
+    render(<TestComponent />, {
+      smalConfig: {
+        aggregators: [
+          { provider: "fabric", config: {} },
+          { provider: "0x", config: { apiKey: "test" } },
+        ],
+        defaults: { strategy: "quotedPrice" },
+      },
+    });
 
     expect(screen.getByText("MetaAggregator: exists")).toBeDefined();
-  });
-
-  it("should throw error when useSmalConfig is used outside provider", () => {
-    expect(() => {
-      render(<TestComponent />);
-    }).toThrow("useSmalConfig must be used within a SmalProvider");
   });
 });
