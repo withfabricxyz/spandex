@@ -1,4 +1,5 @@
 import { describe, expect, it, mock } from "bun:test";
+import { beforeEach } from "node:test";
 import type { MetaAggregator, Quote } from "@withfabric/smal";
 import { TEST_ADDRESSES, TEST_CHAINS } from "../../test/constants.js";
 import { createMockQuote } from "../../test/mocks.js";
@@ -6,26 +7,28 @@ import { renderHook, waitFor } from "../../test/utils.js";
 import { useQuotes } from "./useQuotes.js";
 
 let mockMetaAggregator: MetaAggregator;
-
-mock.module("@withfabric/smal", () => ({
-  buildMetaAggregator: () => mockMetaAggregator,
-}));
-
-mock.module("wagmi", () => ({
-  useConnection: () => ({
-    address: TEST_ADDRESSES.alice,
-    chain: { id: TEST_CHAINS.base.id },
-  }),
-}));
+let mockFetchAllQuotes: ReturnType<typeof mock>;
 
 describe("useQuotes", () => {
-  it("should merge wagmi connection data with params", async () => {
-    const mockFetchAllQuotes = mock(() => Promise.resolve([createMockQuote()]));
+  beforeEach(() => {
+    mock.module("@withfabric/smal", () => ({
+      buildMetaAggregator: () => mockMetaAggregator,
+    }));
 
+    mock.module("wagmi", () => ({
+      useConnection: () => ({
+        address: TEST_ADDRESSES.alice,
+        chain: { id: TEST_CHAINS.base.id },
+      }),
+    }));
+
+    mockFetchAllQuotes = mock(() => Promise.resolve([createMockQuote()]));
     mockMetaAggregator = {
       fetchAllQuotes: mockFetchAllQuotes,
     } as unknown as MetaAggregator;
+  });
 
+  it("should merge wagmi connection data with params", async () => {
     const { result } = renderHook(() =>
       useQuotes({
         mode: "exactInQuote",
@@ -53,7 +56,6 @@ describe("useQuotes", () => {
 
   it("should accept hook-level overrides", async () => {
     const mockFetchAllQuotes = mock(() => Promise.resolve([]));
-
     mockMetaAggregator = {
       fetchAllQuotes: mockFetchAllQuotes,
     } as unknown as MetaAggregator;
@@ -90,12 +92,6 @@ describe("useQuotes", () => {
       }),
     }));
 
-    const mockFetchAllQuotes = mock(() => Promise.resolve([]));
-
-    mockMetaAggregator = {
-      fetchAllQuotes: mockFetchAllQuotes,
-    } as unknown as MetaAggregator;
-
     const { result } = renderHook(() =>
       useQuotes({
         mode: "exactInQuote",
@@ -112,12 +108,6 @@ describe("useQuotes", () => {
   });
 
   it("should recognize available tanstack query config - enabled", async () => {
-    const mockFetchAllQuotes = mock(() => Promise.resolve([]));
-
-    mockMetaAggregator = {
-      fetchAllQuotes: mockFetchAllQuotes,
-    } as unknown as MetaAggregator;
-
     const { result } = renderHook(() =>
       useQuotes({
         mode: "exactInQuote",
@@ -137,12 +127,6 @@ describe("useQuotes", () => {
   });
 
   it("should recognize available tanstack query config - transform", async () => {
-    const mockFetchAllQuotes = mock(() => Promise.resolve([]));
-
-    mockMetaAggregator = {
-      fetchAllQuotes: mockFetchAllQuotes,
-    } as unknown as MetaAggregator;
-
     const { result } = renderHook(() =>
       useQuotes({
         mode: "exactInQuote",
@@ -157,9 +141,11 @@ describe("useQuotes", () => {
         },
       }),
     );
-
-    expect(result.current.data).toBeUndefined();
-    expect(result.current.isLoading).toBe(false);
-    expect(mockFetchAllQuotes).not.toHaveBeenCalled();
+    expect(mockFetchAllQuotes).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeDefined();
+      expect(result.current.data?.[0]).toEqual("fabric");
+    });
   });
 });
