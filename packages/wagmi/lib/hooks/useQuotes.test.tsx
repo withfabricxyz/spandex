@@ -24,14 +24,14 @@ describe("useQuotes", () => {
 
     mockFetchAllQuotes = mock(() => Promise.resolve([createMockQuote()]));
     mockMetaAggregator = {
-      fetchAllQuotes: mockFetchAllQuotes,
+      fetchQuotes: mockFetchAllQuotes,
     } as unknown as MetaAggregator;
   });
 
   it("should merge wagmi connection data with params", async () => {
     const { result } = renderHook(() =>
       useQuotes({
-        mode: "exactInQuote",
+        mode: "exactIn",
         inputToken: TEST_ADDRESSES.usdc,
         outputToken: TEST_ADDRESSES.weth,
         inputAmount: 500_000_000n,
@@ -42,7 +42,7 @@ describe("useQuotes", () => {
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
       expect(mockFetchAllQuotes).toHaveBeenCalledWith({
-        mode: "exactInQuote",
+        mode: "exactIn",
         chainId: TEST_CHAINS.base.id,
         swapperAccount: TEST_ADDRESSES.alice,
         inputToken: TEST_ADDRESSES.usdc,
@@ -57,12 +57,12 @@ describe("useQuotes", () => {
   it("should accept hook-level overrides", async () => {
     const mockFetchAllQuotes = mock(() => Promise.resolve([]));
     mockMetaAggregator = {
-      fetchAllQuotes: mockFetchAllQuotes,
+      fetchQuotes: mockFetchAllQuotes,
     } as unknown as MetaAggregator;
 
     const { result } = renderHook(() =>
       useQuotes({
-        mode: "exactInQuote",
+        mode: "exactIn",
         inputToken: TEST_ADDRESSES.usdc,
         outputToken: TEST_ADDRESSES.weth,
         inputAmount: 500_000_000n,
@@ -94,7 +94,7 @@ describe("useQuotes", () => {
 
     const { result } = renderHook(() =>
       useQuotes({
-        mode: "exactInQuote",
+        mode: "exactIn",
         inputToken: TEST_ADDRESSES.usdc,
         outputToken: TEST_ADDRESSES.weth,
         inputAmount: 500_000_000n,
@@ -110,7 +110,7 @@ describe("useQuotes", () => {
   it("should recognize available tanstack query config - enabled", async () => {
     const { result } = renderHook(() =>
       useQuotes({
-        mode: "exactInQuote",
+        mode: "exactIn",
         inputToken: TEST_ADDRESSES.usdc,
         outputToken: TEST_ADDRESSES.weth,
         inputAmount: 500_000_000n,
@@ -129,7 +129,7 @@ describe("useQuotes", () => {
   it("should recognize available tanstack query config - transform", async () => {
     const { result } = renderHook(() =>
       useQuotes({
-        mode: "exactInQuote",
+        mode: "exactIn",
         inputToken: TEST_ADDRESSES.usdc,
         outputToken: TEST_ADDRESSES.weth,
         inputAmount: 500_000_000n,

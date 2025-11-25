@@ -10,7 +10,7 @@ const client = createPublicClient({
 
 const params: ExactInSwapParams = {
   chainId: 8453,
-  mode: "exactInQuote",
+  mode: "exactIn",
   inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   outputToken: "0x4200000000000000000000000000000000000006",
   inputAmount: 500_000_000n,
@@ -19,14 +19,12 @@ const params: ExactInSwapParams = {
 };
 
 const metaAggregator = buildMetaAggregator({
-  aggregators: [
-    { provider: "fabric", config: {} },
-    { provider: "0x", config: { apiKey: "" } },
-    { provider: "kyberswap", config: { clientId: "" } },
-    { provider: "odos", config: {} },
-  ],
-  defaults: {
-    strategy: "quotedPrice",
+  providers: {
+    fabric: {},
+    "0x": { apiKey: "YOUR_ZEROX_API_KEY" },
+    odos: { referralCode: 1234 },
+  },
+  options: {
     deadlineMs: 3_000,
     numRetries: 2,
   },

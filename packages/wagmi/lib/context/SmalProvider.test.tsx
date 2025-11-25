@@ -18,11 +18,11 @@ describe("SmalProvider", () => {
   it("should provide metaAggregator to children", () => {
     render(<TestComponent />, {
       smalConfig: {
-        aggregators: [
-          { provider: "fabric", config: {} },
-          { provider: "0x", config: { apiKey: "test" } },
-        ],
-        defaults: { strategy: "quotedPrice" },
+        providers: {
+          "0x": { apiKey: "test" },
+          fabric: {},
+        },
+        options: { strategy: "quotedPrice" },
       },
     });
 

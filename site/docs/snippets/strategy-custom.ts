@@ -14,18 +14,15 @@ const randomStrategy = async (quotes: Array<Promise<Quote>>) => {
 };
 
 const customQuoter = buildMetaAggregator({
-  aggregators: [
-    { provider: "fabric", config: {} },
-    // ... other providers
-  ],
-  defaults: {
-    strategy: randomStrategy,
+  providers: {
+    fabric: {},
+    // ...
   },
 });
 
 const params: ExactInSwapParams = {
   chainId: 8453,
-  mode: "exactInQuote",
+  mode: "exactIn",
   inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   outputToken: "0x4200000000000000000000000000000000000006",
   inputAmount: 500_000_000n,
@@ -33,7 +30,7 @@ const params: ExactInSwapParams = {
   swapperAccount: "0xdead00000000000000000000000000000000beef",
 };
 
-const randomQuote = await customQuoter.fetchBestQuote(params);
+const randomQuote = await customQuoter.fetchBestQuote(params, randomStrategy);
 
 if (!randomQuote) {
   throw new Error("No providers succeeded");

@@ -8,6 +8,7 @@ const quoteSuccess: Quote = {
   provider: "fabric",
   details: {} as FabricQuoteResponse,
   latency: 100,
+  inputAmount: 1_000_000n,
   outputAmount: 900_000n,
   networkFee: 5_000n,
   txData: { to: "0x0", data: "0x0" },
@@ -16,7 +17,7 @@ const quoteSuccess: Quote = {
 const quoteFailure: Quote = {
   success: false,
   provider: "fabric",
-  message: "Failed to get quote",
+  error: new Error("Failed to get quote"),
 };
 
 describe("Strategies", () => {

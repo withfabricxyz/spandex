@@ -11,8 +11,8 @@ import type { SmalProviderProps } from "../lib/types.js";
 import { queryClient } from "./constants.js";
 
 export const DEFAULT_TEST_CONFIG: SmalProviderProps["config"] = {
-  aggregators: [{ provider: "fabric", config: {} }],
-  defaults: { strategy: "quotedPrice" },
+  providers: { fabric: {} },
+  options: { strategy: "quotedPrice" },
 };
 
 export function createWrapper(config?: SmalProviderProps["config"]) {

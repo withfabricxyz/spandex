@@ -1,18 +1,11 @@
-import { buildMetaAggregator, type ExactInSwapParams } from "@withfabric/smal";
+import type { ExactInSwapParams } from "@withfabric/smal";
+import { metaAggregator } from "~snippets/config";
 
-const gasOptimizedQuoter = buildMetaAggregator({
-  aggregators: [
-    { provider: "fabric", config: {} },
-    // ... other providers
-  ],
-  defaults: {
-    strategy: "quotedGas",
-  },
-});
+Component;
 
 const params: ExactInSwapParams = {
   chainId: 8453,
-  mode: "exactInQuote",
+  mode: "exactIn",
   inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   outputToken: "0x4200000000000000000000000000000000000006",
   inputAmount: 500_000_000n,
@@ -20,10 +13,9 @@ const params: ExactInSwapParams = {
   swapperAccount: "0xdead00000000000000000000000000000000beef",
 };
 
-const gasQuote = await gasOptimizedQuoter.fetchBestQuote(params);
+const gasQuote = await metaAggregator.fetchBestQuote(params, "quotedGas");
 
 if (!gasQuote) {
   throw new Error("No providers succeeded");
 }
-
 console.log(`${gasQuote.provider} won with lowest gas: ${gasQuote.networkFee}`);

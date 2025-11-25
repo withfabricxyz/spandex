@@ -5,11 +5,11 @@ import type { SmalContextValue, SmalProviderProps } from "../types.js";
 export const SmalContext = createContext<SmalContextValue | null>(null);
 
 export function SmalProvider({ config, children }: SmalProviderProps) {
-  const { aggregators, defaults } = config;
+  const { providers, options } = config;
 
   const metaAggregator = useMemo(() => {
-    return buildMetaAggregator({ aggregators, defaults });
-  }, [aggregators, defaults]);
+    return buildMetaAggregator({ providers, options });
+  }, [providers, options]);
 
   const contextValue: SmalContextValue = useMemo(
     () => ({

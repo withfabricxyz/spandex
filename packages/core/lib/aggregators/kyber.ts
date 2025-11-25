@@ -57,14 +57,14 @@ export class KyberAggregator extends Aggregator {
    * @inheritdoc
    */
   override features(): AggregatorFeature[] {
-    return ["exactInQuote", "integratorFees"];
+    return ["exactIn", "integratorFees"];
   }
 
   /**
    * @inheritdoc
    */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
-    if (request.mode === "exactOutputQuote") {
+    if (request.mode === "targetOut") {
       throw new QuoteError("0x aggregator does not support exact output quotes");
     }
 

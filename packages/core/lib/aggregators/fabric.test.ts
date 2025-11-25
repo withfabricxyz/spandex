@@ -28,7 +28,7 @@ describe("Fabric Router API test", () => {
       outputAmount: 10n ** 17n,
       slippageBps: 100,
       swapperAccount: "0xdead00000000000000000000000000000000beef",
-      mode: "exactOutputQuote",
+      mode: "targetOut",
     });
     expect(quote).toBeDefined();
     expect(quote.provider).toBe("fabric");

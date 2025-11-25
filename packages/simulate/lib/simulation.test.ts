@@ -13,7 +13,7 @@ const defaultSwapParams: SwapParams = {
   inputAmount: 500_000_000n,
   slippageBps: 100,
   swapperAccount: "0xdead00000000000000000000000000000000beef",
-  mode: "exactInQuote",
+  mode: "exactIn",
 };
 
 const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
@@ -26,10 +26,10 @@ describe("SimulatedMetaAggregator", () => {
   }) as PublicClient;
 
   const metaAgg = buildMetaAggregator({
-    aggregators: [
-      { provider: "fabric", config: {} },
-      { provider: "kyberswap", config: { clientId: "smal-test-env" } },
-    ],
+    providers: {
+      kyberswap: { clientId: "smal-test-env" },
+      fabric: {},
+    },
   });
 
   it("simulates quotes", async () => {
@@ -38,7 +38,7 @@ describe("SimulatedMetaAggregator", () => {
       swapperAccount: USDC_WHALE,
     };
 
-    const quotes = await metaAgg.fetchAllQuotes(swapParams);
+    const quotes = await metaAgg.fetchQuotes(swapParams);
     expect(quotes).toBeDefined();
     expect(quotes.length).toBeGreaterThan(0);
 

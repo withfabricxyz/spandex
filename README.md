@@ -30,9 +30,6 @@ const metaAggregator = buildMetaAggregator({
     { provider: "fabric", config: {} },
     { provider: "0x", config: { apiKey: "..." }},
   ],
-  defaults: {
-    strategy: "quotedPrice",
-  }
 });
 
 const swapParams = {
@@ -44,8 +41,8 @@ const swapParams = {
   swapperAccount: "0xdead00000000000000000000000000000000beef",
 };
 
-// Fetch the best quote using the configured strategy
-const quote = await metaAggregator.fetchBestQuote(swapParams);
+// Fetch the best quote using the quoted price strategy
+const quote = await metaAggregator.fetchBestQuote(swapParams, "quotedPrice");
 
 console.log(quote.summary())
 ```
