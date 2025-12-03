@@ -39,7 +39,7 @@ describe("aggregator", () => {
       new MockAggregator(quoteSuccess),
       new MockAggregator({ ...quoteSuccess, outputAmount: 900_001n }),
     ]);
-    const best = await quoter.fetchBestQuote(defaultSwapParams, "quotedPrice");
+    const best = await quoter.fetchBestQuote(defaultSwapParams, { strategy: "quotedPrice" });
     expect(best).toBeDefined();
     expect(best?.outputAmount).toBe(900_001n);
   });
@@ -49,10 +49,10 @@ describe("aggregator", () => {
       new MockAggregator({ ...quoteSuccess, networkFee: 1_000n }),
       new MockAggregator({ ...quoteSuccess, outputAmount: 900_001n }),
     ]);
-    let best = await quoter.fetchBestQuote(defaultSwapParams, "quotedGas");
+    let best = await quoter.fetchBestQuote(defaultSwapParams, { strategy: "quotedGas" });
     expect(best).toBeDefined();
     expect(best?.outputAmount).toBe(900_000n);
-    best = await quoter.fetchBestQuote(defaultSwapParams, "quotedPrice");
+    best = await quoter.fetchBestQuote(defaultSwapParams, { strategy: "quotedPrice" });
     expect(best).toBeDefined();
     expect(best?.outputAmount).toBe(900_001n);
   });

@@ -40,6 +40,11 @@ export type ProviderDefinitions = {
  */
 export type ProviderKey = keyof ProviderDefinitions;
 
+/**
+ * Provider-specific configuration keyed by the provider identifier.
+ *
+ * Supply only the providers you want enabled; omitted keys are skipped entirely.
+ */
 export type ProviderConfig = Partial<{ [K in ProviderKey]: ProviderDefinitions[K]["config"] }>;
 
 /**
@@ -317,7 +322,9 @@ export type SwapOptions = FeeOptions;
 
 /**
  * Combined aggregation options.
- * @inheritdoc
+ *
+ * Retry/deadline knobs are clamped to safe ranges in `resolveTimingControls`, and fee knobs are
+ * passed through to providers that support integrator fees/surplus.
  */
 export type AggregationOptions = TimingOptions & FeeOptions;
 

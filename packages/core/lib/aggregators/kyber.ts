@@ -83,7 +83,7 @@ export class KyberAggregator extends Aggregator {
     options: SwapOptions,
   ): Promise<SuccessfulQuote> {
     if (request.mode === "targetOut") {
-      throw new QuoteError("0x aggregator does not support exact output quotes");
+      throw new QuoteError("KyberSwap aggregator does not support exact output quotes");
     }
 
     const response = await this.getRoute(request as ExactInSwapParams, options);
@@ -183,7 +183,7 @@ export function kyberRouteGraph(response: KyberQuoteResponse): RouteGraph {
 }
 
 //////// Types /////////
-// Extracted from 0x API documentation with GPT5
+// Extracted from Kyber API documentation with GPT5
 ////////////////////////
 
 interface TokenInfo {
