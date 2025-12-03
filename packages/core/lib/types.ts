@@ -13,6 +13,9 @@ export type Address = `0x${string}`;
  */
 export type Hex = `0x${string}`;
 
+/**
+ * Definitions for each supported provider including their configuration and quote response types.
+ */
 export type ProviderDefinitions = {
   fabric: {
     config: FabricConfig;
@@ -44,29 +47,15 @@ export type ProviderConfig = Partial<{ [K in ProviderKey]: ProviderDefinitions[K
  */
 export type AggregatorFeature = "exactIn" | "targetOut" | "integratorFees" | "integratorSurplus";
 
-// /**
-//  * Basic configuration block shared by all aggregator-specific configs.
-//  *
-//  * @typeParam P - Provider identifier.
-//  * @typeParam T - Config shape for the provider.
-//  */
-// type GenericAggregatorConfig<P extends ProviderKey, T> = {
-//   /**
-//    * Name of the provider this config applies to.
-//    */
-//   provider: P;
-//   /**
-//    * Provider-specific options.
-//    */
-//   config: T;
-// };
-
-// /**
-//  * Configuration union for all supported aggregators.
-//  */
-// export type AggregatorConfig = {
-//   [K in ProviderKey]: GenericAggregatorConfig<K, ProviderDefinitions[K]["config"]>;
-// }[ProviderKey];
+/**
+ * Metadata about an dex aggregation provider.
+ */
+export type AggregatorMetadata = {
+  name: string;
+  url: string;
+  docsUrl: string;
+  logoUrl?: string;
+};
 
 /**
  * Successful quote shape returned by an individual provider.
@@ -320,6 +309,11 @@ export type FeeOptions = {
    */
   integratorSurplusBps?: number;
 };
+
+/**
+ * Optional parameters for aggregator quote requests.
+ */
+export type SwapOptions = FeeOptions;
 
 /**
  * Combined aggregation options.

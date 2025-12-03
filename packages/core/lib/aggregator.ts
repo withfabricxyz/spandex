@@ -2,10 +2,12 @@ import { resolveTimingControls } from "./defaults.js";
 import {
   type AggregationOptions,
   type AggregatorFeature,
+  type AggregatorMetadata,
   type ProviderKey,
   type Quote,
   QuoteError,
   type SuccessfulQuote,
+  type SwapOptions,
   type SwapParams,
 } from "./types.js";
 
@@ -19,7 +21,17 @@ export abstract class Aggregator {
    * @param params - Swap request parameters.
    * @returns Provider-specific successful quote.
    */
-  protected abstract tryFetchQuote(params: SwapParams): Promise<SuccessfulQuote>;
+  protected abstract tryFetchQuote(
+    params: SwapParams,
+    options: SwapOptions,
+  ): Promise<SuccessfulQuote>;
+
+  /**
+   * Metadata about this aggregator.
+   *
+   * @returns Aggregator metadata such as name and documentation URL.
+   */
+  abstract metadata(): AggregatorMetadata;
 
   /**
    * Provider identifier that is surfaced to consumers.
@@ -52,7 +64,7 @@ export abstract class Aggregator {
       while (numAttempts <= numRetries) {
         try {
           const start = performance.now();
-          const quote = await this.tryFetchQuote(params);
+          const quote = await this.tryFetchQuote(params, options || {});
           const stop = performance.now();
           return {
             ...quote,

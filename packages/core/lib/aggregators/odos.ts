@@ -1,6 +1,7 @@
 import { Aggregator } from "../aggregator.js";
 import {
   type AggregatorFeature,
+  type AggregatorMetadata,
   type ExactInSwapParams,
   type PoolEdge,
   type ProviderKey,
@@ -12,6 +13,8 @@ import {
 
 export type OdosConfig = {
   referralCode?: number;
+  apiKey?: string;
+  feeSharing?: boolean;
 };
 
 export type OdosQuoteResponse = {
@@ -56,10 +59,18 @@ export class OdosAggregator extends Aggregator {
     super();
   }
 
+  override metadata(): AggregatorMetadata {
+    return {
+      name: "Odos",
+      url: "https://odos.xyz",
+      docsUrl: "https://docs.odos.xyz/api/sor/quote",
+    };
+  }
+
   /**
    * @inheritdoc
    */
-  name(): ProviderKey {
+  override name(): ProviderKey {
     return "odos";
   }
 
@@ -67,7 +78,14 @@ export class OdosAggregator extends Aggregator {
    * @inheritdoc
    */
   override features(): AggregatorFeature[] {
-    return ["exactIn", "integratorFees"];
+    const result: AggregatorFeature[] = ["exactIn"];
+
+    if (this.config.feeSharing) {
+      result.push("integratorFees");
+      result.push("integratorSurplus");
+    }
+
+    return result;
   }
 
   /**
@@ -75,7 +93,7 @@ export class OdosAggregator extends Aggregator {
    *
    * Odos requires generating a quote to obtain a `pathId`, then assembling the transaction.
    */
-  protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
+  protected override async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
     if (request.mode === "targetOut") {
       throw new QuoteError("0x aggregator does not support exact output quotes");
     }
@@ -85,7 +103,7 @@ export class OdosAggregator extends Aggregator {
     const networkFee =
       BigInt(response.gasEstimate) * BigInt(Math.round(response.gweiPerGas * 10 ** 9));
 
-    const txData = await assembleOdosTx(response.pathId, request.swapperAccount);
+    const txData = await this.assembleOdosTx(response.pathId, request.swapperAccount);
     const outputAmount = BigInt(response.outAmounts[0] || "0");
     const inputAmount = BigInt(response.inAmounts[0] || "0");
     const route = response.pathViz ? odosRouteGraph(response.pathViz) : undefined;
@@ -131,11 +149,9 @@ export class OdosAggregator extends Aggregator {
       referralCode: this.config.referralCode,
     };
 
-    const response = await fetch("https://api.odos.xyz/sor/quote/v2", {
+    const response = await fetch("https://api.odos.xyz/sor/quote/v3", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: this.headers(),
       body: JSON.stringify(quoteGenParams),
     });
 
@@ -146,44 +162,54 @@ export class OdosAggregator extends Aggregator {
 
     return response.json() as Promise<OdosQuoteResponse>;
   }
-}
 
-async function assembleOdosTx(
-  pathId: string,
-  userAddr: string,
-): Promise<{ to: `0x${string}`; data: `0x${string}`; value: bigint }> {
-  const requestBody = {
-    userAddr,
-    pathId,
-    simulate: false,
-  };
+  private async assembleOdosTx(
+    pathId: string,
+    userAddr: string,
+  ): Promise<{ to: `0x${string}`; data: `0x${string}`; value: bigint }> {
+    const requestBody = {
+      userAddr,
+      pathId,
+      simulate: false,
+    };
 
-  const response = await fetch("https://api.odos.xyz/sor/assemble", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(requestBody),
-  });
+    const response = await fetch("https://api.odos.xyz/sor/assemble", {
+      method: "POST",
+      headers: this.headers(),
+      body: JSON.stringify(requestBody),
+    });
 
-  if (!response.ok) {
-    const body = await response.json();
-    throw new QuoteError(`Odos tx assembly request failed with status ${response.status}`, body);
+    if (!response.ok) {
+      const body = await response.json();
+      throw new QuoteError(`Odos tx assembly request failed with status ${response.status}`, body);
+    }
+
+    const data = (await response.json()) as {
+      transaction: {
+        to: `0x${string}`;
+        data: `0x${string}`;
+        value: string;
+      };
+    };
+
+    return {
+      to: data.transaction.to,
+      data: data.transaction.data,
+      value: BigInt(data.transaction.value || 0),
+    };
   }
 
-  const data = (await response.json()) as {
-    transaction: {
-      to: `0x${string}`;
-      data: `0x${string}`;
-      value: string;
+  private headers(): Record<string, string> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
     };
-  };
 
-  return {
-    to: data.transaction.to,
-    data: data.transaction.data,
-    value: BigInt(data.transaction.value || 0),
-  };
+    if (this.config.apiKey) {
+      headers["x-api-key"] = this.config.apiKey;
+    }
+
+    return headers;
+  }
 }
 
 export function odosRouteGraph(pathViz: OdosQuoteResponse["pathViz"]): RouteGraph {

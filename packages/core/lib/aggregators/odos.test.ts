@@ -3,6 +3,17 @@ import { defaultSwapParams } from "../../test/utils.js";
 import { OdosAggregator, odosRouteGraph } from "./odos.js";
 
 describe("Odos", () => {
+  it("provides metadata", () => {
+    const aggregator = new OdosAggregator();
+    expect(aggregator.name()).toBe("odos");
+    expect(aggregator.features()).not.toBeEmpty();
+    const metadata = aggregator.metadata();
+    expect(metadata).toBeDefined();
+    expect(metadata.name).toBe("Odos");
+    expect(metadata.url).toMatch(/odos/);
+    expect(metadata.docsUrl).toMatch(/odos/);
+  });
+
   it("generates a quote", async () => {
     const quoter = new OdosAggregator();
     const quote = await quoter.fetchQuote(defaultSwapParams);

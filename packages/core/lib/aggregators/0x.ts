@@ -2,12 +2,14 @@ import { Aggregator } from "../aggregator.js";
 import {
   type Address,
   type AggregatorFeature,
+  type AggregatorMetadata,
   type ExactInSwapParams,
   type Hex,
   type ProviderKey,
   QuoteError,
   type RouteGraph,
   type SuccessfulQuote,
+  type SwapOptions,
   type SwapParams,
 } from "../types.js";
 
@@ -30,7 +32,20 @@ export class ZeroXAggregator extends Aggregator {
   /**
    * @inheritdoc
    */
-  name(): ProviderKey {
+  override metadata(): AggregatorMetadata {
+    return {
+      name: "0x",
+      url: "https://0x.org",
+      docsUrl: "https://0x.org/docs/api#tag/Swap/operation/swap::allowanceHolder::getQuote",
+      logoUrl:
+        "https://cdn.prod.website-files.com/66967cfef0a246cbbb9aee94/66967cfef0a246cbbb9aeeee_logo.svg",
+    };
+  }
+
+  /**
+   * @inheritdoc
+   */
+  override name(): ProviderKey {
     return "0x";
   }
 
@@ -45,12 +60,15 @@ export class ZeroXAggregator extends Aggregator {
   /**
    * @inheritdoc
    */
-  protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
+  protected override async tryFetchQuote(
+    request: SwapParams,
+    options: SwapOptions,
+  ): Promise<SuccessfulQuote> {
     if (request.mode === "targetOut") {
       throw new QuoteError("0x aggregator does not support exact output quotes");
     }
 
-    const response = await this.makeRequest(request as ExactInSwapParams);
+    const response = await this.makeRequest(request as ExactInSwapParams, options);
 
     return {
       success: true,
@@ -68,19 +86,15 @@ export class ZeroXAggregator extends Aggregator {
     };
   }
 
-  private async makeRequest(request: ExactInSwapParams): Promise<ZeroXQuoteResponse> {
+  private async makeRequest(
+    request: ExactInSwapParams,
+    options: SwapOptions,
+  ): Promise<ZeroXQuoteResponse> {
     if (!this.config.apiKey) {
       throw new Error("0x API key is not set. Please set the ZEROX_API_KEY environment variable.");
     }
 
-    const params = new URLSearchParams({
-      chainId: request.chainId.toString(),
-      buyToken: request.outputToken,
-      sellToken: request.inputToken,
-      sellAmount: request.inputAmount.toString(),
-      slippageBps: request.slippageBps.toString(),
-      taker: request.swapperAccount,
-    });
+    const params = new URLSearchParams(extractQueryParams(request, options));
 
     const response = await fetch(
       `https://api.0x.org/swap/allowance-holder/quote?${params.toString()}`,
@@ -99,6 +113,33 @@ export class ZeroXAggregator extends Aggregator {
     }
     return body as ZeroXQuoteResponse;
   }
+}
+
+function extractQueryParams(
+  params: ExactInSwapParams,
+  options: SwapOptions,
+): Record<string, string> {
+  const result: Record<string, string> = {
+    chainId: params.chainId.toString(),
+    buyToken: params.outputToken,
+    sellToken: params.inputToken,
+    sellAmount: params.inputAmount.toString(),
+    slippageBps: params.slippageBps.toString(),
+    taker: params.swapperAccount,
+  };
+
+  if (options.integratorFeeAddress) {
+    result.swapFeeRecipient = options.integratorFeeAddress;
+    if (options.integratorSwapFeeBps !== undefined) {
+      result.swapFeeBps = options.integratorSwapFeeBps.toString();
+    }
+    if (options.integratorSurplusBps) {
+      result.tradeSurplusRecipient = options.integratorFeeAddress;
+      result.tradeSurplusMaxBps = options.integratorSurplusBps.toString();
+    }
+  }
+
+  return result;
 }
 
 function zeroXRouteGraph(quote: ZeroXQuoteResponse): RouteGraph {
