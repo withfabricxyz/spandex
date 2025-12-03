@@ -6,45 +6,7 @@ SMAL supports multiple quote selection strategies to match different use cases. 
 
 ## Built-in Strategies
 
-### `quotedPrice`
-
-Selects the quote with the highest output amount.
-
-**Use when:** Price is your primary concern and you can afford to wait for all providers.
-
-```ts
-// [!include ~/snippets/strategy-quoted-price.ts]
-```
-
-### `quotedGas`
-
-Selects the quote with the lowest estimated gas cost.
-
-**Use when:** You're optimizing for gas efficiency, especially on expensive chains like mainnet.
-
-```ts
-// [!include ~/snippets/strategy-quoted-gas.ts]
-```
-
-### `fastest`
-
-Returns the first successful quote that arrives.
-
-**Use when:** Response time matters more than price (e.g., user-facing UIs, time-sensitive arbitrage).
-
-```ts twoslash
-// [!include ~/snippets/strategy-fastest.ts]
-```
-
-### `priority`
-
-Evaluates providers sequentially and returns the first success.
-
-**Use when:** You have a preferred provider order (e.g., trusted sources first, fallbacks second).
-
-```ts twoslash
-// [!include ~/snippets/strategy-priority.ts]
-```
+Cover strategies with simple examples.
 
 ## Custom Strategies
 

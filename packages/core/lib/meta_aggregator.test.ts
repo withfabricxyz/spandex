@@ -3,7 +3,7 @@ import { defaultSwapParams, MockAggregator, quoteFailure, quoteSuccess } from ".
 import { MetaAggregator } from "./meta_aggregator.js";
 import type { FailedQuote, Quote } from "./types.js";
 
-describe("aggregator", () => {
+describe("meta aggregator", () => {
   it("throws on misconfiguration", async () => {
     expect(() => new MetaAggregator([])).toThrow();
   });

@@ -26,7 +26,7 @@ const params: ExactInSwapParams = {
 };
 
 // use the quoted price strategy; see Strategies for other options
-const bestQuote = await metaAggregator.fetchBestQuote(params, "quotedPrice");
+const bestQuote = await metaAggregator.fetchBestQuote(params, { strategy: "quotedPrice" });
 
 if (!bestQuote) {
   throw new Error("No providers responded in time");

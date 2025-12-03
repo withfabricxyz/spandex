@@ -30,7 +30,7 @@ const params: ExactInSwapParams = {
   swapperAccount: "0xdead00000000000000000000000000000000beef",
 };
 
-const randomQuote = await customQuoter.fetchBestQuote(params, randomStrategy);
+const randomQuote = await customQuoter.fetchBestQuote(params, { strategy: randomStrategy });
 
 if (!randomQuote) {
   throw new Error("No providers succeeded");
