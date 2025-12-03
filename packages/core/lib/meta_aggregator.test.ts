@@ -92,7 +92,7 @@ describe("aggregator", () => {
 
   it("respects target out filter", async () => {
     const quoter = new MetaAggregator([
-      new MockAggregator(quoteSuccess, { features: ["targetOutQuote"] }),
+      new MockAggregator(quoteSuccess, { features: ["targetOut"] }),
       new MockAggregator(quoteSuccess),
     ]);
     const quotes = await quoter.fetchQuotes({

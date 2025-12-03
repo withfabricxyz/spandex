@@ -171,7 +171,7 @@ function queryFeatures(params: SwapParams): AggregatorFeature[] {
   if (params.mode === "exactIn") {
     features.push("exactIn");
   } else if (params.mode === "targetOut") {
-    features.push("targetOutQuote");
+    features.push("targetOut");
   }
   return features;
 }

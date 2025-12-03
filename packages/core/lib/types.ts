@@ -42,11 +42,7 @@ export type ProviderConfig = Partial<{ [K in ProviderKey]: ProviderDefinitions[K
 /**
  * Features that an aggregator may support. Used for capability detection and filtering.
  */
-export type AggregatorFeature =
-  | "exactIn"
-  | "targetOutQuote"
-  | "integratorFees"
-  | "integratorSurplus";
+export type AggregatorFeature = "exactIn" | "targetOut" | "integratorFees" | "integratorSurplus";
 
 // /**
 //  * Basic configuration block shared by all aggregator-specific configs.
