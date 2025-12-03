@@ -91,7 +91,7 @@ export class FabricAggregator extends Aggregator {
    * @inheritdoc
    */
   override features(): AggregatorFeature[] {
-    return ["exactIn", "targetOutQuote", "integratorFees", "integratorSurplus"];
+    return ["exactIn", "targetOut", "integratorFees", "integratorSurplus"];
   }
 
   /**
