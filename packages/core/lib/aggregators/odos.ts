@@ -3,49 +3,28 @@ import {
   type AggregatorFeature,
   type AggregatorMetadata,
   type ExactInSwapParams,
-  type PoolEdge,
   type ProviderKey,
   QuoteError,
-  type RouteGraph,
   type SuccessfulQuote,
   type SwapParams,
 } from "../types.js";
 
+/**
+ * Configuration options for the Odos aggregator.
+ */
 export type OdosConfig = {
+  /**
+   * Optional integrator identifier used for referral attribution.
+   */
   referralCode?: number;
+  /**
+   * Optional API key for Odos.
+   */
   apiKey?: string;
+  /**
+   * Enables fee sharing features such as integrator fees and surplus. This assumes negotiated rates.
+   */
   feeSharing?: boolean;
-};
-
-export type OdosQuoteResponse = {
-  pathId: string;
-  inTokens: string[];
-  outTokens: string[];
-  inAmounts: string[];
-  outAmounts: string[];
-  gasEstimate: number;
-  dataGasEstimate: number;
-  gweiPerGas: number;
-  gasEstimateValue: number;
-  inValues: number[];
-  outValues: number[];
-  netOutValue: number;
-  priceImpact: number;
-  percentDiff: number;
-  partnerFeePercent: number;
-  pathViz?: {
-    nodes: Array<{
-      address: string;
-      symbol?: string;
-      decimals?: number;
-    }>;
-    edges: Array<{
-      source: string;
-      target: string;
-      pool: string;
-      value: string;
-    }>;
-  };
 };
 
 /**
@@ -106,7 +85,6 @@ export class OdosAggregator extends Aggregator {
     const txData = await this.assembleOdosTx(response.pathId, request.swapperAccount);
     const outputAmount = BigInt(response.outAmounts[0] || "0");
     const inputAmount = BigInt(response.inAmounts[0] || "0");
-    const route = response.pathViz ? odosRouteGraph(response.pathViz) : undefined;
 
     return {
       success: true,
@@ -117,7 +95,6 @@ export class OdosAggregator extends Aggregator {
       outputAmount,
       networkFee,
       txData,
-      route,
     };
   }
 
@@ -129,8 +106,8 @@ export class OdosAggregator extends Aggregator {
     slippageBps,
     swapperAccount,
   }: ExactInSwapParams): Promise<OdosQuoteResponse> {
-    const quoteGenParams = {
-      chainId: chainId,
+    const quoteGenParams: OdosQuoteRequest = {
+      chainId,
       inputTokens: [
         {
           tokenAddress: inputToken,
@@ -165,9 +142,9 @@ export class OdosAggregator extends Aggregator {
 
   private async assembleOdosTx(
     pathId: string,
-    userAddr: string,
+    userAddr: `0x${string}`,
   ): Promise<{ to: `0x${string}`; data: `0x${string}`; value: bigint }> {
-    const requestBody = {
+    const requestBody: OdosAssembleRequest = {
       userAddr,
       pathId,
       simulate: false,
@@ -184,13 +161,7 @@ export class OdosAggregator extends Aggregator {
       throw new QuoteError(`Odos tx assembly request failed with status ${response.status}`, body);
     }
 
-    const data = (await response.json()) as {
-      transaction: {
-        to: `0x${string}`;
-        data: `0x${string}`;
-        value: string;
-      };
-    };
+    const data = (await response.json()) as OdosAssembleResponse;
 
     return {
       to: data.transaction.to,
@@ -212,27 +183,145 @@ export class OdosAggregator extends Aggregator {
   }
 }
 
-export function odosRouteGraph(pathViz: OdosQuoteResponse["pathViz"]): RouteGraph {
-  if (!pathViz || !pathViz.nodes || !pathViz.edges) {
-    return { nodes: [], edges: [] };
-  }
+/**
+ * Request payload accepted by the Odos `/sor/quote/v3` endpoint.
+ *
+ * Field semantics follow https://docs.odos.xyz/api/sor/quote.
+ */
+type OdosQuoteRequest = {
+  /**
+   * Chain identifier (EIP-155).
+   */
+  chainId: number;
+  /**
+   * Tokens and amounts the user will supply to the route (base units).
+   */
+  inputTokens: Array<{
+    tokenAddress: `0x${string}`;
+    amount: string;
+  }>;
+  /**
+   * Tokens requested on output along with the percentage split for each leg.
+   */
+  outputTokens: Array<{
+    tokenAddress: `0x${string}`;
+    proportion: number;
+  }>;
+  /**
+   * Maximum price movement tolerated, expressed as a percent (e.g. `0.5` = 0.5%).
+   */
+  slippageLimitPercent: number;
+  /**
+   * Recipient of funds and msg.sender for the assembled transaction.
+   */
+  userAddr: `0x${string}`;
+  /**
+   * Enables a smaller payload by omitting verbose path details.
+   */
+  compact?: boolean;
+  /**
+   * Optional integrator identifier used for referral attribution.
+   */
+  referralCode?: number;
+};
 
-  const nodes = pathViz.nodes.map((node) => ({
-    address: node.address as `0x${string}`,
-    symbol: node.symbol,
-    decimals: node.decimals,
-  }));
+/**
+ * Response payload returned by the Odos `/sor/quote/v3` endpoint.
+ *
+ * Field semantics follow https://docs.odos.xyz/api/sor/quote.
+ */
+export type OdosQuoteResponse = {
+  /**
+   * Opaque identifier used to assemble and simulate the routed transaction.
+   */
+  pathId: string;
+  /**
+   * ERC-20 addresses used on the input side of the route.
+   */
+  inTokens: string[];
+  /**
+   * ERC-20 addresses produced on the output side of the route.
+   */
+  outTokens: string[];
+  /**
+   * Base-unit amounts for each entry in `inTokens`.
+   */
+  inAmounts: string[];
+  /**
+   * Base-unit amounts for each entry in `outTokens`.
+   */
+  outAmounts: string[];
+  /**
+   * Estimated gas units required to execute the assembled transaction.
+   */
+  gasEstimate: number;
+  /**
+   * Portion of the gas estimate attributable to calldata size (EIP-1559 data gas).
+   */
+  dataGasEstimate: number;
+  /**
+   * Suggested gas price in gwei derived from Odos' gas oracle.
+   */
+  gweiPerGas: number;
+  /**
+   * Estimated fiat cost (USD) of the gas required to perform the swap.
+   */
+  gasEstimateValue: number;
+  /**
+   * Fiat valuation (USD) of each input amount.
+   */
+  inValues: number[];
+  /**
+   * Fiat valuation (USD) of each output amount.
+   */
+  outValues: number[];
+  /**
+   * Net USD value of the quote after accounting for gas and fees.
+   */
+  netOutValue: number;
+  /**
+   * Price impact of the path vs. mid price expressed as a percentage.
+   */
+  priceImpact: number;
+  /**
+   * Percent difference between the quoted path and Odos' benchmark route.
+   */
+  percentDiff: number;
+  /**
+   * Fee percentage applied on behalf of the integrator, if configured.
+   */
+  partnerFeePercent: number;
+};
 
-  const edges: PoolEdge[] = pathViz.edges.map((edge) => ({
-    source: edge.source as `0x${string}`,
-    target: edge.target as `0x${string}`,
-    address: edge.pool as `0x${string}`,
-    key: edge.pool,
-    value: Number(edge.value),
-  }));
+/**
+ * Request payload accepted by the Odos `/sor/assemble` endpoint.
+ *
+ * Field semantics follow https://docs.odos.xyz/api/sor/assemble.
+ */
+type OdosAssembleRequest = {
+  /**
+   * Address that will submit the transaction and receive the proceeds.
+   */
+  userAddr: `0x${string}`;
+  /**
+   * Identifier returned by the quote endpoint tying the request to a specific path.
+   */
+  pathId: string;
+  /**
+   * Whether Odos should simulate execution server-side before returning calldata.
+   */
+  simulate?: boolean;
+};
 
-  return {
-    nodes,
-    edges,
+/**
+ * Response payload returned by the Odos `/sor/assemble` endpoint.
+ *
+ * Field semantics follow https://docs.odos.xyz/api/sor/assemble.
+ */
+type OdosAssembleResponse = {
+  transaction: {
+    to: `0x${string}`;
+    data: `0x${string}`;
+    value: string;
   };
-}
+};
