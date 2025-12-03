@@ -10,14 +10,13 @@ const walletClient = createWalletClient({
 });
 
 const metaAggregator = buildMetaAggregator({
-  aggregators: [
-    { provider: "fabric", config: {} },
-    // ... other providers
-  ],
+  providers: {
+    fabric: {},
+  },
 });
 
 const params: ExactInSwapParams = {
-  mode: "exactInQuote",
+  mode: "exactIn",
   chainId: 8453,
   inputToken: "0x4200000000000000000000000000000000000006",
   outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA",
@@ -26,8 +25,8 @@ const params: ExactInSwapParams = {
   swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
 };
 
-// default strategy is "quotedPrice"; see Strategies for other options
-const bestQuote = await metaAggregator.fetchBestQuote(params);
+// use the quoted price strategy; see Strategies for other options
+const bestQuote = await metaAggregator.fetchBestQuote(params, "quotedPrice");
 
 if (!bestQuote) {
   throw new Error("No providers responded in time");

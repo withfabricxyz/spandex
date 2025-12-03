@@ -12,7 +12,7 @@ const defaultSwapParams: SwapParams = {
   inputAmount: 500_000_000n,
   slippageBps: 100,
   swapperAccount: "0xdead00000000000000000000000000000000beef",
-  mode: "exactInQuote",
+  mode: "exactIn",
 };
 
 const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
@@ -26,12 +26,12 @@ describe("SimulatedMetaAggregator", () => {
   }) as PublicClient;
 
   const metaAgg = buildMetaAggregator({
-    aggregators: [
-      { provider: "odos", config: {} },
-      { provider: "kyberswap", config: { clientId: "smal" } },
-      { provider: "fabric", config: {} },
-      { provider: "0x", config: { apiKey: process.env.ZEROX_API_KEY || "" } },
-    ],
+    providers: {
+      odos: {},
+      kyberswap: { clientId: "smal" },
+      fabric: {},
+      "0x": { apiKey: process.env.ZEROX_API_KEY || "" },
+    },
   });
 
   const simulator = new SimulatedMetaAggregator(metaAgg, client);

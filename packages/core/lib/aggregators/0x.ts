@@ -36,7 +36,7 @@ export class ZeroXAggregator extends Aggregator {
 
   override features(): AggregatorFeature[] {
     return [
-      "exactInQuote",
+      "exactIn",
       "integratorFees",
       this.config.negotiateSurplus ? "integratorSurplus" : undefined,
     ].filter((f): f is AggregatorFeature => f !== undefined);
@@ -46,7 +46,7 @@ export class ZeroXAggregator extends Aggregator {
    * @inheritdoc
    */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
-    if (request.mode === "exactOutputQuote") {
+    if (request.mode === "targetOut") {
       throw new QuoteError("0x aggregator does not support exact output quotes");
     }
 

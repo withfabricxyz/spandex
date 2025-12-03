@@ -2,17 +2,17 @@
 
 ## Overview
 
-SMAL supports multiple quote selection strategies to match different use cases. When you call `fetchBestQuote()`, the strategy determines which quote is "best" from all provider responses.
+SMAL supports multiple quote selection strategies to match different use cases. When you call `fetchBestQuote(params, strategy)`, the strategy argument determines which quote is "best" from all provider responses.
 
 ## Built-in Strategies
 
-### `quotedPrice` (Default)
+### `quotedPrice`
 
 Selects the quote with the highest output amount.
 
 **Use when:** Price is your primary concern and you can afford to wait for all providers.
 
-```ts twoslash
+```ts
 // [!include ~/snippets/strategy-quoted-price.ts]
 ```
 
@@ -22,7 +22,7 @@ Selects the quote with the lowest estimated gas cost.
 
 **Use when:** You're optimizing for gas efficiency, especially on expensive chains like mainnet.
 
-```ts twoslash
+```ts
 // [!include ~/snippets/strategy-quoted-gas.ts]
 ```
 

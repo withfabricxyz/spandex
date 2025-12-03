@@ -1,16 +1,13 @@
 import type { Aggregator } from "./aggregator.ts";
 import { applyStrategy } from "./strategies.js";
-import {
-  type AggregatorFeature,
-  type MetaAggregationOptions,
-  type Quote,
-  QuoteError,
-  type SuccessfulQuote,
-  type SwapParams,
+import type {
+  AggregationOptions,
+  AggregatorFeature,
+  Quote,
+  QuoteSelectionStrategy,
+  SuccessfulQuote,
+  SwapParams,
 } from "./types.js";
-
-const MIN_DEADLINE_MS = 250;
-const MAX_DEADLINE_MS = 60_000;
 
 const QuoteIdentifyFn = async (quote: Quote): Promise<Quote> => quote;
 
@@ -18,18 +15,34 @@ const QuoteIdentifyFn = async (quote: Quote): Promise<Quote> => quote;
  * Coordinates multiple aggregators and applies strategies to surface the best quote.
  */
 export class MetaAggregator {
+  public readonly options: AggregationOptions;
   /**
    * @param aggregators - Providers that will be queried when fetching quotes.
-   * @param defaults - Default aggregation configuration shared across requests.
+   * @param options - Default aggregation configuration shared across requests.
    * @throws Error if no aggregators are supplied.
    */
   constructor(
     private aggregators: Aggregator[],
-    public readonly defaults?: MetaAggregationOptions,
+    options?: AggregationOptions,
   ) {
     if (aggregators.length === 0) {
       throw new Error("MetaAggregator requires at least one aggregator");
     }
+    this.options = options ?? {};
+    validateOptions(this.options);
+  }
+
+  /**
+   * Creates a new MetaAggregator instance with the same aggregators but overridden options.
+   *
+   * @param options - New aggregation options to apply.
+   * @returns Cloned MetaAggregator with patched options.
+   */
+  clone(options?: AggregationOptions): MetaAggregator {
+    return new MetaAggregator(this.aggregators, {
+      ...this.options,
+      ...options,
+    });
   }
 
   /**
@@ -43,33 +56,24 @@ export class MetaAggregator {
    * Fetches quotes and applies the configured strategy to pick the best result.
    *
    * @param params - Swap request parameters.
-   * @param overrides - Per-request options that override defaults.
+   * @param strategy - Strategy used to rank and select the winning quote.
    * @returns Winning quote, or `null` if no provider succeeds.
    */
   async fetchBestQuote(
     params: SwapParams,
-    overrides?: MetaAggregationOptions,
+    strategy: QuoteSelectionStrategy,
   ): Promise<SuccessfulQuote | null> {
-    return applyStrategy(
-      overrides?.strategy ?? this.defaults?.strategy ?? "quotedPrice",
-      this.prepareQuotes({ params, overrides, mapFn: QuoteIdentifyFn }),
-    );
+    return applyStrategy(strategy, this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
   }
 
   /**
    * Fetches quotes from all providers and returns only the successful ones.
    *
    * @param params - Swap request parameters.
-   * @param overrides - Per-request options that override defaults.
    * @returns Successful quotes in the order providers resolve.
    */
-  async fetchQuotes(
-    params: SwapParams,
-    overrides?: MetaAggregationOptions,
-  ): Promise<SuccessfulQuote[]> {
-    const quotes = await Promise.all(
-      this.prepareQuotes({ params, overrides, mapFn: QuoteIdentifyFn }),
-    );
+  async fetchSuccessfulQuotes(params: SwapParams): Promise<SuccessfulQuote[]> {
+    const quotes = await Promise.all(this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
     return quotes.filter((q) => q.success) as SuccessfulQuote[];
   }
 
@@ -77,11 +81,10 @@ export class MetaAggregator {
    * Fetches quotes from all providers and returns every result, including failures.
    *
    * @param params - Swap request parameters.
-   * @param overrides - Per-request options that override defaults.
    * @returns Array of successful or failed quote responses.
    */
-  async fetchAllQuotes(params: SwapParams, overrides?: MetaAggregationOptions): Promise<Quote[]> {
-    return Promise.all(this.prepareQuotes({ params, overrides, mapFn: QuoteIdentifyFn }));
+  async fetchQuotes(params: SwapParams): Promise<Quote[]> {
+    return Promise.all(this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
   }
 
   /**
@@ -90,40 +93,32 @@ export class MetaAggregator {
    * This is useful for performing additional processing on each quote as it is fetched, but still adhering to the meta-aggregator's deadline handling.
    *
    * @param params - Swap request parameters.
-   * @param overrides - Per-request options that override defaults.
    * @returns Array of successful or failed quote responses.
    */
-  async fetchAllAndThen<T>({
+  async fetchAndThen<T>({
     params,
-    overrides,
     mapFn,
   }: {
     params: SwapParams;
     mapFn: (quote: Quote) => Promise<T>;
-    overrides?: MetaAggregationOptions;
   }): Promise<T[]> {
-    return Promise.all(this.prepareQuotes({ params, overrides, mapFn }));
+    return Promise.all(this.prepareQuotes({ params, mapFn }));
   }
 
   /**
-   * Generates quote promises for all configured aggregators, respecting deadline overrides.
+   * Generates quote promises for all configured aggregators.
    *
    * @param params - Swap request parameters.
-   * @param overrides - Per-request options that override defaults.
    * @returns Array of quote promises to be awaited elsewhere.
    */
   prepareQuotes<T>({
     params,
-    overrides,
     mapFn,
   }: {
     params: SwapParams;
     mapFn: (quote: Quote) => Promise<T>;
-    overrides?: MetaAggregationOptions;
   }): Array<Promise<T>> {
-    const options = { ...this.defaults, ...overrides }; // TODO: Deep merge?
-
-    validateOptions(options);
+    const options = this.options;
 
     // Get the required features for this request and filter aggregators accordingly
     const features = [...queryFeatures(params), ...configFeatures(options)];
@@ -136,27 +131,17 @@ export class MetaAggregator {
       );
     }
 
-    return candidates.map(async (aggregator) => {
-      const quotePromise = aggregator.fetchQuote(params, options).then(mapFn);
-      if (!options.deadlineMs) {
-        return quotePromise;
-      }
-
-      return Promise.race([
-        quotePromise,
-        deadline({ deadlineMs: options.deadlineMs, aggregator, mapFn }),
-      ]);
-    });
+    return candidates.map((aggregator) => aggregator.fetchQuote(params, options).then(mapFn));
   }
 }
 
-function validateOptions(options: MetaAggregationOptions): void {
+function validateOptions(options: AggregationOptions): void {
   if (
     ((options.integratorSwapFeeBps || 0) > 0 || (options.integratorSurplusBps || 0) > 0) &&
     !options.integratorFeeAddress
   ) {
     throw new Error(
-      "Swap fees or surplus bps provided without an integrator fee address. Set `integratorFeeAddress` in MetaAggregationOptions.",
+      "Swap fees or surplus bps provided without an integrator fee address. Set `integratorFeeAddress` in AggregationOptions.",
     );
   }
   if (
@@ -165,12 +150,12 @@ function validateOptions(options: MetaAggregationOptions): void {
     !options.integratorSurplusBps
   ) {
     throw new Error(
-      "Integrator fee address provided without swap fees or surplus bps. Set `integratorSwapFeeBps` or `integratorSurplusBps` in MetaAggregationOptions.",
+      "Integrator fee address provided without swap fees or surplus bps. Set `integratorSwapFeeBps` or `integratorSurplusBps` in AggregationOptions.",
     );
   }
 }
 
-function configFeatures(options?: MetaAggregationOptions): AggregatorFeature[] {
+function configFeatures(options?: AggregationOptions): AggregatorFeature[] {
   const features: AggregatorFeature[] = [];
   if ((options?.integratorSwapFeeBps || 0) > 0) {
     features.push("integratorFees");
@@ -183,29 +168,10 @@ function configFeatures(options?: MetaAggregationOptions): AggregatorFeature[] {
 
 function queryFeatures(params: SwapParams): AggregatorFeature[] {
   const features: AggregatorFeature[] = [];
-  if (params.mode === "exactInQuote") {
-    features.push("exactInQuote");
-  } else if (params.mode === "exactOutputQuote") {
-    features.push("targetOutQuote");
+  if (params.mode === "exactIn") {
+    features.push("exactIn");
+  } else if (params.mode === "targetOut") {
+    features.push("targetOut");
   }
   return features;
-}
-
-async function deadline<T>({
-  deadlineMs,
-  aggregator,
-  mapFn,
-}: {
-  deadlineMs: number;
-  aggregator: Aggregator;
-  mapFn: (quote: Quote) => Promise<T>;
-}): Promise<T> {
-  await new Promise((resolve) =>
-    setTimeout(resolve, Math.min(Math.max(deadlineMs, MIN_DEADLINE_MS), MAX_DEADLINE_MS)),
-  );
-  return mapFn({
-    success: false,
-    provider: aggregator.name(),
-    error: new QuoteError(`MetaAggregator deadline exceeded after ${deadlineMs}ms`, ""),
-  });
 }

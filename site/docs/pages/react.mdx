@@ -45,7 +45,7 @@ const smalConfig = {
     { provider: "fabric", config: {} },
     { provider: "0x", config: {} },
   ],
-  defaults: {
+  options: {
     strategy: "quotedPrice",
   },
 };
@@ -66,7 +66,7 @@ function App() {
 The `SmalProvider` accepts a `config` prop with two properties:
 
 - **`aggregators`**: Array of aggregator configurations (see [Getting Started](/getting-started.mdx))
-- **`defaults`**: Optional default options including strategy (see [Strategies](/strategies.mdx))
+- **`options`**: Optional default options including strategy (see [Strategies](/strategies.mdx))
 
 ## Hooks
 
@@ -79,7 +79,7 @@ import { useQuotes } from "@withfabric/smal-wagmi";
 
 function SwapComponent() {
   const { quotes, isLoading, error, getQuotes } = useQuotes({
-    mode: "exactInQuote",
+    mode: "exactIn",
     inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
     outputToken: "0x4200000000000000000000000000000000000006", // WETH
     inputAmount: 1000000n, // 1 USDC
@@ -113,11 +113,11 @@ The hook accepts all swap parameters except `chainId` and `swapperAccount`, whic
 
 ```typescript
 type UseQuotesParams = {
-  mode: "exactInQuote" | "exactOutputQuote";
+  mode: "exactIn" | "targetOut";
   inputToken: `0x${string}`;
   outputToken: `0x${string}`;
-  inputAmount?: bigint; // Required for exactInQuote
-  outputAmount?: bigint; // Required for exactOutputQuote
+  inputAmount?: bigint; // Required for exactIn
+  outputAmount?: bigint; // Required for targetOut
   slippageBps: number;
   // Optional overrides:
   chainId?: number; // Override connected chain
@@ -143,7 +143,7 @@ The hook automatically uses the connected wallet's chain and account:
 ```tsx
 // Automatically uses connected chain ID and account address
 const { getQuotes } = useQuotes({
-  mode: "exactInQuote",
+  mode: "exactIn",
   inputToken: "0x...",
   outputToken: "0x...",
   inputAmount: 1000000n,
@@ -156,7 +156,7 @@ You can override these values if needed:
 ```tsx
 // Override chain ID and account
 const { getQuotes } = useQuotes({
-  mode: "exactInQuote",
+  mode: "exactIn",
   chainId: 1, // Force Ethereum mainnet
   swapperAccount: "0xSpecificAddress...",
   inputToken: "0x...",
@@ -180,7 +180,7 @@ function SwapUI() {
   const [inputAmount, setInputAmount] = useState("");
 
   const { quotes, isLoading, error, getQuotes } = useQuotes({
-    mode: "exactInQuote",
+    mode: "exactIn",
     inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     outputToken: "0x4200000000000000000000000000000000000006",
     inputAmount: BigInt(inputAmount || "0"),
@@ -232,7 +232,7 @@ Choose the appropriate strategy based on your use case (see [Strategies](/strate
 // In SmalProvider config
 const smalConfig = {
   aggregators: [...],
-  defaults: {
+  options: {
     strategy: "fastest", // For responsive UIs
   },
 };

@@ -91,7 +91,7 @@ export class FabricAggregator extends Aggregator {
    * @inheritdoc
    */
   override features(): AggregatorFeature[] {
-    return ["exactInQuote", "targetOutQuote", "integratorFees", "integratorSurplus"];
+    return ["exactIn", "targetOut", "integratorFees", "integratorSurplus"];
   }
 
   /**
@@ -119,7 +119,7 @@ export class FabricAggregator extends Aggregator {
 
   private async makeRequest(params: SwapParams): Promise<FabricQuoteResponse> {
     let query: URLSearchParams | null = null;
-    if (params.mode === "exactInQuote") {
+    if (params.mode === "exactIn") {
       query = new URLSearchParams({
         chainId: params.chainId.toString(),
         buyToken: params.outputToken,

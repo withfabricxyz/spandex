@@ -13,45 +13,60 @@ export type Address = `0x${string}`;
  */
 export type Hex = `0x${string}`;
 
+export type ProviderDefinitions = {
+  fabric: {
+    config: FabricConfig;
+    quote: FabricQuoteResponse;
+  };
+  "0x": {
+    config: ZeroXConfig;
+    quote: ZeroXQuoteResponse;
+  };
+  kyberswap: {
+    config: KyberConfig;
+    quote: KyberQuoteResponse;
+  };
+  odos: {
+    config: OdosConfig;
+    quote: OdosQuoteResponse;
+  };
+};
+
 /**
  * Keys that identify which provider produced a quote.
  */
-export type ProviderKey = "fabric" | "0x" | "kyberswap" | "odos";
+export type ProviderKey = keyof ProviderDefinitions;
+
+export type ProviderConfig = Partial<{ [K in ProviderKey]: ProviderDefinitions[K]["config"] }>;
 
 /**
  * Features that an aggregator may support. Used for capability detection and filtering.
  */
-export type AggregatorFeature =
-  | "exactInQuote"
-  | "targetOutQuote"
-  | "integratorFees"
-  | "integratorSurplus";
+export type AggregatorFeature = "exactIn" | "targetOut" | "integratorFees" | "integratorSurplus";
 
-/**
- * Basic configuration block shared by all aggregator-specific configs.
- *
- * @typeParam P - Provider identifier.
- * @typeParam T - Config shape for the provider.
- */
-type GenericAggregatorConfig<P extends ProviderKey, T> = {
-  /**
-   * Name of the provider this config applies to.
-   */
-  provider: P;
-  /**
-   * Provider-specific options.
-   */
-  config: T;
-};
+// /**
+//  * Basic configuration block shared by all aggregator-specific configs.
+//  *
+//  * @typeParam P - Provider identifier.
+//  * @typeParam T - Config shape for the provider.
+//  */
+// type GenericAggregatorConfig<P extends ProviderKey, T> = {
+//   /**
+//    * Name of the provider this config applies to.
+//    */
+//   provider: P;
+//   /**
+//    * Provider-specific options.
+//    */
+//   config: T;
+// };
 
-/**
- * Configuration union for all supported aggregators.
- */
-export type AggregatorConfig =
-  | GenericAggregatorConfig<"fabric", FabricConfig>
-  | GenericAggregatorConfig<"0x", ZeroXConfig>
-  | GenericAggregatorConfig<"kyberswap", KyberConfig>
-  | GenericAggregatorConfig<"odos", OdosConfig>;
+// /**
+//  * Configuration union for all supported aggregators.
+//  */
+// export type AggregatorConfig = {
+//   [K in ProviderKey]: GenericAggregatorConfig<K, ProviderDefinitions[K]["config"]>;
+// }[ProviderKey];
 
 /**
  * Successful quote shape returned by an individual provider.
@@ -101,11 +116,9 @@ export type GenericQuote<P extends ProviderKey, T> = {
 /**
  * Union of successful quote shapes for every supported provider.
  */
-export type SuccessfulQuote =
-  | GenericQuote<"0x", ZeroXQuoteResponse>
-  | GenericQuote<"kyberswap", KyberQuoteResponse>
-  | GenericQuote<"fabric", FabricQuoteResponse>
-  | GenericQuote<"odos", OdosQuoteResponse>;
+export type SuccessfulQuote = {
+  [K in ProviderKey]: GenericQuote<K, ProviderDefinitions[K]["quote"]>;
+}[ProviderKey];
 
 /**
  * Custom error used to surface provider-specific failures.
@@ -172,15 +185,15 @@ type SwapBase = {
 };
 
 export type ExactInSwapParams = SwapBase & {
-  mode: "exactInQuote";
+  mode: "exactIn";
   /**
    * Amount of input token to sell (denominated in base units).
    */
   inputAmount: bigint;
 };
 
-export type ExactOutSwapParams = SwapBase & {
-  mode: "exactOutputQuote";
+export type TargetOutSwapParams = SwapBase & {
+  mode: "targetOut";
   /**
    * Amount of output token to purchase (denominated in base units).
    */
@@ -190,7 +203,7 @@ export type ExactOutSwapParams = SwapBase & {
 /**
  * Parameters required to request a swap quote.
  */
-export type SwapParams = ExactInSwapParams | ExactOutSwapParams;
+export type SwapParams = ExactInSwapParams | TargetOutSwapParams;
 
 /**
  * Transaction payload emitted alongside a quote.
@@ -273,9 +286,9 @@ export type RouteGraph = {
 };
 
 /**
- * Options controlling retry and timeout behavior for a single provider.
+ * Options controlling retry and timeout behavior for quote requests.
  */
-export type AggregationOptions = {
+export type TimingOptions = {
   /**
    * Maximum duration for the entire aggregation process before aborting pending requests.
    */
@@ -288,6 +301,12 @@ export type AggregationOptions = {
    * Initial delay before retrying failed requests (exponential backoff applied).
    */
   initialRetryDelayMs?: number;
+};
+
+/**
+ * Options for configuring integrator fees and surplus sharing.
+ */
+export type FeeOptions = {
   /**
    * Address that should receive the integrator fee.
    */
@@ -301,6 +320,12 @@ export type AggregationOptions = {
    */
   integratorSurplusBps?: number;
 };
+
+/**
+ * Combined aggregation options.
+ * @inheritdoc
+ */
+export type AggregationOptions = TimingOptions & FeeOptions;
 
 /**
  * Custom strategy function used to pick a winning quote.
@@ -318,25 +343,15 @@ export type QuoteSelectionName = "fastest" | "quotedPrice" | "quotedGas" | "prio
 export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;
 
 /**
- * Options that apply to the meta-aggregator as well as downstream providers.
- */
-export type MetaAggregationOptions = AggregationOptions & {
-  /**
-   * Strategy used to select the "best" quote when only one should be returned.
-   */
-  strategy?: QuoteSelectionStrategy; // TODO: Consider removing and enforcing always supplying a strategy when calling best quote
-};
-
-/**
  * Configuration for constructing a MetaAggregator instance.
  */
 export type MetaAggregatorConfig = {
   /**
-   * List of aggregator definitions that should be queried.
+   * Provider-specific configuration keyed by provider identifier (optional to allow a subset).
    */
-  aggregators: AggregatorConfig[];
+  providers: ProviderConfig;
   /**
    * Default options applied to the meta-aggregator and the individual provider calls.
    */
-  defaults?: MetaAggregationOptions;
+  options?: AggregationOptions;
 };

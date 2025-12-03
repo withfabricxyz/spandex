@@ -1,10 +1,10 @@
 import { type UseQueryOptions, type UseQueryResult, useQuery } from "@tanstack/react-query";
 import type {
   ExactInSwapParams,
-  ExactOutSwapParams,
   MetaAggregator,
   Quote,
   SwapParams,
+  TargetOutSwapParams,
 } from "@withfabric/smal";
 import { useMemo } from "react";
 import { useConnection } from "wagmi";
@@ -12,7 +12,7 @@ import { useSmalConfig } from "../context/SmalProvider.js";
 
 export type UseQuotesParams<TSelectData = Quote[]> = (
   | Omit<ExactInSwapParams, "chainId" | "swapperAccount">
-  | Omit<ExactOutSwapParams, "chainId" | "swapperAccount">
+  | Omit<TargetOutSwapParams, "chainId" | "swapperAccount">
 ) & {
   chainId?: number;
   swapperAccount?: `0x${string}`;
@@ -21,9 +21,9 @@ export type UseQuotesParams<TSelectData = Quote[]> = (
 
 async function fetchQuotes(
   metaAggregator: MetaAggregator,
-  params: ExactInSwapParams | ExactOutSwapParams,
+  params: ExactInSwapParams | TargetOutSwapParams,
 ): Promise<Quote[]> {
-  const fetchedQuotes = await metaAggregator.fetchAllQuotes(params);
+  const fetchedQuotes = await metaAggregator.fetchQuotes(params);
   return fetchedQuotes;
 }
 
@@ -51,17 +51,17 @@ export function useQuotes<TSelectData = Quote[]>(
       swapperAccount: finalSwapperAccount,
     };
 
-    if (params.mode === "exactInQuote") {
+    if (params.mode === "exactIn") {
       return {
         ...baseParams,
-        mode: "exactInQuote" as const,
+        mode: "exactIn" as const,
         inputAmount: params.inputAmount,
       };
     }
 
     return {
       ...baseParams,
-      mode: "exactOutputQuote" as const,
+      mode: "targetOut" as const,
       outputAmount: params.outputAmount,
     };
   }, [finalChainId, finalSwapperAccount, params]);
@@ -79,7 +79,7 @@ export function useQuotes<TSelectData = Quote[]>(
       fullParams?.outputToken,
       fullParams?.slippageBps,
       fullParams?.swapperAccount,
-      fullParams?.mode === "exactInQuote"
+      fullParams?.mode === "exactIn"
         ? fullParams?.inputAmount.toString()
         : fullParams?.outputAmount.toString(),
     ],

@@ -15,7 +15,7 @@ export const defaultSwapParams: SwapParams = {
   inputAmount: 500_000_000n,
   slippageBps: 100,
   swapperAccount: "0xdead00000000000000000000000000000000beef",
-  mode: "exactInQuote",
+  mode: "exactIn",
 };
 
 export const quoteSuccess: SuccessfulQuote = {
@@ -58,7 +58,7 @@ export class MockAggregator extends Aggregator {
   }
 
   override features(): AggregatorFeature[] {
-    return this.overrides.features || ["exactInQuote"];
+    return this.overrides.features || ["exactIn"];
   }
 
   async tryFetchQuote(_: SwapParams): Promise<SuccessfulQuote> {

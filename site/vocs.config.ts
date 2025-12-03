@@ -4,28 +4,73 @@ export default defineConfig({
   title: "SMAL",
   sidebar: [
     {
-      text: "Getting Started",
-      link: "/getting-started",
+      text: "Guides",
+      items: [
+        {
+          text: "Quick Start",
+          link: "/getting-started",
+        },
+        {
+          text: "Simulation",
+          link: "/configuration",
+        },
+        {
+          text: "React Hooks",
+          link: "/react",
+        },
+      ],
     },
-    {
-      text: "Simulation",
-      link: "/simulation",
-    },
-    {
-      text: "Strategies",
-      link: "/strategies",
-    },
+
     {
       text: "Advanced",
-      link: "/advanced",
+      items: [
+        {
+          text: "Strategies",
+          link: "/strategies",
+        },
+        {
+          text: "Customization",
+          link: "/fees",
+        },
+        {
+          text: "Advanced Topics",
+          link: "/advanced",
+        },
+        {
+          text: "Approvals",
+          link: "/approvals",
+        },
+      ],
     },
     {
-      text: "Fee Config",
-      link: "/fees",
-    },
-    {
-      text: "React",
-      link: "/react",
+      text: "Providers",
+      collapsed: true,
+      items: [
+        {
+          text: "Fabric",
+          link: "/providers/soon",
+        },
+        {
+          text: "0x",
+          link: "/providers/soon",
+        },
+        {
+          text: "KyberSwap",
+          link: "/providers/soon",
+        },
+        {
+          text: "Odos",
+          link: "/providers/soon",
+        },
+        {
+          text: "LiFi",
+          link: "/providers/soon",
+        },
+        {
+          text: "1inch",
+          link: "/providers/soon",
+        },
+      ],
     },
   ],
   // vite: {

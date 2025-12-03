@@ -1,10 +1,7 @@
-import type { AggregatorConfig, MetaAggregationOptions, MetaAggregator } from "@withfabric/smal";
+import type { MetaAggregator, MetaAggregatorConfig } from "@withfabric/smal";
 
 export type SmalProviderProps = {
-  config: {
-    aggregators: AggregatorConfig[];
-    defaults?: MetaAggregationOptions;
-  };
+  config: MetaAggregatorConfig;
   children: React.ReactNode;
 };
 

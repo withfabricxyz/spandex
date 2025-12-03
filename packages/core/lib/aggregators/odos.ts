@@ -67,7 +67,7 @@ export class OdosAggregator extends Aggregator {
    * @inheritdoc
    */
   override features(): AggregatorFeature[] {
-    return ["exactInQuote", "integratorFees"];
+    return ["exactIn", "integratorFees"];
   }
 
   /**
@@ -76,7 +76,7 @@ export class OdosAggregator extends Aggregator {
    * Odos requires generating a quote to obtain a `pathId`, then assembling the transaction.
    */
   protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
-    if (request.mode === "exactOutputQuote") {
+    if (request.mode === "targetOut") {
       throw new QuoteError("0x aggregator does not support exact output quotes");
     }
 
