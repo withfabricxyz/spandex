@@ -28,6 +28,9 @@
   "devDependencies": {
     "@types/bun": "latest"
   },
+  "dependencies": {
+     "viem": "^2.40"
+  },
   "peerDependencies": {
     "typescript": ">=5.0.4"
   },
