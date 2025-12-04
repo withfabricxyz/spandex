@@ -56,14 +56,15 @@ export class MetaAggregator {
    * Fetches quotes and applies the configured strategy to pick the best result.
    *
    * @param params - Swap request parameters.
-   * @param strategy - Strategy used to rank and select the winning quote.
+   * @param options - Strategy configuration for selecting the winning quote.
+   *
    * @returns Winning quote, or `null` if no provider succeeds.
    */
   async fetchBestQuote(
     params: SwapParams,
-    strategy: QuoteSelectionStrategy,
+    options: { strategy: QuoteSelectionStrategy },
   ): Promise<SuccessfulQuote | null> {
-    return applyStrategy(strategy, this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
+    return applyStrategy(options.strategy, this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
   }
 
   /**
@@ -90,10 +91,12 @@ export class MetaAggregator {
   /**
    * Fetches quotes from all providers and returns every result, including failures, mapped through a provided function.
    *
-   * This is useful for performing additional processing on each quote as it is fetched, but still adhering to the meta-aggregator's deadline handling.
+   * This is useful for performing additional processing on each quote as it is fetched.
    *
    * @param params - Swap request parameters.
-   * @returns Array of successful or failed quote responses.
+   * @param mapFn - Mapping function applied to each fetched quote.
+   *
+   * @returns Promise resolving to an array of mapped quote results.
    */
   async fetchAndThen<T>({
     params,

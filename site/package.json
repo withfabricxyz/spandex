@@ -11,7 +11,8 @@
   "dependencies": {
     "react": "latest",
     "react-dom": "latest",
-    "vocs": "latest"
+    "vocs": "latest",
+    "viem": "^2.40.1"
   },
   "devDependencies": {
     "@types/react": "latest",

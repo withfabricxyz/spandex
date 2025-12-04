@@ -27,7 +27,7 @@ const quote = await aggregator.fetchBestQuote(
     slippageBps: 50,
     swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
   },
-  "quotedPrice",
+  { strategy: "quotedPrice" },
 );
 
 if (!quote) {

@@ -1,12 +1,12 @@
 import { buildMetaAggregator, type ExactInSwapParams } from "@withfabric/smal";
 import { SimulatedMetaAggregator } from "@withfabric/smal-simulate";
-import { createPublicClient, http, type PublicClient } from "viem";
+import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
 
 const client = createPublicClient({
   chain: base,
   transport: http(),
-}) as PublicClient;
+});
 
 const params: ExactInSwapParams = {
   chainId: 8453,
@@ -31,8 +31,8 @@ const metaAggregator = buildMetaAggregator({
 });
 
 // Cast to any to bypass duplicate viem type instance mismatch.
-// biome-ignore lint/suspicious/noExplicitAny: temporary, why?
-const quoter = new SimulatedMetaAggregator(metaAggregator, client as any);
+// biome-ignore lint/suspicious/noExplicitAny: public client typing issue
+const quoter = new SimulatedMetaAggregator(metaAggregator, [client as any]);
 
 const quotes = await quoter.fetchQuotes(params);
 

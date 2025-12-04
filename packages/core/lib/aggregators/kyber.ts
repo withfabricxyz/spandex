@@ -2,12 +2,14 @@ import { Aggregator } from "../aggregator.js";
 import {
   type Address,
   type AggregatorFeature,
+  type AggregatorMetadata,
   type ExactInSwapParams,
   type PoolEdge,
   type ProviderKey,
   QuoteError,
   type RouteGraph,
   type SuccessfulQuote,
+  type SwapOptions,
   type SwapParams,
 } from "../types.js";
 
@@ -49,7 +51,20 @@ export class KyberAggregator extends Aggregator {
   /**
    * @inheritdoc
    */
-  name(): ProviderKey {
+  override metadata(): AggregatorMetadata {
+    return {
+      name: "KyberSwap",
+      url: "https://kyberswap.com",
+      docsUrl:
+        "https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator/aggregator-api-specification/evm-swaps#get-chain-route-encode",
+      logoUrl: "https://kyberswap.com/favicon.png",
+    };
+  }
+
+  /**
+   * @inheritdoc
+   */
+  override name(): ProviderKey {
     return "kyberswap";
   }
 
@@ -63,12 +78,15 @@ export class KyberAggregator extends Aggregator {
   /**
    * @inheritdoc
    */
-  protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
+  protected override async tryFetchQuote(
+    request: SwapParams,
+    options: SwapOptions,
+  ): Promise<SuccessfulQuote> {
     if (request.mode === "targetOut") {
-      throw new QuoteError("0x aggregator does not support exact output quotes");
+      throw new QuoteError("KyberSwap aggregator does not support exact output quotes");
     }
 
-    const response = await this.getRoute(request as ExactInSwapParams);
+    const response = await this.getRoute(request as ExactInSwapParams, options);
     const networkFee =
       BigInt(response.totalGas) * BigInt(Math.round(Number(response.gasPriceGwei) * 10 ** 9));
     return {
@@ -87,15 +105,12 @@ export class KyberAggregator extends Aggregator {
     };
   }
 
-  private async getRoute(query: ExactInSwapParams): Promise<KyberQuoteResponse> {
+  private async getRoute(
+    query: ExactInSwapParams,
+    options: SwapOptions,
+  ): Promise<KyberQuoteResponse> {
     const chain = chainNameLookup[query.chainId];
-    const params = new URLSearchParams({
-      tokenOut: query.outputToken,
-      tokenIn: query.inputToken,
-      amountIn: query.inputAmount.toString(),
-      slippageTolerance: query.slippageBps.toString(),
-      to: query.swapperAccount,
-    });
+    const params = new URLSearchParams(extractQueryParams(query, options));
 
     const output = await fetch(
       `https://aggregator-api.kyberswap.com/${chain}/route/encode?${params.toString()}`,
@@ -115,6 +130,30 @@ export class KyberAggregator extends Aggregator {
 
     return output as KyberQuoteResponse;
   }
+}
+
+function extractQueryParams(
+  params: ExactInSwapParams,
+  options: SwapOptions,
+): Record<string, string> {
+  const result: Record<string, string> = {
+    tokenOut: params.outputToken,
+    tokenIn: params.inputToken,
+    amountIn: params.inputAmount.toString(),
+    slippageTolerance: params.slippageBps.toString(),
+    to: params.swapperAccount,
+  };
+
+  if (options.integratorFeeAddress) {
+    result.feeReceiver = options.integratorFeeAddress;
+    result.isInBps = "true";
+    result.chargeFeeBy = "currency_out"; // TODO: make configurable
+    if (options.integratorSwapFeeBps !== undefined) {
+      result.feeAmount = options.integratorSwapFeeBps.toString();
+    }
+  }
+
+  return result;
 }
 
 export function kyberRouteGraph(response: KyberQuoteResponse): RouteGraph {
@@ -144,7 +183,7 @@ export function kyberRouteGraph(response: KyberQuoteResponse): RouteGraph {
 }
 
 //////// Types /////////
-// Extracted from 0x API documentation with GPT5
+// Extracted from Kyber API documentation with GPT5
 ////////////////////////
 
 interface TokenInfo {

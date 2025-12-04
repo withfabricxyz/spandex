@@ -20,7 +20,7 @@ const quoteFailure: Quote = {
   error: new Error("Failed to get quote"),
 };
 
-describe("Strategies", () => {
+describe("strategies", () => {
   it("picks the fastest successful response", async () => {
     const pending = [
       new Promise<Quote>((resolve) => {

@@ -3,6 +3,17 @@ import { defaultSwapParams } from "../../test/utils.js";
 import { KyberAggregator, kyberRouteGraph } from "./kyber.js";
 
 describe("Kyberwap", () => {
+  it("provides metadata", () => {
+    const aggregator = new KyberAggregator();
+    expect(aggregator.name()).toBe("kyberswap");
+    expect(aggregator.features()).not.toBeEmpty();
+    const metadata = aggregator.metadata();
+    expect(metadata).toBeDefined();
+    expect(metadata.name).toBe("KyberSwap");
+    expect(metadata.url).toMatch(/kyber/);
+    expect(metadata.docsUrl).toMatch(/kyber/);
+  });
+
   it("generates a quote (legacy)", async () => {
     const quoter = new KyberAggregator();
     const quote = await quoter.fetchQuote(defaultSwapParams);

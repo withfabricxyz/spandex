@@ -3,7 +3,7 @@ import { defaultSwapParams, MockAggregator, quoteFailure, quoteSuccess } from ".
 import { MetaAggregator } from "./meta_aggregator.js";
 import type { FailedQuote, Quote } from "./types.js";
 
-describe("aggregator", () => {
+describe("meta aggregator", () => {
   it("throws on misconfiguration", async () => {
     expect(() => new MetaAggregator([])).toThrow();
   });
@@ -39,7 +39,7 @@ describe("aggregator", () => {
       new MockAggregator(quoteSuccess),
       new MockAggregator({ ...quoteSuccess, outputAmount: 900_001n }),
     ]);
-    const best = await quoter.fetchBestQuote(defaultSwapParams, "quotedPrice");
+    const best = await quoter.fetchBestQuote(defaultSwapParams, { strategy: "quotedPrice" });
     expect(best).toBeDefined();
     expect(best?.outputAmount).toBe(900_001n);
   });
@@ -49,10 +49,10 @@ describe("aggregator", () => {
       new MockAggregator({ ...quoteSuccess, networkFee: 1_000n }),
       new MockAggregator({ ...quoteSuccess, outputAmount: 900_001n }),
     ]);
-    let best = await quoter.fetchBestQuote(defaultSwapParams, "quotedGas");
+    let best = await quoter.fetchBestQuote(defaultSwapParams, { strategy: "quotedGas" });
     expect(best).toBeDefined();
     expect(best?.outputAmount).toBe(900_000n);
-    best = await quoter.fetchBestQuote(defaultSwapParams, "quotedPrice");
+    best = await quoter.fetchBestQuote(defaultSwapParams, { strategy: "quotedPrice" });
     expect(best).toBeDefined();
     expect(best?.outputAmount).toBe(900_001n);
   });

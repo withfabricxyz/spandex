@@ -2,11 +2,13 @@ import { Aggregator } from "../aggregator.js";
 import {
   type Address,
   type AggregatorFeature,
+  type AggregatorMetadata,
   type Hex,
   type ProviderKey,
   QuoteError,
   type RouteGraph,
   type SuccessfulQuote,
+  type SwapOptions,
   type SwapParams,
 } from "../types.js";
 
@@ -83,7 +85,19 @@ export class FabricAggregator extends Aggregator {
   /**
    * @inheritdoc
    */
-  name(): ProviderKey {
+  override metadata(): AggregatorMetadata {
+    return {
+      name: "Fabric",
+      url: "https://withfabric.xyz",
+      docsUrl: "https://docs.withfabric.xyz",
+      logoUrl: "https://withfabric.xyz/images/fabric.svg",
+    };
+  }
+
+  /**
+   * @inheritdoc
+   */
+  override name(): ProviderKey {
     return "fabric";
   }
 
@@ -97,8 +111,11 @@ export class FabricAggregator extends Aggregator {
   /**
    * @inheritdoc
    */
-  protected async tryFetchQuote(request: SwapParams): Promise<SuccessfulQuote> {
-    const response = await this.makeRequest(request);
+  protected override async tryFetchQuote(
+    request: SwapParams,
+    options: SwapOptions,
+  ): Promise<SuccessfulQuote> {
+    const response = await this.makeRequest(request, options);
 
     return {
       success: true,
@@ -117,25 +134,11 @@ export class FabricAggregator extends Aggregator {
     };
   }
 
-  private async makeRequest(params: SwapParams): Promise<FabricQuoteResponse> {
-    let query: URLSearchParams | null = null;
-    if (params.mode === "exactIn") {
-      query = new URLSearchParams({
-        chainId: params.chainId.toString(),
-        buyToken: params.outputToken,
-        sellToken: params.inputToken,
-        sellAmount: params.inputAmount.toString(),
-        slippageBps: params.slippageBps.toString(),
-      });
-    } else {
-      query = new URLSearchParams({
-        chainId: params.chainId.toString(),
-        buyToken: params.outputToken,
-        sellToken: params.inputToken,
-        buyAmount: params.outputAmount.toString(),
-        slippageBps: params.slippageBps.toString(),
-      });
-    }
+  private async makeRequest(
+    params: SwapParams,
+    options: SwapOptions,
+  ): Promise<FabricQuoteResponse> {
+    const query = new URLSearchParams(extractQueryParams(params, options));
 
     return await fetch(`${this.config.url || DEFAULT_URL}/v1/quote?${query.toString()}`, {
       headers: {
@@ -166,4 +169,34 @@ export function fabricRouteGraph(quote: FabricQuoteResponse): RouteGraph {
     nodes,
     edges,
   };
+}
+
+function extractQueryParams(params: SwapParams, options: SwapOptions): Record<string, string> {
+  const result: Record<string, string> = {
+    chainId: params.chainId.toString(),
+    buyToken: params.outputToken,
+    sellToken: params.inputToken,
+    slippageBps: params.slippageBps.toString(),
+    receiver: params.swapperAccount,
+  };
+
+  if (params.mode === "exactIn") {
+    result.sellAmount = params.inputAmount.toString();
+  } else {
+    result.buyAmount = params.outputAmount.toString();
+  }
+
+  if (options.integratorFeeAddress) {
+    result.feeRecipient = options.integratorFeeAddress;
+  }
+
+  if (options.integratorSwapFeeBps !== undefined) {
+    result.feeBps = options.integratorSwapFeeBps.toString();
+  }
+
+  if (options.integratorSurplusBps !== undefined) {
+    result.surplusBps = options.integratorSurplusBps.toString();
+  }
+
+  return result;
 }

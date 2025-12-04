@@ -3,6 +3,19 @@ import { defaultSwapParams } from "../../test/utils.js";
 import { ZeroXAggregator } from "./0x.js";
 
 describe("0x API test", () => {
+  it("provides metadata", () => {
+    const aggregator = new ZeroXAggregator({
+      apiKey: "demo",
+    });
+    expect(aggregator.name()).toBe("0x");
+    expect(aggregator.features()).not.toBeEmpty();
+    const metadata = aggregator.metadata();
+    expect(metadata).toBeDefined();
+    expect(metadata.name).toBe("0x");
+    expect(metadata.url).toMatch(/0x/);
+    expect(metadata.docsUrl).toMatch(/0x/);
+  });
+
   it("generates a quote", async () => {
     const quoter = new ZeroXAggregator({
       apiKey: process.env.ZEROX_API_KEY || "",

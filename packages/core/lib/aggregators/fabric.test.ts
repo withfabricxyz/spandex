@@ -1,11 +1,25 @@
 import { describe, expect, it } from "bun:test";
 import { defaultSwapParams } from "../../test/utils.js";
-import { FabricAggregator, fabricRouteGraph } from "./fabric.js";
+import { FabricAggregator, type FabricQuoteResponse, fabricRouteGraph } from "./fabric.js";
 
 describe("Fabric Router API test", () => {
+  it("provides metadata", () => {
+    const aggregator = new FabricAggregator();
+    expect(aggregator.name()).toBe("fabric");
+    expect(aggregator.features()).not.toBeEmpty();
+    const metadata = aggregator.metadata();
+    expect(metadata).toBeDefined();
+    expect(metadata.name).toBe("Fabric");
+    expect(metadata.url).toMatch(/withfabric/);
+    expect(metadata.docsUrl).toMatch(/withfabric/);
+  });
+
   it("generates a quote", async () => {
     const quoter = new FabricAggregator();
-    const quote = await quoter.fetchQuote(defaultSwapParams);
+    const quote = await quoter.fetchQuote(defaultSwapParams, {
+      integratorSwapFeeBps: 20,
+      integratorFeeAddress: "0xfee000000000000000000000000000000000beef",
+    });
     expect(quote).toBeDefined();
     expect(quote.provider).toBe("fabric");
     if (quote.success) {
@@ -16,6 +30,12 @@ describe("Fabric Router API test", () => {
       expect(quote.route).toBeDefined();
       expect(quote.route?.edges?.length).toBeGreaterThan(0);
       expect(quote.route?.nodes?.length).toBeGreaterThan(0);
+
+      const fee = (quote.details as FabricQuoteResponse).fees.filter(
+        (f) => f.recipient === "0xfee000000000000000000000000000000000beef",
+      )[0];
+      expect(fee).toBeDefined();
+      expect(Number(fee?.amount)).toBeGreaterThan(0);
     }
   }, 30_000);
 

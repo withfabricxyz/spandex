@@ -34,7 +34,7 @@ describe("SimulatedMetaAggregator", () => {
     },
   });
 
-  const simulator = new SimulatedMetaAggregator(metaAgg, client);
+  const simulator = new SimulatedMetaAggregator(metaAgg, [client]);
 
   it("composes MetaAggregator and returns simulated quotes", async () => {
     const quotes = await simulator.fetchQuotes({
