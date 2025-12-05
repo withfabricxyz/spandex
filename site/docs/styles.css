@@ -48,7 +48,7 @@ html.dark {
     --color-text: #ffffff;
     --color-text-muted: rgba(255, 255, 255, 0.85);
   }
-  
+
   body {
     background: var(--color-bg);
     color: var(--color-text);
@@ -61,7 +61,7 @@ html.dark {
     --color-text: #000000;
     --color-text-muted: rgba(0, 0, 0, 0.6);
   }
-  
+
   body {
     background: var(--color-bg);
     color: var(--color-text);
@@ -76,7 +76,6 @@ body,
 
 .vocs_Content {
   background: var(--color-bg);
-  padding: 0;
 }
 
 .vocs_Footer {

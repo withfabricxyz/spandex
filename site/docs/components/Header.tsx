@@ -90,20 +90,18 @@ export function Header() {
   return (
     <div className="header">
       <div className="header__inner">
-
-      
-      {rows.map((part, rowIdx) => (
-        <div key={rowIdx} className="header__row">
-          {part.map((letter, letterIdx) => {
-            const LetterComponent = letters[letter.toLowerCase() as keyof typeof letters];
-            return (
-              <div key={letterIdx} className="header__letter">
-                <LetterComponent />
-              </div>
-            );
-          })}
-        </div>
-      ))}
+        {rows.map((part, rowIdx) => (
+          <div key={rowIdx} className="header__row">
+            {part.map((letter, letterIdx) => {
+              const LetterComponent = letters[letter.toLowerCase() as keyof typeof letters];
+              return (
+                <div key={letterIdx} className="header__letter">
+                  <LetterComponent />
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -4,41 +4,37 @@ export default defineConfig({
   title: "SMAL",
   sidebar: [
     {
-      text: "Guides",
+      text: "Overview",
       items: [
         {
-          text: "Quick Start",
+          text: "Why SMAL",
+          link: "/overview",
+        },
+        {
+          text: "Installation",
+          link: "/installation",
+        },
+        {
+          text: "Getting Started",
           link: "/getting-started",
         },
         {
-          text: "Simulation",
-          link: "/configuration",
-        },
-        {
-          text: "React Hooks",
-          link: "/react",
+          text: "Examples",
+          link: "/examples",
         },
       ],
     },
 
     {
-      text: "Advanced",
+      text: "Configuration",
       items: [
         {
-          text: "Strategies",
+          text: "Meta Aggregator",
           link: "/strategies",
         },
         {
-          text: "Customization",
+          text: "Clients",
           link: "/fees",
-        },
-        {
-          text: "Advanced Topics",
-          link: "/advanced",
-        },
-        {
-          text: "Approvals",
-          link: "/approvals",
         },
       ],
     },
@@ -48,27 +44,27 @@ export default defineConfig({
       items: [
         {
           text: "Fabric",
-          link: "/providers/soon",
+          link: "/providers/fabric",
         },
         {
           text: "0x",
-          link: "/providers/soon",
+          link: "/providers/0x",
         },
         {
           text: "KyberSwap",
-          link: "/providers/soon",
+          link: "/providers/kyberswap",
         },
         {
           text: "Odos",
-          link: "/providers/soon",
+          link: "/providers/odos",
         },
         {
           text: "LiFi",
-          link: "/providers/soon",
+          link: "/providers/lifi",
         },
         {
           text: "1inch",
-          link: "/providers/soon",
+          link: "/providers/1inch",
         },
       ],
     },

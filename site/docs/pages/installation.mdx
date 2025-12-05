@@ -1,0 +1,49 @@
+# Installation
+
+## Core
+
+`@withfabric/smal` provides all the functionality to interact with multiple aggregators, simulate quotes onchain, and execute swaps. It depends on `viem` for blockchain interactions.
+
+:::code-group
+
+```bash [npm]
+npm i viem @withfabic/smal
+```
+
+```bash [bun]
+bun i viem @withfabic/smal
+```
+
+```bash [pnpm]
+pnpm i viem @withfabric/smal
+```
+
+:::
+
+## React
+
+`@withfabric/smal-react` provides React hooks for integrating SMAL into your React applications. It depends on `wagmi`.
+
+:::code-group
+
+```bash [npm]
+npm i wagmi @withfabric/smal-react
+```
+```bash [bun]
+bun i wagmi @withfabric/smal-react
+```
+```bash [pnpm]
+pnpm i wagmi @withfabric/smal-react
+```
+
+:::
+
+## Security Considerations
+
+Given that SMAL presents unsigned transaction data for execution, it's crucial have a security stance. Some recommended practices include:
+
+* Lock or pin dependencies to specific versions to reduce supply chain attack risk.
+* Use a package manager that supports integrity checks, such as npm or yarn, to verify the authenticity of packages.
+* Require packages have a minimum age before updating, using pnpms minimumReleaseAge or similar features in other package managers.
+* Ensure web apps have Content Security Policies (CSP) in place to mitigate risks from malicious scripts.
+* Remember that supply chain attacks are real and the EVM is a ripe target.
