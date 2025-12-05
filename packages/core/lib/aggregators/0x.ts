@@ -13,9 +13,14 @@ import {
   type SwapParams,
 } from "../types.js";
 
+/**
+ * Configuration options for the 0x aggregator.
+ */
 export type ZeroXConfig = {
+  /** API key for accessing the 0x API. */
   apiKey: string;
-  negotiateSurplus?: boolean;
+  /** Enabling toggles surplus control */
+  enableSurplus?: boolean;
 };
 
 /**
@@ -53,7 +58,7 @@ export class ZeroXAggregator extends Aggregator {
     return [
       "exactIn",
       "integratorFees",
-      this.config.negotiateSurplus ? "integratorSurplus" : undefined,
+      this.config.enableSurplus ? "integratorSurplus" : undefined,
     ].filter((f): f is AggregatorFeature => f !== undefined);
   }
 

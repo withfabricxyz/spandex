@@ -1,1 +1,35 @@
+import { Button } from 'vocs/components'
+import { Callout } from 'vocs/components'
+
 # 0x
+
+<div className="flex flex-row gap-4">
+  <Button href="https://0x.org">Homepage</Button>
+  <Button href="https://0x.org/docs/0x-swap-api/introduction">Docs</Button>
+</div>
+
+## Configuration
+
+<Callout type="info">
+  0x requires an API key for access. You can obtain one by [signing up](https://dashboard.0x.org/create-account).
+</Callout>
+
+<Callout type="info">
+  If you have negotiated surplus sharing with 0x, set the `enableSurplus` option to true.
+</Callout>
+
+```ts twoslash
+import { buildMetaAggregator } from "@withfabric/smal";
+
+export const aggregator = buildMetaAggregator({
+  providers: {
+    '0x': {
+      // required!
+      apiKey: "YOUR_0X_API_KEY",
+      // optional, defaults to false
+      enableSurplus: false,
+    },
+    // ...
+  },
+});
+```

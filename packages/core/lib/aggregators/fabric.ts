@@ -66,8 +66,13 @@ type Route = {
   amountOut: string;
 };
 
+/**
+ * Configuration options for the Fabric aggregator.
+ */
 export type FabricConfig = {
+  /** Base URL for the Fabric API. */
   url?: string;
+  /** API key for accessing the Fabric API. */
   apiKey?: string;
 };
 

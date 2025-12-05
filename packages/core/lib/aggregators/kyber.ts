@@ -33,7 +33,13 @@ const chainNameLookup: Record<number, string> = {
   999: "hyperevm", // HyperEVM Mainnet
 };
 
+/**
+ * Configuration options for the KyberSwap aggregator.
+ */
 export type KyberConfig = {
+  /**
+   * Client ID for accessing the KyberSwap API. You can make it up.
+   */
   clientId: string;
 };
 
@@ -54,7 +60,7 @@ export class KyberAggregator extends Aggregator {
   override metadata(): AggregatorMetadata {
     return {
       name: "KyberSwap",
-      url: "https://kyberswap.com",
+      url: "https://kyber.network",
       docsUrl:
         "https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator/aggregator-api-specification/evm-swaps#get-chain-route-encode",
       logoUrl: "https://kyberswap.com/favicon.png",
