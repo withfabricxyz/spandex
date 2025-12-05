@@ -22,18 +22,6 @@ describe("meta aggregator", () => {
     expect(quotes[1]?.success).toBe(false);
   });
 
-  it("produces only successful outcomes", async () => {
-    const quoter = new MetaAggregator(
-      [new MockAggregator(quoteSuccess), new MockAggregator(quoteFailure)],
-      {
-        numRetries: 0,
-      },
-    );
-    const quotes = await quoter.fetchSuccessfulQuotes(defaultSwapParams);
-    expect(quotes).toBeDefined();
-    expect(quotes.length).toBe(1);
-  });
-
   it("uses quoted price strategy", async () => {
     const quoter = new MetaAggregator([
       new MockAggregator(quoteSuccess),
@@ -64,7 +52,9 @@ describe("meta aggregator", () => {
       initialRetryDelayMs: 5,
     });
     const start = Date.now();
-    const quotes = await quoter.fetchSuccessfulQuotes(defaultSwapParams);
+    const quotes = await quoter
+      .fetchQuotes(defaultSwapParams)
+      .then((qs) => qs.filter((q) => q.success));
     const end = Date.now();
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(0);

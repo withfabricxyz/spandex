@@ -4,7 +4,7 @@ showLogo: false
 showTopNav: false
 ---
 
-import { SDMALogo } from '../components/smal';
+import { Header } from '../components/Header';
 import { Logo0x } from '../components/logo/0x';
 import { LifiLogo } from '../components/logo/lifi';
 import { FabricLogo } from '../components/logo/fabric';
@@ -14,31 +14,37 @@ import { OdosLogo } from '../components/logo/odos';
 
 import '../styles.css'
 
-<div className="flex flex-col gap-12">
+<div className="homepage">
+  <Header />
 
-  <SDMALogo />
-
-  <div className="flex flex-col gap-2">
-    <h2>Query multiple DEX aggregators and find the best price.</h2>
-    <div className="flex flex-col gap-1 text-sm text-gray-600">
-      <span>Expands tokens, pools, and chains beyond any single aggregator.</span>
-      <span>Provides multiple quotes to find the best price.</span>
-      <span>Provides redundancy when a provider fails.</span>
+  <div className="value-prop">
+    <h1 className="value-prop__title">Query multiple DEX aggregators and find the best price.</h1>
+    <div className="value-prop__items">
+      <p className="value-prop__item">Expands tokens, pools, and chains beyond any single aggregator.</p>
+      <p className="value-prop__item">Provides multiple quotes to find the best price.</p>
+      <p className="value-prop__item">Provides redundancy when a provider fails.</p>
     </div>
   </div>
 
-  <div className="flex flex-row gap-8">
-    <Logo0x />
-    <LifiLogo />
-    <FabricLogo />
-    <KyberSwapLogo />
-    <OneInchLogo />
-    <OdosLogo />
+  <div className="logos">
+    <Logo0x className="logos__item" />
+    <LifiLogo className="logos__item" />
+    <FabricLogo className="logos__item" />
+    <KyberSwapLogo className="logos__item" />
+    <OneInchLogo className="logos__item" />
+    <OdosLogo className="logos__item" />
   </div>
 
-  ```ts twoslash
-  // [!include ~/snippets/fetching-quotes.ts]
-  ```
+  <div className="code-example">
+    ```ts twoslash
+    // [!include ~/snippets/fetching-quotes.ts]
+    ```
+  </div>
 
+  <div className="cta">
+    <a href="/getting-started" className="cta__button cta__button--primary">GET STARTED</a>
+    <a href="/overview" className="cta__button cta__button--secondary">WHY SMAL?</a>
+    <a href="https://github.com/withfabricxyz/smal" className="cta__button cta__button--tertiary">VIEW ON GITHUB</a>
+  </div>
 </div>
 

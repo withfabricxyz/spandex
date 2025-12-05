@@ -3,7 +3,6 @@
   "description": "SMAL Meta Aggregator Library - Get the best swap rates across multiple DEXs and aggregators",
   "workspaces": [
     "packages/core",
-    "packages/simulate",
     "packages/wagmi",
     "site"
   ],
@@ -11,7 +10,7 @@
     "lint": "biome check --formatter-enabled=true --linter-enabled=true",
     "lint:fix": "biome check --formatter-enabled=true --linter-enabled=true --write --unsafe ./",
     "build": "bun ./scripts/build-packages.ts",
-    "pack": "cd packages/core && bun pm pack && cd ../simulate && bun pm pack && cd ../wagmi && bun pm pack"
+    "pack": "cd packages/core && bun pm pack && cd ../wagmi && bun pm pack"
   },
   "devDependencies": {
     "@types/bun": "^1.3.3",

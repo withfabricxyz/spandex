@@ -31,8 +31,7 @@
     "react-dom": "^19.2.0"
   },
   "dependencies": {
-    "@withfabric/smal": "workspace:*",
-    "@withfabric/smal-simulate": "workspace:*"
+    "@withfabric/smal": "workspace:*"
   },
   "peerDependencies": {
     "react": "^19.2.0",

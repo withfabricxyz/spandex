@@ -3,8 +3,8 @@ import { buildMetaAggregator, type SwapParams } from "@withfabric/smal";
 import type { Address, PublicClient } from "viem";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
-import { simulateQuotes } from "./simulation.js";
-import type { SimulatedQuote } from "./types.js";
+import type { SimulatedQuote } from "../types.js";
+import { simulateQuotes } from "./index.js";
 
 const defaultSwapParams: SwapParams = {
   chainId: 8453,
@@ -19,7 +19,7 @@ const defaultSwapParams: SwapParams = {
 const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
 const USDC_WHALE: Address = "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055";
 
-describe("SimulatedMetaAggregator", () => {
+describe("simulation", () => {
   const client = createPublicClient({
     chain: base,
     transport: http(`https://rpc.ankr.com/base/${ANKR_API_KEY}`),

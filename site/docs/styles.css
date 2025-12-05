@@ -1,1 +1,256 @@
-@import "tailwindcss";
+@font-face {
+  font-family: "ABC Diatype Variable";
+  font-weight: 100 1000;
+  font-display: auto;
+  src: url("/fonts/ABCDiatypeVariable.woff2") format("woff2-variations"),
+    url("/fonts/ABCDiatypeVariable.woff") format("woff-variations");
+}
+
+html {
+  --color-bg: #ffffff;
+  --color-text: #000000;
+  --color-text-muted: rgba(0, 0, 0, 0.6);
+  --color-letter-bg: #ffffff;
+  --color-letter-text: #000000;
+  --color-code-bg: #1f1f1f;
+  --color-cta-primary-bg: #000;
+  --color-cta-primary-text: #fff;
+  --color-cta-secondary-bg: rgba(0, 0, 0, 0.66);
+  --color-cta-secondary-text: #fff;
+  --color-cta-tertiary-bg: rgba(0, 0, 0, 0.33);
+  --color-cta-tertiary-text: #fff;
+  --font-title-size: 1.75rem;
+  --font-title-line-height: 1.25rem;
+  --font-subheadline-size: 1.25rem;
+  --font-subheadline-line-height: 0.875rem;
+  --color-border: rgba(0, 0, 0, 0.05);
+}
+
+html.dark {
+  --color-bg: #000000;
+  --color-text: #ffffff;
+  --color-text-muted: rgba(255, 255, 255, 0.85);
+  --color-letter-bg: #000000;
+  --color-letter-text: #ffffff;
+  --color-code-bg: #1f1f1f;
+  --color-cta-primary-bg: #ffffff;
+  --color-cta-primary-text: #000000;
+  --color-cta-secondary-bg: rgba(255, 255, 255, 0.66);
+  --color-cta-secondary-text: #000000;
+  --color-cta-tertiary-bg: rgba(255, 255, 255, 0.33);
+  --color-cta-tertiary-text: #000000;
+  --color-border: rgba(255, 255, 255, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #000000;
+    --color-text: #ffffff;
+    --color-text-muted: rgba(255, 255, 255, 0.85);
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-bg: #ffffff;
+    --color-text: #000000;
+    --color-text-muted: rgba(0, 0, 0, 0.6);
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+}
+
+html,
+body,
+.vocs_DocsLayout {
+  --vocs-fontFamily_default: "ABC Diatype Variable", sans-serif;
+}
+
+.vocs_Content {
+  background: var(--color-bg);
+}
+
+.vocs_Footer {
+  display: none;
+}
+
+.vocs_CodeBlock {
+  border-color: var(--color-border) !important;
+
+  @media screen and (max-width: 720px) {
+    margin-left: 1px !important;
+    margin-right: 1px !important;
+  }
+}
+
+.homepage {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding: 4rem 1rem;
+  min-height: 100vh;
+  max-width: 60rem;
+
+  @media (min-width: 1024px) {
+    padding: 8rem 0;
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-size: 3.625vw; /* scale font size with viewport width to maintain scrabble grid */
+
+  @media (min-width: 1520px) {
+    font-size: 56px; /* cap font size on large screens to prevent overflow */
+  }
+}
+
+.header__row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.header__row:not(:last-child) {
+  margin-bottom: 0.8rem;
+}
+
+.header__inner {
+  margin-bottom: 1em;
+}
+
+.header__letter {
+  /* ems scale off of parent font size */
+  width: 1em;
+  height: 1em;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  path {
+    fill: var(--color-letter-text);
+  }
+}
+
+.value-prop {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 600px;
+}
+
+.value-prop__title {
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.value-prop__items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.value-prop__item {
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin: 1rem 0;
+
+  @media (min-width: 640px) {
+    gap: 2.5rem;
+    justify-content: flex-start;
+  }
+}
+
+.logos__item {
+  height: 1.2rem;
+  width: auto;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+
+  path {
+    fill: var(--color-text);
+  }
+}
+
+.logos__item:hover {
+  opacity: 1;
+}
+
+.code-example {
+  background: var(--color-code-bg);
+  border-radius: 0;
+  max-width: 800px;
+  margin: 1rem 0;
+}
+
+.cta {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.5rem;
+
+  * {
+    width: auto;
+  }
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    gap: 0;
+    max-width: 800px;
+  }
+}
+
+.cta__button {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: opacity 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.cta__button:hover {
+  opacity: 0.8;
+}
+
+.cta__button--primary {
+  background: var(--color-cta-primary-bg);
+  color: var(--color-cta-primary-text);
+}
+
+.cta__button--secondary {
+  background: var(--color-cta-secondary-bg);
+  color: var(--color-cta-secondary-text);
+}
+
+.cta__button--tertiary {
+  background: var(--color-cta-tertiary-bg);
+  color: var(--color-cta-tertiary-text);
+}

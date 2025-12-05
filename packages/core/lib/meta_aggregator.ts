@@ -1,10 +1,13 @@
+import type { PublicClient } from "viem";
 import type { Aggregator } from "./aggregator.ts";
+import { simulateQuote } from "./simulation/index.js";
 import { applyStrategy } from "./strategies.js";
 import type {
   AggregationOptions,
   AggregatorFeature,
   Quote,
   QuoteSelectionStrategy,
+  SimulatedQuote,
   SuccessfulQuote,
   SwapParams,
 } from "./types.js";
@@ -24,6 +27,7 @@ export class MetaAggregator {
   constructor(
     private aggregators: Aggregator[],
     options?: AggregationOptions,
+    private readonly clientLookup?: (chainId: number) => PublicClient | undefined,
   ) {
     if (aggregators.length === 0) {
       throw new Error("MetaAggregator requires at least one aggregator");
@@ -67,16 +71,7 @@ export class MetaAggregator {
     return applyStrategy(options.strategy, this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
   }
 
-  /**
-   * Fetches quotes from all providers and returns only the successful ones.
-   *
-   * @param params - Swap request parameters.
-   * @returns Successful quotes in the order providers resolve.
-   */
-  async fetchSuccessfulQuotes(params: SwapParams): Promise<SuccessfulQuote[]> {
-    const quotes = await Promise.all(this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
-    return quotes.filter((q) => q.success) as SuccessfulQuote[];
-  }
+  // TODO: rename to rawQuotes, use structured params and return types only!
 
   /**
    * Fetches quotes from all providers and returns every result, including failures.
@@ -86,6 +81,42 @@ export class MetaAggregator {
    */
   async fetchQuotes(params: SwapParams): Promise<Quote[]> {
     return Promise.all(this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
+  }
+
+  /**
+   * Fetches quotes from all providers and simulates quote exeuction using the provided client.
+   *
+   * @param params - Swap request parameters.
+   * @param client - Public client used to simulate quote tx data.
+   *
+   * @returns Quotes enriched with simulation metadata.
+   */
+  async fetchAndSimulateQuotes({
+    params,
+    client,
+  }: {
+    params: SwapParams;
+    client?: PublicClient;
+  }): Promise<SimulatedQuote[]> {
+    const resolved = client ?? this.clientLookup?.(params.chainId);
+    if (!resolved) {
+      throw new Error(
+        `No PublicClient provided or configured for chainId ${params.chainId}. Please provide a client via options or constructor.`,
+      );
+    }
+
+    const mapFn = async (quote: Quote): Promise<SimulatedQuote> => {
+      return simulateQuote({
+        client: resolved as PublicClient,
+        params,
+        quote,
+      });
+    };
+
+    return this.fetchAndThen<SimulatedQuote>({
+      params,
+      mapFn,
+    });
   }
 
   /**
@@ -137,6 +168,8 @@ export class MetaAggregator {
     return candidates.map((aggregator) => aggregator.fetchQuote(params, options).then(mapFn));
   }
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 function validateOptions(options: AggregationOptions): void {
   if (

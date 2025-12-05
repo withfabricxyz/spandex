@@ -61,9 +61,11 @@ export function buildMetaAggregator(config: MetaAggregatorConfig): MetaAggregato
     providers.push(new OdosAggregator(configured.odos));
   }
 
-  return new MetaAggregator(providers, config.options);
+  return new MetaAggregator(providers, config.options, config.clientLookup);
 }
 
 export { MetaAggregator, FabricAggregator, ZeroXAggregator, KyberAggregator, OdosAggregator };
 export { Aggregator } from "./lib/aggregator.js";
+export { ExecutionError, executeBestQuote } from "./lib/execution/index.js";
+export { SimulationRevertError, simulateQuote, simulateQuotes } from "./lib/simulation/index.js";
 export type * from "./lib/types.js";

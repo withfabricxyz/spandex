@@ -1,8 +1,14 @@
-import type { Quote, QuoteTxData, SwapParams } from "@withfabric/smal";
 import type { Address, Block, PublicClient, SimulateCallsReturnType } from "viem";
 import { encodeFunctionData, erc20Abi, ethAddress, parseEther, zeroAddress } from "viem";
 import { simulateCalls } from "viem/actions";
-import type { SimulatedQuote, SimulationArgs, SimulationResult } from "./types.js";
+import type {
+  Quote,
+  QuoteTxData,
+  SimulatedQuote,
+  SimulationArgs,
+  SimulationResult,
+  SwapParams,
+} from "../types.js";
 
 /**
  * Error thrown when one or more low level calls revert while simulating a quote.

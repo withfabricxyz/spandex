@@ -1,9 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { buildMetaAggregator, type SuccessfulQuote, type SwapParams } from "@withfabric/smal";
 import type { PublicClient } from "viem";
 import { createPublicClient, http, zeroAddress } from "viem";
 import { base } from "viem/chains";
-import { SimulatedMetaAggregator } from "./aggregator.js";
+import { buildMetaAggregator, type SuccessfulQuote, type SwapParams } from "../index.js";
 
 const defaultSwapParams: SwapParams = {
   chainId: 8453,
@@ -19,7 +18,7 @@ const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
 const ETH_WHALE = "0x611f7bf868a6212f871e89f7e44684045ddfb09d";
 const USDC_WHALE = "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055";
 
-describe("SimulatedMetaAggregator", () => {
+describe("meta aggregator sim", () => {
   const client = createPublicClient({
     chain: base,
     transport: http(`https://rpc.ankr.com/base/${ANKR_API_KEY}`),
@@ -32,14 +31,18 @@ describe("SimulatedMetaAggregator", () => {
       fabric: {},
       "0x": { apiKey: process.env.ZEROX_API_KEY || "" },
     },
+    clientLookup: (id: number) => {
+      if (id === base.id) return client;
+      return undefined;
+    },
   });
 
-  const simulator = new SimulatedMetaAggregator(metaAgg, [client]);
-
   it("composes MetaAggregator and returns simulated quotes", async () => {
-    const quotes = await simulator.fetchQuotes({
-      ...defaultSwapParams,
-      swapperAccount: USDC_WHALE,
+    const quotes = await metaAgg.fetchAndSimulateQuotes({
+      params: {
+        ...defaultSwapParams,
+        swapperAccount: USDC_WHALE,
+      },
     });
 
     expect(quotes).toBeDefined();
@@ -100,12 +103,14 @@ describe("SimulatedMetaAggregator", () => {
   }, 30000);
 
   it("handles ETH -> ERC20", async () => {
-    const quotes = await simulator.fetchQuotes({
-      ...defaultSwapParams,
-      inputToken: zeroAddress,
-      inputAmount: 250000000000000000n, // .25 ETH
-      outputToken: defaultSwapParams.inputToken, // USDC
-      swapperAccount: ETH_WHALE,
+    const quotes = await metaAgg.fetchAndSimulateQuotes({
+      params: {
+        ...defaultSwapParams,
+        inputToken: zeroAddress,
+        inputAmount: 250000000000000000n, // .25 ETH
+        outputToken: defaultSwapParams.inputToken, // USDC
+        swapperAccount: ETH_WHALE,
+      },
     });
 
     const [successful, _failed] = quotes.reduce(
@@ -157,12 +162,13 @@ describe("SimulatedMetaAggregator", () => {
   }, 30000);
 
   it("handles ERC20 -> ETH", async () => {
-    const quotes = await simulator.fetchQuotes({
-      ...defaultSwapParams,
-      outputToken: zeroAddress,
-      swapperAccount: USDC_WHALE,
+    const quotes = await metaAgg.fetchAndSimulateQuotes({
+      params: {
+        ...defaultSwapParams,
+        outputToken: zeroAddress,
+        swapperAccount: USDC_WHALE,
+      },
     });
-
     expect(quotes).toBeDefined();
 
     const [successful, _failed] = quotes.reduce(
