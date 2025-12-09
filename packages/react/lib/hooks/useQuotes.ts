@@ -3,6 +3,7 @@ import type {
   ExactInSwapParams,
   MetaAggregator,
   Quote,
+  SimulatedQuote,
   SwapParams,
   TargetOutSwapParams,
 } from "@withfabric/spandex";
@@ -16,18 +17,18 @@ export type UseQuotesParams<TSelectData = Quote[]> = (
 ) & {
   chainId?: number;
   swapperAccount?: `0x${string}`;
-  query?: Omit<UseQueryOptions<Quote[], Error, TSelectData>, "queryKey" | "queryFn">;
+  query?: Omit<UseQueryOptions<SimulatedQuote[], Error, TSelectData>, "queryKey" | "queryFn">;
 };
 
 async function fetchQuotes(
   metaAggregator: MetaAggregator,
   params: ExactInSwapParams | TargetOutSwapParams,
-): Promise<Quote[]> {
-  const fetchedQuotes = await metaAggregator.fetchQuotes(params);
+): Promise<SimulatedQuote[]> {
+  const fetchedQuotes = await metaAggregator.fetchQuotes({ params });
   return fetchedQuotes;
 }
 
-export function useQuotes<TSelectData = Quote[]>(
+export function useQuotes<TSelectData = SimulatedQuote[]>(
   params: UseQuotesParams<TSelectData>,
 ): UseQueryResult<TSelectData, Error> {
   const { metaAggregator } = useSpandexConfig();
@@ -68,7 +69,7 @@ export function useQuotes<TSelectData = Quote[]>(
 
   const defaults = {
     staleTime: 10_000,
-  } as UseQueryOptions<Quote[], Error, TSelectData>;
+  } as UseQueryOptions<SimulatedQuote[], Error, TSelectData>;
 
   const requirements = {
     queryKey: [
@@ -88,7 +89,7 @@ export function useQuotes<TSelectData = Quote[]>(
     },
     retry: 0,
     enabled: !!finalChainId && !!finalSwapperAccount && (query?.enabled ?? true),
-  } as UseQueryOptions<Quote[], Error, TSelectData>;
+  } as UseQueryOptions<SimulatedQuote[], Error, TSelectData>;
 
   return useQuery({
     ...defaults,

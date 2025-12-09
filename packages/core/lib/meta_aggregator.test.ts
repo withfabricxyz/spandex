@@ -15,7 +15,7 @@ describe("meta aggregator", () => {
         numRetries: 0,
       },
     );
-    const quotes = await quoter.fetchQuotes(defaultSwapParams);
+    const quotes = await quoter.fetchRawQuotes({ params: defaultSwapParams });
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(2);
     expect(quotes[0]?.success).toBe(true);
@@ -27,7 +27,10 @@ describe("meta aggregator", () => {
       new MockAggregator(quoteSuccess),
       new MockAggregator({ ...quoteSuccess, outputAmount: 900_001n }),
     ]);
-    const best = await quoter.fetchBestQuote(defaultSwapParams, { strategy: "quotedPrice" });
+    const best = await quoter.fetchBestQuote({
+      params: defaultSwapParams,
+      strategy: "quotedPrice",
+    });
     expect(best).toBeDefined();
     expect(best?.outputAmount).toBe(900_001n);
   });
@@ -37,10 +40,10 @@ describe("meta aggregator", () => {
       new MockAggregator({ ...quoteSuccess, networkFee: 1_000n }),
       new MockAggregator({ ...quoteSuccess, outputAmount: 900_001n }),
     ]);
-    let best = await quoter.fetchBestQuote(defaultSwapParams, { strategy: "quotedGas" });
+    let best = await quoter.fetchBestQuote({ params: defaultSwapParams, strategy: "quotedGas" });
     expect(best).toBeDefined();
     expect(best?.outputAmount).toBe(900_000n);
-    best = await quoter.fetchBestQuote(defaultSwapParams, { strategy: "quotedPrice" });
+    best = await quoter.fetchBestQuote({ params: defaultSwapParams, strategy: "quotedPrice" });
     expect(best).toBeDefined();
     expect(best?.outputAmount).toBe(900_001n);
   });
@@ -53,7 +56,7 @@ describe("meta aggregator", () => {
     });
     const start = Date.now();
     const quotes = await quoter
-      .fetchQuotes(defaultSwapParams)
+      .fetchRawQuotes({ params: defaultSwapParams })
       .then((qs) => qs.filter((q) => q.success));
     const end = Date.now();
     expect(quotes).toBeDefined();
@@ -69,7 +72,7 @@ describe("meta aggregator", () => {
       deadlineMs: 50,
     });
     const start = Date.now();
-    const quotes = await quoter.fetchQuotes(defaultSwapParams);
+    const quotes = await quoter.fetchRawQuotes({ params: defaultSwapParams });
     const end = Date.now();
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(1);
@@ -85,10 +88,12 @@ describe("meta aggregator", () => {
       new MockAggregator(quoteSuccess, { features: ["targetOut"] }),
       new MockAggregator(quoteSuccess),
     ]);
-    const quotes = await quoter.fetchQuotes({
-      ...defaultSwapParams,
-      mode: "targetOut",
-      outputAmount: 1_000_000n,
+    const quotes = await quoter.fetchRawQuotes({
+      params: {
+        ...defaultSwapParams,
+        mode: "targetOut",
+        outputAmount: 1_000_000n,
+      },
     });
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(1);
@@ -105,7 +110,7 @@ describe("meta aggregator", () => {
         integratorFeeAddress: "0x0000000000000000000000000000000000000001" as `0x${string}`,
       },
     );
-    const quotes = await quoter.fetchQuotes(defaultSwapParams);
+    const quotes = await quoter.fetchRawQuotes({ params: defaultSwapParams });
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(1);
   }, 1_000);

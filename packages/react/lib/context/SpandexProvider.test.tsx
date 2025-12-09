@@ -22,7 +22,6 @@ describe("SpandexProvider", () => {
           "0x": { apiKey: "test" },
           fabric: {},
         },
-        options: { strategy: "quotedPrice" },
       },
     });
 

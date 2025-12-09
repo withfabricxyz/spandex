@@ -6,13 +6,22 @@ import {
   renderHook as tlRenderHook,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
+import { createConfig, http, WagmiProvider } from "wagmi";
+import { base, mainnet } from "wagmi/chains";
 import { SpandexProvider } from "../lib/context/SpandexProvider.js";
 import type { SpandexProviderProps } from "../lib/types.js";
 import { queryClient } from "./constants.js";
 
+const wagmiConfig = createConfig({
+  chains: [mainnet, base],
+  transports: {
+    [mainnet.id]: http(),
+    [base.id]: http(),
+  },
+});
+
 export const DEFAULT_TEST_CONFIG: SpandexProviderProps["config"] = {
   providers: { fabric: {} },
-  options: { strategy: "quotedPrice" },
 };
 
 export function createWrapper(config?: SpandexProviderProps["config"]) {
@@ -21,7 +30,9 @@ export function createWrapper(config?: SpandexProviderProps["config"]) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
-        <SpandexProvider config={spandexConfig}>{children}</SpandexProvider>
+        <WagmiProvider config={wagmiConfig}>
+          <SpandexProvider config={spandexConfig}>{children}</SpandexProvider>
+        </WagmiProvider>
       </QueryClientProvider>
     );
   };

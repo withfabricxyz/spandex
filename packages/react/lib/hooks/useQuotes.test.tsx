@@ -1,6 +1,8 @@
 import { describe, expect, it, mock } from "bun:test";
 import { beforeEach } from "node:test";
 import type { MetaAggregator, Quote } from "@withfabric/spandex";
+import { createPublicClient, http, type PublicClient } from "viem";
+import { base } from "viem/chains";
 import { TEST_ADDRESSES, TEST_CHAINS } from "../../test/constants.js";
 import { createMockQuote } from "../../test/mocks.js";
 import { renderHook, waitFor } from "../../test/utils.js";
@@ -19,6 +21,20 @@ describe("useQuotes", () => {
       useConnection: () => ({
         address: TEST_ADDRESSES.alice,
         chain: { id: TEST_CHAINS.base.id },
+      }),
+    }));
+
+    mock.module("wagmi", () => ({
+      useConfig: () => ({
+        getClient: ({ chainId }: { chainId: number }) => {
+          if (chainId === TEST_CHAINS.base.id) {
+            return createPublicClient({
+              chain: base,
+              transport: http("https://base.drpc.org"),
+            }) as PublicClient;
+          }
+          return undefined;
+        },
       }),
     }));
 
@@ -42,13 +58,15 @@ describe("useQuotes", () => {
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
       expect(mockFetchAllQuotes).toHaveBeenCalledWith({
-        mode: "exactIn",
-        chainId: TEST_CHAINS.base.id,
-        swapperAccount: TEST_ADDRESSES.alice,
-        inputToken: TEST_ADDRESSES.usdc,
-        outputToken: TEST_ADDRESSES.weth,
-        inputAmount: 500_000_000n,
-        slippageBps: 100,
+        params: {
+          mode: "exactIn",
+          chainId: TEST_CHAINS.base.id,
+          swapperAccount: TEST_ADDRESSES.alice,
+          inputToken: TEST_ADDRESSES.usdc,
+          outputToken: TEST_ADDRESSES.weth,
+          inputAmount: 500_000_000n,
+          slippageBps: 100,
+        },
       });
       expect(result.current.data).toHaveLength(1);
     });
@@ -75,12 +93,12 @@ describe("useQuotes", () => {
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
-      expect(mockFetchAllQuotes).toHaveBeenCalledWith(
-        expect.objectContaining({
+      expect(mockFetchAllQuotes).toHaveBeenCalledWith({
+        params: expect.objectContaining({
           chainId: TEST_CHAINS.mainnet.id,
           swapperAccount: TEST_ADDRESSES.bob,
         }),
-      );
+      });
     });
   });
 

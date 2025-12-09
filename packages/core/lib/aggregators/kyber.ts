@@ -1,6 +1,6 @@
+import type { Address } from "viem";
 import { Aggregator } from "../aggregator.js";
 import {
-  type Address,
   type AggregatorFeature,
   type AggregatorMetadata,
   type ExactInSwapParams,

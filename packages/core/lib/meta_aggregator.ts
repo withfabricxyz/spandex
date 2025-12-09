@@ -64,11 +64,14 @@ export class MetaAggregator {
    *
    * @returns Winning quote, or `null` if no provider succeeds.
    */
-  async fetchBestQuote(
-    params: SwapParams,
-    options: { strategy: QuoteSelectionStrategy },
-  ): Promise<SuccessfulQuote | null> {
-    return applyStrategy(options.strategy, this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
+  async fetchBestQuote({
+    params,
+    strategy,
+  }: {
+    params: SwapParams;
+    strategy: QuoteSelectionStrategy;
+  }): Promise<SuccessfulQuote | null> {
+    return applyStrategy(strategy, this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
   }
 
   // TODO: rename to rawQuotes, use structured params and return types only!
@@ -79,19 +82,19 @@ export class MetaAggregator {
    * @param params - Swap request parameters.
    * @returns Array of successful or failed quote responses.
    */
-  async fetchQuotes(params: SwapParams): Promise<Quote[]> {
+  async fetchRawQuotes({ params }: { params: SwapParams }): Promise<Quote[]> {
     return Promise.all(this.prepareQuotes({ params, mapFn: QuoteIdentifyFn }));
   }
 
   /**
-   * Fetches quotes from all providers and simulates quote exeuction using the provided client.
+   * Fetches quotes from all providers and simulates quote exeuction using the provided client or client lookup.
    *
    * @param params - Swap request parameters.
    * @param client - Public client used to simulate quote tx data.
    *
    * @returns Quotes enriched with simulation metadata.
    */
-  async fetchAndSimulateQuotes({
+  async fetchQuotes({
     params,
     client,
   }: {

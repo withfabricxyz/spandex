@@ -1,15 +1,22 @@
 import { buildMetaAggregator } from "@withfabric/spandex";
 import { createContext, useContext, useMemo } from "react";
+import type { PublicClient } from "viem";
+import { useConfig } from "wagmi";
 import type { SpandexContextValue, SpandexProviderProps } from "../types.js";
 
 export const SpandexContext = createContext<SpandexContextValue | null>(null);
 
 export function SpandexProvider({ config, children }: SpandexProviderProps) {
   const { providers, options } = config;
+  const { getClient } = useConfig();
 
   const metaAggregator = useMemo(() => {
-    return buildMetaAggregator({ providers, options });
-  }, [providers, options]);
+    return buildMetaAggregator({
+      providers,
+      options,
+      clientLookup: (chainId: number) => getClient({ chainId }) as PublicClient | undefined,
+    });
+  }, [providers, options, getClient]);
 
   const contextValue: SpandexContextValue = useMemo(
     () => ({

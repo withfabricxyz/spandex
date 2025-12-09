@@ -38,7 +38,7 @@ describe("meta aggregator sim", () => {
   });
 
   it("composes MetaAggregator and returns simulated quotes", async () => {
-    const quotes = await metaAgg.fetchAndSimulateQuotes({
+    const quotes = await metaAgg.fetchQuotes({
       params: {
         ...defaultSwapParams,
         swapperAccount: USDC_WHALE,
@@ -103,7 +103,7 @@ describe("meta aggregator sim", () => {
   }, 30000);
 
   it("handles ETH -> ERC20", async () => {
-    const quotes = await metaAgg.fetchAndSimulateQuotes({
+    const quotes = await metaAgg.fetchQuotes({
       params: {
         ...defaultSwapParams,
         inputToken: zeroAddress,
@@ -162,7 +162,7 @@ describe("meta aggregator sim", () => {
   }, 30000);
 
   it("handles ERC20 -> ETH", async () => {
-    const quotes = await metaAgg.fetchAndSimulateQuotes({
+    const quotes = await metaAgg.fetchQuotes({
       params: {
         ...defaultSwapParams,
         outputToken: zeroAddress,

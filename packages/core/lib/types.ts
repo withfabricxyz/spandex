@@ -1,18 +1,8 @@
-import type { PublicClient, SimulateCallsReturnType } from "viem";
+import type { Address, PublicClient, SimulateCallsReturnType } from "viem";
 import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x.js";
 import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js";
 import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
-
-/**
- * Ethereum-style hexadecimal address literal prefixed with `0x`.
- */
-export type Address = `0x${string}`;
-
-/**
- * Generic hexadecimal literal prefixed with `0x`.
- */
-export type Hex = `0x${string}`;
 
 /**
  * Definitions for each supported provider including their configuration and quote response types.
