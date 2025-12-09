@@ -1,5 +1,5 @@
-import type { ExactInSwapParams } from "@withfabric/smal";
-import { buildMetaAggregator } from "@withfabric/smal";
+import type { ExactInSwapParams } from "@withfabric/spandex";
+import { buildMetaAggregator } from "@withfabric/spandex";
 import { createWalletClient, http } from "viem";
 import { base } from "viem/chains";
 

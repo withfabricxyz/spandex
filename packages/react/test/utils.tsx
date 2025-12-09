@@ -6,22 +6,22 @@ import {
   renderHook as tlRenderHook,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { SmalProvider } from "../lib/context/SmalProvider.js";
-import type { SmalProviderProps } from "../lib/types.js";
+import { SpandexProvider } from "../lib/context/SpandexProvider.js";
+import type { SpandexProviderProps } from "../lib/types.js";
 import { queryClient } from "./constants.js";
 
-export const DEFAULT_TEST_CONFIG: SmalProviderProps["config"] = {
+export const DEFAULT_TEST_CONFIG: SpandexProviderProps["config"] = {
   providers: { fabric: {} },
   options: { strategy: "quotedPrice" },
 };
 
-export function createWrapper(config?: SmalProviderProps["config"]) {
-  const smalConfig = config || DEFAULT_TEST_CONFIG;
+export function createWrapper(config?: SpandexProviderProps["config"]) {
+  const spandexConfig = config || DEFAULT_TEST_CONFIG;
 
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
-        <SmalProvider config={smalConfig}>{children}</SmalProvider>
+        <SpandexProvider config={spandexConfig}>{children}</SpandexProvider>
       </QueryClientProvider>
     );
   };
@@ -30,13 +30,13 @@ export function createWrapper(config?: SmalProviderProps["config"]) {
 export function renderHook<Result, Props>(
   hook: (props: Props) => Result,
   options?: RenderHookOptions<Props> & {
-    smalConfig?: SmalProviderProps["config"];
+    spandexConfig?: SpandexProviderProps["config"];
   },
 ) {
-  const { smalConfig, ...renderOptions } = options || {};
+  const { spandexConfig, ...renderOptions } = options || {};
 
   return tlRenderHook(hook, {
-    wrapper: createWrapper(smalConfig),
+    wrapper: createWrapper(spandexConfig),
     ...renderOptions,
   });
 }
@@ -44,13 +44,13 @@ export function renderHook<Result, Props>(
 export function render(
   ui: React.ReactElement,
   options?: RenderOptions & {
-    smalConfig?: SmalProviderProps["config"];
+    spandexConfig?: SpandexProviderProps["config"];
   },
 ) {
-  const { smalConfig, ...renderOptions } = options || {};
+  const { spandexConfig, ...renderOptions } = options || {};
 
   return tlRender(ui, {
-    wrapper: createWrapper(smalConfig),
+    wrapper: createWrapper(spandexConfig),
     ...renderOptions,
   });
 }

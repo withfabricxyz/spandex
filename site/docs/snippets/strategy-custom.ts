@@ -1,4 +1,4 @@
-import { buildMetaAggregator, type ExactInSwapParams, type Quote } from "@withfabric/smal";
+import { buildMetaAggregator, type ExactInSwapParams, type Quote } from "@withfabric/spandex";
 
 // return a random successful quote
 const randomStrategy = async (quotes: Array<Promise<Quote>>) => {

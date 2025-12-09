@@ -5,10 +5,10 @@ import type {
   Quote,
   SwapParams,
   TargetOutSwapParams,
-} from "@withfabric/smal";
+} from "@withfabric/spandex";
 import { useMemo } from "react";
 import { useConnection } from "wagmi";
-import { useSmalConfig } from "../context/SmalProvider.js";
+import { useSpandexConfig } from "../context/SpandexProvider.js";
 
 export type UseQuotesParams<TSelectData = Quote[]> = (
   | Omit<ExactInSwapParams, "chainId" | "swapperAccount">
@@ -30,7 +30,7 @@ async function fetchQuotes(
 export function useQuotes<TSelectData = Quote[]>(
   params: UseQuotesParams<TSelectData>,
 ): UseQueryResult<TSelectData, Error> {
-  const { metaAggregator } = useSmalConfig();
+  const { metaAggregator } = useSpandexConfig();
   const connection = useConnection();
 
   const { query } = params;
@@ -72,7 +72,7 @@ export function useQuotes<TSelectData = Quote[]>(
 
   const requirements = {
     queryKey: [
-      "smal",
+      "spandex",
       fullParams?.mode,
       fullParams?.chainId,
       fullParams?.inputToken,

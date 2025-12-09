@@ -48,9 +48,9 @@ export type KyberConfig = {
  */
 export class KyberAggregator extends Aggregator {
   /**
-   * @param config - Kyber-specific configuration, defaulting to the `smal` client id.
+   * @param config - Kyber-specific configuration, defaulting to the `spandex` client id.
    */
-  constructor(private config: KyberConfig = { clientId: "smal" }) {
+  constructor(private config: KyberConfig = { clientId: "spandex" }) {
     super();
   }
 

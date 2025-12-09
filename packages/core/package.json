@@ -1,5 +1,5 @@
 {
-  "name": "@withfabric/smal",
+  "name": "@withfabric/spandex",
   "version": "0.1.0",
   "description": "Library for finding the best swap prices across all DEXs",
   "type": "module",

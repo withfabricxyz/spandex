@@ -1,6 +1,6 @@
-# SMAL
+# SpanDEX
 
-SMAL Meta Aggregator Library
+SpanDEX Meta Aggregator Library
 
 One swap library to rule them all. Query multiple DEX aggregators and find the best price without the added middleman tax.
 
@@ -15,14 +15,14 @@ Goals:
 Install core package and optional simulate extension to validate quoted transactions onchain
 
 ```
-npm i viem @withfabric/smal @withfabric/smal-simulate
+npm i viem @withfabric/spandex @withfabric/spandex-simulate
 ```
 
 Example:
 
 ```ts
 // Import
-import { buildMetaAggregator } from "@withfabric/smal";
+import { buildMetaAggregator } from "@withfabric/spandex";
 
 // Configure your aggregators
 const metaAggregator = buildMetaAggregator({
@@ -50,7 +50,7 @@ console.log(quote.summary())
 Using simulation to verify the quote and get onchain pricing
 
 ```ts
-import { simulateWith } from "@withfabric/smal-simulate";
+import { simulateWith } from "@withfabric/spandex-simulate";
 const aggregator = buildMetaAggregator({ //... });
 const quotes = await aggregator.fetchAllQuotes(swapParams)
 const simulated = await simulateQuotes({ client, swapParams, quotes });

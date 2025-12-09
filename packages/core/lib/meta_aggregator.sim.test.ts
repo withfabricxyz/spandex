@@ -27,7 +27,7 @@ describe("meta aggregator sim", () => {
   const metaAgg = buildMetaAggregator({
     providers: {
       odos: {},
-      kyberswap: { clientId: "smal" },
+      kyberswap: { clientId: "spandex" },
       fabric: {},
       "0x": { apiKey: process.env.ZEROX_API_KEY || "" },
     },

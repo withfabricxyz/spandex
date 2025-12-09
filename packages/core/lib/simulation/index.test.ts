@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { buildMetaAggregator, type SwapParams } from "@withfabric/smal";
+import { buildMetaAggregator, type SwapParams } from "@withfabric/spandex";
 import type { Address, PublicClient } from "viem";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
@@ -27,7 +27,7 @@ describe("simulation", () => {
 
   const metaAgg = buildMetaAggregator({
     providers: {
-      kyberswap: { clientId: "smal-test-env" },
+      kyberswap: { clientId: "spandex-test-env" },
       fabric: {},
     },
   });

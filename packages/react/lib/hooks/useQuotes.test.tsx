@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from "bun:test";
 import { beforeEach } from "node:test";
-import type { MetaAggregator, Quote } from "@withfabric/smal";
+import type { MetaAggregator, Quote } from "@withfabric/spandex";
 import { TEST_ADDRESSES, TEST_CHAINS } from "../../test/constants.js";
 import { createMockQuote } from "../../test/mocks.js";
 import { renderHook, waitFor } from "../../test/utils.js";
@@ -11,7 +11,7 @@ let mockFetchAllQuotes: ReturnType<typeof mock>;
 
 describe("useQuotes", () => {
   beforeEach(() => {
-    mock.module("@withfabric/smal", () => ({
+    mock.module("@withfabric/spandex", () => ({
       buildMetaAggregator: () => mockMetaAggregator,
     }));
 

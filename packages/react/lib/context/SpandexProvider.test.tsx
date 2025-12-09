@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from "bun:test";
 import { render, screen } from "../../test/utils.js";
-import { useSmalConfig } from "./SmalProvider.js";
+import { useSpandexConfig } from "./SpandexProvider.js";
 
 mock.module("wagmi", () => ({
   useConnection: () => ({
@@ -10,14 +10,14 @@ mock.module("wagmi", () => ({
 }));
 
 function TestComponent() {
-  const { metaAggregator } = useSmalConfig();
+  const { metaAggregator } = useSpandexConfig();
   return <div>MetaAggregator: {metaAggregator ? "exists" : "missing"}</div>;
 }
 
-describe("SmalProvider", () => {
+describe("SpandexProvider", () => {
   it("should provide metaAggregator to children", () => {
     render(<TestComponent />, {
-      smalConfig: {
+      spandexConfig: {
         providers: {
           "0x": { apiKey: "test" },
           fabric: {},

@@ -216,7 +216,7 @@ type OdosQuoteRequest = {
    */
   userAddr: `0x${string}`;
   /**
-   * Enables a smaller payload by omitting verbose path details.
+   * Enables a spandexler payload by omitting verbose path details.
    */
   compact?: boolean;
   /**

@@ -2,7 +2,7 @@
 
 ## Overview
 
-SMAL provides React hooks for integrating swaps into your React applications. The hooks are
+SpanDEX provides React hooks for integrating swaps into your React applications. The hooks are
 designed to work with [Wagmi v3](https://wagmi.sh), automatically pulling chain and
 account information from the wallet connection.
 
@@ -11,27 +11,27 @@ account information from the wallet connection.
 :::code-group
 
 ```bash [npm]
-npm i @withfabric/smal-wagmi wagmi viem
+npm i @withfabric/spandex-react wagmi viem
 ```
 
 ```bash [bun]
-bun i @withfabric/smal-wagmi wagmi viem
+bun i @withfabric/spandex-react wagmi viem
 ```
 
 ```bash [pnpm]
-pnpm i @withfabric/smal-wagmi wagmi viem
+pnpm i @withfabric/spandex-react wagmi viem
 ```
 
 :::
 
 ## Setup
 
-Wrap your application with `SmalProvider`, within the WagmiProvider:
+Wrap your application with `SpandexProvider`, within the WagmiProvider:
 
 ```tsx
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { base } from "wagmi/chains";
-import { SmalProvider } from "@withfabric/smal-wagmi";
+import { SpandexProvider } from "@withfabric/spandex-react";
 
 const wagmiConfig = createConfig({
   chains: [base],
@@ -40,7 +40,7 @@ const wagmiConfig = createConfig({
   },
 });
 
-const smalConfig = {
+const spandexConfig = {
   aggregators: [
     { provider: "fabric", config: {} },
     { provider: "0x", config: {} },
@@ -53,9 +53,9 @@ const smalConfig = {
 function App() {
   return (
     <WagmiProvider config={wagmiConfig}>
-      <SmalProvider config={smalConfig}>
+      <SpandexProvider config={spandexConfig}>
         <YourApp />
-      </SmalProvider>
+      </SpandexProvider>
     </WagmiProvider>
   );
 }
@@ -63,7 +63,7 @@ function App() {
 
 ### Configuration
 
-The `SmalProvider` accepts a `config` prop with two properties:
+The `SpandexProvider` accepts a `config` prop with two properties:
 
 - **`aggregators`**: Array of aggregator configurations (see [Getting Started](/configuration.mdx))
 - **`options`**: Optional default options including strategy (see [Strategies](/strategies.mdx))
@@ -75,7 +75,7 @@ The `SmalProvider` accepts a `config` prop with two properties:
 Fetch quotes from all configured aggregators. Automatically merges wallet connection data (chain ID and account address) from Wagmi.
 
 ```tsx
-import { useQuotes } from "@withfabric/smal-wagmi";
+import { useQuotes } from "@withfabric/spandex-react";
 
 function SwapComponent() {
   const { quotes, isLoading, error, getQuotes } = useQuotes({
@@ -171,7 +171,7 @@ If no chain or account is connected (and not provided), `getQuotes()` returns `n
 ## Example: Complete Swap UI
 
 ```tsx
-import { useQuotes } from "@withfabric/smal-wagmi";
+import { useQuotes } from "@withfabric/spandex-react";
 import { useConnection } from "wagmi";
 import { useState } from "react";
 
@@ -229,8 +229,8 @@ function SwapUI() {
 Choose the appropriate strategy based on your use case (see [Strategies](/strategies.mdx)):
 
 ```tsx
-// In SmalProvider config
-const smalConfig = {
+// In SpandexProvider config
+const spandexConfig = {
   aggregators: [...],
   options: {
     strategy: "fastest", // For responsive UIs

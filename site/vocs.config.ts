@@ -1,13 +1,13 @@
 import { defineConfig } from "vocs";
 
 export default defineConfig({
-  title: "SMAL",
+  title: "SpanDEX",
   sidebar: [
     {
       text: "Overview",
       items: [
         {
-          text: "Why SMAL",
+          text: "Why SpanDEX",
           link: "/overview",
         },
         {
@@ -26,51 +26,104 @@ export default defineConfig({
     },
 
     {
-      text: "Configuration",
+      text: "Core",
       items: [
         {
-          text: "Meta Aggregator",
-          link: "/strategies",
+          text: "Getting Started",
+          link: "/core/getting-started",
         },
         {
-          text: "Clients",
-          link: "/fees",
+          text: "Functions",
+          items: [
+            {
+              text: "fetchQuotes",
+              link: "/core/functions/fetchQuotes",
+            },
+            {
+              text: "fetchRawQuotes",
+              link: "/core/functions/fetchRawQuotes",
+            },
+            {
+              text: "extractMetadata",
+              link: "/core/functions/extractMetadata",
+            },
+            {
+              text: "prepareQuotes",
+              link: "/core/functions/prepareQuotes",
+            },
+          ],
         },
       ],
     },
+
     {
-      text: "Providers",
-      collapsed: true,
+      text: "React",
       items: [
         {
-          text: "Fabric",
-          link: "/providers/fabric",
+          text: "Getting Started",
+          link: "/react/getting-started",
         },
         {
-          text: "0x",
-          link: "/providers/0x",
+          text: "Hooks",
+          items: [
+            {
+              text: "useQuotes",
+              link: "/react/hooks/useQuotes",
+            },
+            {
+              text: "useQuoteExecutor",
+              link: "/react/hooks/useQuoteExecutor",
+            },
+            {
+              text: "useQuoteMetadata",
+              link: "/react/hooks/useQuoteMetadata",
+            },
+            {
+              text: "useRawQuotes",
+              link: "/react/hooks/useRawQuotes",
+            },
+          ],
+        },
+      ],
+    },
+
+    {
+      text: "Configuration",
+      items: [
+        {
+          text: "Options",
+          link: "/configuration",
         },
         {
-          text: "KyberSwap",
-          link: "/providers/kyberswap",
-        },
-        {
-          text: "Odos",
-          link: "/providers/odos",
-        },
-        {
-          text: "LiFi",
-          link: "/providers/lifi",
-        },
-        {
-          text: "1inch",
-          link: "/providers/1inch",
+          text: "Providers",
+          items: [
+            {
+              text: "Fabric",
+              link: "/providers/fabric",
+            },
+            {
+              text: "0x",
+              link: "/providers/0x",
+            },
+            {
+              text: "KyberSwap",
+              link: "/providers/kyberswap",
+            },
+            {
+              text: "Odos",
+              link: "/providers/odos",
+            },
+            {
+              text: "LiFi",
+              link: "/providers/lifi",
+            },
+            {
+              text: "1inch",
+              link: "/providers/1inch",
+            },
+          ],
         },
       ],
     },
   ],
-  // vite: {
-  // },
-  // topNav: {
-  // }
 });

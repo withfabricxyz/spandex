@@ -1,4 +1,4 @@
-import { buildMetaAggregator } from "@withfabric/smal";
+import { buildMetaAggregator } from "@withfabric/spandex";
 
 export const metaAggregator = buildMetaAggregator({
   providers: {

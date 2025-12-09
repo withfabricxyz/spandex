@@ -17,7 +17,7 @@ export function defaultMetaAggregator(): MetaAggregator {
     providers: {
       fabric: {},
       kyberswap: {
-        clientId: "smal",
+        clientId: "spandex",
       },
       odos: {},
     },

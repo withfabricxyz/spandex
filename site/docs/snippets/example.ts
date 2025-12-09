@@ -1,10 +1,10 @@
-import { buildMetaAggregator } from "@withfabric/smal";
+import { buildMetaAggregator } from "@withfabric/spandex";
 
 const aggregator = buildMetaAggregator({
   providers: {
     fabric: {},
     kyberswap: {
-      clientId: "smal",
+      clientId: "spandex",
     },
     odos: {
       referralCode: 1234,
