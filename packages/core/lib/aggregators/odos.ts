@@ -1,4 +1,3 @@
-import { Aggregator } from "../aggregator.js";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -8,6 +7,7 @@ import {
   type SuccessfulQuote,
   type SwapParams,
 } from "../types.js";
+import { Aggregator } from "./index.js";
 
 /**
  * Configuration options for the Odos aggregator.

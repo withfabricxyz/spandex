@@ -1,5 +1,4 @@
 import type { Address } from "viem";
-import { Aggregator } from "../aggregator.js";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -12,6 +11,7 @@ import {
   type SwapOptions,
   type SwapParams,
 } from "../types.js";
+import { Aggregator } from "./index.js";
 
 const chainNameLookup: Record<number, string> = {
   8453: "base", // Base Mainnet

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { FabricQuoteResponse } from "./aggregators/fabric.js";
-import { applyStrategy } from "./strategies.js";
+import { selectQuote } from "./selectQuote.js";
 import type { Quote, SuccessfulQuote } from "./types.js";
 
 const quoteSuccess: Quote = {
@@ -20,7 +20,7 @@ const quoteFailure: Quote = {
   error: new Error("Failed to get quote"),
 };
 
-describe("strategies", () => {
+describe("selectQuote", () => {
   it("picks the fastest successful response", async () => {
     const pending = [
       new Promise<Quote>((resolve) => {
@@ -40,7 +40,7 @@ describe("strategies", () => {
       }),
     ];
 
-    const output = await applyStrategy("fastest", pending);
+    const output = await selectQuote({ strategy: "fastest", quotes: pending });
     expect(output).toBeDefined();
     expect(output?.outputAmount).toBe(7457n);
   }, 1_000);
@@ -57,7 +57,7 @@ describe("strategies", () => {
         resolve({ ...quoteSuccess, outputAmount: 15n });
       }),
     ];
-    const output = await applyStrategy("quotedPrice", pending);
+    const output = await selectQuote({ strategy: "quotedPrice", quotes: pending });
     expect(output).toBeDefined();
     expect(output?.outputAmount).toBe(15n);
   }, 1_000);
@@ -74,7 +74,7 @@ describe("strategies", () => {
         resolve({ ...quoteSuccess, networkFee: 1300000n });
       }),
     ];
-    const output = await applyStrategy("quotedGas", pending);
+    const output = await selectQuote({ strategy: "quotedGas", quotes: pending });
     expect(output).toBeDefined();
     expect(output?.networkFee).toBe(1300000n);
   }, 1_000);
@@ -91,7 +91,7 @@ describe("strategies", () => {
         resolve({ ...quoteSuccess, outputAmount: 30n });
       }),
     ];
-    const output = await applyStrategy("priority", pending);
+    const output = await selectQuote({ strategy: "priority", quotes: pending });
     expect(output).toBeDefined();
     expect(output?.outputAmount).toBe(15n);
   }, 1_000);
@@ -108,9 +108,12 @@ describe("strategies", () => {
         resolve({ ...quoteSuccess, outputAmount: 30n });
       }),
     ];
-    const output = await applyStrategy((quotes) => {
-      return Promise.all(quotes).then((resolved) => resolved[2] as SuccessfulQuote);
-    }, pending);
+    const output = await selectQuote({
+      strategy: (quotes) => {
+        return Promise.all(quotes).then((resolved) => resolved[2] as SuccessfulQuote);
+      },
+      quotes: pending,
+    });
     expect(output).toBeDefined();
     expect(output?.outputAmount).toBe(30n);
   }, 1_000);
@@ -124,11 +127,11 @@ describe("strategies", () => {
         resolve(quoteFailure);
       }),
     ];
-    const output = await applyStrategy("quotedPrice", pending);
+    const output = await selectQuote({ strategy: "quotedPrice", quotes: pending });
     expect(output).toBeNull();
   });
 
   it("throws if args are bad", async () => {
-    await expect(applyStrategy("quotedPrice", [])).rejects.toThrow();
+    await expect(selectQuote({ strategy: "quotedPrice", quotes: [] })).rejects.toThrow();
   });
 });

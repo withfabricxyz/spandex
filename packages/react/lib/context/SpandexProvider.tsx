@@ -1,4 +1,4 @@
-import { buildMetaAggregator } from "@withfabric/spandex";
+import { createConfig } from "@withfabric/spandex";
 import { createContext, useContext, useMemo } from "react";
 import type { PublicClient } from "viem";
 import { useConfig } from "wagmi";
@@ -10,20 +10,15 @@ export function SpandexProvider({ config, children }: SpandexProviderProps) {
   const { providers, options } = config;
   const { getClient } = useConfig();
 
-  const metaAggregator = useMemo(() => {
-    return buildMetaAggregator({
+  const spandexConfig = useMemo(() => {
+    return createConfig({
       providers,
       options,
       clientLookup: (chainId: number) => getClient({ chainId }) as PublicClient | undefined,
     });
   }, [providers, options, getClient]);
 
-  const contextValue: SpandexContextValue = useMemo(
-    () => ({
-      metaAggregator,
-    }),
-    [metaAggregator],
-  );
+  const contextValue: SpandexContextValue = useMemo(() => spandexConfig, [spandexConfig]);
 
   return <SpandexContext.Provider value={contextValue}>{children}</SpandexContext.Provider>;
 }
@@ -35,9 +30,5 @@ export function useSpandexConfig() {
     throw new Error("useSpandexConfig must be used within a SpandexProvider");
   }
 
-  const { metaAggregator } = context;
-
-  return {
-    metaAggregator,
-  };
+  return context;
 }

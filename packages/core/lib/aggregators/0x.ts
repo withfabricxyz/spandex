@@ -1,5 +1,4 @@
 import type { Address, Hex } from "viem";
-import { Aggregator } from "../aggregator.js";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -11,6 +10,7 @@ import {
   type SwapOptions,
   type SwapParams,
 } from "../types.js";
+import { Aggregator } from "./index.js";
 
 /**
  * Configuration options for the 0x aggregator.

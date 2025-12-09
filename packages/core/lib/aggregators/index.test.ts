@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams, MockAggregator, quoteFailure } from "../test/utils.js";
-import { deadline } from "./aggregator.js";
-import type { FailedQuote } from "./types.js";
+import { defaultSwapParams, MockAggregator, quoteFailure } from "../../test/utils.js";
+import type { FailedQuote } from "../types.js";
+import { deadline } from "./index.js";
 
 describe("aggregator", () => {
   it("provides basic data", async () => {

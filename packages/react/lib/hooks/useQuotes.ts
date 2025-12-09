@@ -1,43 +1,39 @@
 import { type UseQueryOptions, type UseQueryResult, useQuery } from "@tanstack/react-query";
-import type {
-  ExactInSwapParams,
-  MetaAggregator,
-  Quote,
-  SimulatedQuote,
-  SwapParams,
-  TargetOutSwapParams,
+import {
+  type ExactInSwapParams,
+  getQuotes,
+  type Quote,
+  type SimulatedQuote,
+  type SwapParams,
+  type TargetOutSwapParams,
 } from "@withfabric/spandex";
 import { useMemo } from "react";
 import { useConnection } from "wagmi";
 import { useSpandexConfig } from "../context/SpandexProvider.js";
 
-export type UseQuotesParams<TSelectData = Quote[]> = (
+type UseSwapParams = (
   | Omit<ExactInSwapParams, "chainId" | "swapperAccount">
   | Omit<TargetOutSwapParams, "chainId" | "swapperAccount">
 ) & {
   chainId?: number;
   swapperAccount?: `0x${string}`;
-  query?: Omit<UseQueryOptions<SimulatedQuote[], Error, TSelectData>, "queryKey" | "queryFn">;
 };
 
-async function fetchQuotes(
-  metaAggregator: MetaAggregator,
-  params: ExactInSwapParams | TargetOutSwapParams,
-): Promise<SimulatedQuote[]> {
-  const fetchedQuotes = await metaAggregator.fetchQuotes({ params });
-  return fetchedQuotes;
-}
+export type UseQuotesParams<TSelectData = Quote[]> = {
+  swap: UseSwapParams;
+  query?: Omit<UseQueryOptions<SimulatedQuote[], Error, TSelectData>, "queryKey" | "queryFn">;
+};
 
 export function useQuotes<TSelectData = SimulatedQuote[]>(
   params: UseQuotesParams<TSelectData>,
 ): UseQueryResult<TSelectData, Error> {
-  const { metaAggregator } = useSpandexConfig();
+  const config = useSpandexConfig();
   const connection = useConnection();
 
-  const { query } = params;
+  const { query, swap } = params;
 
-  const finalChainId = params.chainId ?? connection.chain?.id;
-  const finalSwapperAccount = params.swapperAccount ?? connection.address;
+  const finalChainId = swap.chainId ?? connection.chain?.id;
+  const finalSwapperAccount = swap.swapperAccount ?? connection.address;
 
   const fullParams = useMemo(() => {
     if (!finalChainId || !finalSwapperAccount) {
@@ -46,26 +42,26 @@ export function useQuotes<TSelectData = SimulatedQuote[]>(
 
     const baseParams = {
       chainId: finalChainId,
-      inputToken: params.inputToken,
-      outputToken: params.outputToken,
-      slippageBps: params.slippageBps,
+      inputToken: swap.inputToken,
+      outputToken: swap.outputToken,
+      slippageBps: swap.slippageBps,
       swapperAccount: finalSwapperAccount,
     };
 
-    if (params.mode === "exactIn") {
+    if (swap.mode === "exactIn") {
       return {
         ...baseParams,
         mode: "exactIn" as const,
-        inputAmount: params.inputAmount,
+        inputAmount: swap.inputAmount,
       };
     }
 
     return {
       ...baseParams,
       mode: "targetOut" as const,
-      outputAmount: params.outputAmount,
+      outputAmount: swap.outputAmount,
     };
-  }, [finalChainId, finalSwapperAccount, params]);
+  }, [finalChainId, finalSwapperAccount, swap]);
 
   const defaults = {
     staleTime: 10_000,
@@ -85,7 +81,7 @@ export function useQuotes<TSelectData = SimulatedQuote[]>(
         : fullParams?.outputAmount.toString(),
     ],
     queryFn: () => {
-      return fetchQuotes(metaAggregator, fullParams as SwapParams);
+      return getQuotes({ config, params: fullParams as SwapParams });
     },
     retry: 0,
     enabled: !!finalChainId && !!finalSwapperAccount && (query?.enabled ?? true),

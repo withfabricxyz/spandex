@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { buildMetaAggregator, type SwapParams } from "@withfabric/spandex";
 import type { Address, PublicClient } from "viem";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
-import type { SimulatedQuote } from "../types.js";
-import { simulateQuotes } from "./index.js";
+import { createConfig, getRawQuotes, type SwapParams } from "../index.js";
+import { simulateQuotes } from "./simulateQuote.js";
+import type { SimulatedQuote } from "./types.js";
 
 const defaultSwapParams: SwapParams = {
   chainId: 8453,
@@ -19,16 +19,22 @@ const defaultSwapParams: SwapParams = {
 const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
 const USDC_WHALE: Address = "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055";
 
-describe("simulation", () => {
+describe("simulateQuote", () => {
   const client = createPublicClient({
     chain: base,
     transport: http(`https://rpc.ankr.com/base/${ANKR_API_KEY}`),
   }) as PublicClient;
 
-  const metaAgg = buildMetaAggregator({
+  const config = createConfig({
     providers: {
       kyberswap: { clientId: "spandex-test-env" },
       fabric: {},
+    },
+    clientLookup: (chainId: number) => {
+      if (chainId === base.id) {
+        return client;
+      }
+      return undefined;
     },
   });
 
@@ -38,7 +44,7 @@ describe("simulation", () => {
       swapperAccount: USDC_WHALE,
     };
 
-    const quotes = await metaAgg.fetchQuotes(swapParams);
+    const quotes = await getRawQuotes({ config, params: swapParams });
     expect(quotes).toBeDefined();
     expect(quotes.length).toBeGreaterThan(0);
 

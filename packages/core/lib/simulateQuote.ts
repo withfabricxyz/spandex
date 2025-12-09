@@ -8,7 +8,7 @@ import type {
   SimulationArgs,
   SimulationResult,
   SwapParams,
-} from "../types.js";
+} from "./types.js";
 
 /**
  * Error thrown when one or more low level calls revert while simulating a quote.

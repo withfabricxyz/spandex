@@ -1,5 +1,5 @@
 import type { TransactionReceipt, WalletClient } from "viem";
-import type { SimulatedQuote, SimulationSuccess, SwapParams } from "../types.js";
+import type { SimulatedQuote, SimulationSuccess, SwapParams } from "./types.js";
 
 export class ExecutionError extends Error {
   constructor(message: string) {
@@ -28,7 +28,7 @@ export type ExecuteBestQuoteReturnType = {
   metrics: ExecutionMetrics;
 };
 
-export async function executeBestQuote({
+export async function executeQuote({
   params,
   quotes,
   client,

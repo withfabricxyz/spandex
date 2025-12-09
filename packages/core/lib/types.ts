@@ -337,7 +337,7 @@ export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;
 /**
  * Configuration for constructing a MetaAggregator instance.
  */
-export type MetaAggregatorConfig = {
+export type ConfigParams = {
   /**
    * Provider-specific configuration keyed by provider identifier (optional to allow a subset).
    */

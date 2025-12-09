@@ -54,12 +54,15 @@ const fastest: QuoteSelectionFn = async (
   ).catch(() => null);
 };
 
-export async function applyStrategy(
-  strategy: QuoteSelectionStrategy,
-  quotes: Array<Promise<Quote>>,
-): Promise<SuccessfulQuote | null> {
+export async function selectQuote({
+  strategy,
+  quotes,
+}: {
+  strategy: QuoteSelectionStrategy;
+  quotes: Array<Promise<Quote>>;
+}): Promise<SuccessfulQuote | null> {
   if (quotes.length === 0) {
-    throw new Error("No quotes provided to applyStrategy");
+    throw new Error("No quotes provided to selectQuote");
   }
 
   if (typeof strategy === "function") {

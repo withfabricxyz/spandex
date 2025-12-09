@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from "bun:test";
 import { beforeEach } from "node:test";
-import type { MetaAggregator, Quote } from "@withfabric/spandex";
+import type { Quote } from "@withfabric/spandex";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 import { TEST_ADDRESSES, TEST_CHAINS } from "../../test/constants.js";
@@ -8,13 +8,13 @@ import { createMockQuote } from "../../test/mocks.js";
 import { renderHook, waitFor } from "../../test/utils.js";
 import { useQuotes } from "./useQuotes.js";
 
-let mockMetaAggregator: MetaAggregator;
 let mockFetchAllQuotes: ReturnType<typeof mock>;
 
 describe("useQuotes", () => {
   beforeEach(() => {
+    mockFetchAllQuotes = mock(() => Promise.resolve([createMockQuote()]));
     mock.module("@withfabric/spandex", () => ({
-      buildMetaAggregator: () => mockMetaAggregator,
+      getQuotes: mockFetchAllQuotes,
     }));
 
     mock.module("wagmi", () => ({
@@ -37,68 +37,71 @@ describe("useQuotes", () => {
         },
       }),
     }));
-
-    mockFetchAllQuotes = mock(() => Promise.resolve([createMockQuote()]));
-    mockMetaAggregator = {
-      fetchQuotes: mockFetchAllQuotes,
-    } as unknown as MetaAggregator;
   });
 
   it("should merge wagmi connection data with params", async () => {
     const { result } = renderHook(() =>
       useQuotes({
-        mode: "exactIn",
-        inputToken: TEST_ADDRESSES.usdc,
-        outputToken: TEST_ADDRESSES.weth,
-        inputAmount: 500_000_000n,
-        slippageBps: 100,
-      }),
-    );
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-      expect(mockFetchAllQuotes).toHaveBeenCalledWith({
-        params: {
+        swap: {
           mode: "exactIn",
-          chainId: TEST_CHAINS.base.id,
-          swapperAccount: TEST_ADDRESSES.alice,
           inputToken: TEST_ADDRESSES.usdc,
           outputToken: TEST_ADDRESSES.weth,
           inputAmount: 500_000_000n,
           slippageBps: 100,
         },
-      });
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+      expect(mockFetchAllQuotes).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: {
+            mode: "exactIn",
+            chainId: TEST_CHAINS.base.id,
+            swapperAccount: TEST_ADDRESSES.alice,
+            inputToken: TEST_ADDRESSES.usdc,
+            outputToken: TEST_ADDRESSES.weth,
+            inputAmount: 500_000_000n,
+            slippageBps: 100,
+          },
+        }),
+      );
       expect(result.current.data).toHaveLength(1);
     });
   });
 
   it("should accept hook-level overrides", async () => {
     const mockFetchAllQuotes = mock(() => Promise.resolve([]));
-    mockMetaAggregator = {
-      fetchQuotes: mockFetchAllQuotes,
-    } as unknown as MetaAggregator;
+    mock.module("@withfabric/spandex", () => ({
+      getQuotes: mockFetchAllQuotes,
+    }));
 
     const { result } = renderHook(() =>
       useQuotes({
-        mode: "exactIn",
-        inputToken: TEST_ADDRESSES.usdc,
-        outputToken: TEST_ADDRESSES.weth,
-        inputAmount: 500_000_000n,
-        slippageBps: 100,
-        // specify hook-level chain and address, overriding wagmi
-        chainId: TEST_CHAINS.mainnet.id,
-        swapperAccount: TEST_ADDRESSES.bob,
+        swap: {
+          mode: "exactIn",
+          inputToken: TEST_ADDRESSES.usdc,
+          outputToken: TEST_ADDRESSES.weth,
+          inputAmount: 500_000_000n,
+          slippageBps: 100,
+          // specify hook-level chain and address, overriding wagmi
+          chainId: TEST_CHAINS.mainnet.id,
+          swapperAccount: TEST_ADDRESSES.bob,
+        },
       }),
     );
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
-      expect(mockFetchAllQuotes).toHaveBeenCalledWith({
-        params: expect.objectContaining({
-          chainId: TEST_CHAINS.mainnet.id,
-          swapperAccount: TEST_ADDRESSES.bob,
+      expect(mockFetchAllQuotes).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: expect.objectContaining({
+            chainId: TEST_CHAINS.mainnet.id,
+            swapperAccount: TEST_ADDRESSES.bob,
+          }),
         }),
-      });
+      );
     });
   });
 
@@ -112,11 +115,13 @@ describe("useQuotes", () => {
 
     const { result } = renderHook(() =>
       useQuotes({
-        mode: "exactIn",
-        inputToken: TEST_ADDRESSES.usdc,
-        outputToken: TEST_ADDRESSES.weth,
-        inputAmount: 500_000_000n,
-        slippageBps: 100,
+        swap: {
+          mode: "exactIn",
+          inputToken: TEST_ADDRESSES.usdc,
+          outputToken: TEST_ADDRESSES.weth,
+          inputAmount: 500_000_000n,
+          slippageBps: 100,
+        },
       }),
     );
 
@@ -128,11 +133,13 @@ describe("useQuotes", () => {
   it("should recognize available tanstack query config - enabled", async () => {
     const { result } = renderHook(() =>
       useQuotes({
-        mode: "exactIn",
-        inputToken: TEST_ADDRESSES.usdc,
-        outputToken: TEST_ADDRESSES.weth,
-        inputAmount: 500_000_000n,
-        slippageBps: 100,
+        swap: {
+          mode: "exactIn",
+          inputToken: TEST_ADDRESSES.usdc,
+          outputToken: TEST_ADDRESSES.weth,
+          inputAmount: 500_000_000n,
+          slippageBps: 100,
+        },
         query: {
           enabled: false,
         },
@@ -147,11 +154,13 @@ describe("useQuotes", () => {
   it("should recognize available tanstack query config - transform", async () => {
     const { result } = renderHook(() =>
       useQuotes({
-        mode: "exactIn",
-        inputToken: TEST_ADDRESSES.usdc,
-        outputToken: TEST_ADDRESSES.weth,
-        inputAmount: 500_000_000n,
-        slippageBps: 100,
+        swap: {
+          mode: "exactIn",
+          inputToken: TEST_ADDRESSES.usdc,
+          outputToken: TEST_ADDRESSES.weth,
+          inputAmount: 500_000_000n,
+          slippageBps: 100,
+        },
         query: {
           select: (x: Quote[]) => {
             return x.map((quote) => quote.provider);

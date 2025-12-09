@@ -2,7 +2,8 @@ import { describe, expect, it } from "bun:test";
 import type { PublicClient } from "viem";
 import { createPublicClient, http, zeroAddress } from "viem";
 import { base } from "viem/chains";
-import { buildMetaAggregator, type SuccessfulQuote, type SwapParams } from "../index.js";
+import { getQuotes, type SuccessfulQuote, type SwapParams } from "../index.js";
+import { createConfig } from "./createConfig.js";
 
 const defaultSwapParams: SwapParams = {
   chainId: 8453,
@@ -18,13 +19,13 @@ const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
 const ETH_WHALE = "0x611f7bf868a6212f871e89f7e44684045ddfb09d";
 const USDC_WHALE = "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055";
 
-describe("meta aggregator sim", () => {
+describe("getQuotes", () => {
   const client = createPublicClient({
     chain: base,
     transport: http(`https://rpc.ankr.com/base/${ANKR_API_KEY}`),
   }) as PublicClient;
 
-  const metaAgg = buildMetaAggregator({
+  const config = createConfig({
     providers: {
       odos: {},
       kyberswap: { clientId: "spandex" },
@@ -37,8 +38,9 @@ describe("meta aggregator sim", () => {
     },
   });
 
-  it("composes MetaAggregator and returns simulated quotes", async () => {
-    const quotes = await metaAgg.fetchQuotes({
+  it("gets simulated quotes", async () => {
+    const quotes = await getQuotes({
+      config,
       params: {
         ...defaultSwapParams,
         swapperAccount: USDC_WHALE,
@@ -103,7 +105,8 @@ describe("meta aggregator sim", () => {
   }, 30000);
 
   it("handles ETH -> ERC20", async () => {
-    const quotes = await metaAgg.fetchQuotes({
+    const quotes = await getQuotes({
+      config,
       params: {
         ...defaultSwapParams,
         inputToken: zeroAddress,
@@ -162,7 +165,8 @@ describe("meta aggregator sim", () => {
   }, 30000);
 
   it("handles ERC20 -> ETH", async () => {
-    const quotes = await metaAgg.fetchQuotes({
+    const quotes = await getQuotes({
+      config,
       params: {
         ...defaultSwapParams,
         outputToken: zeroAddress,

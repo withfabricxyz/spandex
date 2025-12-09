@@ -1,0 +1,30 @@
+# getQuotes
+
+Fetches quotes from all configured providers and simulates the provided transactions to validate the swap operation and the final token output amount.
+
+## Synopsis
+
+```ts
+import {
+  getQuotes,
+  createConfig,
+  defaultProviders
+} from "@withfabric/spandex";
+
+const config = createConfig({
+  providers: defaultProviders(),
+});
+
+const quotes = await getQuotes({
+  config,
+  params: {
+    chainId: 8453,
+    inputToken: "0x4200000000000000000000000000000000000006", // WETH
+    outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
+    mode: "exactIn",
+    inputAmount: 1_000_000_000_000_000_000n, // 1 WETH
+    slippageBps: 50, // Tolerance
+    swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
+  }
+});
+```

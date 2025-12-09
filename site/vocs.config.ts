@@ -36,20 +36,28 @@ export default defineConfig({
           text: "Functions",
           items: [
             {
-              text: "fetchQuotes",
-              link: "/core/functions/fetchQuotes",
+              text: "createConfig",
+              link: "/core/functions/createConfig",
             },
             {
-              text: "fetchRawQuotes",
-              link: "/core/functions/fetchRawQuotes",
+              text: "getQuotes",
+              link: "/core/functions/getQuotes",
             },
             {
-              text: "extractMetadata",
-              link: "/core/functions/extractMetadata",
+              text: "getRawQuotes",
+              link: "/core/functions/getRawQuotes",
             },
             {
               text: "prepareQuotes",
               link: "/core/functions/prepareQuotes",
+            },
+            {
+              text: "selectQuote",
+              link: "/core/functions/selectQuote",
+            },
+            {
+              text: "executeQuote",
+              link: "/core/functions/executeQuote",
             },
           ],
         },
@@ -75,12 +83,12 @@ export default defineConfig({
               link: "/react/hooks/useQuoteExecutor",
             },
             {
-              text: "useQuoteMetadata",
-              link: "/react/hooks/useQuoteMetadata",
-            },
-            {
               text: "useRawQuotes",
               link: "/react/hooks/useRawQuotes",
+            },
+            {
+              text: "useSpandexConfig",
+              link: "/react/hooks/useSpandexConfig",
             },
           ],
         },

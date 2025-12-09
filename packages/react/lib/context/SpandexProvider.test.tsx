@@ -10,8 +10,8 @@ mock.module("wagmi", () => ({
 }));
 
 function TestComponent() {
-  const { metaAggregator } = useSpandexConfig();
-  return <div>MetaAggregator: {metaAggregator ? "exists" : "missing"}</div>;
+  const config = useSpandexConfig();
+  return <div>MetaAggregator: {config ? "exists" : "missing"}</div>;
 }
 
 describe("SpandexProvider", () => {

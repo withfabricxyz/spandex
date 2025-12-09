@@ -1,10 +1,8 @@
-import type { MetaAggregator, MetaAggregatorConfig } from "@withfabric/spandex";
+import type { Config, ConfigParams } from "@withfabric/spandex";
 
 export type SpandexProviderProps = {
-  config: MetaAggregatorConfig;
+  config: ConfigParams;
   children: React.ReactNode;
 };
 
-export type SpandexContextValue = {
-  metaAggregator: MetaAggregator;
-};
+export type SpandexContextValue = Config;
