@@ -1,0 +1,5 @@
+@layer base, theme, utilities, components;
+
+@import "tailwindcss";
+@import "./styles/theme.css";
+@import "./styles/fonts.css";

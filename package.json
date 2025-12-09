@@ -5,13 +5,18 @@
     "packages/core",
     "packages/react",
     "site",
-    "examples/hono"
+    "examples/hono",
+    "examples/react"
   ],
   "scripts": {
     "lint": "biome check --formatter-enabled=true --linter-enabled=true",
     "lint:fix": "biome check --formatter-enabled=true --linter-enabled=true --write --unsafe ./",
     "build": "bun ./scripts/build-packages.ts",
-    "pack": "cd packages/core && bun pm pack && cd ../react && bun pm pack"
+    "pack": "cd packages/core && bun pm pack && cd ../wagmi && bun pm pack",
+    "example:react:install": "cd examples/react && bun i",
+    "example:react:dev": "cd examples/react && bun run dev",
+    "example:react:build": "cd examples/react && bun run build",
+    "example:react:preview": "cd examples/react && bun run preview"
   },
   "devDependencies": {
     "@types/bun": "^1.3.6",

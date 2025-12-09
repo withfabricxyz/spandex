@@ -1,0 +1,27 @@
+@theme {
+  --spacing: 0.125rem;
+
+  --color-primary: #0f0f0f;
+  --color-secondary: #fafafa;
+
+  --color-pink: #FB42DF;
+  --color-red: #FA0B54;
+  --color-yellow: #FBA808;
+  --color-green: #117D45;
+
+  --color-fabric-purple: #80f;
+  --color-fabric-acid: #91f925;
+  --color-fabric-pink: #ff57e6;
+  --color-fabric-orange: #f1a004;
+  --color-fabric-light-blue: #0bc1fa;
+
+  --z-index-layer-background: -1;
+  --z-index-layer-base: 0;
+  --z-index-layer-navigation: 5;
+  --z-index-layer-dialog-scrim: 9;
+  --z-index-layer-dialog: 10;
+  --z-index-layer-bottom-sheet-scrim: 14;
+  --z-index-layer-bottom-sheet: 15;
+  --z-index-layer-toast: 20;
+  --z-index-layer-tooltip: 25;
+}

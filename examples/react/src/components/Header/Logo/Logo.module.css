@@ -1,0 +1,26 @@
+.fabricNavLogo {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.spark,
+.wordmark {
+  path {
+    fill: #0f0f0f;
+  }
+}
+
+@keyframes sparkAnimation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spark {
+  animation: sparkAnimation 30s linear infinite;
+  transform-origin: center;
+}
