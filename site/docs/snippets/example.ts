@@ -1,6 +1,6 @@
-import { buildMetaAggregator } from "@withfabric/spandex";
+import { createConfig, getQuote } from "@withfabric/spandex";
 
-const aggregator = buildMetaAggregator({
+export const config = createConfig({
   providers: {
     fabric: {},
     kyberswap: {
@@ -17,8 +17,9 @@ const aggregator = buildMetaAggregator({
   },
 });
 
-const quote = await aggregator.fetchBestQuote(
-  {
+const quote = await getQuote({
+  config,
+  params: {
     chainId: 8453,
     inputToken: "0x4200000000000000000000000000000000000006",
     outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA",
@@ -27,8 +28,8 @@ const quote = await aggregator.fetchBestQuote(
     slippageBps: 50,
     swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
   },
-  { strategy: "quotedPrice" },
-);
+  strategy: "quotedPrice",
+});
 
 if (!quote) {
   throw new Error("No providers provided a quote");

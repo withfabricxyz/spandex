@@ -1,6 +1,6 @@
-import { buildMetaAggregator } from "@withfabric/spandex";
+import { createConfig } from "@withfabric/spandex";
 
-export const metaAggregator = buildMetaAggregator({
+export const config = createConfig({
   providers: {
     fabric: {},
     odos: { referralCode: 1234 },

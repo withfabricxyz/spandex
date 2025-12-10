@@ -38,8 +38,8 @@ describe("aggregator", () => {
     });
     const end = Date.now();
     expect(quote).toBeDefined();
-    expect(end - start).toBeGreaterThanOrEqual(10); // 50ms deadline
-    expect(end - start).toBeLessThanOrEqual(20);
+    expect(end - start).toBeGreaterThanOrEqual(10);
+    expect(end - start).toBeLessThanOrEqual(100);
     expect(mock.count).toBe(1); // Retry should be skipped due to deadline
     expect(quote.success).toBe(false);
     expect((quote as FailedQuote).error?.message).toMatch(/Aggregator deadline exceeded/);

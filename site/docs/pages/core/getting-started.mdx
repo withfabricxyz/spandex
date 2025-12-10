@@ -24,8 +24,8 @@ bun i viem @withfabic/spandex
 
 See the [configuration reference](/configuration.mdx) for all options.
 
-```ts filename="aggregator.ts" twoslash
-import { buildMetaAggregator } from "@withfabric/spandex";
+```ts filename="config.ts" twoslash
+import { createConfig } from "@withfabric/spandex";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
@@ -36,7 +36,7 @@ const baseClient = createPublicClient({
 });
 
 // The aggregator instance can be shared across your application
-export const aggregator = buildMetaAggregator({
+export const config = createConfig({
   providers: {
     fabric: {},
     odos: {},
@@ -51,7 +51,7 @@ export const aggregator = buildMetaAggregator({
 ## 3. Fetch Quotes and Execute
 
 ```ts filename="quote.ts" twoslash
-import { aggregator } from "./aggregator.js";
+import { config } from "./config.js";
 import { createWalletClient } from "viem";
 import { executeBestQuote } from "@withfabric/spandex";
 
@@ -66,7 +66,8 @@ const swapParams = {
 };
 
 // Fetch quotes from all configured providers then simulate each onchain
-const quotes = await aggregator.fetchAndSimulateQuotes({
+const quotes = await getQuotes({
+  config,
   params: swapParams,
 });
 

@@ -1,5 +1,4 @@
-import { describe, expect, it, mock } from "bun:test";
-import { beforeEach } from "node:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import type { Quote } from "@withfabric/spandex";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";

@@ -19,9 +19,9 @@ import { Callout } from 'vocs/components'
 </Callout>
 
 ```ts twoslash
-import { buildMetaAggregator } from "@withfabric/spandex";
+import { createConfig } from "@withfabric/spandex";
 
-export const aggregator = buildMetaAggregator({
+export const config = createConfig({
   providers: {
     '0x': {
       // required!

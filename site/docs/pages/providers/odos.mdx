@@ -11,9 +11,9 @@ import { Callout } from 'vocs/components'
 ## Configuration
 
 ```ts twoslash
-import { buildMetaAggregator } from "@withfabric/spandex";
+import { createConfig } from "@withfabric/spandex";
 
-export const aggregator = buildMetaAggregator({
+export const config = createConfig({
   providers: {
     odos: {
       // Optional. Use for attribution
