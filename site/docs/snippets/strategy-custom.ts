@@ -1,4 +1,4 @@
-import { buildMetaAggregator, type ExactInSwapParams, type Quote } from "@withfabric/smal";
+import { createConfig, type ExactInSwapParams, getQuote, type Quote } from "@withfabric/spandex";
 
 // return a random successful quote
 const randomStrategy = async (quotes: Array<Promise<Quote>>) => {
@@ -13,7 +13,7 @@ const randomStrategy = async (quotes: Array<Promise<Quote>>) => {
   return successful[randomIndex];
 };
 
-const customQuoter = buildMetaAggregator({
+const config = createConfig({
   providers: {
     fabric: {},
     // ...
@@ -30,7 +30,11 @@ const params: ExactInSwapParams = {
   swapperAccount: "0xdead00000000000000000000000000000000beef",
 };
 
-const randomQuote = await customQuoter.fetchBestQuote(params, { strategy: randomStrategy });
+const randomQuote = await getQuote({
+  config,
+  params,
+  strategy: randomStrategy,
+});
 
 if (!randomQuote) {
   throw new Error("No providers succeeded");

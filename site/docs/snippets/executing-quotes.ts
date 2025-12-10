@@ -1,5 +1,5 @@
-import type { ExactInSwapParams } from "@withfabric/smal";
-import { buildMetaAggregator } from "@withfabric/smal";
+import type { ExactInSwapParams } from "@withfabric/spandex";
+import { createConfig, getQuote } from "@withfabric/spandex";
 import { createWalletClient, http } from "viem";
 import { base } from "viem/chains";
 
@@ -9,7 +9,7 @@ const walletClient = createWalletClient({
   transport: http(),
 });
 
-const metaAggregator = buildMetaAggregator({
+export const config = createConfig({
   providers: {
     fabric: {},
   },
@@ -26,7 +26,11 @@ const params: ExactInSwapParams = {
 };
 
 // use the quoted price strategy; see Strategies for other options
-const bestQuote = await metaAggregator.fetchBestQuote(params, { strategy: "quotedPrice" });
+const bestQuote = await getQuote({
+  config,
+  params,
+  strategy: "quotedPrice",
+});
 
 if (!bestQuote) {
   throw new Error("No providers responded in time");

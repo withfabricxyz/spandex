@@ -1,4 +1,3 @@
-import { Aggregator } from "../aggregator.js";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -8,6 +7,7 @@ import {
   type SuccessfulQuote,
   type SwapParams,
 } from "../types.js";
+import { Aggregator } from "./index.js";
 
 /**
  * Configuration options for the Odos aggregator.
@@ -216,7 +216,7 @@ type OdosQuoteRequest = {
    */
   userAddr: `0x${string}`;
   /**
-   * Enables a smaller payload by omitting verbose path details.
+   * Enables a spandexler payload by omitting verbose path details.
    */
   compact?: boolean;
   /**

@@ -1,1 +1,27 @@
+import { Button } from 'vocs/components'
+import { Callout } from 'vocs/components'
+
 # Fabric
+
+<div className="flex flex-row gap-4">
+  <Button href="https://withfabric.xyz">Homepage</Button>
+  <Button href="https://docs.withfabric.xyz">Docs</Button>
+</div>
+
+## Configuration
+
+```ts twoslash
+import { createConfig } from "@withfabric/spandex";
+
+export const config = createConfig({
+  providers: {
+    fabric: {
+      // Optional, use if you have negotiated service
+      apiKey: "YOUR_FABRIC_API_KEY",
+      // Optional, only set if you have a private Fabric deployment
+      url: undefined,
+    },
+    // ...
+  },
+});
+```

@@ -1,6 +1,5 @@
-import { Aggregator } from "../aggregator.js";
+import type { Address } from "viem";
 import {
-  type Address,
   type AggregatorFeature,
   type AggregatorMetadata,
   type ExactInSwapParams,
@@ -12,6 +11,7 @@ import {
   type SwapOptions,
   type SwapParams,
 } from "../types.js";
+import { Aggregator } from "./index.js";
 
 const chainNameLookup: Record<number, string> = {
   8453: "base", // Base Mainnet
@@ -33,7 +33,13 @@ const chainNameLookup: Record<number, string> = {
   999: "hyperevm", // HyperEVM Mainnet
 };
 
+/**
+ * Configuration options for the KyberSwap aggregator.
+ */
 export type KyberConfig = {
+  /**
+   * Client ID for accessing the KyberSwap API. You can make it up.
+   */
   clientId: string;
 };
 
@@ -42,9 +48,9 @@ export type KyberConfig = {
  */
 export class KyberAggregator extends Aggregator {
   /**
-   * @param config - Kyber-specific configuration, defaulting to the `smal` client id.
+   * @param config - Kyber-specific configuration, defaulting to the `spandex` client id.
    */
-  constructor(private config: KyberConfig = { clientId: "smal" }) {
+  constructor(private config: KyberConfig = { clientId: "spandex" }) {
     super();
   }
 
@@ -54,7 +60,7 @@ export class KyberAggregator extends Aggregator {
   override metadata(): AggregatorMetadata {
     return {
       name: "KyberSwap",
-      url: "https://kyberswap.com",
+      url: "https://kyber.network",
       docsUrl:
         "https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator/aggregator-api-specification/evm-swaps#get-chain-route-encode",
       logoUrl: "https://kyberswap.com/favicon.png",

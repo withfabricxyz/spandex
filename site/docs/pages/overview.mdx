@@ -1,11 +1,11 @@
-# Why SMAL
+# Why SpanDEX
 
-Before we dive into the specifics of SMAL, let's clarify some key concepts in the decentralized finance (DeFi) ecosystem: DEX aggregators and meta aggregators.
+Let's clarify some key concepts in DeFi: DEX aggregators and meta aggregators.
 
 ## Why Aggregators?
 
-Aggregators monitor liquidity across multiple decentralized exchanges (DEXes). The benefits are numerous:
-- **Better Prices**: By pooling liquidity from various sources, aggregators can often find better prices for swaps than any single DEX could offer.
+Aggregators monitor liquidity across multiple DEXes. The benefits are numerous:
+- **Better Prices**: By indexing liquidity from various sources, aggregators find better prices for swaps than any single DEX could offer.
 - **Reduced Slippage**: Aggregators can split trades across multiple DEXes to minimize slippage, resulting in more favorable execution prices.
 - **Atomic Swaps**: Aggregators can facilitate complex trades that involve multiple tokens or routes, allowing users to swap tokens that may not have direct liquidity pools.
 
@@ -16,12 +16,12 @@ Meta aggregators automate the process of querying multiple DEX aggregators. The 
 - **Optimal Pricing**: Meta aggregators can compare quotes from different aggregators to ensure users receive the best possible price for their swaps.
 - **Redundancy**: If one aggregator is down or experiencing issues, a meta aggregator can fall back to other aggregators, ensuring continuous service.
 
-## And SMAL?
+## And SpanDEX?
 
-SMAL is an open-source meta aggregator library provides all the benefits of a meta aggregator in a developer-friendly package without any middlemen. Benefits:
-- **Open Source**: SMAL is fully open source, allowing developers to inspect, modify, and contribute to the codebase.
-- **No Middlemen**: SMAL interacts directly with DEX aggregators, eliminating a centralized meta-aggregation service that could introduce latency, fees, censorship, or single points of failure.
+SpanDEX is an open-source meta aggregator library provides all the benefits of a meta aggregator in a developer-friendly package without any middlemen. Benefits:
+- **Open Source**: SpanDEX is fully open source, allowing developers to inspect, modify, and contribute to the codebase.
+- **No Middlemen**: SpanDEX interacts directly with DEX aggregators, eliminating a centralized meta-aggregation service that could introduce latency, fees, censorship, or single points of failure.
 - **Customizable**: Developers can choose which aggregators to include, configure settings, and extend functionality to suit their specific use cases.
-- **Onchain Simulation**: SMAL supports onchain simulation of swaps, allowing developers to verify quote accuracy, gas costs, and potential reverts before executing transactions.
+- **Onchain Simulation**: SpanDEX supports onchain simulation of swaps, allowing developers to verify quote accuracy, gas costs, and potential reverts before executing transactions.
 
 **The world is yours.**

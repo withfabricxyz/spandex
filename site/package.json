@@ -17,7 +17,7 @@
   "devDependencies": {
     "@types/react": "latest",
     "typescript": "latest",
-    "@withfabric/smal": "workspace:*",
-    "@withfabric/smal-wagmi": "workspace:*"
+    "@withfabric/spandex": "workspace:*",
+    "@withfabric/spandex-react": "workspace:*"
   }
 }

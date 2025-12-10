@@ -1,0 +1,80 @@
+# Getting Started - React
+
+To get started we will create a shared meta aggregator instance with three providers, default settings, and support for base. Then, we will fetch the best quote for a swap and execute it.
+
+## 1. Install
+
+Install the core library:
+
+:::code-group
+```bash [npm]
+npm i wagmi @withfabric/spandex-react
+```
+
+```bash [bun]
+bun i wagmi @withfabric/spandex-react
+```
+
+```bash [pnpm]
+pnpm i wagmi @withfabric/spandex-react
+```
+:::
+
+## 2. Configure
+
+See the [configuration reference](/configuration.mdx) for all options.
+
+```ts
+import { WagmiProvider } from "wagmi";
+import { wagmiConfig } from "./wagmiConfig.js";
+import { SpandexProvider } from "@withfabric/spandex-react";
+
+const config = {
+  aggregators: [
+    { provider: "fabric", config: {} },
+    { provider: "0x", config: {} },
+  ],
+};
+
+export function App() {
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <SpandexProvider config={config}>
+        <YourApp />
+      </SpandexProvider>
+    </WagmiProvider>
+  );
+}
+```
+
+## 3. Fetch Quotes
+
+```ts
+import { useQuotes } from "@withfabric/spandex-react";
+
+export function Quotes() {
+  const { data, isLoading, error } = useQuotes({
+    mode: "exactIn",
+    inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+    outputToken: "0x4200000000000000000000000000000000000006", // WETH
+    inputAmount: 1000000n, // 1 USDC
+    slippageBps: 100, // 1%
+  });
+
+
+  if (isLoading) return <div>Fetching quotes...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      <button onClick={handleFetch}>Get Quotes</button>
+      {quotes?.map((quote) => (
+        <div key={quote.provider}>
+          {quote.provider}: {quote.outputAmount.toString()}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+

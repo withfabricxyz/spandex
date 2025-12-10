@@ -1,10 +1,8 @@
-import { Aggregator } from "../aggregator.js";
+import type { Address, Hex } from "viem";
 import {
-  type Address,
   type AggregatorFeature,
   type AggregatorMetadata,
   type ExactInSwapParams,
-  type Hex,
   type ProviderKey,
   QuoteError,
   type RouteGraph,
@@ -12,10 +10,16 @@ import {
   type SwapOptions,
   type SwapParams,
 } from "../types.js";
+import { Aggregator } from "./index.js";
 
+/**
+ * Configuration options for the 0x aggregator.
+ */
 export type ZeroXConfig = {
+  /** API key for accessing the 0x API. */
   apiKey: string;
-  negotiateSurplus?: boolean;
+  /** Enabling toggles surplus control */
+  enableSurplus?: boolean;
 };
 
 /**
@@ -53,7 +57,7 @@ export class ZeroXAggregator extends Aggregator {
     return [
       "exactIn",
       "integratorFees",
-      this.config.negotiateSurplus ? "integratorSurplus" : undefined,
+      this.config.enableSurplus ? "integratorSurplus" : undefined,
     ].filter((f): f is AggregatorFeature => f !== undefined);
   }
 

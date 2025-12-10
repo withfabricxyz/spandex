@@ -1,1 +1,25 @@
+import { Button } from 'vocs/components'
+import { Callout } from 'vocs/components'
+
 # KyberSwap
+
+<div className="flex flex-row gap-4">
+  <Button href="https://kyber.network/">Homepage</Button>
+  <Button href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator">Docs</Button>
+</div>
+
+## Configuration
+
+```ts twoslash
+import { createConfig } from "@withfabric/spandex";
+
+export const config = createConfig({
+  providers: {
+    kyberswap: {
+      // Required, you choose the value
+      clientId: "myawesomeapp",
+    },
+    // ...
+  },
+});
+```

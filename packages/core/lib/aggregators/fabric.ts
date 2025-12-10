@@ -1,9 +1,7 @@
-import { Aggregator } from "../aggregator.js";
+import type { Address, Hex } from "viem";
 import {
-  type Address,
   type AggregatorFeature,
   type AggregatorMetadata,
-  type Hex,
   type ProviderKey,
   QuoteError,
   type RouteGraph,
@@ -11,6 +9,7 @@ import {
   type SwapOptions,
   type SwapParams,
 } from "../types.js";
+import { Aggregator } from "./index.js";
 
 const DEFAULT_URL = "https://booda.defi.withfabric.xyz";
 
@@ -66,8 +65,13 @@ type Route = {
   amountOut: string;
 };
 
+/**
+ * Configuration options for the Fabric aggregator.
+ */
 export type FabricConfig = {
+  /** Base URL for the Fabric API. */
   url?: string;
+  /** API key for accessing the Fabric API. */
   apiKey?: string;
 };
 

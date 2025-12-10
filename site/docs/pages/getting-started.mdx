@@ -1,86 +1,27 @@
+import { Button } from 'vocs/components'
+
 # Getting Started
 
-To get started we will create a shared meta aggregator instance with three providers, default settings, and support for base. Then, we will fetch the best quote for a swap and execute it.
+Depending on your project stack and state, there are multiple ways to get started with Spandex.
 
-## 1. Install
+# New Projects
 
-Install the core library:
+If you are creating a new application, or kicking the tires, you can use our CLI to scaffold a new project with Spandex pre-configured. This command will choose which template to use based on your answers.
 
 :::code-group
 ```bash [npm]
-npm i viem @withfabic/smal
+npm create @withfabric/spandex
 ```
 
 ```bash [pnpm]
-pnpm i viem @withfabric/smal
+pnpm create @withfabric/spandex
 ```
 
 ```bash [bun]
-bun i viem @withfabic/smal
+bun create @withfabric/spandex
 ```
 :::
 
-## 2. Configure
+# Existing Projects
 
-See the [configuration reference](/configuration.mdx) for all options.
-
-```ts filename="aggregator.ts" twoslash
-import { buildMetaAggregator } from "@withfabric/smal";
-import { createPublicClient, http, type PublicClient } from "viem";
-import { base } from "viem/chains";
-
-// Create a base client for quote simulation
-const baseClient = createPublicClient({
-  chain: base,
-  transport: http("https://base.drpc.org"),
-});
-
-// The aggregator instance can be shared across your application
-export const aggregator = buildMetaAggregator({
-  providers: {
-    fabric: {},
-    odos: {},
-    kyberswap: { clientId: "test" },
-  },
-  clientLookup: (chainId: number) => {
-    return chainId === base.id ? baseClient as PublicClient : undefined;
-  },
-});
-```
-
-## 3. Fetch Quotes and Execute
-
-```ts filename="quote.ts" twoslash
-import { aggregator } from "./aggregator.js";
-import { createWalletClient } from "viem";
-import { executeBestQuote } from "@withfabric/smal";
-
-const swapParams = {
-  chainId: 8453,
-  inputToken: "0x4200000000000000000000000000000000000006", // WETH
-  outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
-  mode: "exactIn",
-  inputAmount: 1_000_000_000_000_000_000n, // 1 WETH
-  slippageBps: 50, // Tolerance
-  swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
-};
-
-// Fetch quotes from all configured providers then simulate each onchain
-const quotes = await aggregator.fetchAndSimulateQuotes({
-  params: swapParams,
-});
-
-// Setup wallet and execute the best quote (max simulated output amount)
-const { receipt, quote } = executeBestQuote({
-  walletClient: createWalletClient({
-    account: "0xdead00000000000000000000000000000000beef",
-    chain: base,
-    transport: http(),
-  }),
-  quotes,
-});
-
-console.log(`Swapped via ${quote.provider} @ ${receipt.transactionHash}`);
-
-```
-
+For react applications, see the [React getting started guide](/react/getting-started.mdx). Otherwise, see the [Core getting started guide](/core/getting-started.mdx).

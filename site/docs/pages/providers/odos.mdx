@@ -1,1 +1,30 @@
+import { Button } from 'vocs/components'
+import { Callout } from 'vocs/components'
+
 # Odos
+
+<div className="flex flex-row gap-4">
+  <Button href="https://www.odos.xyz/">Homepage</Button>
+  <Button href="https://docs.odos.xyz/api/sor/quoter">Docs</Button>
+</div>
+
+## Configuration
+
+```ts twoslash
+import { createConfig } from "@withfabric/spandex";
+
+export const config = createConfig({
+  providers: {
+    odos: {
+      // Optional. Use for attribution
+      referralCode: undefined,
+      // Optional. Use it if you got it
+      apiKey: undefined,
+      // Optional. Set to true if negotiated with Odos.
+      feeSharing: undefined,
+    },
+    // ...
+  },
+});
+```
+

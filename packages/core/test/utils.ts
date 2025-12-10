@@ -1,7 +1,8 @@
-import { Aggregator } from "../lib/aggregator.js";
 import type { FabricQuoteResponse } from "../lib/aggregators/fabric.js";
+import { Aggregator } from "../lib/aggregators/index.js";
 import type {
   AggregatorFeature,
+  AggregatorMetadata,
   ProviderKey,
   Quote,
   SuccessfulQuote,
@@ -41,6 +42,13 @@ export type MockOverrides = {
 };
 
 export class MockAggregator extends Aggregator {
+  override metadata(): AggregatorMetadata {
+    return {
+      name: "MockAggregator",
+      url: "https://example.com",
+      docsUrl: "https://example.com/docs",
+    };
+  }
   private counter = 0;
   constructor(
     private readonly quote: Quote,
