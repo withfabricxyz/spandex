@@ -1,21 +1,5 @@
-import { createConfig, getQuotes } from "@withfabric/spandex";
-
-export const config = createConfig({
-  providers: {
-    fabric: {},
-    kyberswap: {
-      clientId: "spandex",
-    },
-    odos: {
-      referralCode: 1234,
-    },
-  },
-  options: {
-    deadlineMs: 10_000,
-    integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",
-    integratorSwapFeeBps: 50,
-  },
-});
+import { getQuotes } from "@withfabric/spandex";
+import { config } from "./config.js";
 
 const quotes = await getQuotes({
   config,

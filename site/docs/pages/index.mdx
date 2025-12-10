@@ -1,29 +1,26 @@
 ---
-layout: minimal
+layout: landing
 showLogo: false
 showTopNav: false
+content:
+  horizontalPadding: 0px
+  width: 100%
+  verticalPadding: 0px
 ---
 
-import { Header } from '../components/Header';
 import { Logo0x } from '../components/logo/0x';
 import { LifiLogo } from '../components/logo/lifi';
 import { FabricLogo } from '../components/logo/fabric';
 import { KyberSwapLogo } from '../components/logo/kyberswap';
 import { OneInchLogo } from '../components/logo/1inch';
 import { OdosLogo } from '../components/logo/odos';
+import { SpandexLogo } from "../components/logo/spandex";
 
 import '../styles.css'
 
 <div className="homepage">
-  <Header />
-
-  <div className="value-prop">
-    <h1 className="value-prop__title">Query multiple DEX aggregators and find the best price.</h1>
-    <div className="value-prop__items">
-      <p className="value-prop__item">Expands tokens, pools, and chains beyond any single aggregator.</p>
-      <p className="value-prop__item">Provides multiple quotes to find the best price.</p>
-      <p className="value-prop__item">Provides redundancy when a provider fails.</p>
-    </div>
+  <div className="logo">
+    <SpandexLogo />
   </div>
 
   <div className="logos">
@@ -35,16 +32,36 @@ import '../styles.css'
     <OdosLogo className="logos__item" />
   </div>
 
-  <div className="code-example">
-    ```ts twoslash
-    // [!include ~/snippets/fetching-quotes.ts]
-    ```
+  <div className="value-prop">
+    <h1 className="value-prop__title">Query multiple DEX aggregators and find the best price</h1>
+    <ul className="value-prop__items">
+      <li className="value-prop__item">Expand tokens, pools, and chains beyond any single aggregator</li>
+      <li className="value-prop__item">Get multiple simulated quotes to ensure the best price</li>
+      <li className="value-prop__item">Fail over when providers fail</li>
+      <li className="value-prop__item">Open source library without middleman tax</li>
+    </ul>
   </div>
 
+
+
+  :::code-group
+  ```ts [core]
+  // [!include ~/snippets/getQuotes.ts]
+  ```
+  ```tsx [react]
+  // [!include ~/snippets/useQuotes.tsx]
+  ```
+  ```tsx [config]
+  // [!include ~/snippets/config.ts]
+  ```
+
+  :::
+
   <div className="cta">
-    <a href="/getting-started" className="cta__button cta__button--primary">GET STARTED</a>
-    <a href="/overview" className="cta__button cta__button--secondary">WHY SpanDEX?</a>
-    <a href="https://github.com/withfabricxyz/spandex" className="cta__button cta__button--tertiary">VIEW ON GITHUB</a>
+    <a href="/getting-started" className="cta__button cta__button--primary">Get Started</a>
+    <a href="/overview" className="cta__button cta__button--secondary">Why spanDEX?</a>
+    <a href="https://github.com/withfabricxyz/spandex" target="_blank" className="cta__button cta__button--tertiary">GitHub</a>
+    <a href="https://swap.spandex.sh" target="_blank" className="cta__button cta__button--extrary">Demo</a>
   </div>
 </div>
 

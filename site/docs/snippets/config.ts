@@ -1,15 +1,25 @@
 import { createConfig } from "@withfabric/spandex";
+import { createPublicClient, http, type PublicClient } from "viem";
+import { base } from "viem/chains";
+
+// Create a base client for quote simulation
+const baseClient = createPublicClient({
+  chain: base,
+  transport: http("https://base.drpc.org"),
+});
 
 export const config = createConfig({
   providers: {
     fabric: {},
     odos: { referralCode: 1234 },
     kyberswap: { clientId: "your client id" },
-    // "0x": { apiKey: "YOUR_ZEROX_API_KEY" },
   },
   options: {
     deadlineMs: 5_000,
     integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",
     integratorSwapFeeBps: 25,
+  },
+  clientLookup: (chainId: number) => {
+    return chainId === base.id ? (baseClient as PublicClient) : undefined;
   },
 });
