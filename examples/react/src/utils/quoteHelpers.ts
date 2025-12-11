@@ -25,6 +25,7 @@ export function isOdosQuote(
   return quote.success && quote.provider === "odos";
 }
 
+// TODO: which other aggregators surface fees?
 export function extractFees(quote: SimulatedQuote): bigint | null {
   if (!quote.success) return null;
 

@@ -1,6 +1,8 @@
+import type { SimulatedQuote } from "@withfabric/spandex";
 import { useQuotes } from "@withfabric/spandex-react";
 import { useMemo } from "react";
-import type { Address, Hex } from "viem";
+import { type Address, encodeFunctionData, erc20Abi, type Hex, maxUint256 } from "viem";
+import { useConnection } from "wagmi";
 import { useBalance } from "@/hooks/useBalance";
 import type { TokenMetadata } from "@/services/tokens";
 import { extractFees, getQuoteInaccuracy, getQuotePositiveSlippage } from "@/utils/quoteHelpers";
@@ -23,7 +25,31 @@ type UseSwapParams = {
   buyToken: TokenMetadata;
 };
 
-export function useSwap({ chainId, address, sellToken, numSellTokens, buyToken }: UseSwapParams) {
+type DerivedMetrics = {
+  inaccuracyBps: number | null;
+  positiveSlippage: { percentage: number; diff: number; } | null;
+  fees: bigint | null;
+};
+
+type PreparedSwap = {
+  calls: TxData[];
+};
+
+type UseSwapResult = {
+  quotes: SimulatedQuote[] | undefined;
+  isLoading: boolean;
+  error: unknown;
+  inputBalance: bigint | undefined;
+  outputBalance: bigint | undefined;
+  allowance: bigint | undefined;
+  derivedMetrics: DerivedMetrics | null;
+  swap: PreparedSwap;
+};
+
+// TODO: does this hook have too many concerns? perhaps useSwapMetrics, usePreparedSwap.
+// useBalance is also transient - probably shouldn't be here
+export function useSwap({ chainId, address, sellToken, numSellTokens, buyToken }: UseSwapParams): UseSwapResult {
+  const { chainId: connectionChainId } = useConnection();
   const {
     data: inputBalance,
     isLoading: inputBalanceLoading,
@@ -43,16 +69,16 @@ export function useSwap({ chainId, address, sellToken, numSellTokens, buyToken }
     token: buyToken.address,
   });
 
-  const swap = useMemo(() => {
+  const swapParams = useMemo(() => {
     return {
-      chainId: 8453,
+      chainId: chainId || connectionChainId,
       inputToken: sellToken.address,
       outputToken: buyToken.address,
       slippageBps: 100,
       mode: "exactIn",
       inputAmount: Number(numSellTokens) * 10 ** sellToken.decimals,
     };
-  }, [sellToken, buyToken, numSellTokens]);
+  }, [sellToken, buyToken, numSellTokens, chainId, connectionChainId]);
 
   const {
     data,
@@ -61,12 +87,13 @@ export function useSwap({ chainId, address, sellToken, numSellTokens, buyToken }
   } = useQuotes({
     // TODO: swap type
     // @ts-expect-error
-    swap,
+    swap: swapParams,
     query: {
       refetchInterval: 2500,
     },
   });
 
+  // TODO: select best
   const firstSuccess = data?.find((quote) => quote.success);
 
   const {
@@ -81,29 +108,45 @@ export function useSwap({ chainId, address, sellToken, numSellTokens, buyToken }
   });
 
   return useMemo(() => {
-    // const contractAddress = firstSuccess?.txData.to;
-    // const calls: TxData[] = [];
-    // const inputAmount = BigInt(firstSuccess?.inputAmount || 0);
-    // const outputAmount = BigInt(firstSuccess?.outputAmount || 0);
+    const calls: TxData[] = [];
+    const inputAmount = BigInt(firstSuccess?.inputAmount || 0);
 
-    // // Limit Orders Are Exact Swaps
-    // if (firstSuccess?.txData.data) {
-    //   calls.push({
-    //     to: firstSuccess.txData.to,
-    //     name: "SELL",
-    //     data: firstSuccess.txData.data,
-    //     chainId: swap.chainId as number,
-    //     // @ts-expect-error
-    //     value: BigInt(firstSuccess.txData.value),
-    //   });
-    // }
+    if (firstSuccess?.txData.data) {
+      const spender = firstSuccess.txData.to;
+      const currentAllowance = BigInt(allowance || 0);
+
+      if (inputAmount > 0n && currentAllowance < inputAmount) {
+        const approvalData = encodeFunctionData({
+          abi: erc20Abi,
+          functionName: "approve",
+          args: [spender, maxUint256],
+        });
+
+        calls.push({
+          to: sellToken.address,
+          name: "APPROVE",
+          data: approvalData,
+          chainId: swapParams.chainId as number,
+          value: 0n,
+        });
+      }
+
+      calls.push({
+        to: firstSuccess.txData.to,
+        name: "SELL",
+        data: firstSuccess.txData.data,
+        chainId: swapParams.chainId as number,
+        value: BigInt(firstSuccess.txData.value || 0),
+      });
+    }
+
+    const swap: PreparedSwap = { calls };
 
     const balancesLoading = inputBalanceLoading || outputBalanceLoading;
     const balancesError = inputBalanceError || outputBalanceError;
     const isLoading = quotesLoading || balancesLoading || allowanceLoading;
     const error = quotesError || balancesError || allowanceError; // TODO: real errors
 
-    // Derive quote metrics
     const bestQuote = data?.[0];
     const derivedMetrics = bestQuote
       ? {
@@ -121,9 +164,12 @@ export function useSwap({ chainId, address, sellToken, numSellTokens, buyToken }
       outputBalance,
       allowance,
       derivedMetrics,
+      swap,
     };
   }, [
     data,
+    firstSuccess,
+    swapParams,
     quotesLoading,
     inputBalance,
     inputBalanceLoading,
@@ -135,5 +181,6 @@ export function useSwap({ chainId, address, sellToken, numSellTokens, buyToken }
     allowanceLoading,
     allowanceError,
     quotesError,
+    sellToken.address,
   ]);
 }

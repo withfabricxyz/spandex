@@ -1,6 +1,5 @@
 import type { SimulatedQuote } from "@withfabric/spandex";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Address } from "viem";
 import { useConnection } from "wagmi";
 import { useSwap } from "@/hooks/useSwap";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
@@ -128,40 +127,14 @@ function BuyToken({ token, balance, numTokens }: Omit<TokenControlProps, "onChan
   );
 }
 
-type SwapParams = {
-  inputToken: Address;
-  outputToken: Address;
-  chainId?: number;
-  slippageBps: number;
-  swapperAccount?: Address;
-  amount: bigint;
-  mode: "exactIn" | "targetOut";
-};
-
-function _SwapButton({ swapParams }: { swapParams: SwapParams }) {
-  return (
-    <TxBatchButton
-      variant="sell"
-      blocked={false}
-      calls={[
-        {
-          name: "Swap",
-          to: "0x0000000000000000000000000000000000000000",
-          data: "0x",
-          chainId: swapParams.chainId || 1,
-        },
-      ]}
-    />
-  );
-}
-
 export function IntentCapture() {
   const { sellToken, buyToken } = useTokenSelect();
   const { address, chainId } = useConnection();
   const [numSellTokens, setNumSellTokens] = useState<string>("20");
   const [quoteHistory, setQuoteHistory] = useState<SimulatedQuote[][]>([]);
 
-  const { quotes, inputBalance, outputBalance, derivedMetrics } = useSwap({
+  // TODO: different hooks? seems distracted in purpose
+  const { quotes, inputBalance, outputBalance, derivedMetrics, swap } = useSwap({
     chainId: chainId,
     address: address,
     sellToken,
@@ -196,16 +169,6 @@ export function IntentCapture() {
     }
   }, [quotes]);
 
-  const _swapParams = useMemo(
-    () => ({
-      inputToken: sellToken.address,
-      outputToken: buyToken.address,
-      slippageBps: 100,
-      amount: BigInt(Number(numSellTokens || "0") * 10 ** sellToken.decimals),
-    }),
-    [sellToken, buyToken, numSellTokens],
-  );
-
   return (
     <div className="flex flex-col gap-20">
       <hr className="block bg-primary" />
@@ -230,7 +193,9 @@ export function IntentCapture() {
         derivedMetrics={derivedMetrics}
       />
       <hr className="block bg-primary" />
-      {/* <SwapButton swapParams={swapParams} /> */}
+      {swap.calls.length && (
+        <TxBatchButton variant="sell" blocked={swap.calls.length === 0} calls={swap.calls} />
+      )}
     </div>
   );
 }
