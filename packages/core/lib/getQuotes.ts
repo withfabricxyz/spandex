@@ -22,7 +22,7 @@ export async function getQuotes({
   params: SwapParams;
   client?: PublicClient;
 }): Promise<SimulatedQuote[]> {
-  const resolved = client ?? config.params.clientLookup?.(params.chainId);
+  const resolved = client ?? config.clientLookup(params.chainId);
   if (!resolved) {
     throw new Error(
       `No PublicClient provided or configured for chainId ${params.chainId}. Please provide a client via options or constructor.`,

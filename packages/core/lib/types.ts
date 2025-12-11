@@ -345,7 +345,7 @@ export type ConfigParams = {
   /**
    * Clients used to simulate quotes (one per chain).
    */
-  clientLookup?: (chainId: number) => PublicClient | undefined;
+  clients?: PublicClient[] | ((chainId: number) => PublicClient | undefined);
   /**
    * Default options applied to the meta-aggregator and the individual provider calls.
    */

@@ -1,3 +1,4 @@
+import type { PublicClient } from "viem";
 import { ZeroXAggregator } from "./aggregators/0x.js";
 import { FabricAggregator } from "./aggregators/fabric.js";
 import type { Aggregator } from "./aggregators/index.js";
@@ -9,8 +10,10 @@ import type { AggregationOptions, ConfigParams } from "./types.js";
  * Configuration used in various library functions.
  */
 export type Config = {
-  /** Original configuration parameters used to create the MetaAggregator. */
-  params: ConfigParams;
+  /** Function to lookup a PublicClient for a given chain ID. */
+  clientLookup: (chainId: number) => PublicClient | undefined,
+  /** Global options applied to all aggregators and requests. */
+  options: AggregationOptions;
   /** Instantiated aggregators based on the provided configuration. */
   aggregators: Aggregator[];
 };
@@ -75,8 +78,19 @@ export function createConfig(params: ConfigParams): Config {
 
   validateOptions(params.options || {});
 
+  // Build client lookup function
+  let clientLookup: (chainId: number) => PublicClient | undefined = () => undefined;
+  if (params.clients !== undefined) {
+    if (typeof params.clients === "function") {
+      clientLookup = params.clients;
+    } else if (Array.isArray(params.clients)) {
+      clientLookup = (chainId: number) => ((params.clients as PublicClient[]).find((c) => c.chain?.id === chainId));
+    }
+  }
+
   return {
-    params,
+    options: params.options || {},
+    clientLookup,
     aggregators,
   };
 }

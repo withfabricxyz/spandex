@@ -1,6 +1,27 @@
 @import "tailwindcss";
 
 @font-face {
+  font-family: "Sohne Breit";
+  font-weight: 400;
+  font-display: auto;
+  src: url("/fonts/Sohne/Breit/soehne-breit-buch.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Sohne Breit";
+  font-weight: 500;
+  font-display: auto;
+  src: url("/fonts/Sohne/Breit/soehne-breit-kraftig.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Sohne";
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/Sohne/soehne-buch.woff2") format("woff2");
+}
+
+@font-face {
   font-family: "ABC Diatype Variable";
   font-weight: 100 1000;
   font-display: auto;
@@ -63,7 +84,7 @@ html.dark {
 
 @media (prefers-color-scheme: light) {
   :root {
-    --color-bg: #fafafa;
+    --color-bg: #fff;
     --color-text: #0f0f0f;
     --color-text-muted: rgba(0, 0, 0, 0.6);
   }
@@ -108,9 +129,9 @@ html.dark {
   /* leading-trim: both;
   text-edge: cap; */
   font-feature-settings: 'calt' off;
-  /* font-family: "Test Söhne Breit"; */
+  font-family: "Sohne Breit", sans-serif;
   font-size: 2rem;
-  font-style: normal;
+  /* font-style: normal; */
   font-weight: 400;
   line-height: 2rem; /* 100% */
 }
@@ -123,7 +144,8 @@ html.dark {
 }
 
 .value-prop__item {
-  font-size: 20px;
+  font-family: "Sohne", sans-serif;
+  font-size: 1.125rem;
   font-style: normal;
   font-weight: 400;
   line-height: 1;
@@ -136,14 +158,7 @@ html.dark {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-
-  /* gap: 1.5rem; */
   margin: 1rem 0;
-
-  @media (max-width: 640px) {
-    /* gap: 5rem;
-    justify-content: flex-start; */
-  }
 }
 
 .logos__item {
@@ -164,6 +179,8 @@ html.dark {
 .cta {
   display: flex;
   flex-direction: column;
+  font-family: "Sohne Breit", sans-serif;
+  font-weight: 500;
 
   gap: 0.5rem;
 

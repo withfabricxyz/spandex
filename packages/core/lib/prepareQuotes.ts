@@ -16,7 +16,7 @@ export function prepareQuotes<T>({
   params: SwapParams;
   mapFn: (quote: Quote) => Promise<T>;
 }): Array<Promise<T>> {
-  const options = config.params.options;
+  const options = config.options;
 
   // Get the required features for this request and filter aggregators accordingly
   const features = [...queryFeatures(params), ...configFeatures(options)];

@@ -14,7 +14,7 @@ export function SpandexProvider({ config, children }: SpandexProviderProps) {
     return createConfig({
       providers,
       options,
-      clientLookup: (chainId: number) => getClient({ chainId }) as PublicClient | undefined,
+      clients: (chainId: number) => getClient({ chainId }) as PublicClient | undefined,
     });
   }, [providers, options, getClient]);
 
