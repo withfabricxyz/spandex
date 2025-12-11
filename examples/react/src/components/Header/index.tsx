@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { type Connector, useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
 import { formatAddress } from "../../utils/strings";
 import { Button } from "../Button";
@@ -65,6 +65,12 @@ export function Header() {
   const { address, isConnected } = useConnection();
   const disconnect = useDisconnect();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // quiet the hydration warning; address not available on first render
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleDisconnect = useCallback(async () => {
     await disconnect.mutateAsync();
@@ -83,7 +89,7 @@ export function Header() {
               handleDisconnect();
             }}
           >
-            {address ? (
+            {mounted && address ? (
               <div className="flex items-center justify-between gap-4">
                 <span>{formatAddress(address)}</span>
                 <div className="h-16 w-16 flex items-center justify-center">

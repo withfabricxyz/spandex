@@ -59,14 +59,18 @@ export function TokenDrawer() {
       <div className={styles.tokenDrawerContent}>
         <div className={styles.tokenDrawerList}>
           {SUPPORTED_BASE_TOKENS.map((token) => (
-            <TokenItem key={token.address} token={token} onClick={(token) => {
-              if (selectContext === "sell") {
-                setSellToken(token);
-              } else {
-                setBuyToken(token);
-              }
-              closeDrawer();
-            }} />
+            <TokenItem
+              key={token.address}
+              token={token}
+              onClick={(token) => {
+                if (selectContext === "sell") {
+                  setSellToken(token);
+                } else {
+                  setBuyToken(token);
+                }
+                closeDrawer();
+              }}
+            />
           ))}
         </div>
       </div>
