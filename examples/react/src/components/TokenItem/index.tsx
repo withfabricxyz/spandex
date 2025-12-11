@@ -18,7 +18,7 @@ export function TokenItem({ token }: TokenItemProps) {
             <div className="tokenSymbol text-[20px] leading-10 font-['Sohne_Breit']">
               {token.symbol}
             </div>
-            <div className="tokenName text-[11px] text-[#666] leading-[11px] font-['Sohne_Mono']">
+            <div className="tokenName text-[11px] text-secondary-1 leading-[11px] font-['Sohne_Mono']">
               {formatAddress(token.address)}
             </div>
           </div>

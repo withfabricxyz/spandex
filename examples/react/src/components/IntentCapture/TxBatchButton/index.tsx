@@ -1,19 +1,10 @@
-import type { Address, Hex } from "viem";
+import type { TxData } from "@/hooks/useSwap";
 // import { useConnection } from "wagmi";
 import { useWalletProperties } from "@/hooks/useWalletProperties";
 // import { ConnectButton } from "../ConnectButton";
 import { SequencedInlineTxBatchButton } from "./SequencedInline";
 import { SequencedWalletTxBatchButton } from "./SequencedWallet";
 import { WalletDeferredTxBatchButton } from "./WalletDeferred";
-
-export type TxData = {
-  name: string;
-  data: Hex;
-  to: Address;
-  value?: bigint;
-  chainId: number;
-  afterSubmit?: () => Promise<void>; // Optional callback after submission
-};
 
 export type TxBatchButtonProps = {
   variant: "buy" | "sell";
