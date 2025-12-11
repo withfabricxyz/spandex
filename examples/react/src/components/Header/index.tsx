@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useCallback, useMemo, useState } from "react";
 import { type Connector, useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
-import { useTokenDrawer } from "@/providers/TokenDrawerProvider";
 import { formatAddress } from "../../utils/strings";
 import { Button } from "../Button";
 import { Dialog } from "../Dialog";
@@ -65,7 +64,6 @@ function connectorIcon(connector: Connector) {
 export function Header() {
   const { address, isConnected } = useConnection();
   const disconnect = useDisconnect();
-  const { isDrawerOpen, setIsDrawerOpen } = useTokenDrawer();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDisconnect = useCallback(async () => {
@@ -110,14 +108,7 @@ export function Header() {
           </Button>
         </div>
 
-        <TokenDrawer
-          isDrawerOpen={isDrawerOpen}
-          setIsDrawerOpen={(isOpen) => {
-            if (!isOpen) {
-              setIsDrawerOpen(false);
-            }
-          }}
-        />
+        <TokenDrawer />
       </div>
 
       <Dialog

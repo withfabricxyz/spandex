@@ -4,11 +4,14 @@ import styles from "./TokenItem.module.css";
 
 type TokenItemProps = {
   token: TokenMetadata;
+  onClick: (token: TokenMetadata) => void;
 };
 
-export function TokenItem({ token }: TokenItemProps) {
+export function TokenItem({ token, onClick }: TokenItemProps) {
   return (
-    <div className={styles.tokenItem}>
+    // biome-ignore lint/a11y/noStaticElementInteractions: <>
+    // biome-ignore lint/a11y/useKeyWithClickEvents: <>
+    <div className={styles.tokenItem} onClick={() => onClick(token)}>
       <div className="flex justify-between py-10 px-20">
         <div className="flex gap-6">
           <div className="coinImage h-16 w-16 rounded-full relative overflow-hidden">

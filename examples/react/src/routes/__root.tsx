@@ -2,7 +2,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 import { SpandexProvider } from "@withfabric/spandex-react";
 import { Header } from "@/components/Header";
-import { TokenDrawerProvider } from "@/providers/TokenDrawerProvider";
+import { TokenSelectProvider } from "@/providers/TokenSelectProvider";
 import { Web3Provider } from "@/providers/Web3Provider";
 import appCss from "../styles.css?url";
 
@@ -51,11 +51,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               },
             }}
           >
-            <TokenDrawerProvider>
+            <TokenSelectProvider>
               <Header />
               <div className="pb-20 max-w-[614px] mx-auto">{children}</div>
               <div id="dialog-root" />
-            </TokenDrawerProvider>
+            </TokenSelectProvider>
           </SpandexProvider>
         </Web3Provider>
         <Scripts />

@@ -1,14 +1,9 @@
 import { useQuotes } from "@withfabric/spandex-react";
 import { useMemo } from "react";
 import type { Address, Hex } from "viem";
-// import { TxData } from "@/components/IntentCapture/TxBatchButton";
 import { useBalance } from "@/hooks/useBalance";
 import type { TokenMetadata } from "@/services/tokens";
-import {
-  extractFees,
-  getQuoteInaccuracy,
-  getQuotePositiveSlippage,
-} from "@/utils/quoteHelpers";
+import { extractFees, getQuoteInaccuracy, getQuotePositiveSlippage } from "@/utils/quoteHelpers";
 import { useAllowance } from "./useAllowance";
 
 export type TxData = {

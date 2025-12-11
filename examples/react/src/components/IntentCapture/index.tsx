@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Address } from "viem";
 import { useConnection } from "wagmi";
 import { useSwap } from "@/hooks/useSwap";
-import { useTokenDrawer } from "@/providers/TokenDrawerProvider";
+import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
 import { formatTokenValue } from "@/utils/strings";
 import { Button } from "../Button";
@@ -19,7 +19,7 @@ type TokenControlProps = {
 };
 
 function SellToken({ token, balance, numTokens, onChange }: TokenControlProps) {
-  const { setIsDrawerOpen } = useTokenDrawer();
+  const { openDrawer } = useTokenSelect();
 
   const handlePercentClick = useCallback(
     (percent: string) => {
@@ -62,7 +62,7 @@ function SellToken({ token, balance, numTokens, onChange }: TokenControlProps) {
           value={numTokens}
           onChange={(e) => onChange(e.target.value)}
         />
-        <Button onClick={() => setIsDrawerOpen(true)}>
+        <Button onClick={() => openDrawer("sell")}>
           <div className="flex items-center gap-4 pr-4">
             <img src={token.logoURI} alt={token.symbol} className="w-8 h-8 rounded-full" />
             <span className="font-['Sohne_Breit'] text-[20px]">{token.symbol}</span>
@@ -89,7 +89,7 @@ function SellToken({ token, balance, numTokens, onChange }: TokenControlProps) {
 }
 
 function BuyToken({ token, balance, numTokens }: Omit<TokenControlProps, "onChange">) {
-  const { setIsDrawerOpen } = useTokenDrawer();
+  const { openDrawer } = useTokenSelect();
 
   return (
     <div className="flex flex-col gap-10">
@@ -102,7 +102,7 @@ function BuyToken({ token, balance, numTokens }: Omit<TokenControlProps, "onChan
           value={numTokens}
           readOnly
         />
-        <Button onClick={() => setIsDrawerOpen(true)}>
+        <Button onClick={() => openDrawer("buy")}>
           <div className="flex items-center gap-4 pr-4">
             <img src={token.logoURI} alt={token.symbol} className="w-8 h-8 rounded-full" />
             <span className="font-['Sohne_Breit'] text-[20px]">{token.symbol}</span>
@@ -155,13 +155,8 @@ function _SwapButton({ swapParams }: { swapParams: SwapParams }) {
   );
 }
 
-export function IntentCapture({
-  sellToken,
-  buyToken,
-}: {
-  sellToken: TokenMetadata;
-  buyToken: TokenMetadata;
-}) {
+export function IntentCapture() {
+  const { sellToken, buyToken } = useTokenSelect();
   const { address, chainId } = useConnection();
   const [numSellTokens, setNumSellTokens] = useState<string>("20");
   const [quoteHistory, setQuoteHistory] = useState<SimulatedQuote[][]>([]);
