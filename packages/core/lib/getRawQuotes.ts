@@ -13,10 +13,10 @@ const QuoteIdentifyFn = async (quote: Quote): Promise<Quote> => quote;
  */
 export async function getRawQuotes({
   config,
-  params,
+  swap,
 }: {
   config: Config;
-  params: SwapParams;
+  swap: SwapParams;
 }): Promise<Quote[]> {
-  return Promise.all(prepareQuotes({ config, params, mapFn: QuoteIdentifyFn }));
+  return Promise.all(prepareQuotes({ config, swap, mapFn: QuoteIdentifyFn }));
 }

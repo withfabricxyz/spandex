@@ -1,0 +1,39 @@
+import ConfigParams from '../../../snippets/params/config.mdx'
+
+# createConfig
+
+Create a configuration object to customize proivders and options for all aggregation functions.
+
+```ts
+import { createConfig } from "@withfabric/spandex";
+
+export const config = createConfig({
+  providers: {
+    '0x': {
+      apiKey: "YOUR_0X_API_KEY",
+    },
+    fabric: {},
+    odos: {},
+    kyberswap: {},
+  },
+  options: {
+    deadlineMs: 10000,
+    numRetries: 2,
+    initialRetryDelayMs: 200,
+    integratorFeeAddress: "0xFee000",
+    integratorSwapFeeBps: 25,
+  },
+  clients: [
+    baseClient,
+    mainnetClient
+  ] as PublicClient[],
+});
+```
+
+<ConfigParams />
+
+## Returns
+
+`Config`
+
+Aggregator configuration object to be passed to aggregation functions.

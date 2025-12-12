@@ -1,0 +1,60 @@
+# getRawQuotes
+
+Fetches quotes from all configured providers. This function does not perform any onchain simulation or validation. It is useful for scenarios where you plan to handle validation separately. Always simulate!
+
+## Example
+
+:::code-group
+
+```ts [getRawQuotes] twoslash
+import { getRawQuotes } from "@withfabric/spandex";
+import { config } from "./config.js";
+
+const quotes = await getRawQuotes({
+  config,
+  swap: {
+    chainId: 8453,
+    inputToken: "0x4200000000000000000000000000000000000006", // WETH
+    outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
+    mode: "exactIn",
+    inputAmount: 1_000_000_000_000_000_000n, // 1 WETH
+    slippageBps: 50, // Tolerance
+    swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
+  }
+});
+```
+
+```ts [config] filename="config.ts" twoslash
+import {
+  createConfig
+} from "@withfabric/spandex";
+
+export const config = createConfig({
+  providers: {
+    fabric: {},
+    odos: {},
+  }
+});
+```
+
+:::
+
+## Params
+
+### config
+`Config`
+
+Aggregator configuration object created via [`createConfig`](./createConfig.mdx).
+
+### swap
+`SwapParams`
+
+Parameters defining the swap operation. See [SwapParams reference](/reference/SwapParams.mdx) for details.
+
+
+## Returns
+
+`Promise<Quote[]>`
+
+List of quotes from all providers. Quotes that resulted in failure are denoted by `success=false` and include an error message.
+

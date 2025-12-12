@@ -30,12 +30,7 @@ describe("simulateQuote", () => {
       kyberswap: { clientId: "spandex-test-env" },
       fabric: {},
     },
-    clientLookup: (chainId: number) => {
-      if (chainId === base.id) {
-        return client;
-      }
-      return undefined;
-    },
+    clients: [client] as PublicClient[],
   });
 
   it("simulates quotes", async () => {
@@ -44,14 +39,14 @@ describe("simulateQuote", () => {
       swapperAccount: USDC_WHALE,
     };
 
-    const quotes = await getRawQuotes({ config, params: swapParams });
+    const quotes = await getRawQuotes({ config, swap: swapParams });
     expect(quotes).toBeDefined();
     expect(quotes.length).toBeGreaterThan(0);
 
     const simulated = await simulateQuotes({
       quotes,
       client,
-      params: swapParams,
+      swap: swapParams,
     });
 
     console.table(simulated.map(summarize));

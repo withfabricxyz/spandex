@@ -42,9 +42,7 @@ export const config = createConfig({
     odos: {},
     kyberswap: { clientId: "test" },
   },
-  clientLookup: (chainId: number) => {
-    return chainId === base.id ? baseClient as PublicClient : undefined;
-  },
+  clients: [baseClient] as PublicClient[],
 });
 ```
 

@@ -1,0 +1,44 @@
+# executeQuote
+
+Execute a quote single simulated quote onchain using a wallet client. Considers approval requirements and gas estimation.
+
+## Example
+
+TODO: Flush out implementation example
+
+:::code-group
+
+```ts [executeQuote]
+import { executeQuote } from "@withfabric/spandex";
+
+const quote = executeQuote({
+  quote,
+  walletClient,
+  publicClient,
+});
+```
+
+:::
+
+## Params
+
+### quote
+`SimulatedQuote`
+
+The simulated quote to be executed. This should be obtained via the [`getQuotes`](./getQuotes.mdx) function and optionally processed via [`selectQuote`](./selectQuote.mdx).
+
+### walletClient
+`WalletClient`
+
+A Viem wallet client configured with the swapper's account and chain. This client is used to sign and send the transaction.
+
+### publicClient
+`PublicClient`
+
+A viem public client for onchain data fetching (e.g. allowance checks) and gas estimation.
+
+## Returns
+
+`Promise<QuoteExecutionResult>`
+
+A promise for an execution result containing the transaction receipt and details of the executed quote.

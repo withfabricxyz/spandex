@@ -345,7 +345,7 @@ export type ConfigParams = {
   /**
    * Clients used to simulate quotes (one per chain).
    */
-  clientLookup?: (chainId: number) => PublicClient | undefined;
+  clients?: PublicClient[] | ((chainId: number) => PublicClient | undefined);
   /**
    * Default options applied to the meta-aggregator and the individual provider calls.
    */
@@ -363,7 +363,7 @@ export type SimulationArgs = {
   /** Public client used to execute `simulateCalls`. */
   client: PublicClient;
   /** Swap parameters shared across quotes, including token, account, and amount details. */
-  params: SwapParams;
+  swap: SwapParams;
   /** Quote to simulate, including the encoded transaction data. */
   quote: Quote;
 };

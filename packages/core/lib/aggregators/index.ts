@@ -18,7 +18,7 @@ const MAX_INITIAL_DELAY_MS = 10_000;
 const DEFAULT_INITIAL_DELAY_MS = 100;
 const MIN_DEADLINE_MS = 10;
 const MAX_DEADLINE_MS = 120_000;
-const DEFAULT_DEADLINE_MS = 8_000;
+const DEFAULT_DEADLINE_MS = 15_000;
 
 function resolveTimingControls(options?: AggregationOptions) {
   const deadlineMs = options?.deadlineMs ?? DEFAULT_DEADLINE_MS;

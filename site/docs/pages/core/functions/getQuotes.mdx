@@ -1,23 +1,18 @@
 # getQuotes
 
-Fetches quotes from all configured providers and simulates the provided transactions to validate the swap operation and the final token output amount.
+Fetches quotes from all configured providers and simulate the provided transactions to validate the swap operation and the final token output amount.
 
-## Synopsis
+## Example
 
-```ts
-import {
-  getQuotes,
-  createConfig,
-  defaultProviders
-} from "@withfabric/spandex";
+:::code-group
 
-const config = createConfig({
-  providers: defaultProviders(),
-});
+```ts [getQuotes] twoslash
+import { getQuotes } from "@withfabric/spandex";
+import { config } from "./config.js";
 
 const quotes = await getQuotes({
   config,
-  params: {
+  swap: {
     chainId: 8453,
     inputToken: "0x4200000000000000000000000000000000000006", // WETH
     outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
@@ -27,4 +22,65 @@ const quotes = await getQuotes({
     swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
   }
 });
+
+for (const quote of quotes) {
+  if (quote.success) {
+    console.log(
+      `${quote.provider} yields ${quote.simulatedOutputAmount}`
+    );
+  }
+}
+
+/// @log: fabric yields 995000000n
+/// @log: odos yields 994500000n
 ```
+
+```ts [config] filename="config.ts" twoslash
+import {
+  createConfig
+} from "@withfabric/spandex";
+import { createPublicClient, http, type PublicClient } from "viem";
+import { base } from "viem/chains";
+
+const client = createPublicClient({
+  chain: base,
+  transport: http("https://base.drpc.org"),
+});
+
+export const config = createConfig({
+  providers: {
+    fabric: {},
+    odos: {},
+  }
+  ,
+  clients: [client] as PublicClient[],
+});
+```
+
+:::
+
+## Params
+
+### config
+`Config`
+
+Aggregator configuration object created via [`createConfig`](./createConfig.mdx).
+
+### swap
+`SwapParams`
+
+Parameters defining the swap operation. See [SwapParams reference](/reference/SwapParams.mdx) for details.
+
+### client
+
+`PublicClient | undefined`
+
+Optional custom PublicClient to use for onchain simulations. If not provided, the configured clients in the `config` will be used.
+
+
+## Returns
+
+`Promise<SimulatedQuote[]>`
+
+List of simulated quotes from all providers. Each quote includes the provider name, raw quote data, and the simulated output amount after onchain validation. Quotes that fail simulation are denoted by `success=false` and include an error message. Simulation may also fail, due to a revert, etc. See `SimulatedQuote` for details.
+
