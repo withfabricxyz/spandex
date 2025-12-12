@@ -32,16 +32,13 @@ describe("getQuotes", () => {
       fabric: {},
       "0x": { apiKey: process.env.ZEROX_API_KEY || "" },
     },
-    clientLookup: (id: number) => {
-      if (id === base.id) return client;
-      return undefined;
-    },
+    clients: [client] as PublicClient[],
   });
 
   it("gets simulated quotes", async () => {
     const quotes = await getQuotes({
       config,
-      params: {
+      swap: {
         ...defaultSwapParams,
         swapperAccount: USDC_WHALE,
       },
@@ -107,7 +104,7 @@ describe("getQuotes", () => {
   it("handles ETH -> ERC20", async () => {
     const quotes = await getQuotes({
       config,
-      params: {
+      swap: {
         ...defaultSwapParams,
         inputToken: zeroAddress,
         inputAmount: 250000000000000000n, // .25 ETH
@@ -167,7 +164,7 @@ describe("getQuotes", () => {
   it("handles ERC20 -> ETH", async () => {
     const quotes = await getQuotes({
       config,
-      params: {
+      swap: {
         ...defaultSwapParams,
         outputToken: zeroAddress,
         swapperAccount: USDC_WHALE,
@@ -222,4 +219,16 @@ describe("getQuotes", () => {
       }
     }
   }, 30000);
+
+  it("throws without resolving client", async () => {
+    expect(async () => {
+      await getQuotes({
+        config,
+        swap: {
+          ...defaultSwapParams,
+          chainId: 1337, // unsupported chain in this test setup
+        },
+      });
+    }).toThrow();
+  });
 });

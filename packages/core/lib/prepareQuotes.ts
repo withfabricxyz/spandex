@@ -9,17 +9,17 @@ import type { AggregationOptions, AggregatorFeature, Quote, SwapParams } from ".
  */
 export function prepareQuotes<T>({
   config,
-  params,
+  swap,
   mapFn,
 }: {
   config: Config;
-  params: SwapParams;
+  swap: SwapParams;
   mapFn: (quote: Quote) => Promise<T>;
 }): Array<Promise<T>> {
   const options = config.options;
 
   // Get the required features for this request and filter aggregators accordingly
-  const features = [...queryFeatures(params), ...configFeatures(options)];
+  const features = [...queryFeatures(swap), ...configFeatures(options)];
   const candidates = config.aggregators.filter((a) =>
     features.every((f) => a.features().includes(f)),
   );
@@ -29,7 +29,7 @@ export function prepareQuotes<T>({
     );
   }
 
-  return candidates.map((aggregator) => aggregator.fetchQuote(params, options).then(mapFn));
+  return candidates.map((aggregator) => aggregator.fetchQuote(swap, options).then(mapFn));
 }
 
 function configFeatures(options?: AggregationOptions): AggregatorFeature[] {

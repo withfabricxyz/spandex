@@ -15,7 +15,7 @@ export const config = createConfig({
   },
 });
 
-const params: ExactInSwapParams = {
+const swap: ExactInSwapParams = {
   mode: "exactIn",
   chainId: 8453,
   inputToken: "0x4200000000000000000000000000000000000006",
@@ -28,7 +28,7 @@ const params: ExactInSwapParams = {
 // use the quoted price strategy; see Strategies for other options
 const bestQuote = await getQuote({
   config,
-  params,
+  swap,
   strategy: "quotedPrice",
 });
 

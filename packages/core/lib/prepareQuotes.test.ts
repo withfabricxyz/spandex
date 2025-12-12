@@ -14,7 +14,7 @@ describe("prepareQuotes", () => {
 
     const prepared = prepareQuotes({
       config,
-      params: {
+      swap: {
         chainId: 8453,
         inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         outputToken: "0x4200000000000000000000000000000000000006",
@@ -34,16 +34,14 @@ describe("prepareQuotes", () => {
   it("throws with no providers", async () => {
     const config: Config = {
       aggregators: [],
-      params: {
-        providers: {},
-        options: {},
-      },
+      options: {},
+      clientLookup: () => undefined,
     };
 
     expect(() => {
       prepareQuotes({
         config,
-        params: {
+        swap: {
           chainId: 8453,
           inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
           outputToken: "0x4200000000000000000000000000000000000006",

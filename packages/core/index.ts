@@ -5,7 +5,7 @@ import { OdosAggregator } from "./lib/aggregators/odos.js";
 
 export { FabricAggregator, ZeroXAggregator, KyberAggregator, OdosAggregator };
 export { Aggregator } from "./lib/aggregators/index.js";
-export { type Config, createConfig } from "./lib/createConfig.js";
+export { type Config, createConfig, defaultProviders } from "./lib/createConfig.js";
 export { ExecutionError, executeQuote } from "./lib/executeQuote.js";
 export { getQuote } from "./lib/getQuote.js";
 export { getQuotes } from "./lib/getQuotes.js";

@@ -8,14 +8,12 @@ describe("getRawQuotes", () => {
   it("produces outputs", async () => {
     const config: Config = {
       aggregators: [new MockAggregator(quoteSuccess), new MockAggregator(quoteFailure)],
-      params: {
-        providers: {},
-        options: {
-          numRetries: 0,
-        },
+      options: {
+        numRetries: 0,
       },
+      clientLookup: () => undefined,
     };
-    const quotes = await getRawQuotes({ config, params: defaultSwapParams });
+    const quotes = await getRawQuotes({ config, swap: defaultSwapParams });
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(2);
     expect(quotes[0]?.success).toBe(true);
@@ -26,17 +24,15 @@ describe("getRawQuotes", () => {
     const failingAggregator = new MockAggregator(quoteFailure);
     const config: Config = {
       aggregators: [failingAggregator],
-      params: {
-        providers: {},
-        options: {
-          numRetries: 3,
-          initialRetryDelayMs: 5,
-        },
+      options: {
+        numRetries: 3,
+        initialRetryDelayMs: 5,
       },
+      clientLookup: () => undefined,
     };
 
     const start = Date.now();
-    const quotes = await getRawQuotes({ config, params: defaultSwapParams }).then((qs) =>
+    const quotes = await getRawQuotes({ config, swap: defaultSwapParams }).then((qs) =>
       qs.filter((q) => q.success),
     );
     const end = Date.now();
@@ -50,17 +46,15 @@ describe("getRawQuotes", () => {
     const failingAggregator = new MockAggregator(quoteFailure, { delay: 200 });
     const config: Config = {
       aggregators: [failingAggregator],
-      params: {
-        providers: {},
-        options: {
-          numRetries: 1,
-          deadlineMs: 10,
-        },
+      options: {
+        numRetries: 1,
+        deadlineMs: 10,
       },
+      clientLookup: () => undefined,
     };
 
     const start = Date.now();
-    const quotes = await getRawQuotes({ config, params: defaultSwapParams });
+    const quotes = await getRawQuotes({ config, swap: defaultSwapParams });
     const end = Date.now();
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(1);
@@ -77,15 +71,13 @@ describe("getRawQuotes", () => {
         new MockAggregator(quoteSuccess, { features: ["targetOut"] }),
         new MockAggregator(quoteSuccess),
       ],
-      params: {
-        providers: {},
-        options: {},
-      },
+      options: {},
+      clientLookup: () => undefined,
     };
 
     const quotes = await getRawQuotes({
       config,
-      params: {
+      swap: {
         ...defaultSwapParams,
         mode: "targetOut",
         outputAmount: 1_000_000n,
@@ -101,16 +93,14 @@ describe("getRawQuotes", () => {
         new MockAggregator(quoteSuccess, { features: ["exactIn", "integratorSurplus"] }),
         new MockAggregator(quoteSuccess),
       ],
-      params: {
-        providers: {},
-        options: {
-          integratorSurplusBps: 10,
-          integratorFeeAddress: "0x0000000000000000000000000000000000000001" as `0x${string}`,
-        },
+      options: {
+        integratorSurplusBps: 10,
+        integratorFeeAddress: "0x0000000000000000000000000000000000000001" as `0x${string}`,
       },
+      clientLookup: () => undefined,
     };
 
-    const quotes = await getRawQuotes({ config, params: defaultSwapParams });
+    const quotes = await getRawQuotes({ config, swap: defaultSwapParams });
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(1);
   }, 1_000);

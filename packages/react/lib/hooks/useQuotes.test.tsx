@@ -55,7 +55,7 @@ describe("useQuotes", () => {
       expect(result.current.isLoading).toBe(false);
       expect(mockFetchAllQuotes).toHaveBeenCalledWith(
         expect.objectContaining({
-          params: {
+          swap: {
             mode: "exactIn",
             chainId: TEST_CHAINS.base.id,
             swapperAccount: TEST_ADDRESSES.alice,
@@ -95,7 +95,7 @@ describe("useQuotes", () => {
       expect(result.current.isLoading).toBe(false);
       expect(mockFetchAllQuotes).toHaveBeenCalledWith(
         expect.objectContaining({
-          params: expect.objectContaining({
+          swap: expect.objectContaining({
             chainId: TEST_CHAINS.mainnet.id,
             swapperAccount: TEST_ADDRESSES.bob,
           }),

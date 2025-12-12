@@ -1,4 +1,4 @@
-# prepareQuotes
+# selectQuote
 
 Prepare a list of swap quote promise chains for quote fetching and secondary actions such as simulation. This is useful when custom behavior is required, such as racing quotes+simulation for multiple providers.
 
@@ -6,7 +6,17 @@ Prepare a list of swap quote promise chains for quote fetching and secondary act
 
 :::code-group
 
-```ts [getQuotes]
+```ts [selectQuote]
+import { selectQuote } from "@withfabric/spandex";
+import { promises } from "./prepare.ts";
+
+const quote = selectQuote({
+  quotes: promises,
+  strategy: "bestPrice",
+});
+```
+
+```ts [prepare.ts] filename="prepare.ts"
 import { prepareQuotes, type Quote } from "@withfabric/spandex";
 import { config } from "./config.ts";
 
@@ -15,7 +25,7 @@ async function mapFn(quote: Quote) => Promise<Quote> {
   return quote;
 };
 
-const promises = prepareQuotes({
+export const promises = prepareQuotes({
   config,
   swap: {
     chainId: 8453,
@@ -53,24 +63,33 @@ export const config = createConfig({
 
 ## Params
 
-### config
-`Config`
+### quotes
+`Promise<SimulatedQuote[]>`
 
-Aggregator configuration object created via [`createConfig`](./createConfig.mdx).
+A list of promises each resolving to a simulated quote. These can be created via the [`prepareQuotes`](./prepareQuotes.mdx) function.
 
-### swap
-`SwapParams`
-
-Parameters defining the swap operation. See [SwapParams reference](/reference/SwapParams.mdx) for details.
-
-### mapFn
-`(quote: Quote) => Promise<T>`
+### strategy
+`QuoteSelectionStrategy`
 
 Function that maps each fetched quote to a promise of type `T`. This allows for custom processing of each quote, such as simulation or other enrichment. Identity function is also valid.
 
+| Strategy | Waits for All | Selection Criteria | Best For |
+|----------|---------------|-------------------|----------|
+| `quotedPrice` | ✓ | Highest output | Price optimization |
+| `quotedGas` | ✓ | Lowest gas cost | Gas efficiency |
+| `fastest` | ✗ | First success | Speed/latency |
+| `priority` | ✗ | Provider order | Fallback chains |
+| Custom | Depends | Your logic | Special requirements |
+
+**Custom**
+```ts
+type QuoteSelectionFn = (
+  quotes: Array<Promise<Quote>>
+) => Promise<SuccessfulQuote | null>
+```
 
 ## Returns
 
-`Array<Promise<T>>`
+`Promise<SuccessfulQuote | null>`
 
-List of promises, each resolving to type `T` as defined by the `mapFn`.
+A promise for a single quote that offers the best outcome depending on the strategy.

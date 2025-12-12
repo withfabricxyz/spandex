@@ -363,7 +363,7 @@ export type SimulationArgs = {
   /** Public client used to execute `simulateCalls`. */
   client: PublicClient;
   /** Swap parameters shared across quotes, including token, account, and amount details. */
-  params: SwapParams;
+  swap: SwapParams;
   /** Quote to simulate, including the encoded transaction data. */
   quote: Quote;
 };

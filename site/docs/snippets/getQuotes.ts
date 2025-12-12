@@ -3,7 +3,7 @@ import { config } from "./config.js";
 
 const quotes = await getQuotes({
   config,
-  params: {
+  swap: {
     chainId: 8453,
     inputToken: "0x4200000000000000000000000000000000000006",
     outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA",

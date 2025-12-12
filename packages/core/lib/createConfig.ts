@@ -11,7 +11,7 @@ import type { AggregationOptions, ConfigParams } from "./types.js";
  */
 export type Config = {
   /** Function to lookup a PublicClient for a given chain ID. */
-  clientLookup: (chainId: number) => PublicClient | undefined,
+  clientLookup: (chainId: number) => PublicClient | undefined;
   /** Global options applied to all aggregators and requests. */
   options: AggregationOptions;
   /** Instantiated aggregators based on the provided configuration. */
@@ -84,7 +84,8 @@ export function createConfig(params: ConfigParams): Config {
     if (typeof params.clients === "function") {
       clientLookup = params.clients;
     } else if (Array.isArray(params.clients)) {
-      clientLookup = (chainId: number) => ((params.clients as PublicClient[]).find((c) => c.chain?.id === chainId));
+      clientLookup = (chainId: number) =>
+        (params.clients as PublicClient[]).find((c) => c.chain?.id === chainId);
     }
   }
 

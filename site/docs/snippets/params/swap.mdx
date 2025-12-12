@@ -1,0 +1,42 @@
+## chainId
+`number`
+
+Chain identifier (EIP-155) where the swap will be executed.
+
+## inputToken
+`Address`
+
+Address of the token being sold or supplied by the user.
+
+## outputToken
+`Address`
+
+Address of the token being purchased or received by the user.
+
+## mode
+`"exactIn" | "targetOut"`
+
+Swap mode:
+- `"exactIn"`: The user specifies the exact amount of input token to sell.
+- `"targetOut"`: The user specifies a target amount of output token to receive. This does not guarantee the exact output amount. Not all providers support this mode.
+
+## inputAmount
+`bigint`
+
+Amount of input token to sell (denominated in base units). Required if `mode` is `"exactIn"`.
+
+## outputAmount
+`bigint`
+
+Amount of output token to purchase (denominated in base units). Required if `mode` is `"targetOut"`.
+
+## slippageBps
+`number`
+
+Allowed slippage for the swap, expressed in basis points (bps). For example, a value of `50` represents a maximum slippage of 0.5%. This parameter helps protect against price fluctuations between quote retrieval and transaction execution.
+
+## swapperAccount
+`Address`
+
+Address of the account that will submit the swap transaction onchain. Some providers require this for exclusive liquidity. Additionally, this can be used as a destination account for the output tokens.
+

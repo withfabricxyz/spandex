@@ -57,12 +57,12 @@ export class SimulationRevertError extends Error {
 export async function simulateQuotes(
   args: Omit<SimulationArgs, "quote"> & { quotes: Quote[] },
 ): Promise<SimulatedQuote[]> {
-  const { params, client, quotes } = args;
+  const { swap, client, quotes } = args;
   return Promise.all(
     quotes.map(async (quote: Quote) => {
       return simulateQuote({
         client,
-        params,
+        swap,
         quote,
       });
     }),
@@ -84,11 +84,11 @@ export async function simulateQuote(args: SimulationArgs): Promise<SimulatedQuot
 
 async function performSimulation({
   client,
-  params,
+  swap,
   quote,
 }: {
   client: PublicClient;
-  params: SwapParams;
+  swap: SwapParams;
   quote: Quote;
 }): Promise<SimulationResult> {
   if (!quote.success) {
@@ -99,14 +99,14 @@ async function performSimulation({
   }
 
   try {
-    const isERC20In = params.inputToken !== zeroAddress;
-    const isERC20Out = params.outputToken !== zeroAddress;
+    const isERC20In = swap.inputToken !== zeroAddress;
+    const isERC20Out = swap.outputToken !== zeroAddress;
 
     // Dynamically build calls array based on whether we need approve / balanceOf (this activates ERC20 handling in assetChanges)
     const calls = [
       isERC20In
         ? {
-            to: params.inputToken,
+            to: swap.inputToken,
             data: encodeFunctionData({
               abi: erc20Abi,
               functionName: "approve",
@@ -117,11 +117,11 @@ async function performSimulation({
       quote.txData,
       isERC20Out
         ? {
-            to: params.outputToken,
+            to: swap.outputToken,
             data: encodeFunctionData({
               abi: erc20Abi,
               functionName: "balanceOf",
-              args: [params.swapperAccount],
+              args: [swap.swapperAccount],
             }),
           }
         : undefined,
@@ -129,11 +129,11 @@ async function performSimulation({
 
     const time = performance.now();
     const { results, assetChanges, block } = await simulateCalls(client, {
-      account: params.swapperAccount,
+      account: swap.swapperAccount,
       calls,
       stateOverrides: [
         {
-          address: params.swapperAccount,
+          address: swap.swapperAccount,
           balance: parseEther("10000"), // large amount to cover gas costs + swap value
         },
       ],
@@ -146,7 +146,7 @@ async function performSimulation({
 
     return {
       success: true,
-      outputAmount: extractOutputAmount(assetChanges, params.outputToken),
+      outputAmount: extractOutputAmount(assetChanges, swap.outputToken),
       callsResults: results,
       latency,
       gasUsed: isERC20In ? results[1]?.gasUsed : results[0]?.gasUsed,

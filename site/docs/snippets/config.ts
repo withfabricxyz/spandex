@@ -19,7 +19,5 @@ export const config = createConfig({
     integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",
     integratorSwapFeeBps: 25,
   },
-  clientLookup: (chainId: number) => {
-    return chainId === base.id ? (baseClient as PublicClient) : undefined;
-  },
+  clients: [baseClient] as PublicClient[],
 });

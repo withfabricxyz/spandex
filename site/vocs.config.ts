@@ -36,10 +36,6 @@ export default defineConfig({
           text: "Functions",
           items: [
             {
-              text: "createConfig",
-              link: "/core/functions/createConfig",
-            },
-            {
               text: "getQuotes",
               link: "/core/functions/getQuotes",
             },
@@ -58,6 +54,10 @@ export default defineConfig({
             {
               text: "executeQuote",
               link: "/core/functions/executeQuote",
+            },
+            {
+              text: "createConfig",
+              link: "/core/functions/createConfig",
             },
           ],
         },
@@ -130,6 +130,21 @@ export default defineConfig({
               link: "/providers/1inch",
             },
           ],
+        },
+      ],
+    },
+
+    {
+      text: "Reference",
+      collapsed: true,
+      items: [
+        {
+          text: "ConfigParams",
+          link: "/reference/ConfigParams",
+        },
+        {
+          text: "SwapParams",
+          link: "/reference/SwapParams",
         },
       ],
     },

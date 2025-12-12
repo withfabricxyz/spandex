@@ -1,0 +1,72 @@
+## Params
+
+### providers
+
+`Partial<{ [K in ProviderKey]: ProviderDefinitions[K]["config"] }>`
+
+The map of active providers and their configuration. Each provider has its own configuration options.
+
+| Key | API Key Required? | Config Docs |
+|----------|-----------|----------|
+| `0x` | yes | [View](/providers/0x.mdx) |
+| `fabric` | no | [View](/providers/fabric.mdx) |
+| `kyberswap` | no | [View](/providers/kyberswap.mdx) |
+| `1inch` | no | [View](/providers/1inch.mdx) |
+| `odos` | no | [View](/providers/odos.mdx) |
+| `lifi` | no | [View](/providers/lifi.mdx) |
+
+Example:
+
+```ts
+const providerConfig: ProviderConfig = {
+  '0x': {
+    apiKey: "YOUR_0X_API_KEY",
+  },
+  fabric: {
+  },
+};
+```
+
+---
+
+### options (optional)
+
+`AggregationOptions`
+
+#### options.deadlineMs
+`number | undefined`
+
+Maximum duration for the entire aggregation process before aborting pending requests. Defaults to 15,000 ms. Set a lower value for faster responses with potentially fewer quotes.
+
+#### options.numRetries
+`number | undefined`
+
+Number of retry attempts per provider. Defaults to 1.
+
+#### options.initialRetryDelayMs
+`number | undefined`
+
+Initial delay before retrying failed requests (exponential backoff applied). Defaults to 100 ms.
+
+#### options.integratorFeeAddress
+`Address | undefined`
+
+Address that should receive the integrator fee. Use this if your application collects fees on swaps from end users. Only applicable if the provider supports integrator fees. Some providers may require a custom API key tied to your integrator fee address.
+
+#### options.integratorSwapFeeBps
+`number | undefined`
+
+Swap fee for the integrator (in basis points). Only applicable if the provider supports integrator fees.
+
+#### options.integratorSurplusBps
+`number | undefined`
+
+Surplus share for the integrator (in basis points). Only applicable if the provider supports surplus sharing.
+
+---
+
+### clients (optional)
+
+`PublicClient[] | ((chainId: number) => PublicClient | undefined)`
+
+A list of viem/wagmi clients or a lookup function to get the client for a specific chain ID. This is used to fetch on-chain data for quote simulation and validation. If not provided `getQuotes` will fail. If you wish to only get quotes without validating onchain, use `getRawQuotes` instead. When using `SpandexProvider`, the wagmi clients from the provider will be used automatically.

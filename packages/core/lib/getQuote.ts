@@ -13,16 +13,16 @@ import type { Quote, QuoteSelectionStrategy, SuccessfulQuote, SwapParams } from 
  */
 export async function getQuote({
   config,
-  params,
+  swap,
   strategy,
 }: {
   config: Config;
-  params: SwapParams;
+  swap: SwapParams;
   strategy: QuoteSelectionStrategy;
 }): Promise<SuccessfulQuote | null> {
   // TODO: Only simulated quotes
   return selectQuote({
     strategy,
-    quotes: prepareQuotes({ config, params, mapFn: (quote: Quote) => Promise.resolve(quote) }),
+    quotes: prepareQuotes({ config, swap, mapFn: (quote: Quote) => Promise.resolve(quote) }),
   });
 }

@@ -81,7 +81,7 @@ export function useQuotes<TSelectData = SimulatedQuote[]>(
         : fullParams?.outputAmount.toString(),
     ],
     queryFn: () => {
-      return getQuotes({ config, params: fullParams as SwapParams });
+      return getQuotes({ config, swap: fullParams as SwapParams });
     },
     retry: 0,
     enabled: !!finalChainId && !!finalSwapperAccount && (query?.enabled ?? true),
