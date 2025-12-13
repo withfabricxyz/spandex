@@ -109,75 +109,41 @@ export function BumpChart({ history }: { history: SimulatedQuote[][] }) {
     }));
   }, [history, metric]);
 
+  const maxRank = useMemo(() => {
+    if (chartData.length === 0) return 2;
+    return Math.max(...chartData.flatMap(serie => serie.data.map(d => d.y)));
+  }, [chartData]);
+
+  const chartHeight = maxRank * 20 + 40; // 40px per rank + 40px padding
+
   return (
-    <div className="flex flex-col gap-20">
+    <div className="flex flex-col gap-20 overflow-hidden">
       <BumpChartMetrics selectedMetric={metric} onMetricSelect={setMetric} />
       {history.length === 0 ? (
-        <div className="bg-[#eee] h-80 flex items-center justify-center">
+        <div className="bg-[#eee] flex items-center justify-center" style={{ height: `${chartHeight}px` }}>
           <span className="font-['Sohne_Mono'] text-[12px] text-[#999]">Fetching quotes...</span>
         </div>
       ) : (
-        <div className="h-80">
+        <div style={{ height: `${chartHeight}px` }}>
           <ResponsiveBump
             data={chartData}
             colors={(serie) => PROVIDER_COLORS[serie.id] || "#999"}
-            lineWidth={3}
+            lineWidth={2}
             activeLineWidth={6}
-            inactiveLineWidth={3}
+            inactiveLineWidth={2}
             inactiveOpacity={0.15}
             pointSize={0}
             activePointSize={0}
             inactivePointSize={0}
             enableGridX={false}
             enableGridY={true}
-            axisTop={null}
-            axisBottom={{
-              tickSize: 5,
-              tickPadding: 5,
-              tickRotation: 0,
-              legend: "",
-              legendPosition: "middle",
-              legendOffset: 32,
-              truncateTickAt: 0,
-            }}
-            axisLeft={{
-              tickSize: 5,
-              tickPadding: 5,
-              tickRotation: 0,
-              legend: "ranking",
-              legendPosition: "middle",
-              legendOffset: -40,
-              truncateTickAt: 0,
-            }}
-            margin={{ top: 40, right: 100, bottom: 40, left: 60 }}
-            axisRight={null}
+            xPadding={0}
+            margin={{ right: 80 }}
             layers={[
               "grid",
               "axes",
-              "labels",
               "lines",
-              ({ series, xScale, yScale }) => {
-                // biome-ignore lint/suspicious/noExplicitAny: <>
-                return series.map((serie: any) => {
-                  const points = serie.data;
-                  const lastPoint = points[points.length - 1];
-                  if (!lastPoint) return null;
-                  const x = xScale(lastPoint.x);
-                  const y = yScale(lastPoint.y);
-                  return (
-                    <g key={serie.id}>
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r={6}
-                        fill="#fff"
-                        stroke={serie.color}
-                        strokeWidth={3}
-                      />
-                    </g>
-                  );
-                });
-              },
+              "labels",
             ]}
           />
         </div>
