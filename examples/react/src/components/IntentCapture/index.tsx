@@ -157,7 +157,6 @@ export function IntentCapture() {
   return (
     <ClientOnly>
       <div className="flex flex-col gap-20">
-        {/* <hr className="block bg-primary" /> */}
         <SellToken
           token={sellToken}
           isLoadingBalances={isLoadingBalances}

@@ -12,12 +12,15 @@ type BumpChartProps = {
 
 type Metric = "latency" | "accuracy" | "price";
 
-const PROVIDER_COLORS: Record<string, string> = {
+const COLORS: Record<string, string> = {
   fabric: "#8B5CF6",
   "0x": "#FF006B",
   uniswap: "#FF007A",
   odos: "#FB42DF",
   kyberswap: "#117D45",
+  fallback: "#999999",
+  secondary: "rgba(179, 179, 179, 0.20)",
+  tertiary: "rgba(179, 179, 179, 0.10)",
 };
 
 function MetricSelect({
@@ -66,6 +69,63 @@ function MetricSelect({
     </div>
   );
 }
+
+// Custom layer to render shadow lines behind the main lines
+// biome-ignore lint/suspicious/noExplicitAny: <>
+const ShadowLinesLayer = ({ series, lineGenerator }: any) => {
+  return (
+    <g>
+      {/* biome-ignore lint/suspicious/noExplicitAny: <> */}
+      {series.map((serie: any) => {
+        if (!serie.linePoints || serie.linePoints.length === 0) return null;
+
+        const path = lineGenerator(serie.linePoints);
+
+        return (
+          <path
+            key={`shadow-${serie.id}`}
+            d={path || ""}
+            fill="none"
+            stroke={COLORS.tertiary}
+            strokeWidth={10}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        );
+      })}
+    </g>
+  );
+};
+
+// Custom layer to render end point dots
+// biome-ignore lint/suspicious/noExplicitAny: <>
+const EndPointsLayer = ({ series }: any) => {
+  return (
+    <g>
+      {/* biome-ignore lint/suspicious/noExplicitAny: <> */}
+      {series.map((serie: any) => {
+        const points = serie.linePoints || [];
+        if (points.length === 0) return null;
+
+        const lastPoint = points[points.length - 1];
+        const color = COLORS[serie.id] || "#999";
+
+        const x = lastPoint[0];
+        const y = lastPoint[1];
+
+        return (
+          <circle
+            key={`endpoint-${serie.id}`}
+            cx={x}
+            cy={y}
+            r={6}
+            fill={color}
+          />
+        );
+      })}
+    </g>
+  );
+};
 
 export function BumpChart({ quotes, sellToken, buyToken, numSellTokens }: BumpChartProps) {
   const [quoteHistory, setQuoteHistory] = useState<SimulatedQuote[][]>([]);
@@ -152,7 +212,7 @@ export function BumpChart({ quotes, sellToken, buyToken, numSellTokens }: BumpCh
         <div style={{ height: `${chartHeight}px` }}>
           <ResponsiveBump
             data={chartData}
-            colors={(serie) => PROVIDER_COLORS[serie.id] || "#999"}
+            colors={(serie) => COLORS[serie.id] || COLORS.fallback}
             lineWidth={2}
             activeLineWidth={6}
             inactiveLineWidth={2}
@@ -160,10 +220,31 @@ export function BumpChart({ quotes, sellToken, buyToken, numSellTokens }: BumpCh
             pointSize={0}
             activePointSize={0}
             inactivePointSize={0}
-            // enableGridY={true}
+            enableGridX={true}
+            enableGridY={false}
             xPadding={0}
-            margin={{ right: 80 }}
-            layers={["grid", "axes", "lines", "labels"]}
+            xOuterPadding={0}
+            margin={{ top: 0, right: 80, bottom: 0, left: 0 }}
+            layers={["grid", ShadowLinesLayer, "lines", EndPointsLayer, "labels"]}
+            axisTop={null}
+            axisBottom={null}
+            axisLeft={null}
+            axisRight={null}
+            theme={{
+              grid: {
+                line: {
+                  stroke: COLORS.secondary,
+                  strokeWidth: 1,
+                },
+              },
+              labels: {
+                text: {
+                  fontFamily: "Sohne Mono",
+                  fontSize: 12,
+                  textTransform: "capitalize"
+                },
+              },
+            }}
           />
         </div>
       )}
