@@ -325,21 +325,6 @@ export type SwapOptions = FeeOptions;
 export type AggregationOptions = TimingOptions & FeeOptions;
 
 /**
- * Custom strategy function used to pick a winning quote.
- */
-export type QuoteSelectionFn = (quotes: Array<Promise<Quote>>) => Promise<SuccessfulQuote | null>;
-
-/**
- * Built-in strategies for ranking quote responses.
- */
-export type QuoteSelectionName = "fastest" | "quotedPrice" | "quotedGas" | "priority";
-
-/**
- * Strategy reference, either by name or via custom function.
- */
-export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;
-
-/**
  * Configuration for constructing a MetaAggregator instance.
  */
 export type ConfigParams = {
@@ -429,11 +414,53 @@ export type SimulationFailure = {
 export type SimulationResult = SimulationSuccess | SimulationFailure;
 
 /**
+ * Quote decorated with the corresponding simulation result, both successful.
+ *
+ * @public
+ */
+export type SuccessfulSimulatedQuote = SuccessfulQuote & {
+  /** Successful simulation metadata for the quote. */
+  simulation: SimulationSuccess;
+};
+
+/**
+ * Quote decorated with a failed simulation result.
+ *
+ * @public
+ */
+export type FailedSimulatedQuote = Quote & {
+  /** Error metadata describing why simulation failed. */
+  simulation: SimulationFailure;
+};
+
+/**
  * Quote decorated with the corresponding simulation result.
  *
  * @public
  */
-export type SimulatedQuote = Quote & {
-  /** Result data describing the simulation outcome for the quote. */
-  simulation: SimulationResult;
-};
+export type SimulatedQuote = SuccessfulSimulatedQuote | FailedSimulatedQuote;
+
+/**
+ * Comparator used when sorting simulated quotes.
+ */
+export type SimulatedQuoteSort = (
+  a: SuccessfulSimulatedQuote,
+  b: SuccessfulSimulatedQuote,
+) => number;
+
+/**
+ * Custom strategy function used to pick a winning quote.
+ */
+export type QuoteSelectionFn = (
+  quotes: Array<Promise<SimulatedQuote>>,
+) => Promise<SuccessfulSimulatedQuote | null>;
+
+/**
+ * Built-in strategies for ranking quote responses.
+ */
+export type QuoteSelectionName = "fastest" | "bestPrice" | "estimatedGas" | "priority";
+
+/**
+ * Strategy reference, either by name or via custom function.
+ */
+export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;

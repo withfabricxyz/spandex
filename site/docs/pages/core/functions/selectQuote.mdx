@@ -1,61 +1,24 @@
 # selectQuote
 
-Prepare a list of swap quote promise chains for quote fetching and secondary actions such as simulation. This is useful when custom behavior is required, such as racing quotes+simulation for multiple providers.
+Pick the best simulated quote from a set of in-flight quote+simulation promises. This is useful when you want to stream quotes and simulations concurrently and only commit to the best result once enough data is available.
 
 ## Example
 
 :::code-group
 
 ```ts [selectQuote]
-import { selectQuote } from "@withfabric/spandex";
-import { promises } from "./prepare.ts";
+import { prepareQuotes, selectQuote, simulateQuote } from "@withfabric/spandex";
+import { config, client, swap } from "./config.ts";
 
-const quote = selectQuote({
-  quotes: promises,
-  strategy: "bestPrice",
-});
-```
-
-```ts [prepare.ts] filename="prepare.ts"
-import { prepareQuotes, type Quote } from "@withfabric/spandex";
-import { config } from "./config.ts";
-
-// Identity fn
-async function mapFn(quote: Quote) => Promise<Quote> {
-  return quote;
-};
-
-export const promises = prepareQuotes({
+const quotes = prepareQuotes({
   config,
-  swap: {
-    chainId: 8453,
-    inputToken: "0x4200000000000000000000000000000000000006", // WETH
-    outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
-    mode: "exactIn",
-    inputAmount: 1_000_000_000_000_000_000n, // 1 WETH
-    slippageBps: 50, // Tolerance
-    swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
-  },
-  mapFn,
-});
-```
-
-```ts [config.ts] filename="config.ts" twoslash
-import { createConfig } from "@withfabric/spandex";
-import { createPublicClient, http, type PublicClient } from "viem";
-import { base } from "viem/chains";
-
-const client = createPublicClient({
-  chain: base,
-  transport: http("https://base.drpc.org"),
+  swap,
+  mapFn: (quote) => simulateQuote({ quote, swap, client }),
 });
 
-export const config = createConfig({
-  providers: {
-    fabric: {},
-    odos: {},
-  },
-  clients: [client] as PublicClient[],
+const quote = await selectQuote({
+  quotes,
+  strategy: "quotedPrice",
 });
 ```
 
@@ -64,7 +27,7 @@ export const config = createConfig({
 ## Params
 
 ### quotes
-`Promise<SimulatedQuote[]>`
+`Array<Promise<SimulatedQuote>>`
 
 A list of promises each resolving to a simulated quote. These can be created via the [`prepareQuotes`](./prepareQuotes.mdx) function.
 
@@ -75,21 +38,40 @@ Function that maps each fetched quote to a promise of type `T`. This allows for 
 
 | Strategy | Waits for All | Selection Criteria | Best For |
 |----------|---------------|-------------------|----------|
-| `quotedPrice` | ✓ | Highest output | Price optimization |
-| `quotedGas` | ✓ | Lowest gas cost | Gas efficiency |
+| `quotedPrice` | ✓ | Highest simulated output | Price optimization |
+| `quotedGas` | ✓ | Lowest simulated gas | Gas efficiency |
 | `fastest` | ✗ | First success | Speed/latency |
 | `priority` | ✗ | Provider order | Fallback chains |
 | Custom | Depends | Your logic | Special requirements |
 
+### sort
+`SimulatedQuoteSort` (optional)
+
+Comparator applied when the strategy waits for all simulated quotes (`quotedPrice` and `quotedGas`). Use [`resolveSuccessfulSimulatedQuotes`](./selectQuote.mdx#resolve-successful-quotes) if you also need the sorted results.
+
 **Custom**
 ```ts
 type QuoteSelectionFn = (
-  quotes: Array<Promise<Quote>>
-) => Promise<SuccessfulQuote | null>
+  quotes: Array<Promise<SimulatedQuote>>,
+  context?: QuoteSelectionContext
+) => Promise<SuccessfulSimulatedQuote | null>
 ```
 
 ## Returns
 
-`Promise<SuccessfulQuote | null>`
+`Promise<SuccessfulSimulatedQuote | null>`
 
-A promise for a single quote that offers the best outcome depending on the strategy.
+A promise for a single simulated quote that offers the best outcome depending on the strategy.
+
+## Resolve successful quotes
+
+```ts
+import { resolveSuccessfulSimulatedQuotes } from "@withfabric/spandex";
+
+const sorted = await resolveSuccessfulSimulatedQuotes({
+  quotes,
+  sort: (a, b) => (a.simulation.outputAmount > b.simulation.outputAmount ? 1 : -1),
+});
+```
+
+Resolves every promise, filters to successful simulations, and optionally sorts them for reuse across custom selection flows.

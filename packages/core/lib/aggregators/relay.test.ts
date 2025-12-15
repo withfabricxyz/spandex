@@ -13,7 +13,6 @@ describe("Relay", () => {
       throw new Error("Unexpected provider");
     }
 
-    console.log(quote.success ? quote.details.details?.route : quote.error);
     if (quote.success) {
       expect(quote.outputAmount).toBeGreaterThan(0n);
       expect(quote.networkFee).toBeGreaterThan(0n);

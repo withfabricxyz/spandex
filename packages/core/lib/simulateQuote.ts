@@ -87,7 +87,7 @@ export async function simulateQuotes(
  * @returns Quote data merged with its simulation result.
  */
 export async function simulateQuote(args: SimulationArgs): Promise<SimulatedQuote> {
-  return { ...args.quote, simulation: await performSimulation(args) };
+  return { ...args.quote, simulation: await performSimulation(args) } as SimulatedQuote;
 }
 
 async function performSimulation({
