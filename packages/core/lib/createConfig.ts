@@ -4,6 +4,7 @@ import { FabricAggregator } from "./aggregators/fabric.js";
 import type { Aggregator } from "./aggregators/index.js";
 import { KyberAggregator } from "./aggregators/kyber.js";
 import { OdosAggregator } from "./aggregators/odos.js";
+import { RelayAggregator } from "./aggregators/relay.js";
 import type { AggregationOptions, ConfigParams } from "./types.js";
 
 /**
@@ -74,6 +75,9 @@ export function createConfig(params: ConfigParams): Config {
   }
   if (configured.odos) {
     aggregators.push(new OdosAggregator(configured.odos));
+  }
+  if (configured.relay) {
+    aggregators.push(new RelayAggregator(configured.relay));
   }
 
   validateOptions(params.options || {});

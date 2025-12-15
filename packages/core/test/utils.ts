@@ -81,3 +81,32 @@ export class MockAggregator extends Aggregator {
     return this.quote as SuccessfulQuote;
   }
 }
+
+const BIGINT_KEY = "__bigint__";
+
+const bigintReplacer = (_key: string, value: unknown) =>
+  typeof value === "bigint" ? { [BIGINT_KEY]: value.toString() } : value;
+
+const bigintReviver = (_key: string, value: unknown) => {
+  if (value && typeof value === "object" && BIGINT_KEY in value) {
+    const stored = (value as Record<string, unknown>)[BIGINT_KEY];
+    if (typeof stored === "string") {
+      return BigInt(stored);
+    }
+  }
+  return value;
+};
+
+export async function recordOutput<T>(name: string, fn: () => Promise<T>): Promise<{ result: T }> {
+  const file = `${import.meta.dir}/fixtures/recorded/${name}.json`;
+
+  if (await Bun.file(file).exists()) {
+    const content = await Bun.file(file).text();
+    return { result: JSON.parse(content, bigintReviver) as T };
+  }
+
+  const result = await fn();
+  await Bun.write(file, JSON.stringify(result, bigintReplacer, 2));
+
+  return { result };
+}
