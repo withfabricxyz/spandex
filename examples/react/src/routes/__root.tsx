@@ -53,7 +53,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           >
             <TokenSelectProvider>
               <Header />
-              <div className="pb-20 max-w-[614px] mx-auto">{children}</div>
+              <div className="pt-80 pb-20 max-w-[614px] mx-auto">{children}</div>
               <div id="dialog-root" />
             </TokenSelectProvider>
           </SpandexProvider>

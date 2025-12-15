@@ -26,7 +26,7 @@ export function isOdosQuote(
 }
 
 // TODO: which other aggregators surface fees?
-export function extractFees(quote: SimulatedQuote): bigint | null {
+export function getQuoteFees(quote: SimulatedQuote): bigint | null {
   if (!quote.success) return null;
 
   if (isFabricQuote(quote) && quote.details.fees?.length > 0) {
@@ -37,14 +37,14 @@ export function extractFees(quote: SimulatedQuote): bigint | null {
 }
 
 // TODO:
-export function extractPriceImpact(quote: SimulatedQuote): number | null {
+export function getQuotePriceImpact(quote: SimulatedQuote): number | null {
   if (!quote.success) return null;
 
   return null;
 }
 
 // TODO:
-export function extractSlippageData(quote: SimulatedQuote): {
+export function getQuoteSlippageData(quote: SimulatedQuote): {
   maxSlippage?: number;
   actualSlippage?: number;
 } | null {

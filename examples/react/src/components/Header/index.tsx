@@ -66,10 +66,19 @@ export function Header() {
   const disconnect = useDisconnect();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-  // quiet the hydration warning; address not available on first render
   useEffect(() => {
+    // quiet the hydration warning; address not available on first render
     setMounted(true);
+
+    function onScroll() {
+      setIsScrolled(window.scrollY > 0);
+    }
+
+    window.addEventListener("scroll", onScroll);
+
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const handleDisconnect = useCallback(async () => {
@@ -77,8 +86,8 @@ export function Header() {
   }, [disconnect]);
 
   return (
-    <nav className="sticky top-0 z-layer-navigation bg-white">
-      <div className="relative max-w-[614px] mx-auto py-20">
+    <nav className="fixed w-full top-0 z-layer-navigation bg-white">
+      <div className={`relative max-w-[614px] mx-auto border-b border-primary ${isScrolled ? "py-10" : "py-20"} transition-[padding]`}>
         <div className="flex items-center justify-between gap-8">
           <Link to="/" aria-label="Home">
             <Logo />

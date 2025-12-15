@@ -1,6 +1,14 @@
 import { ResponsiveBump } from "@nivo/bump";
 import type { SimulatedQuote } from "@withfabric/spandex";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { TokenMetadata } from "@/services/tokens";
+
+type BumpChartProps = {
+  quotes?: SimulatedQuote[];
+  sellToken: TokenMetadata;
+  buyToken: TokenMetadata;
+  numSellTokens: string;
+};
 
 type Metric = "latency" | "accuracy" | "price";
 
@@ -12,7 +20,7 @@ const PROVIDER_COLORS: Record<string, string> = {
   kyberswap: "#117D45",
 };
 
-function BumpChartMetrics({
+function MetricSelect({
   selectedMetric,
   onMetricSelect,
 }: {
@@ -59,15 +67,29 @@ function BumpChartMetrics({
   );
 }
 
-export function BumpChart({ history }: { history: SimulatedQuote[][] }) {
+export function BumpChart({ quotes, sellToken, buyToken, numSellTokens }: BumpChartProps) {
+  const [quoteHistory, setQuoteHistory] = useState<SimulatedQuote[][]>([]);
   const [metric, setMetric] = useState<Metric>("price");
 
+  // reset history when swap parameters change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally resetting on input changes
+  useEffect(() => {
+    setQuoteHistory([]);
+  }, [sellToken.address, buyToken.address, numSellTokens]);
+
+  // store quotes in history whenever we get a new set of quotes
+  useEffect(() => {
+    if (quotes && quotes.length > 0) {
+      setQuoteHistory((prev) => [...prev, quotes].slice(-20)); // limit to last 20?
+    }
+  }, [quotes]);
+
   const chartData = useMemo(() => {
-    if (history.length === 0) return [];
+    if (quoteHistory.length === 0) return [];
 
     const providerMap = new Map<string, Array<{ x: number; y: number }>>();
 
-    history.forEach((snapshot, timeIndex) => {
+    quoteHistory.forEach((snapshot, timeIndex) => {
       const successfulQuotes = snapshot.filter((q) => q.success);
 
       if (successfulQuotes.length === 0) return;
@@ -107,20 +129,23 @@ export function BumpChart({ history }: { history: SimulatedQuote[][] }) {
       id: provider,
       data,
     }));
-  }, [history, metric]);
+  }, [quoteHistory, metric]);
 
   const maxRank = useMemo(() => {
     if (chartData.length === 0) return 2;
-    return Math.max(...chartData.flatMap(serie => serie.data.map(d => d.y)));
+    return Math.max(...chartData.flatMap((serie) => serie.data.map((d) => d.y)));
   }, [chartData]);
 
   const chartHeight = maxRank * 20 + 40; // 40px per rank + 40px padding
 
   return (
     <div className="flex flex-col gap-20 overflow-hidden">
-      <BumpChartMetrics selectedMetric={metric} onMetricSelect={setMetric} />
-      {history.length === 0 ? (
-        <div className="bg-[#eee] flex items-center justify-center" style={{ height: `${chartHeight}px` }}>
+      <MetricSelect selectedMetric={metric} onMetricSelect={setMetric} />
+      {quoteHistory.length === 0 ? (
+        <div
+          className="bg-[#eee] flex items-center justify-center"
+          style={{ height: `${chartHeight}px` }}
+        >
           <span className="font-['Sohne_Mono'] text-[12px] text-[#999]">Fetching quotes...</span>
         </div>
       ) : (
@@ -135,16 +160,10 @@ export function BumpChart({ history }: { history: SimulatedQuote[][] }) {
             pointSize={0}
             activePointSize={0}
             inactivePointSize={0}
-            enableGridX={false}
-            enableGridY={true}
+            // enableGridY={true}
             xPadding={0}
             margin={{ right: 80 }}
-            layers={[
-              "grid",
-              "axes",
-              "lines",
-              "labels",
-            ]}
+            layers={["grid", "axes", "lines", "labels"]}
           />
         </div>
       )}

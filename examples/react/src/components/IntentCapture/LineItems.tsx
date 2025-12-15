@@ -1,5 +1,6 @@
 import type { SimulatedQuote } from "@withfabric/spandex";
 import type { TokenMetadata } from "@/services/tokens";
+import { getQuoteFees, getQuoteInaccuracy, getQuotePositiveSlippage } from "@/utils/quoteHelpers";
 import { formatTokenValue } from "@/utils/strings";
 
 function Skeleton() {
@@ -12,23 +13,23 @@ function Skeleton() {
   );
 }
 
-type DerivedMetrics = {
-  inaccuracyBps: number | null;
-  positiveSlippage: { percentage: number; diff: number } | null;
-  fees: bigint | null;
-};
-
 export function LineItems({
   quote,
   inputToken,
   outputToken,
-  derivedMetrics,
 }: {
   quote?: SimulatedQuote;
   inputToken: TokenMetadata;
   outputToken: TokenMetadata;
-  derivedMetrics?: DerivedMetrics | null;
 }) {
+  const derivedMetrics = quote
+    ? {
+        inaccuracyBps: getQuoteInaccuracy(quote),
+        positiveSlippage: getQuotePositiveSlippage(quote),
+        fees: getQuoteFees(quote),
+      }
+    : null;
+
   return (
     <div className="flex flex-col gap-10">
       <div className="flex justify-between">
