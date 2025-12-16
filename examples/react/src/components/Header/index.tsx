@@ -87,7 +87,9 @@ export function Header() {
 
   return (
     <nav className="fixed w-full top-0 z-layer-navigation bg-white">
-      <div className={`relative max-w-[614px] mx-auto border-b border-primary ${isScrolled ? "py-10" : "py-20"} transition-[padding]`}>
+      <div
+        className={`relative max-w-[614px] mx-auto border-b border-primary ${isScrolled ? "py-10" : "py-20"} transition-[padding]`}
+      >
         <div className="flex items-center justify-between gap-8">
           <Link to="/" aria-label="Home">
             <Logo />

@@ -113,15 +113,7 @@ const EndPointsLayer = ({ series }: any) => {
         const x = lastPoint[0];
         const y = lastPoint[1];
 
-        return (
-          <circle
-            key={`endpoint-${serie.id}`}
-            cx={x}
-            cy={y}
-            r={6}
-            fill={color}
-          />
-        );
+        return <circle key={`endpoint-${serie.id}`} cx={x} cy={y} r={6} fill={color} />;
       })}
     </g>
   );
@@ -241,7 +233,7 @@ export function BumpChart({ quotes, sellToken, buyToken, numSellTokens }: BumpCh
                 text: {
                   fontFamily: "Sohne Mono",
                   fontSize: 12,
-                  textTransform: "capitalize"
+                  textTransform: "capitalize",
                 },
               },
             }}
