@@ -1,28 +1,40 @@
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
 import { Button } from "../Button";
+import { Skeleton } from "../Skeleton";
 
 type BuyTokenProps = {
   token: TokenMetadata;
   balance?: string;
+  isLoadingQuotes: boolean;
   isLoadingBalances: boolean;
   numTokens: string;
 };
 
-export function BuyToken({ token, balance, isLoadingBalances, numTokens }: BuyTokenProps) {
+export function BuyToken({
+  token,
+  balance,
+  isLoadingQuotes,
+  isLoadingBalances,
+  numTokens,
+}: BuyTokenProps) {
   const { openDrawer } = useTokenSelect();
 
   return (
     <div className="flex flex-col gap-10">
       <span className="text-secondary-1">Buy</span>
       <div className="flex justify-between items-center">
-        <input
-          type="text"
-          className="w-full text-primary text-[56px] leading-1 h-22"
-          style={{ maxWidth: "calc(100% - 176px)" }}
-          value={numTokens}
-          readOnly
-        />
+        {isLoadingQuotes ? (
+          <Skeleton height={44} width="calc(100% - 176px)" />
+        ) : (
+          <input
+            type="text"
+            className="w-full text-primary text-[56px] leading-1 h-22"
+            style={{ maxWidth: "calc(100% - 176px)" }}
+            value={numTokens}
+            readOnly
+          />
+        )}
         <Button onClick={() => openDrawer("buy")}>
           <div className="flex items-center gap-4 pr-4">
             <img src={token.logoURI} alt={token.symbol} className="w-8 h-8 rounded-full" />

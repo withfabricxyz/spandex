@@ -2,17 +2,18 @@ import { ResponsiveBump } from "@nivo/bump";
 import type { SimulatedQuote } from "@withfabric/spandex";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { TokenMetadata } from "@/services/tokens";
+import type { Metric } from "./Insights";
 
 type BumpChartProps = {
   quotes?: SimulatedQuote[];
   sellToken: TokenMetadata;
   buyToken: TokenMetadata;
   numSellTokens: string;
+  selectedMetric: Metric;
+  setSelectedMetric: (metric: Metric) => void;
 };
 
-type Metric = "latency" | "accuracy" | "price";
-
-const COLORS: Record<string, string> = {
+export const COLORS: Record<string, string> = {
   fabric: "#8B5CF6",
   "0x": "#FF006B",
   uniswap: "#FF007A",
@@ -25,28 +26,28 @@ const COLORS: Record<string, string> = {
 
 function MetricSelect({
   selectedMetric,
-  onMetricSelect,
+  setSelectedMetric,
 }: {
   selectedMetric: Metric;
-  onMetricSelect: (metric: Metric) => void;
+  setSelectedMetric: (metric: Metric) => void;
 }) {
   const handleSelect = useCallback(
     (selected: Metric) => {
-      onMetricSelect(selected);
+      setSelectedMetric(selected);
     },
-    [onMetricSelect],
+    [setSelectedMetric],
   );
 
   return (
     <div className="flex gap-10 items-center">
       <button
         type="button"
-        onClick={() => handleSelect("latency")}
+        onClick={() => handleSelect("price")}
         className={`font-['Sohne_Mono'] text-[12px] underline decoration-dotted underline-offset-[3px] hover:cursor-pointer hover:decoration-solid ${
-          selectedMetric === "latency" ? "decoration-solid" : ""
+          selectedMetric === "price" ? "decoration-solid" : ""
         }`}
       >
-        Latency
+        Price
       </button>
       <button
         type="button"
@@ -57,14 +58,15 @@ function MetricSelect({
       >
         Accuracy
       </button>
+
       <button
         type="button"
-        onClick={() => handleSelect("price")}
+        onClick={() => handleSelect("latency")}
         className={`font-['Sohne_Mono'] text-[12px] underline decoration-dotted underline-offset-[3px] hover:cursor-pointer hover:decoration-solid ${
-          selectedMetric === "price" ? "decoration-solid" : ""
+          selectedMetric === "latency" ? "decoration-solid" : ""
         }`}
       >
-        Price
+        Latency
       </button>
     </div>
   );
@@ -119,9 +121,15 @@ const EndPointsLayer = ({ series }: any) => {
   );
 };
 
-export function BumpChart({ quotes, sellToken, buyToken, numSellTokens }: BumpChartProps) {
+export function BumpChart({
+  quotes,
+  sellToken,
+  buyToken,
+  numSellTokens,
+  selectedMetric,
+  setSelectedMetric,
+}: BumpChartProps) {
   const [quoteHistory, setQuoteHistory] = useState<SimulatedQuote[][]>([]);
-  const [metric, setMetric] = useState<Metric>("price");
 
   // reset history when swap parameters change
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally resetting on input changes
@@ -147,9 +155,9 @@ export function BumpChart({ quotes, sellToken, buyToken, numSellTokens }: BumpCh
       if (successfulQuotes.length === 0) return;
 
       let sortedQuotes: SimulatedQuote[];
-      if (metric === "latency") {
+      if (selectedMetric === "latency") {
         sortedQuotes = [...successfulQuotes].sort((a, b) => (a.latency || 0) - (b.latency || 0));
-      } else if (metric === "accuracy") {
+      } else if (selectedMetric === "accuracy") {
         // accuracy === simmed out vs quoted out
         sortedQuotes = [...successfulQuotes].sort((a, b) => {
           const simmedA = a.simulation.success ? a.simulation.outputAmount : 0n;
@@ -181,7 +189,7 @@ export function BumpChart({ quotes, sellToken, buyToken, numSellTokens }: BumpCh
       id: provider,
       data,
     }));
-  }, [quoteHistory, metric]);
+  }, [quoteHistory, selectedMetric]);
 
   const maxRank = useMemo(() => {
     if (chartData.length === 0) return 2;
@@ -192,7 +200,7 @@ export function BumpChart({ quotes, sellToken, buyToken, numSellTokens }: BumpCh
 
   return (
     <div className="flex flex-col gap-20 overflow-hidden">
-      <MetricSelect selectedMetric={metric} onMetricSelect={setMetric} />
+      <MetricSelect selectedMetric={selectedMetric} setSelectedMetric={setSelectedMetric} />
       {quoteHistory.length === 0 ? (
         <div
           className="bg-[#eee] flex items-center justify-center"

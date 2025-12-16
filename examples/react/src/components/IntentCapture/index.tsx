@@ -7,9 +7,8 @@ import { useAllowance } from "@/hooks/useAllowance";
 import { useBalance } from "@/hooks/useBalance";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import { formatTokenValue } from "@/utils/strings";
-import { BumpChart } from "./BumpChart";
 import { BuyToken } from "./BuyToken";
-import { LineItems } from "./LineItems";
+import { Insights, type Metric } from "./Insights";
 import { SellToken } from "./SellToken";
 import { TxBatchButton } from "./TxBatchButton";
 
@@ -26,6 +25,7 @@ export function IntentCapture() {
   const { sellToken, buyToken } = useTokenSelect();
   const { address, chainId } = useConnection();
   const [numSellTokens, setNumSellTokens] = useState<string>("20");
+  const [selectedMetric, setSelectedMetric] = useState<Metric>("price");
 
   const {
     data: inputBalance,
@@ -62,7 +62,7 @@ export function IntentCapture() {
 
   const {
     data,
-    isLoading: quotesLoading,
+    isLoading: isLoadingQuotes,
     error: quotesError,
   } = useQuotes({
     swap: swapParams,
@@ -119,7 +119,7 @@ export function IntentCapture() {
       });
     }
 
-    const isLoading = quotesLoading || allowanceLoading;
+    const isLoading = isLoadingQuotes || allowanceLoading;
     const error = quotesError || allowanceError; // TODO: real errors
 
     return {
@@ -133,7 +133,7 @@ export function IntentCapture() {
     allowance,
     swapParams.chainId,
     sellToken.address,
-    quotesLoading,
+    isLoadingQuotes,
     allowanceLoading,
     quotesError,
     allowanceError,
@@ -166,19 +166,20 @@ export function IntentCapture() {
         />
         <BuyToken
           token={buyToken}
+          isLoadingQuotes={isLoadingQuotes}
           isLoadingBalances={isLoadingBalances}
           balance={formatTokenValue(BigInt(outputBalance || "0"), buyToken.decimals)}
           numTokens={numBuyTokens}
         />
         <hr className="block bg-primary" />
-        <BumpChart
+        <Insights
           quotes={quotes}
           sellToken={sellToken}
           buyToken={buyToken}
           numSellTokens={numSellTokens}
+          selectedMetric={selectedMetric}
+          setSelectedMetric={setSelectedMetric}
         />
-        <hr className="block bg-primary" />
-        <LineItems quote={quotes?.[0]} inputToken={sellToken} outputToken={buyToken} />
         <hr className="block bg-primary" />
         {calls.length && (
           <TxBatchButton variant="sell" blocked={calls.length === 0} calls={calls} />

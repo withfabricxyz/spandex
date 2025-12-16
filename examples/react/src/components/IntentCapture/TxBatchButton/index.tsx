@@ -1,6 +1,6 @@
-import type { TxData } from "@/hooks/useSwap";
 // import { useConnection } from "wagmi";
 import { useWalletProperties } from "@/hooks/useWalletProperties";
+import type { TxData } from "../index";
 // import { ConnectButton } from "../ConnectButton";
 import { SequencedInlineTxBatchButton } from "./SequencedInline";
 import { SequencedWalletTxBatchButton } from "./SequencedWallet";
