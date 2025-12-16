@@ -10,12 +10,12 @@ import {
 import { simulateCalls } from "viem/actions";
 import type {
   Quote,
-  QuoteTxData,
   SimulatedQuote,
   SimulationArgs,
   SimulationResult,
   SwapParams,
   TransferData,
+  TxData,
 } from "./types.js";
 
 /**
@@ -26,7 +26,7 @@ import type {
 export class SimulationRevertError extends Error {
   /** Per-call metadata returned from `simulateCalls` for each failed call. */
   public readonly failures: {
-    call: QuoteTxData;
+    call: TxData;
     result: SimulateCallsReturnType["results"][0];
   }[];
 
@@ -133,7 +133,7 @@ async function performSimulation({
             }),
           }
         : undefined,
-    ].filter((c): c is QuoteTxData => c !== undefined);
+    ].filter((c): c is TxData => c !== undefined);
 
     const time = performance.now();
     const { results, assetChanges, block } = await simulateCalls(client, {
@@ -181,14 +181,14 @@ function extractOutputAmount(
 
 function validateSimulation(
   results: SimulateCallsReturnType["results"],
-  calls: QuoteTxData[],
+  calls: TxData[],
   block: Block,
 ) {
   const errors = results
     .map((result, i) => {
       if (result.status === "success") return null;
       return {
-        call: calls[i] as QuoteTxData,
+        call: calls[i] as TxData,
         result,
         block,
       };

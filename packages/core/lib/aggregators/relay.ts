@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import { type Address, zeroAddress } from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -86,6 +86,13 @@ export class RelayAggregator extends Aggregator {
       outputAmount,
       networkFee: body.fees?.gas ? BigInt(body.fees.gas.amount) : 0n,
       txData,
+      approval:
+        request.inputToken !== zeroAddress
+          ? {
+              token: request.inputToken,
+              spender: txData.to,
+            }
+          : undefined,
     };
   }
 }

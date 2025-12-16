@@ -1,3 +1,4 @@
+import { zeroAddress } from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -95,6 +96,13 @@ export class OdosAggregator extends Aggregator {
       outputAmount,
       networkFee,
       txData,
+      approval:
+        request.inputToken !== zeroAddress
+          ? {
+              token: request.inputToken,
+              spender: txData.to,
+            }
+          : undefined,
     };
   }
 

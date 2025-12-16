@@ -134,6 +134,7 @@ export class FabricAggregator extends Aggregator {
         data: response.transaction.data,
         value: BigInt(response.transaction.value),
       },
+      approval: response.approval,
       route: fabricRouteGraph(response),
     };
   }

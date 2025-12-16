@@ -44,11 +44,6 @@ Function that maps each fetched quote to a promise of type `T`. This allows for 
 | `priority` | ✗ | Provider order | Fallback chains |
 | Custom | Depends | Your logic | Special requirements |
 
-### sort
-`SimulatedQuoteSort` (optional)
-
-Comparator applied when the strategy waits for all simulated quotes (`quotedPrice` and `quotedGas`). Use [`resolveSuccessfulSimulatedQuotes`](./selectQuote.mdx#resolve-successful-quotes) if you also need the sorted results.
-
 **Custom**
 ```ts
 type QuoteSelectionFn = (
@@ -63,15 +58,3 @@ type QuoteSelectionFn = (
 
 A promise for a single simulated quote that offers the best outcome depending on the strategy.
 
-## Resolve successful quotes
-
-```ts
-import { resolveSuccessfulSimulatedQuotes } from "@withfabric/spandex";
-
-const sorted = await resolveSuccessfulSimulatedQuotes({
-  quotes,
-  sort: (a, b) => (a.simulation.outputAmount > b.simulation.outputAmount ? 1 : -1),
-});
-```
-
-Resolves every promise, filters to successful simulations, and optionally sorts them for reuse across custom selection flows.

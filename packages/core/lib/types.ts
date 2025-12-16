@@ -96,7 +96,16 @@ export type GenericQuote<P extends ProviderKey, T> = {
   /**
    * Transaction data that can be submitted to perform the swap.
    */
-  txData: QuoteTxData;
+  txData: TxData;
+  /**
+   * Approval details if an approval is required before executing the swap.
+   */
+  approval?: {
+    /** Address of the token that needs to be approved. */
+    token: Address;
+    /** Address of the spender that must be approved. */
+    spender: Address;
+  };
   /**
    * Optional route visualization supplied by the provider.
    */
@@ -198,7 +207,7 @@ export type SwapParams = ExactInSwapParams | TargetOutSwapParams;
 /**
  * Transaction payload emitted alongside a quote.
  */
-export type QuoteTxData = {
+export type TxData = {
   /**
    * Contract address that should receive the call.
    */

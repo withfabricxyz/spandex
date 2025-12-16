@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import { type Address, zeroAddress } from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -107,6 +107,13 @@ export class KyberAggregator extends Aggregator {
         to: response.routerAddress,
         data: response.encodedSwapData,
       },
+      approval:
+        request.inputToken !== zeroAddress
+          ? {
+              token: request.inputToken,
+              spender: response.routerAddress,
+            }
+          : undefined,
       route: kyberRouteGraph(response),
     };
   }
