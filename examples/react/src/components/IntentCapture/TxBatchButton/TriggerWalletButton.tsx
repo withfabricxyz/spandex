@@ -18,14 +18,6 @@ export function TriggerWalletButton({
   error?: StructuredError;
   onClick: () => void;
 }) {
-  console.log({
-    // variant,
-    processing,
-    text,
-    disabled,
-    error,
-    onClick,
-  });
   return (
     <div className="flex flex-col items-stretch gap-8">
       <Button onClick={onClick} size="lg" disabled={disabled || processing}>

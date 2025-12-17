@@ -1,5 +1,7 @@
 import type { SimulatedQuote } from "@withfabric/spandex";
 
+export type Metric = "price" | "accuracy" | "latency";
+
 // TODO: how should we do this? re: generic quote details
 export function isFabricQuote(
   quote: SimulatedQuote,
@@ -23,6 +25,40 @@ export function isOdosQuote(
   quote: SimulatedQuote,
 ): quote is Extract<SimulatedQuote, { provider: "odos" }> {
   return quote.success && quote.provider === "odos";
+}
+
+function getBestQuoteByPrice(quotes: SimulatedQuote[]): SimulatedQuote | undefined {
+  const successfulQuotes = quotes.filter((quote) => quote.success);
+  if (successfulQuotes.length === 0) return undefined;
+
+  return successfulQuotes.reduce((best, current) => {
+    return BigInt(current.outputAmount) > BigInt(best.outputAmount) ? current : best;
+  });
+}
+
+function getBestQuoteByAccuracy(quotes: SimulatedQuote[]): SimulatedQuote | undefined {
+  return getBestQuoteByPrice(quotes); // TODO: temp
+}
+
+function getBestQuoteByLatency(quotes: SimulatedQuote[]): SimulatedQuote | undefined {
+  return getBestQuoteByPrice(quotes); // TODO: temp
+}
+
+// TODO: spandex
+export function getBestQuoteByMetric({
+  quotes,
+  metric,
+}: {
+  quotes: SimulatedQuote[];
+  metric: Metric;
+}): SimulatedQuote | undefined {
+  const bestQuoteByMetric = {
+    price: getBestQuoteByPrice,
+    accuracy: getBestQuoteByAccuracy,
+    latency: getBestQuoteByLatency,
+  };
+
+  return bestQuoteByMetric[metric](quotes);
 }
 
 // TODO: which other aggregators surface fees?

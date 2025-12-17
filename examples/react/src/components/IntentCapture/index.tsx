@@ -5,7 +5,8 @@ import { type Address, encodeFunctionData, erc20Abi, type Hex, maxUint256 } from
 import { useConnection } from "wagmi";
 import { useAllowance } from "@/hooks/useAllowance";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
-import { Insights, type Metric } from "./Insights";
+import { getBestQuoteByMetric, type Metric } from "@/utils/quoteHelpers";
+import { Insights } from "./Insights";
 import { SwapControls } from "./SwapControls";
 import { TxBatchButton } from "./TxBatchButton";
 
@@ -47,8 +48,11 @@ export function IntentCapture() {
     },
   });
 
-  // TODO: select best
-  const best = quotes?.find((quote) => quote.success);
+  // TODO: useBestQuote?
+  const bestQuote = getBestQuoteByMetric({
+    quotes: quotes || [],
+    metric: selectedMetric,
+  });
 
   const {
     data: allowance,
@@ -58,18 +62,18 @@ export function IntentCapture() {
     chainId,
     owner: address,
     token: sellToken.address,
-    spender: best?.txData.to,
+    spender: bestQuote?.success ? bestQuote.txData.to : undefined,
   });
 
   // TODO: handle loading and error states
   const calls = useMemo(() => {
-    if (!chainId) return [];
+    if (!chainId || !bestQuote?.success) return [];
 
     const calls: TxData[] = [];
-    const inputAmount = BigInt(best?.inputAmount || 0);
+    const inputAmount = BigInt(bestQuote.inputAmount || 0);
 
-    if (best?.txData.data) {
-      const spender = best.txData.to;
+    if (bestQuote.txData.data) {
+      const spender = bestQuote.txData.to;
       const currentAllowance = BigInt(allowance || 0);
       const isApprovalRequired = inputAmount > 0n && currentAllowance < inputAmount;
 
@@ -90,16 +94,16 @@ export function IntentCapture() {
       }
 
       calls.push({
-        to: best.txData.to,
+        to: bestQuote.txData.to,
         name: "SELL",
-        data: best.txData.data,
+        data: bestQuote.txData.data,
         chainId,
-        value: BigInt(best.txData.value || 0),
+        value: BigInt(bestQuote.txData.value || 0),
       });
     }
 
     return calls;
-  }, [best, allowance, chainId, sellToken.address]);
+  }, [bestQuote, allowance, chainId, sellToken.address]);
 
   const onSwitchTokens = useCallback(() => {
     setSellToken(buyToken);
@@ -110,7 +114,7 @@ export function IntentCapture() {
     <ClientOnly>
       <div className="flex flex-col gap-20">
         <SwapControls
-          bestQuote={best}
+          bestQuote={bestQuote}
           sellToken={sellToken}
           numSellTokens={numSellTokens}
           setNumSellTokens={setNumSellTokens}
@@ -120,6 +124,7 @@ export function IntentCapture() {
         />
         <hr className="block bg-primary" />
         <Insights
+          bestQuote={bestQuote}
           quotes={quotes}
           sellToken={sellToken}
           buyToken={buyToken}

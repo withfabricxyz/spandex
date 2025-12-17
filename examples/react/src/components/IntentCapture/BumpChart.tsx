@@ -1,14 +1,10 @@
 import { ResponsiveBump } from "@nivo/bump";
 import type { SimulatedQuote } from "@withfabric/spandex";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { TokenMetadata } from "@/services/tokens";
-import type { Metric } from "./Insights";
+import { useCallback, useMemo } from "react";
+import type { Metric } from "@/utils/quoteHelpers";
 
 type BumpChartProps = {
-  quotes?: SimulatedQuote[];
-  sellToken: TokenMetadata;
-  buyToken: TokenMetadata;
-  numSellTokens: string;
+  quoteHistory: SimulatedQuote[][];
   selectedMetric: Metric;
   setSelectedMetric: (metric: Metric) => void;
 };
@@ -74,7 +70,7 @@ function MetricSelect({
 
 // Custom layer to render shadow lines behind the main lines
 // biome-ignore lint/suspicious/noExplicitAny: <>
-const ShadowLinesLayer = ({ series, lineGenerator }: any) => {
+function ShadowLinesLayer({ series, lineGenerator }: any) {
   return (
     <g>
       {/* biome-ignore lint/suspicious/noExplicitAny: <> */}
@@ -97,11 +93,11 @@ const ShadowLinesLayer = ({ series, lineGenerator }: any) => {
       })}
     </g>
   );
-};
+}
 
 // Custom layer to render end point dots
 // biome-ignore lint/suspicious/noExplicitAny: <>
-const EndPointsLayer = ({ series }: any) => {
+function EndPointsLayer({ series }: any) {
   return (
     <g>
       {/* biome-ignore lint/suspicious/noExplicitAny: <> */}
@@ -119,31 +115,9 @@ const EndPointsLayer = ({ series }: any) => {
       })}
     </g>
   );
-};
+}
 
-export function BumpChart({
-  quotes,
-  sellToken,
-  buyToken,
-  numSellTokens,
-  selectedMetric,
-  setSelectedMetric,
-}: BumpChartProps) {
-  const [quoteHistory, setQuoteHistory] = useState<SimulatedQuote[][]>([]);
-
-  // reset history when swap parameters change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally resetting on input changes
-  useEffect(() => {
-    setQuoteHistory([]);
-  }, [sellToken.address, buyToken.address, numSellTokens]);
-
-  // store quotes in history whenever we get a new set of quotes
-  useEffect(() => {
-    if (quotes && quotes.length > 0) {
-      setQuoteHistory((prev) => [...prev, quotes].slice(-20)); // limit to last 20?
-    }
-  }, [quotes]);
-
+export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: BumpChartProps) {
   const chartData = useMemo(() => {
     if (quoteHistory.length === 0) return [];
 

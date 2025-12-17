@@ -1,26 +1,29 @@
 import type { SimulatedQuote } from "@withfabric/spandex";
 import { useEffect, useState } from "react";
 import type { TokenMetadata } from "@/services/tokens";
+import type { Metric } from "@/utils/quoteHelpers";
 import { BumpChart } from "./BumpChart";
 import { LineItems } from "./LineItems";
 
-export type Metric = "price" | "accuracy" | "latency";
-
-export function Insights({
-  quotes,
-  sellToken,
-  buyToken,
-  numSellTokens,
-  selectedMetric,
-  setSelectedMetric,
-}: {
+type InsightsProps = {
+  bestQuote: SimulatedQuote | undefined;
   quotes: SimulatedQuote[] | undefined;
   sellToken: TokenMetadata;
   buyToken: TokenMetadata;
   numSellTokens: string;
   selectedMetric: Metric;
   setSelectedMetric: (metric: Metric) => void;
-}) {
+};
+
+export function Insights({
+  bestQuote,
+  quotes,
+  sellToken,
+  buyToken,
+  numSellTokens,
+  selectedMetric,
+  setSelectedMetric,
+}: InsightsProps) {
   const [quoteHistory, setQuoteHistory] = useState<SimulatedQuote[][]>([]);
 
   // reset history when swap parameters change
@@ -36,21 +39,15 @@ export function Insights({
     }
   }, [quotes]);
 
-  // TODO: select best quote
-  const latestQuotes = quoteHistory.length > 0 ? quoteHistory[quoteHistory.length - 1] : [];
-
   return (
     <>
       <BumpChart
-        quotes={quotes}
-        sellToken={sellToken}
-        buyToken={buyToken}
-        numSellTokens={numSellTokens}
+        quoteHistory={quoteHistory}
         selectedMetric={selectedMetric}
         setSelectedMetric={setSelectedMetric}
       />
       <hr className="block bg-primary" />
-      <LineItems quote={latestQuotes[0]} inputToken={sellToken} outputToken={buyToken} />
+      <LineItems quote={bestQuote} inputToken={sellToken} outputToken={buyToken} />
     </>
   );
 }
