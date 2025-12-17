@@ -29,7 +29,7 @@ const swap: ExactInSwapParams = {
 const bestQuote = await getQuote({
   config,
   swap,
-  strategy: "quotedPrice",
+  strategy: "bestPrice",
 });
 
 if (!bestQuote) {

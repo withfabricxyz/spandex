@@ -28,7 +28,7 @@ const quote = await getQuote({
     slippageBps: 50,
     swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
   },
-  strategy: "quotedPrice",
+  strategy: "bestPrice",
 });
 
 if (!quote) {
