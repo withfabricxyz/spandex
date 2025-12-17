@@ -53,7 +53,7 @@ export function TokenSelectProvider({ children }: React.PropsWithChildren) {
       buyToken,
       setBuyToken,
     }),
-    [drawerState, openDrawer, closeDrawer, sellToken, buyToken],
+    [drawerState.context, drawerState.isOpen, openDrawer, closeDrawer, sellToken, buyToken],
   );
 
   return <TokenSelectContext.Provider value={value}>{children}</TokenSelectContext.Provider>;
