@@ -14,8 +14,8 @@ export type TxBatchButtonProps = {
 };
 
 export function TxBatchButton(props: TxBatchButtonProps) {
-  // const { isConnected } = useConnection();
-  const walletProps = useWalletProperties({ chainId: props.calls[0].chainId });
+  const chainId = props.calls[0]?.chainId;
+  const walletProps = useWalletProperties({ chainId });
 
   // if (!isConnected) {
   //   return <ConnectButton />;

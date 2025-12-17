@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { type Connector, useAccount, useCapabilities } from "wagmi";
+import { type Connector, useCapabilities, useConnection } from "wagmi";
 
 export type WalletProperties = {
   batching: boolean; // Indicates if the wallet supports batching transactions
@@ -15,7 +15,7 @@ export type WalletProperties = {
  * @returns {WalletProperties} An object containing wallet properties.
  */
 export function useWalletProperties({ chainId }: { chainId: number }) {
-  const { address, connector } = useAccount();
+  const { address, connector } = useConnection();
   const { data: capabilities } = useCapabilities({
     account: address,
     chainId,

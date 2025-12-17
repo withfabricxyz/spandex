@@ -57,7 +57,7 @@ export function SellToken({
       <div className="flex justify-between items-center">
         <input
           type="text"
-          className="w-full text-primary text-[56px] leading-1 h-22"
+          className="w-full text-primary text-[56px] leading-1 h-22 outline-0"
           value={numTokens}
           onChange={(e) => onChange(e.target.value)}
         />

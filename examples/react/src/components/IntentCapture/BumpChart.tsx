@@ -203,7 +203,7 @@ export function BumpChart({
       <MetricSelect selectedMetric={selectedMetric} setSelectedMetric={setSelectedMetric} />
       {quoteHistory.length === 0 ? (
         <div
-          className="bg-[#eee] flex items-center justify-center"
+          className="bg-tertiary flex items-center justify-center animate-pulse"
           style={{ height: `${chartHeight}px` }}
         >
           <span className="font-['Sohne_Mono'] text-[12px] text-[#999]">Fetching quotes...</span>
