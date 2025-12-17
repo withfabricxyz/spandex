@@ -3,6 +3,7 @@ import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x.js";
 import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js";
 import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
+import type { RelayConfig, RelayQuoteResponse } from "./aggregators/relay.js";
 
 /**
  * Definitions for each supported provider including their configuration and quote response types.
@@ -23,6 +24,10 @@ export type ProviderDefinitions = {
   odos: {
     config: OdosConfig;
     quote: OdosQuoteResponse;
+  };
+  relay: {
+    config: RelayConfig;
+    quote: RelayQuoteResponse;
   };
 };
 
@@ -91,7 +96,16 @@ export type GenericQuote<P extends ProviderKey, T> = {
   /**
    * Transaction data that can be submitted to perform the swap.
    */
-  txData: QuoteTxData;
+  txData: TxData;
+  /**
+   * Approval details if an approval is required before executing the swap.
+   */
+  approval?: {
+    /** Address of the token that needs to be approved. */
+    token: Address;
+    /** Address of the spender that must be approved. */
+    spender: Address;
+  };
   /**
    * Optional route visualization supplied by the provider.
    */
@@ -193,7 +207,7 @@ export type SwapParams = ExactInSwapParams | TargetOutSwapParams;
 /**
  * Transaction payload emitted alongside a quote.
  */
-export type QuoteTxData = {
+export type TxData = {
   /**
    * Contract address that should receive the call.
    */
@@ -320,21 +334,6 @@ export type SwapOptions = FeeOptions;
 export type AggregationOptions = TimingOptions & FeeOptions;
 
 /**
- * Custom strategy function used to pick a winning quote.
- */
-export type QuoteSelectionFn = (quotes: Array<Promise<Quote>>) => Promise<SuccessfulQuote | null>;
-
-/**
- * Built-in strategies for ranking quote responses.
- */
-export type QuoteSelectionName = "fastest" | "quotedPrice" | "quotedGas" | "priority";
-
-/**
- * Strategy reference, either by name or via custom function.
- */
-export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;
-
-/**
  * Configuration for constructing a MetaAggregator instance.
  */
 export type ConfigParams = {
@@ -368,6 +367,26 @@ export type SimulationArgs = {
   quote: Quote;
 };
 
+/**
+ * Transfer event data extracted from simulation logs.
+ */
+export type TransferData = {
+  /** Index of the transfer event in the log array. */
+  index: number;
+  /** Address of the token being transferred. */
+  token: Address;
+  /** Address sending the tokens. */
+  from: Address;
+  /** Address receiving the tokens. */
+  to: Address;
+  /** Amount of tokens transferred (denominated in base units). */
+  value: bigint;
+};
+
+/** Result of a successful quote simulation.
+ *
+ * @public
+ */
 export type SimulationSuccess = {
   /** Indicates the simulation completed without errors. */
   success: true;
@@ -381,8 +400,14 @@ export type SimulationSuccess = {
   latency: number;
   /** Block number tied to the simulation response, if the client returned one. */
   blockNumber: bigint | null;
+  /** ERC-20 Transfer events extracted from the simulation logs. */
+  transfers: TransferData[];
 };
 
+/** Result of a failed quote simulation.
+ *
+ * @public
+ */
 export type SimulationFailure = {
   /** Indicates the simulation failed and `error` contains the reason. */
   success: false;
@@ -398,11 +423,53 @@ export type SimulationFailure = {
 export type SimulationResult = SimulationSuccess | SimulationFailure;
 
 /**
+ * Quote decorated with the corresponding simulation result, both successful.
+ *
+ * @public
+ */
+export type SuccessfulSimulatedQuote = SuccessfulQuote & {
+  /** Successful simulation metadata for the quote. */
+  simulation: SimulationSuccess;
+};
+
+/**
+ * Quote decorated with a failed simulation result.
+ *
+ * @public
+ */
+export type FailedSimulatedQuote = Quote & {
+  /** Error metadata describing why simulation failed. */
+  simulation: SimulationFailure;
+};
+
+/**
  * Quote decorated with the corresponding simulation result.
  *
  * @public
  */
-export type SimulatedQuote = Quote & {
-  /** Result data describing the simulation outcome for the quote. */
-  simulation: SimulationResult;
-};
+export type SimulatedQuote = SuccessfulSimulatedQuote | FailedSimulatedQuote;
+
+/**
+ * Comparator used when sorting simulated quotes.
+ */
+export type SimulatedQuoteSort = (
+  a: SuccessfulSimulatedQuote,
+  b: SuccessfulSimulatedQuote,
+) => number;
+
+/**
+ * Custom strategy function used to pick a winning quote.
+ */
+export type QuoteSelectionFn = (
+  quotes: Array<Promise<SimulatedQuote>>,
+) => Promise<SuccessfulSimulatedQuote | null>;
+
+/**
+ * Built-in strategies for ranking quote responses.
+ */
+export type QuoteSelectionName = "fastest" | "bestPrice" | "estimatedGas" | "priority";
+
+/**
+ * Strategy reference, either by name or via custom function.
+ */
+export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;

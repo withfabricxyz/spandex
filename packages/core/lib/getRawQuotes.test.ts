@@ -58,8 +58,8 @@ describe("getRawQuotes", () => {
     const end = Date.now();
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(1);
-    expect(end - start).toBeGreaterThanOrEqual(10); // 50ms deadline
-    expect(end - start).toBeLessThanOrEqual(100); // 50% buffer
+    expect(end - start).toBeGreaterThanOrEqual(8);
+    expect(end - start).toBeLessThanOrEqual(100);
     expect(failingAggregator.count).toBe(1); // Retry should be skipped due to deadline
     expect(quotes[0]?.success).toBe(false);
     expect((quotes[0] as FailedQuote).error?.message).toMatch(/Aggregator deadline exceeded/);

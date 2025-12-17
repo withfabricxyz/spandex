@@ -26,10 +26,11 @@
     "build": "bun ../../scripts/build-packages.ts core"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "prool": "^0.2.1"
   },
   "dependencies": {
-     "viem": "^2.40"
+    "viem": "^2.40"
   },
   "peerDependencies": {
     "typescript": ">=5.0.4"

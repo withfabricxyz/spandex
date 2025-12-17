@@ -86,6 +86,12 @@ export class ZeroXAggregator extends Aggregator {
         to: response.transaction.to,
         data: response.transaction.data,
       },
+      approval: response.allowanceTarget
+        ? {
+            token: response.sellToken,
+            spender: response.allowanceTarget,
+          }
+        : undefined,
       route: zeroXRouteGraph(response),
     };
   }

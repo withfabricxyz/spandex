@@ -1,55 +1,87 @@
-import type { Quote, QuoteSelectionFn, QuoteSelectionStrategy, SuccessfulQuote } from "./types.js";
+import type {
+  QuoteSelectionFn,
+  QuoteSelectionStrategy,
+  SimulatedQuote,
+  SimulatedQuoteSort,
+  SuccessfulSimulatedQuote,
+} from "./types.js";
 
-async function onlySuccess(quotes: Array<Promise<Quote>>): Promise<SuccessfulQuote[]> {
-  return (await Promise.all(quotes)).filter((q) => q.success) as SuccessfulQuote[];
+function isSuccessfulSimulatedQuote(quote: SimulatedQuote): quote is SuccessfulSimulatedQuote {
+  return quote.success && quote.simulation.success;
+}
+
+async function resolveSuccessfulSimulatedQuotes({
+  quotes,
+  sort,
+}: {
+  quotes: Array<Promise<SimulatedQuote>>;
+  sort?: SimulatedQuoteSort;
+}): Promise<SuccessfulSimulatedQuote[]> {
+  const successfulQuotes = (await Promise.all(quotes)).filter(isSuccessfulSimulatedQuote);
+  if (!sort) {
+    return successfulQuotes;
+  }
+  return [...successfulQuotes].sort(sort);
+}
+
+const sortBySimulatedOutput: SimulatedQuoteSort = (a, b) => {
+  if (a.simulation.outputAmount === b.simulation.outputAmount) return 0;
+  return a.simulation.outputAmount > b.simulation.outputAmount ? -1 : 1;
+};
+
+const sortByGasUsed: SimulatedQuoteSort = (a, b) => {
+  const gasA = gasCost(a);
+  const gasB = gasCost(b);
+  if (gasA === gasB) return 0;
+  return gasA > gasB ? 1 : -1;
+};
+
+function gasCost(quote: SuccessfulSimulatedQuote): bigint {
+  return quote.simulation.gasUsed ?? quote.networkFee;
 }
 
 const quotedPrice: QuoteSelectionFn = async (
-  quotes: Array<Promise<Quote>>,
-): Promise<SuccessfulQuote | null> => {
-  const successfulQuotes = await onlySuccess(quotes);
-  if (successfulQuotes.length === 0) {
-    return null;
-  }
-  // Consider ratio for input vs output amounts
-  return successfulQuotes.reduce((prev, curr) =>
-    prev.outputAmount > curr.outputAmount ? prev : curr,
-  );
+  quotes: Array<Promise<SimulatedQuote>>,
+): Promise<SuccessfulSimulatedQuote | null> => {
+  const sorted = await resolveSuccessfulSimulatedQuotes({
+    quotes,
+    sort: sortBySimulatedOutput,
+  });
+  return sorted[0] ?? null;
 };
 
 const quotedGas: QuoteSelectionFn = async (
-  quotes: Array<Promise<Quote>>,
-): Promise<SuccessfulQuote | null> => {
-  const successfulQuotes = await onlySuccess(quotes);
-  if (successfulQuotes.length === 0) {
-    return null;
-  }
-  return successfulQuotes.reduce((prev, curr) => (prev.networkFee < curr.networkFee ? prev : curr));
+  quotes: Array<Promise<SimulatedQuote>>,
+): Promise<SuccessfulSimulatedQuote | null> => {
+  const sorted = await resolveSuccessfulSimulatedQuotes({
+    quotes,
+    sort: sortByGasUsed,
+  });
+  return sorted[0] ?? null;
 };
 
 const priority: QuoteSelectionFn = async (
-  quotes: Array<Promise<Quote>>,
-): Promise<SuccessfulQuote | null> => {
+  quotes: Array<Promise<SimulatedQuote>>,
+): Promise<SuccessfulSimulatedQuote | null> => {
   for (const quotePromise of quotes) {
     const quote = await quotePromise;
-    if (quote.success) {
+    if (isSuccessfulSimulatedQuote(quote)) {
       return quote;
     }
   }
   return null;
 };
 
-// Should probably return errors otherwise
 const fastest: QuoteSelectionFn = async (
-  quotes: Array<Promise<Quote>>,
-): Promise<SuccessfulQuote | null> => {
+  quotes: Array<Promise<SimulatedQuote>>,
+): Promise<SuccessfulSimulatedQuote | null> => {
   return Promise.any(
     quotes.map(async (q) => {
       const resolved = await q;
-      if (resolved.success) {
+      if (isSuccessfulSimulatedQuote(resolved)) {
         return resolved;
       }
-      return Promise.reject("Failed quote");
+      return Promise.reject("Failed quote simulation");
     }),
   ).catch(() => null);
 };
@@ -59,8 +91,8 @@ export async function selectQuote({
   quotes,
 }: {
   strategy: QuoteSelectionStrategy;
-  quotes: Array<Promise<Quote>>;
-}): Promise<SuccessfulQuote | null> {
+  quotes: Array<Promise<SimulatedQuote>>;
+}): Promise<SuccessfulSimulatedQuote | null> {
   if (quotes.length === 0) {
     throw new Error("No quotes provided to selectQuote");
   }
@@ -72,9 +104,9 @@ export async function selectQuote({
   switch (strategy) {
     case "fastest":
       return fastest(quotes);
-    case "quotedPrice":
+    case "bestPrice":
       return quotedPrice(quotes);
-    case "quotedGas":
+    case "estimatedGas":
       return quotedGas(quotes);
     case "priority":
       return priority(quotes);

@@ -1,9 +1,19 @@
 import { describe, expect, it } from "bun:test";
 import type { FabricQuoteResponse } from "./aggregators/fabric.js";
 import { selectQuote } from "./selectQuote.js";
-import type { Quote, SuccessfulQuote } from "./types.js";
+import type { SimulatedQuote, SimulationSuccess, SuccessfulSimulatedQuote } from "./types.js";
 
-const quoteSuccess: Quote = {
+const baseSimulation: SimulationSuccess = {
+  success: true,
+  outputAmount: 900_000n,
+  callsResults: [] as SimulationSuccess["callsResults"],
+  latency: 0,
+  gasUsed: 5_000n,
+  blockNumber: 0n,
+  transfers: [],
+};
+
+const quoteSuccess: SuccessfulSimulatedQuote = {
   success: true,
   provider: "fabric",
   details: {} as FabricQuoteResponse,
@@ -12,126 +22,152 @@ const quoteSuccess: Quote = {
   outputAmount: 900_000n,
   networkFee: 5_000n,
   txData: { to: "0x0", data: "0x0" },
+  simulation: baseSimulation,
 };
 
-const quoteFailure: Quote = {
+const quoteFailure: SimulatedQuote = {
   success: false,
   provider: "fabric",
   error: new Error("Failed to get quote"),
+  simulation: {
+    success: false,
+    error: new Error("Cannot simulate failed quote"),
+  },
 };
+
+const simulationFailure: SimulatedQuote = {
+  ...quoteSuccess,
+  simulation: { success: false, error: new Error("Simulation failed") },
+};
+
+function makeSuccessfulQuote(
+  overrides: Partial<SuccessfulSimulatedQuote>,
+): SuccessfulSimulatedQuote {
+  const simulationOverride = overrides.simulation as Partial<SimulationSuccess> | undefined;
+  const simulationOutput =
+    simulationOverride?.outputAmount ??
+    (overrides.outputAmount !== undefined
+      ? overrides.outputAmount
+      : quoteSuccess.simulation.outputAmount);
+
+  return {
+    ...quoteSuccess,
+    ...overrides,
+    simulation: {
+      ...quoteSuccess.simulation,
+      outputAmount: simulationOutput,
+      ...simulationOverride,
+    },
+  } as SuccessfulSimulatedQuote;
+}
+
+function withDelay<T>(value: T, delay: number): Promise<T> {
+  return new Promise((resolve) => setTimeout(() => resolve(value), delay));
+}
 
 describe("selectQuote", () => {
   it("picks the fastest successful response", async () => {
     const pending = [
-      new Promise<Quote>((resolve) => {
-        setTimeout(() => {
-          resolve(quoteSuccess);
-        }, 200);
-      }),
-      new Promise<Quote>((resolve) => {
-        setTimeout(() => {
-          resolve({ ...quoteSuccess, outputAmount: 7457n });
-        }, 150);
-      }),
-      new Promise<Quote>((resolve) => {
-        setTimeout(() => {
-          resolve(quoteFailure);
-        }, 10);
-      }),
+      withDelay(makeSuccessfulQuote({ outputAmount: 10n }), 200),
+      withDelay(makeSuccessfulQuote({ outputAmount: 7_457n }), 150),
+      withDelay(quoteFailure, 10),
     ];
 
     const output = await selectQuote({ strategy: "fastest", quotes: pending });
     expect(output).toBeDefined();
-    expect(output?.outputAmount).toBe(7457n);
+    expect(output?.simulation.outputAmount).toBe(7_457n);
   }, 1_000);
 
-  it("price selection - best outut relative to input is chosen", async () => {
+  it("price selection - best simulated output relative to input is chosen", async () => {
     const pending = [
-      new Promise<Quote>((resolve) => {
-        resolve(quoteFailure);
-      }),
-      new Promise<Quote>((resolve) => {
-        resolve({ ...quoteSuccess, outputAmount: 13n });
-      }),
-      new Promise<Quote>((resolve) => {
-        resolve({ ...quoteSuccess, outputAmount: 15n });
-      }),
+      Promise.resolve(simulationFailure),
+      Promise.resolve(
+        makeSuccessfulQuote({
+          outputAmount: 13n,
+          simulation: { ...quoteSuccess.simulation, outputAmount: 13n },
+        }),
+      ),
+      Promise.resolve(
+        makeSuccessfulQuote({
+          outputAmount: 15n,
+          simulation: { ...quoteSuccess.simulation, outputAmount: 15n },
+        }),
+      ),
     ];
-    const output = await selectQuote({ strategy: "quotedPrice", quotes: pending });
+    const output = await selectQuote({ strategy: "bestPrice", quotes: pending });
     expect(output).toBeDefined();
-    expect(output?.outputAmount).toBe(15n);
+    expect(output?.simulation.outputAmount).toBe(15n);
   }, 1_000);
 
   it("gas optimized - selects the cheapest in terms of gas", async () => {
     const pending = [
-      new Promise<Quote>((resolve) => {
-        resolve(quoteFailure);
-      }),
-      new Promise<Quote>((resolve) => {
-        resolve({ ...quoteSuccess, networkFee: 1500000000n });
-      }),
-      new Promise<Quote>((resolve) => {
-        resolve({ ...quoteSuccess, networkFee: 1300000n });
-      }),
+      Promise.resolve(simulationFailure),
+      Promise.resolve(
+        makeSuccessfulQuote({
+          networkFee: 1_500_000_000n,
+          simulation: { ...quoteSuccess.simulation, gasUsed: 1_500_000_000n },
+        }),
+      ),
+      Promise.resolve(
+        makeSuccessfulQuote({
+          networkFee: 1_300_000n,
+          simulation: { ...quoteSuccess.simulation, gasUsed: 1_300_000n },
+        }),
+      ),
     ];
-    const output = await selectQuote({ strategy: "quotedGas", quotes: pending });
+    const output = await selectQuote({ strategy: "estimatedGas", quotes: pending });
     expect(output).toBeDefined();
-    expect(output?.networkFee).toBe(1300000n);
+    expect(output?.simulation.gasUsed).toBe(1_300_000n);
   }, 1_000);
 
   it("priority selection (used for failover)", async () => {
     const pending = [
-      new Promise<Quote>((resolve) => {
-        resolve(quoteFailure);
-      }),
-      new Promise<Quote>((resolve) => {
-        resolve({ ...quoteSuccess, outputAmount: 15n });
-      }),
-      new Promise<Quote>((resolve) => {
-        resolve({ ...quoteSuccess, outputAmount: 30n });
-      }),
+      Promise.resolve(simulationFailure),
+      Promise.resolve(
+        makeSuccessfulQuote({
+          outputAmount: 15n,
+          simulation: { ...quoteSuccess.simulation, outputAmount: 15n },
+        }),
+      ),
+      Promise.resolve(
+        makeSuccessfulQuote({
+          outputAmount: 30n,
+          simulation: { ...quoteSuccess.simulation, outputAmount: 30n },
+        }),
+      ),
     ];
     const output = await selectQuote({ strategy: "priority", quotes: pending });
     expect(output).toBeDefined();
-    expect(output?.outputAmount).toBe(15n);
+    expect(output?.simulation.outputAmount).toBe(15n);
   }, 1_000);
 
   it("custom selection", async () => {
     const pending = [
-      new Promise<Quote>((resolve) => {
-        resolve(quoteFailure);
-      }),
-      new Promise<Quote>((resolve) => {
-        resolve({ ...quoteSuccess, outputAmount: 15n });
-      }),
-      new Promise<Quote>((resolve) => {
-        resolve({ ...quoteSuccess, outputAmount: 30n });
-      }),
+      Promise.resolve(simulationFailure),
+      Promise.resolve(makeSuccessfulQuote({ simulation: { ...quoteSuccess.simulation } })),
+      Promise.resolve(
+        makeSuccessfulQuote({
+          outputAmount: 30n,
+          simulation: { ...quoteSuccess.simulation, outputAmount: 30n },
+        }),
+      ),
     ];
     const output = await selectQuote({
-      strategy: (quotes) => {
-        return Promise.all(quotes).then((resolved) => resolved[2] as SuccessfulQuote);
-      },
+      strategy: (quotes) =>
+        Promise.all(quotes).then((resolved) => resolved[2] as SuccessfulSimulatedQuote),
       quotes: pending,
     });
     expect(output).toBeDefined();
-    expect(output?.outputAmount).toBe(30n);
+    expect(output?.simulation.outputAmount).toBe(30n);
   }, 1_000);
 
   it("returns null if no successful quotes", async () => {
-    const pending = [
-      new Promise<Quote>((resolve) => {
-        resolve(quoteFailure);
-      }),
-      new Promise<Quote>((resolve) => {
-        resolve(quoteFailure);
-      }),
-    ];
-    const output = await selectQuote({ strategy: "quotedPrice", quotes: pending });
+    const pending = [Promise.resolve(quoteFailure), Promise.resolve(simulationFailure)];
+    const output = await selectQuote({ strategy: "bestPrice", quotes: pending });
     expect(output).toBeNull();
   });
 
   it("throws if args are bad", async () => {
-    await expect(selectQuote({ strategy: "quotedPrice", quotes: [] })).rejects.toThrow();
+    await expect(selectQuote({ strategy: "bestPrice", quotes: [] })).rejects.toThrow();
   });
 });

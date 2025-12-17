@@ -1,13 +1,21 @@
-import type { Address, Block, PublicClient, SimulateCallsReturnType } from "viem";
-import { encodeFunctionData, erc20Abi, ethAddress, parseEther, zeroAddress } from "viem";
+import type { Address, Block, Log, PublicClient, SimulateCallsReturnType } from "viem";
+import {
+  decodeEventLog,
+  encodeFunctionData,
+  erc20Abi,
+  ethAddress,
+  parseEther,
+  zeroAddress,
+} from "viem";
 import { simulateCalls } from "viem/actions";
 import type {
   Quote,
-  QuoteTxData,
   SimulatedQuote,
   SimulationArgs,
   SimulationResult,
   SwapParams,
+  TransferData,
+  TxData,
 } from "./types.js";
 
 /**
@@ -18,7 +26,7 @@ import type {
 export class SimulationRevertError extends Error {
   /** Per-call metadata returned from `simulateCalls` for each failed call. */
   public readonly failures: {
-    call: QuoteTxData;
+    call: TxData;
     result: SimulateCallsReturnType["results"][0];
   }[];
 
@@ -79,7 +87,7 @@ export async function simulateQuotes(
  * @returns Quote data merged with its simulation result.
  */
 export async function simulateQuote(args: SimulationArgs): Promise<SimulatedQuote> {
-  return { ...args.quote, simulation: await performSimulation(args) };
+  return { ...args.quote, simulation: await performSimulation(args) } as SimulatedQuote;
 }
 
 async function performSimulation({
@@ -125,7 +133,7 @@ async function performSimulation({
             }),
           }
         : undefined,
-    ].filter((c): c is QuoteTxData => c !== undefined);
+    ].filter((c): c is TxData => c !== undefined);
 
     const time = performance.now();
     const { results, assetChanges, block } = await simulateCalls(client, {
@@ -144,6 +152,8 @@ async function performSimulation({
     // If any call failed, extract error (TODO: consider treating approval failure differently?)
     validateSimulation(results, calls, block);
 
+    const transfers = extractTransfers((isERC20In ? results[1]?.logs : results[0]?.logs) || []);
+
     return {
       success: true,
       outputAmount: extractOutputAmount(assetChanges, swap.outputToken),
@@ -151,6 +161,7 @@ async function performSimulation({
       latency,
       gasUsed: isERC20In ? results[1]?.gasUsed : results[0]?.gasUsed,
       blockNumber: block.number,
+      transfers,
     };
   } catch (error) {
     return {
@@ -170,14 +181,14 @@ function extractOutputAmount(
 
 function validateSimulation(
   results: SimulateCallsReturnType["results"],
-  calls: QuoteTxData[],
+  calls: TxData[],
   block: Block,
 ) {
   const errors = results
     .map((result, i) => {
       if (result.status === "success") return null;
       return {
-        call: calls[i] as QuoteTxData,
+        call: calls[i] as TxData,
         result,
         block,
       };
@@ -187,4 +198,28 @@ function validateSimulation(
   if (errors.length > 0) {
     throw new SimulationRevertError(errors, block);
   }
+}
+
+function extractTransfers(logs: Log[]): TransferData[] {
+  return logs
+    .map((log) => {
+      try {
+        const decoded = decodeEventLog({
+          abi: erc20Abi,
+          data: log.data,
+          topics: log.topics,
+        });
+        if (decoded.eventName === "Transfer") {
+          return {
+            index: log.logIndex || 0,
+            token: log.address,
+            from: decoded.args.from,
+            to: decoded.args.to,
+            value: decoded.args.value,
+          };
+        }
+      } catch {}
+      return null;
+    })
+    .filter((t) => t !== null);
 }

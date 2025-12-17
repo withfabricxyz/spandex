@@ -7,6 +7,7 @@ import {
   type SwapParams,
   type TargetOutSwapParams,
 } from "@withfabric/spandex";
+import { bigintReplacer, bigintReviver } from "lib/util/index.js";
 import { useMemo } from "react";
 import { useConnection } from "wagmi";
 import { useSpandexConfig } from "../context/SpandexProvider.js";
@@ -22,6 +23,7 @@ type UseSwapParams = (
 export type UseQuotesParams<TSelectData = Quote[]> = {
   swap: UseSwapParams;
   query?: Omit<UseQueryOptions<SimulatedQuote[], Error, TSelectData>, "queryKey" | "queryFn">;
+  serverAction?: true | string;
 };
 
 export function useQuotes<TSelectData = SimulatedQuote[]>(
@@ -79,9 +81,31 @@ export function useQuotes<TSelectData = SimulatedQuote[]>(
       fullParams?.mode === "exactIn"
         ? fullParams?.inputAmount.toString()
         : fullParams?.outputAmount.toString(),
+      params.serverAction,
     ],
-    queryFn: () => {
-      return getQuotes({ config, swap: fullParams as SwapParams });
+    queryFn: async () => {
+      if (params.serverAction === undefined) {
+        return getQuotes({ config, swap: fullParams as SwapParams });
+      } else if (params.serverAction === true) {
+        const { getServerQuotes } = await import("lib/functions/getServerQuotes.js");
+        const quotesString = await getServerQuotes({ swap: fullParams as SwapParams });
+        return JSON.parse(quotesString, bigintReviver);
+      } else {
+        return fetch(params.serverAction, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ swap: fullParams }, bigintReplacer),
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error(`Network response was not ok: ${res.statusText}`);
+            }
+            return res.text();
+          })
+          .then((text) => JSON.parse(text, bigintReviver));
+      }
     },
     retry: 0,
     enabled: !!finalChainId && !!finalSwapperAccount && (query?.enabled ?? true),
