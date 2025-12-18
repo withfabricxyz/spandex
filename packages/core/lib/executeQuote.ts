@@ -57,6 +57,7 @@ export async function executeQuote({
     quote,
     swap,
     config,
+    publicClient,
     allowanceMode: isBatch ? "exact" : "unlimited",
   });
 
