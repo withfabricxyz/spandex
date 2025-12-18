@@ -43,12 +43,9 @@ export function SequencedInlineTxBatchButton({
     }
   }, [calls, sendTransactionAsync, step, onComplete]);
 
-  const text = `${calls[step].name} (${step + 1} / ${calls.length})`;
-
   return (
     <TriggerWalletButton
       variant={variant}
-      text={text}
       disabled={blocked || state === "processing"}
       processing={state === "processing"}
       error={error}

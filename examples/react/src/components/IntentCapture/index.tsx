@@ -37,15 +37,17 @@ export function IntentCapture() {
     [sellToken, buyToken, numSellTokens, chainId],
   );
 
-  const {
-    data: quotes,
-    isLoading: isLoadingQuotes,
-    // error: quotesError,
-  } = useQuotes({
+  const query = useMemo(
+    () => ({
+      refetchInterval: 2500, // refetch to build quote history
+      enabled: swap.inputAmount > 0n && !!chainId && !!address,
+    }),
+    [swap.inputAmount, chainId, address],
+  );
+
+  const { data: quotes, isLoading: isLoadingQuotes } = useQuotes({
     swap,
-    query: {
-      refetchInterval: 2500,
-    },
+    query,
   });
 
   // TODO: useBestQuote?
@@ -65,19 +67,23 @@ export function IntentCapture() {
     spender: bestQuote?.success ? bestQuote.txData.to : undefined,
   });
 
-  // TODO: handle loading and error states
+  const needsApproval = useMemo(() => {
+    if (!bestQuote?.success || !allowance) return false;
+
+    const inputAmount = BigInt(bestQuote.inputAmount || 0);
+    const currentAllowance = BigInt(allowance || 0);
+    return inputAmount > 0n && currentAllowance < inputAmount;
+  }, [bestQuote, allowance]);
+
   const calls = useMemo(() => {
     if (!chainId || !bestQuote?.success) return [];
 
     const calls: TxData[] = [];
-    const inputAmount = BigInt(bestQuote.inputAmount || 0);
 
     if (bestQuote.txData.data) {
       const spender = bestQuote.txData.to;
-      const currentAllowance = BigInt(allowance || 0);
-      const isApprovalRequired = inputAmount > 0n && currentAllowance < inputAmount;
 
-      if (isApprovalRequired) {
+      if (needsApproval) {
         const approvalData = encodeFunctionData({
           abi: erc20Abi,
           functionName: "approve",
@@ -103,7 +109,7 @@ export function IntentCapture() {
     }
 
     return calls;
-  }, [bestQuote, allowance, chainId, sellToken.address]);
+  }, [bestQuote, needsApproval, chainId, sellToken.address]);
 
   const onSwitchTokens = useCallback(() => {
     setSellToken(buyToken);
@@ -131,6 +137,7 @@ export function IntentCapture() {
           numSellTokens={numSellTokens}
           selectedMetric={selectedMetric}
           setSelectedMetric={setSelectedMetric}
+          currentAllowance={allowance}
         />
         <hr className="block bg-primary" />
         <TxBatchButton variant="sell" blocked={calls.length === 0} calls={calls} />

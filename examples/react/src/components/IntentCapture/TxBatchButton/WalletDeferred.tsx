@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 import { useSendCalls } from "wagmi";
 // import { toast } from "~/components/library/Toast";
 import { type StructuredError, structureError } from "@/utils/errors";
-import { noOxfordComma } from "@/utils/strings";
 import type { TxBatchButtonProps } from ".";
 import { TriggerWalletButton } from "./TriggerWalletButton";
 
@@ -40,12 +39,9 @@ export function WalletDeferredTxBatchButton({
     }
   }, [calls, sendCallsAsync, onComplete]);
 
-  const text = noOxfordComma(calls.map((call) => call.name));
-
   return (
     <TriggerWalletButton
       variant={variant}
-      text={text}
       disabled={blocked || state === "processing"}
       processing={state === "processing"}
       error={error}

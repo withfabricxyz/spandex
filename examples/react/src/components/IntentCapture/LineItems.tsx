@@ -1,6 +1,11 @@
 import type { SimulatedQuote } from "@withfabric/spandex";
 import type { TokenMetadata } from "@/services/tokens";
-import { getQuoteFees, getQuoteInaccuracy, getQuotePositiveSlippage } from "@/utils/quoteHelpers";
+import {
+  getQuoteFees,
+  getQuoteInaccuracy,
+  getQuotePriceImpact,
+  getSimulationFailureReason,
+} from "@/utils/quoteHelpers";
 import { formatTokenValue } from "@/utils/strings";
 import { Skeleton } from "../Skeleton";
 import { COLORS } from "./BumpChart";
@@ -9,121 +14,118 @@ export function LineItems({
   quote,
   inputToken,
   outputToken,
+  currentAllowance,
 }: {
   quote?: SimulatedQuote;
   inputToken: TokenMetadata;
   outputToken: TokenMetadata;
+  currentAllowance?: bigint;
 }) {
-  const derivedMetrics = quote
-    ? {
-        inaccuracyBps: getQuoteInaccuracy(quote),
-        positiveSlippage: getQuotePositiveSlippage(quote),
-        fees: getQuoteFees(quote),
-      }
-    : null;
+  const simulationFailure = quote ? getSimulationFailureReason(quote, currentAllowance) : null;
+
+  const getInaccuracyValue = () => {
+    const quoteInaccuracy = getQuoteInaccuracy(quote);
+
+    if (simulationFailure) return simulationFailure;
+    if (quoteInaccuracy !== null) return `${quoteInaccuracy / 100} bps`;
+    if (quote) return "—";
+
+    return null;
+  };
+
+  const getPriceImpactValue = () => {
+    const priceImpact = getQuotePriceImpact(quote);
+
+    if (simulationFailure) return simulationFailure;
+    if (priceImpact !== null) return `${priceImpact.toFixed(2)}%`;
+    if (quote) return "—";
+
+    return null;
+  };
+
+  const getFeesValue = () => {
+    const quoteFees = getQuoteFees(quote);
+
+    if (quoteFees !== null) return `$${(Number(quoteFees) / 1e18).toFixed(2)}`;
+
+    return "—";
+  };
+
+  const items: {
+    label: string;
+    value: string | null;
+    color?: string;
+  }[] = [
+    {
+      label: "Winning Aggregator",
+      value: quote ? quote.provider : null,
+      color: quote ? COLORS[quote.provider.toLowerCase()] : undefined,
+    },
+    {
+      label: "Latency",
+      value: quote?.success ? `${quote.latency.toFixed(1)}ms` : null,
+    },
+    {
+      label: "Inaccuracy",
+      value: getInaccuracyValue(),
+    },
+    {
+      label: "Price",
+      value: quote?.success
+        ? `1 ${inputToken.symbol} = ${formatTokenValue(
+            (quote.outputAmount * BigInt(10 ** inputToken.decimals)) / quote.inputAmount,
+            outputToken.decimals,
+          )} ${outputToken.symbol}`
+        : null,
+    },
+    {
+      label: "Gas",
+      value: quote?.success ? `$${(Number(quote.networkFee) / 1e18).toFixed(2)}` : null,
+    },
+    {
+      label: "Max Slippage",
+      value: quote ? "—" : null,
+    },
+    {
+      label: "Price Impact",
+      value: getPriceImpactValue(),
+    },
+    {
+      label: "Fee",
+      value: getFeesValue(),
+    },
+    {
+      label: "Total",
+      value: quote?.success
+        ? `${formatTokenValue(BigInt(quote.outputAmount), outputToken.decimals)} ${outputToken.symbol}`
+        : null,
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="flex justify-between">
-        <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">Winning Aggregator</span>
-        {quote ? (
-          <span
-            className="font-['Sohne_Mono'] text-[12px] capitalize"
-            style={{ color: COLORS[quote.provider.toLowerCase()] }}
-          >
-            {quote.provider}
-          </span>
-        ) : (
-          <Skeleton height={12} width={40} />
-        )}
-      </div>
-      <div className="flex justify-between">
-        <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">Latency</span>
-        {quote?.simulation.success ? (
-          <span className="font-['Sohne_Mono'] text-[12px] text-primary">
-            {quote.simulation.latency.toFixed(1)}ms
-          </span>
-        ) : (
-          <Skeleton height={12} width={40} />
-        )}
-      </div>
-      <div className="flex justify-between">
-        <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">Inaccuracy</span>
-        {quote ? (
-          <span className="font-['Sohne_Mono'] text-[12px] text-primary">
-            {derivedMetrics?.inaccuracyBps !== null && derivedMetrics?.inaccuracyBps !== undefined
-              ? `${derivedMetrics.inaccuracyBps}bps`
-              : "—"}
-          </span>
-        ) : (
-          <Skeleton height={12} width={40} />
-        )}
-      </div>
-      <div className="flex justify-between">
-        <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">Price</span>
-        {quote?.success ? (
-          <span className="font-['Sohne_Mono'] text-[12px] text-primary">
-            1 {inputToken.symbol} ={" "}
-            {formatTokenValue(
-              (quote.outputAmount * BigInt(10 ** inputToken.decimals)) / quote.inputAmount,
-              outputToken.decimals,
-            )}{" "}
-            {outputToken.symbol}
-          </span>
-        ) : (
-          <Skeleton height={12} width={40} />
-        )}
-      </div>
-      <div className="flex justify-between">
-        <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">Gas</span>
-        {quote?.success ? (
-          <span className="font-['Sohne_Mono'] text-[12px] text-primary">
-            ${(Number(quote.networkFee) / 1e18).toFixed(2)}
-          </span>
-        ) : (
-          <Skeleton height={12} width={40} />
-        )}
-      </div>
-      <div className="flex justify-between">
-        <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">Max Slippage</span>
-        {quote ? (
-          <span className="font-['Sohne_Mono'] text-[12px] text-primary">—</span>
-        ) : (
-          <Skeleton height={12} width={40} />
-        )}
-      </div>
-      <div className="flex justify-between">
-        <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">Price Impact</span>
-        {quote ? (
-          <span className="font-['Sohne_Mono'] text-[12px] text-primary">—</span>
-        ) : (
-          <Skeleton height={12} width={40} />
-        )}
-      </div>
-      <div className="flex justify-between">
-        <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">Positive Slippage</span>
-        {quote ? (
-          <span className="font-['Sohne_Mono'] text-[12px] text-primary">
-            {derivedMetrics?.positiveSlippage
-              ? `${derivedMetrics.positiveSlippage.percentage.toFixed(2)}%`
-              : "0%"}
-          </span>
-        ) : (
-          <Skeleton height={12} width={40} />
-        )}
-      </div>
-      <div className="flex justify-between">
-        <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">Fee</span>
-        {quote ? (
-          <span className="font-['Sohne_Mono'] text-[12px] text-primary">
-            {derivedMetrics?.fees !== null && derivedMetrics?.fees !== undefined
-              ? `$${(Number(derivedMetrics.fees) / 1e18).toFixed(4)}`
-              : "—"}
-          </span>
-        ) : (
-          <Skeleton height={12} width={40} />
-        )}
-      </div>
+      {items.map((item, i) => (
+        <div
+          key={item.label}
+          className={`flex justify-between${i === items.length - 1 ? " font-bold" : ""}`}
+        >
+          <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">{item.label}</span>
+          {item.value ? (
+            item.color ? (
+              <span
+                className="font-['Sohne_Mono'] text-[12px] capitalize"
+                style={{ color: item.color }}
+              >
+                {item.value}
+              </span>
+            ) : (
+              <span className="font-['Sohne_Mono'] text-[12px] text-primary">{item.value}</span>
+            )
+          ) : (
+            <Skeleton height={12} width={40} />
+          )}
+        </div>
+      ))}
     </div>
   );
 }

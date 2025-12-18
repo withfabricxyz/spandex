@@ -4,7 +4,6 @@ import { useAccount, useConfig, useSendTransaction } from "wagmi";
 // import { toast } from "~/components/library/Toast";
 // import { getExplorerLink } from "~/config/onchain";
 import { type StructuredError, structureError } from "@/utils/errors";
-import { noOxfordComma } from "@/utils/strings";
 import type { TxBatchButtonProps } from ".";
 import { TriggerWalletButton } from "./TriggerWalletButton";
 
@@ -55,12 +54,9 @@ export function SequencedWalletTxBatchButton({
     }
   }, [calls, sendTransactionAsync, onComplete, config, address]);
 
-  const text = noOxfordComma(calls.map((call) => call.name));
-
   return (
     <TriggerWalletButton
       variant={variant}
-      text={text}
       disabled={blocked || state === "processing"}
       processing={state === "processing"}
       error={error}

@@ -6,13 +6,11 @@ import type { StructuredError } from "@/utils/errors";
 export function TriggerWalletButton({
   // variant,
   processing,
-  text,
   disabled,
   error,
   onClick,
 }: {
   variant: "buy" | "sell";
-  text: string;
   disabled: boolean;
   processing: boolean;
   error?: StructuredError;
@@ -21,7 +19,7 @@ export function TriggerWalletButton({
   return (
     <div className="flex flex-col items-stretch gap-8">
       <Button onClick={onClick} size="lg" disabled={disabled || processing}>
-        {text}
+        swap
       </Button>
       {processing && (
         <div className="flex flex-row items-center gap-1 justify-center">
@@ -31,7 +29,7 @@ export function TriggerWalletButton({
       )}
       {error && (
         <div className="text-center">
-          <span className="text-red-110">{error.title}</span>
+          <span className="text-red">{error.title}</span>
         </div>
       )}
     </div>
