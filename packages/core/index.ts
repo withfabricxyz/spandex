@@ -8,6 +8,7 @@ export { FabricAggregator, ZeroXAggregator, KyberAggregator, OdosAggregator, Rel
 export { Aggregator } from "./lib/aggregators/index.js";
 export { type Config, createConfig, defaultProviders } from "./lib/createConfig.js";
 export { ExecutionError, executeQuote } from "./lib/executeQuote.js";
+export { getPricing } from "./lib/getPricing.js";
 export { getQuote } from "./lib/getQuote.js";
 export { getQuotes } from "./lib/getQuotes.js";
 export { getRawQuotes } from "./lib/getRawQuotes.js";

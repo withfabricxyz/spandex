@@ -9,6 +9,7 @@ import {
   type SuccessfulQuote,
   type SwapOptions,
   type SwapParams,
+  type TokenPricing,
 } from "../types.js";
 import { Aggregator } from "./index.js";
 
@@ -73,6 +74,7 @@ export class ZeroXAggregator extends Aggregator {
     }
 
     const response = await this.makeRequest(request as ExactInSwapParams, options);
+    const pricing = zeroXPricing(request, response);
 
     return {
       success: true,
@@ -93,6 +95,7 @@ export class ZeroXAggregator extends Aggregator {
           }
         : undefined,
       route: zeroXRouteGraph(response),
+      pricing,
     };
   }
 
@@ -169,6 +172,26 @@ function zeroXRouteGraph(quote: ZeroXQuoteResponse): RouteGraph {
   return {
     nodes,
     edges,
+  };
+}
+
+function zeroXPricing(request: ExactInSwapParams, quote: ZeroXQuoteResponse) {
+  const inputToken = zeroXTokenPricing(request.inputToken, quote);
+  const outputToken = zeroXTokenPricing(request.outputToken, quote);
+
+  return {
+    inputToken,
+    outputToken,
+  };
+}
+
+function zeroXTokenPricing(address: Address, quote: ZeroXQuoteResponse): TokenPricing {
+  const token = quote.route.tokens.find(
+    (entry) => entry.address.toLowerCase() === address.toLowerCase(),
+  );
+  return {
+    address,
+    symbol: token?.symbol,
   };
 }
 

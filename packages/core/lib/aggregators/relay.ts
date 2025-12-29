@@ -1,12 +1,16 @@
 import { type Address, zeroAddress } from "viem";
+import { computeUsdPriceFromValue } from "../pricing.js";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
+  type Fee,
   type ProviderKey,
   QuoteError,
+  type QuoteMetrics,
   type SuccessfulQuote,
   type SwapOptions,
   type SwapParams,
+  type TokenPricing,
 } from "../types.js";
 import { Aggregator } from "./index.js";
 
@@ -77,6 +81,10 @@ export class RelayAggregator extends Aggregator {
       txData.value = BigInt(tx.value);
     }
 
+    const pricing = buildRelayPricing(request, body);
+    const fees = buildRelayFees(body);
+    const metrics = buildRelayMetrics(body);
+
     return {
       success: true,
       provider: "relay",
@@ -93,6 +101,9 @@ export class RelayAggregator extends Aggregator {
               spender: txData.to,
             }
           : undefined,
+      pricing,
+      fees,
+      metrics,
     };
   }
 }
@@ -152,6 +163,99 @@ function parseAmount(value?: string | number | null): bigint | null {
   } catch {
     return null;
   }
+}
+
+function buildRelayPricing(
+  request: SwapParams,
+  response: RelayQuoteResponse,
+): { inputToken: TokenPricing; outputToken: TokenPricing } {
+  const inputToken = relayTokenPricing(request.inputToken, response.details?.currencyIn);
+  const outputToken = relayTokenPricing(request.outputToken, response.details?.currencyOut);
+  return {
+    inputToken,
+    outputToken,
+  };
+}
+
+function relayTokenPricing(
+  fallbackAddress: Address,
+  currencyAmount?: RelayCurrencyAmount,
+): TokenPricing {
+  const currency = currencyAmount?.currency;
+  const address = currency?.address ?? fallbackAddress;
+  const usdValue = toNumber(currencyAmount?.amountUsd);
+  const amount = parseAmount(currencyAmount?.amount || null);
+  const usdPrice =
+    amount !== null ? computeUsdPriceFromValue(amount, currency?.decimals, usdValue) : undefined;
+
+  return {
+    address,
+    symbol: currency?.symbol,
+    decimals: currency?.decimals,
+    logoURI: currency?.metadata?.logoURI,
+    usdPrice,
+  };
+}
+
+function buildRelayFees(response: RelayQuoteResponse): Fee[] | undefined {
+  if (!response.fees) {
+    return undefined;
+  }
+
+  const breakdown: Fee[] = [];
+
+  for (const [key, fee] of Object.entries(response.fees)) {
+    if (!fee) continue;
+    const amount = parseAmount(fee.amount);
+
+    breakdown.push({
+      type: relayFeeType(key),
+      token: fee.currency.address,
+      amount: amount ?? undefined,
+    });
+  }
+
+  return breakdown.length > 0 ? breakdown : undefined;
+}
+
+function relayFeeType(key: string): Fee["type"] {
+  switch (key) {
+    case "gas":
+      return "network";
+    case "relayer":
+    case "relayerGas":
+    case "relayerService":
+      return "relayer";
+    case "app":
+      return "app";
+    default:
+      return "other";
+  }
+}
+
+function buildRelayMetrics(response: RelayQuoteResponse): QuoteMetrics | undefined {
+  const percent =
+    toNumber(response.details?.totalImpact?.percent) ??
+    toNumber(response.details?.swapImpact?.percent);
+
+  if (percent === undefined) {
+    return undefined;
+  }
+
+  return {
+    priceImpactBps: Math.round(percent * 100),
+  };
+}
+
+function toNumber(value?: string | number | null): number | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed)) {
+    return undefined;
+  }
+  return parsed;
 }
 
 /////////// Types ///////////

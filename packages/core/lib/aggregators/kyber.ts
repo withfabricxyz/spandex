@@ -10,6 +10,7 @@ import {
   type SuccessfulQuote,
   type SwapOptions,
   type SwapParams,
+  type TokenPricing,
 } from "../types.js";
 import { Aggregator } from "./index.js";
 
@@ -93,6 +94,7 @@ export class KyberAggregator extends Aggregator {
     }
 
     const response = await this.getRoute(request as ExactInSwapParams, options);
+    const pricing = buildKyberPricing(request as ExactInSwapParams, response);
     const networkFee =
       BigInt(response.totalGas) * BigInt(Math.round(Number(response.gasPriceGwei) * 10 ** 9));
     return {
@@ -115,6 +117,7 @@ export class KyberAggregator extends Aggregator {
             }
           : undefined,
       route: kyberRouteGraph(response),
+      pricing,
     };
   }
 
@@ -193,6 +196,36 @@ export function kyberRouteGraph(response: KyberQuoteResponse): RouteGraph {
     nodes,
     edges,
   };
+}
+
+function buildKyberPricing(
+  request: ExactInSwapParams,
+  response: KyberQuoteResponse,
+): { inputToken: TokenPricing; outputToken: TokenPricing } {
+  const inputTokenInfo = resolveTokenInfo(response.tokens, request.inputToken);
+  const outputTokenInfo = resolveTokenInfo(response.tokens, request.outputToken);
+
+  return {
+    inputToken: {
+      address: request.inputToken,
+      symbol: inputTokenInfo?.symbol,
+      decimals: inputTokenInfo?.decimals,
+      usdPrice: inputTokenInfo?.price,
+    },
+    outputToken: {
+      address: request.outputToken,
+      symbol: outputTokenInfo?.symbol,
+      decimals: outputTokenInfo?.decimals,
+      usdPrice: outputTokenInfo?.price,
+    },
+  };
+}
+
+function resolveTokenInfo(tokens: KyberQuoteResponse["tokens"], address: Address) {
+  return (
+    tokens[address as Address] ||
+    Object.values(tokens).find((token) => token.address.toLowerCase() === address.toLowerCase())
+  );
 }
 
 //////// Types /////////

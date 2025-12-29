@@ -5,8 +5,10 @@ import {
   type ExactInSwapParams,
   type ProviderKey,
   QuoteError,
+  type QuoteMetrics,
   type SuccessfulQuote,
   type SwapParams,
+  type TokenPricing,
 } from "../types.js";
 import { Aggregator } from "./index.js";
 
@@ -86,6 +88,8 @@ export class OdosAggregator extends Aggregator {
     const txData = await this.assembleOdosTx(response.pathId, request.swapperAccount);
     const outputAmount = BigInt(response.outAmounts[0] || "0");
     const inputAmount = BigInt(response.inAmounts[0] || "0");
+    const pricing = buildOdosPricing(request as ExactInSwapParams);
+    const metrics = buildOdosMetrics(response);
 
     return {
       success: true,
@@ -103,6 +107,8 @@ export class OdosAggregator extends Aggregator {
               spender: txData.to,
             }
           : undefined,
+      pricing,
+      metrics,
     };
   }
 
@@ -300,6 +306,29 @@ export type OdosQuoteResponse = {
    */
   partnerFeePercent: number;
 };
+
+function buildOdosPricing(request: ExactInSwapParams): {
+  inputToken: TokenPricing;
+  outputToken: TokenPricing;
+} {
+  return {
+    inputToken: {
+      address: request.inputToken,
+    },
+    outputToken: {
+      address: request.outputToken,
+    },
+  };
+}
+
+function buildOdosMetrics(response: OdosQuoteResponse): QuoteMetrics | undefined {
+  if (!Number.isFinite(response.priceImpact)) {
+    return undefined;
+  }
+  return {
+    priceImpactBps: Math.round(response.priceImpact * 100),
+  };
+}
 
 /**
  * Request payload accepted by the Odos `/sor/assemble` endpoint.
