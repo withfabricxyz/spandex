@@ -72,6 +72,26 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
   abstract features(): AggregatorFeature[];
 
   /**
+   * Determines if this aggregator supports a specific feature.
+   *
+   * @param feature - Feature to check.
+   * @returns True when the feature is supported.
+   */
+  supportsFeature(feature: AggregatorFeature): boolean {
+    return this.features().includes(feature);
+  }
+
+  /**
+   * Determines if this aggregator supports every feature in the list.
+   *
+   * @param features - Required features to check.
+   * @returns True when all features are supported.
+   */
+  supportsAllFeatures(features: AggregatorFeature[]): boolean {
+    return features.every((feature) => this.supportsFeature(feature));
+  }
+
+  /**
    * Attempts to fetch a quote, retrying according to the supplied aggregation options.
    *
    * @param params - Swap request parameters forwarded to the provider.
