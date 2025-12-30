@@ -2,6 +2,7 @@ import {
   type AggregationOptions,
   type AggregatorFeature,
   type AggregatorMetadata,
+  type ProviderConfig,
   type ProviderKey,
   type Quote,
   QuoteError,
@@ -35,7 +36,9 @@ function resolveTimingControls(options?: AggregationOptions) {
 /**
  * Base class for all swap aggregators, providing retry, timeout, and latency tracking helpers.
  */
-export abstract class Aggregator {
+export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
+  constructor(protected readonly config: C) {}
+
   /**
    * Provider-specific quote implementation that subclasses must supply.
    *
@@ -76,7 +79,11 @@ export abstract class Aggregator {
    * @returns Successful or failed quote result.
    */
   async fetchQuote(params: SwapParams, options?: AggregationOptions): Promise<Quote> {
-    const { delayMs, numRetries, deadlineMs } = resolveTimingControls(options);
+    const effectiveOptions =
+      this.config.timeoutMs === undefined
+        ? options
+        : { ...(options ?? {}), deadlineMs: this.config.timeoutMs };
+    const { delayMs, numRetries, deadlineMs } = resolveTimingControls(effectiveOptions);
 
     const quoteCall = async () => {
       let numAttempts = 0;
@@ -85,7 +92,7 @@ export abstract class Aggregator {
       while (numAttempts <= numRetries) {
         try {
           const start = performance.now();
-          const quote = await this.tryFetchQuote(params, options || {});
+          const quote = await this.tryFetchQuote(params, effectiveOptions || {});
           const stop = performance.now();
           return {
             ...quote,

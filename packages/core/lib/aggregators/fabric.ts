@@ -4,6 +4,7 @@ import {
   type AggregatorFeature,
   type AggregatorMetadata,
   type Fee,
+  type ProviderConfig,
   type ProviderKey,
   QuoteError,
   type QuoteMetrics,
@@ -72,7 +73,7 @@ type Route = {
 /**
  * Configuration options for the Fabric aggregator.
  */
-export type FabricConfig = {
+export type FabricConfig = ProviderConfig & {
   /** Base URL for the Fabric API. */
   url?: string;
   /** API key for accessing the Fabric API. */
@@ -82,12 +83,12 @@ export type FabricConfig = {
 /**
  * Aggregator implementation that queries the Fabric routing API.
  */
-export class FabricAggregator extends Aggregator {
+export class FabricAggregator extends Aggregator<FabricConfig> {
   /**
    * @param config - Fabric-specific configuration such as base URL or API key.
    */
-  constructor(private config: FabricConfig = {}) {
-    super();
+  constructor(config: FabricConfig = {}) {
+    super(config);
   }
 
   /**

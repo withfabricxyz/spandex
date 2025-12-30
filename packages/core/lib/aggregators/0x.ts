@@ -3,6 +3,7 @@ import {
   type AggregatorFeature,
   type AggregatorMetadata,
   type ExactInSwapParams,
+  type ProviderConfig,
   type ProviderKey,
   QuoteError,
   type RouteGraph,
@@ -16,7 +17,7 @@ import { Aggregator } from "./index.js";
 /**
  * Configuration options for the 0x aggregator.
  */
-export type ZeroXConfig = {
+export type ZeroXConfig = ProviderConfig & {
   /** API key for accessing the 0x API. */
   apiKey: string;
   /** Enabling toggles surplus control */
@@ -26,14 +27,7 @@ export type ZeroXConfig = {
 /**
  * Aggregator implementation that sources quotes from the 0x API.
  */
-export class ZeroXAggregator extends Aggregator {
-  /**
-   * @param config - 0x-specific configuration, currently just the API key.
-   */
-  constructor(private config: ZeroXConfig) {
-    super();
-  }
-
+export class ZeroXAggregator extends Aggregator<ZeroXConfig> {
   /**
    * @inheritdoc
    */

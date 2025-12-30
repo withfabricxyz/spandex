@@ -4,6 +4,7 @@ import {
   type AggregatorMetadata,
   type ExactInSwapParams,
   type PoolEdge,
+  type ProviderConfig,
   type ProviderKey,
   QuoteError,
   type RouteGraph,
@@ -37,7 +38,7 @@ const chainNameLookup: Record<number, string> = {
 /**
  * Configuration options for the KyberSwap aggregator.
  */
-export type KyberConfig = {
+export type KyberConfig = ProviderConfig & {
   /**
    * Client ID for accessing the KyberSwap API. You can make it up.
    */
@@ -47,12 +48,12 @@ export type KyberConfig = {
 /**
  * Aggregator implementation for the KyberSwap routing API.
  */
-export class KyberAggregator extends Aggregator {
+export class KyberAggregator extends Aggregator<KyberConfig> {
   /**
    * @param config - Kyber-specific configuration, defaulting to the `spandex` client id.
    */
-  constructor(private config: KyberConfig = { clientId: "spandex" }) {
-    super();
+  constructor(config: KyberConfig = { clientId: "spandex" }) {
+    super(config);
   }
 
   /**

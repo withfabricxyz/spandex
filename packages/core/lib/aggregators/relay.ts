@@ -4,6 +4,7 @@ import {
   type AggregatorFeature,
   type AggregatorMetadata,
   type Fee,
+  type ProviderConfig,
   type ProviderKey,
   QuoteError,
   type QuoteMetrics,
@@ -17,16 +18,16 @@ import { Aggregator } from "./index.js";
 /**
  * Configuration options for the Relay aggregator.
  */
-export type RelayConfig = {
+export type RelayConfig = ProviderConfig & {
   url?: string;
 };
 
 /**
  * Aggregator implementation for the Relay routing API.
  */
-export class RelayAggregator extends Aggregator {
-  constructor(public readonly config: RelayConfig = {}) {
-    super();
+export class RelayAggregator extends Aggregator<RelayConfig> {
+  constructor(config: RelayConfig = {}) {
+    super(config);
   }
 
   override metadata(): AggregatorMetadata {

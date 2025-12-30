@@ -3,6 +3,7 @@ import {
   type AggregatorFeature,
   type AggregatorMetadata,
   type ExactInSwapParams,
+  type ProviderConfig,
   type ProviderKey,
   QuoteError,
   type QuoteMetrics,
@@ -15,7 +16,7 @@ import { Aggregator } from "./index.js";
 /**
  * Configuration options for the Odos aggregator.
  */
-export type OdosConfig = {
+export type OdosConfig = ProviderConfig & {
   /**
    * Optional integrator identifier used for referral attribution.
    */
@@ -33,12 +34,12 @@ export type OdosConfig = {
 /**
  * Aggregator implementation for the Odos routing API.
  */
-export class OdosAggregator extends Aggregator {
+export class OdosAggregator extends Aggregator<OdosConfig> {
   /**
    * @param config - Optional Odos-specific configuration such as referral codes.
    */
-  constructor(private readonly config: OdosConfig = {}) {
-    super();
+  constructor(config: OdosConfig = {}) {
+    super(config);
   }
 
   override metadata(): AggregatorMetadata {

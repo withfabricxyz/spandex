@@ -37,11 +37,21 @@ export type ProviderDefinitions = {
 export type ProviderKey = keyof ProviderDefinitions;
 
 /**
+ * Shared configuration supported by all providers.
+ */
+export type ProviderConfig = {
+  /**
+   * Provider-specific timeout that overrides the meta-aggregator deadline.
+   */
+  timeoutMs?: number;
+};
+
+/**
  * Provider-specific configuration keyed by the provider identifier.
  *
  * Supply only the providers you want enabled; omitted keys are skipped entirely.
  */
-export type ProviderConfig = Partial<{ [K in ProviderKey]: ProviderDefinitions[K]["config"] }>;
+export type ProvidersConfig = Partial<{ [K in ProviderKey]: ProviderDefinitions[K]["config"] }>;
 
 /**
  * Features that an aggregator may support. Used for capability detection and filtering.
@@ -146,6 +156,10 @@ export class QuoteError extends Error {
     public readonly details?: unknown,
   ) {
     super(message);
+  }
+
+  override get name() {
+    return "QuoteError";
   }
 }
 
@@ -404,7 +418,7 @@ export type ConfigParams = {
   /**
    * Provider-specific configuration keyed by provider identifier (optional to allow a subset).
    */
-  providers: ProviderConfig;
+  providers: ProvidersConfig;
   /**
    * Clients used to simulate quotes (one per chain).
    */

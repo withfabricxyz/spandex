@@ -18,9 +18,10 @@ The map of active providers and their configuration. Each provider has its own c
 Example:
 
 ```ts
-const providerConfig: ProviderConfig = {
+const providerConfig: ProvidersConfig = {
   '0x': {
     apiKey: "YOUR_0X_API_KEY",
+    timeoutMs: 12_000,
   },
   fabric: {
   },
