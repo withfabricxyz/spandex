@@ -44,6 +44,11 @@ export type ProviderConfig = {
    * Provider-specific timeout that overrides the meta-aggregator deadline.
    */
   timeoutMs?: number;
+  /**
+   * Optional negotiated features that can be forced on for a provider.
+   * Only integrator fee/surplus capabilities are supported here.
+   */
+  negotiatedFeatures?: NegotiatedFeature[];
 };
 
 /**
@@ -57,6 +62,11 @@ export type ProvidersConfig = Partial<{ [K in ProviderKey]: ProviderDefinitions[
  * Features that an aggregator may support. Used for capability detection and filtering.
  */
 export type AggregatorFeature = "exactIn" | "targetOut" | "integratorFees" | "integratorSurplus";
+
+/**
+ * Features that can be enabled via negotiated terms.
+ */
+export type NegotiatedFeature = "integratorFees" | "integratorSurplus";
 
 /**
  * Metadata about an dex aggregation provider.

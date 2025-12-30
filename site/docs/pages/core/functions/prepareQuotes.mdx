@@ -42,7 +42,7 @@ const client = createPublicClient({
 
 export const config = createConfig({
   providers: {
-    fabric: {},
+    fabric: { clientId: "your client id" },
     odos: {},
   },
   clients: [client] as PublicClient[],

@@ -78,7 +78,12 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
    * @returns True when the feature is supported.
    */
   supportsFeature(feature: AggregatorFeature): boolean {
-    return this.features().includes(feature);
+    if (this.features().includes(feature)) {
+      return true;
+    }
+    return ((this.config.negotiatedFeatures as AggregatorFeature[]) || undefined)?.includes(
+      feature,
+    );
   }
 
   /**

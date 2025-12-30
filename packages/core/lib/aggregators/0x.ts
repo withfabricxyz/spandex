@@ -20,8 +20,6 @@ import { Aggregator } from "./index.js";
 export type ZeroXConfig = ProviderConfig & {
   /** API key for accessing the 0x API. */
   apiKey: string;
-  /** Enabling toggles surplus control */
-  enableSurplus?: boolean;
 };
 
 /**
@@ -49,11 +47,7 @@ export class ZeroXAggregator extends Aggregator<ZeroXConfig> {
   }
 
   override features(): AggregatorFeature[] {
-    return [
-      "exactIn",
-      "integratorFees",
-      this.config.enableSurplus ? "integratorSurplus" : undefined,
-    ].filter((f): f is AggregatorFeature => f !== undefined);
+    return ["exactIn", "integratorFees"];
   }
 
   /**

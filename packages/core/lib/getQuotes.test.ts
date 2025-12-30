@@ -29,7 +29,7 @@ describe("getQuotes", () => {
     providers: {
       odos: {},
       kyberswap: { clientId: "spandex" },
-      fabric: {},
+      fabric: { clientId: "spandex" },
       "0x": { apiKey: process.env.ZEROX_API_KEY || "" },
     },
     clients: [client] as PublicClient[],

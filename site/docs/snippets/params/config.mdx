@@ -22,8 +22,10 @@ const providerConfig: ProvidersConfig = {
   '0x': {
     apiKey: "YOUR_0X_API_KEY",
     timeoutMs: 12_000,
+    negotiatedFeatures: ["integratorFees"],
   },
   fabric: {
+    clientId: "YOUR_FABRIC_CLIENT_ID",
   },
 };
 ```

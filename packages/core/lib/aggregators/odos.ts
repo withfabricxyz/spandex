@@ -25,10 +25,6 @@ export type OdosConfig = ProviderConfig & {
    * Optional API key for Odos.
    */
   apiKey?: string;
-  /**
-   * Enables fee sharing features such as integrator fees and surplus. This assumes negotiated rates.
-   */
-  feeSharing?: boolean;
 };
 
 /**
@@ -61,14 +57,7 @@ export class OdosAggregator extends Aggregator<OdosConfig> {
    * @inheritdoc
    */
   override features(): AggregatorFeature[] {
-    const result: AggregatorFeature[] = ["exactIn"];
-
-    if (this.config.feeSharing) {
-      result.push("integratorFees");
-      result.push("integratorSurplus");
-    }
-
-    return result;
+    return ["exactIn"];
   }
 
   /**

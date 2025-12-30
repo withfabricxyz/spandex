@@ -49,7 +49,7 @@ const client = createPublicClient({
 
 export const config = createConfig({
   providers: {
-    fabric: {},
+    fabric: { clientId: "your client id" },
     odos: {},
   }
   ,
@@ -83,4 +83,3 @@ Optional custom PublicClient to use for onchain simulations. If not provided, th
 `Promise<SimulatedQuote[]>`
 
 List of simulated quotes from all providers. Each quote includes the provider name, raw quote data, and the simulated output amount after onchain validation. Quotes that fail simulation are denoted by `success=false` and include an error message. Simulation may also fail, due to a revert, etc. See `SimulatedQuote` for details.
-

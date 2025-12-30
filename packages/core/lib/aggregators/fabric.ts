@@ -74,6 +74,8 @@ type Route = {
  * Configuration options for the Fabric aggregator.
  */
 export type FabricConfig = ProviderConfig & {
+  /** Client ID for accessing the Fabric API. */
+  clientId: string;
   /** Base URL for the Fabric API. */
   url?: string;
   /** API key for accessing the Fabric API. */
@@ -84,13 +86,6 @@ export type FabricConfig = ProviderConfig & {
  * Aggregator implementation that queries the Fabric routing API.
  */
 export class FabricAggregator extends Aggregator<FabricConfig> {
-  /**
-   * @param config - Fabric-specific configuration such as base URL or API key.
-   */
-  constructor(config: FabricConfig = {}) {
-    super(config);
-  }
-
   /**
    * @inheritdoc
    */
@@ -173,6 +168,7 @@ export class FabricAggregator extends Aggregator<FabricConfig> {
     return await fetch(`${this.config.url || DEFAULT_URL}/v1/quote?${query.toString()}`, {
       headers: {
         accept: "application/json",
+        "X-ClientId": this.config.clientId,
       },
     }).then(async (response) => {
       const body = await response.json();

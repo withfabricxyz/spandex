@@ -31,7 +31,7 @@ import {
 
 export const config = createConfig({
   providers: {
-    fabric: {},
+    fabric: { clientId: "your client id" },
     odos: {},
   }
 });
@@ -57,4 +57,3 @@ Parameters defining the swap operation. See [SwapParams reference](/reference/Sw
 `Promise<Quote[]>`
 
 List of quotes from all providers. Quotes that resulted in failure are denoted by `success=false` and include an error message.
-
