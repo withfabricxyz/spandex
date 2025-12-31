@@ -11,7 +11,7 @@ import { Callout } from 'vocs/components'
 ## Configuration
 
 <Callout type="warning">
-  0x requires an API key for access. You can obtain one by [signing up](https://dashboard.0x.org/create-account). If you have negotiated surplus sharing with 0x, set the `enableSurplus` option to true.
+  0x requires an API key for access. You can obtain one by [signing up](https://dashboard.0x.org/create-account).
 </Callout>
 
 ```ts twoslash
@@ -22,8 +22,8 @@ export const config = createConfig({
     '0x': {
       // required!
       apiKey: "YOUR_0X_API_KEY",
-      // optional, defaults to false
-      enableSurplus: false,
+      // If you have negotiated surplus sharing with 0x, override negotiatedOptions
+      // negotiatedFeatures: ["integratorSurplus"],
     },
     // ...
   },
