@@ -8,7 +8,7 @@ describe("prepareQuotes", () => {
     const config: Config = createConfig({
       providers: {
         "0x": { apiKey: "test" },
-        fabric: {},
+        fabric: { clientId: "test" },
       },
     });
 

@@ -20,8 +20,8 @@ export function prepareQuotes<T>({
 
   // Get the required features for this request and filter aggregators accordingly
   const features = [...queryFeatures(swap), ...configFeatures(options)];
-  const candidates = config.aggregators.filter((a) =>
-    features.every((f) => a.features().includes(f)),
+  const candidates = config.aggregators.filter((aggregator) =>
+    aggregator.supportsAllFeatures(features),
   );
   if (candidates.length === 0) {
     throw new Error(

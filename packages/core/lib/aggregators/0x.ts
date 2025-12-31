@@ -3,36 +3,29 @@ import {
   type AggregatorFeature,
   type AggregatorMetadata,
   type ExactInSwapParams,
+  type ProviderConfig,
   type ProviderKey,
   QuoteError,
   type RouteGraph,
   type SuccessfulQuote,
   type SwapOptions,
   type SwapParams,
+  type TokenPricing,
 } from "../types.js";
 import { Aggregator } from "./index.js";
 
 /**
  * Configuration options for the 0x aggregator.
  */
-export type ZeroXConfig = {
+export type ZeroXConfig = ProviderConfig & {
   /** API key for accessing the 0x API. */
   apiKey: string;
-  /** Enabling toggles surplus control */
-  enableSurplus?: boolean;
 };
 
 /**
  * Aggregator implementation that sources quotes from the 0x API.
  */
-export class ZeroXAggregator extends Aggregator {
-  /**
-   * @param config - 0x-specific configuration, currently just the API key.
-   */
-  constructor(private config: ZeroXConfig) {
-    super();
-  }
-
+export class ZeroXAggregator extends Aggregator<ZeroXConfig> {
   /**
    * @inheritdoc
    */
@@ -54,11 +47,7 @@ export class ZeroXAggregator extends Aggregator {
   }
 
   override features(): AggregatorFeature[] {
-    return [
-      "exactIn",
-      "integratorFees",
-      this.config.enableSurplus ? "integratorSurplus" : undefined,
-    ].filter((f): f is AggregatorFeature => f !== undefined);
+    return ["exactIn", "integratorFees"];
   }
 
   /**
@@ -73,6 +62,7 @@ export class ZeroXAggregator extends Aggregator {
     }
 
     const response = await this.makeRequest(request as ExactInSwapParams, options);
+    const pricing = zeroXPricing(request, response);
 
     return {
       success: true,
@@ -93,6 +83,7 @@ export class ZeroXAggregator extends Aggregator {
           }
         : undefined,
       route: zeroXRouteGraph(response),
+      pricing,
     };
   }
 
@@ -169,6 +160,26 @@ function zeroXRouteGraph(quote: ZeroXQuoteResponse): RouteGraph {
   return {
     nodes,
     edges,
+  };
+}
+
+function zeroXPricing(request: ExactInSwapParams, quote: ZeroXQuoteResponse) {
+  const inputToken = zeroXTokenPricing(request.inputToken, quote);
+  const outputToken = zeroXTokenPricing(request.outputToken, quote);
+
+  return {
+    inputToken,
+    outputToken,
+  };
+}
+
+function zeroXTokenPricing(address: Address, quote: ZeroXQuoteResponse): TokenPricing {
+  const token = quote.route.tokens.find(
+    (entry) => entry.address.toLowerCase() === address.toLowerCase(),
+  );
+  return {
+    address,
+    symbol: token?.symbol,
   };
 }
 

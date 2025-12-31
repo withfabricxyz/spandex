@@ -111,14 +111,16 @@ async function performSimulation({
     const isERC20Out = swap.outputToken !== zeroAddress;
 
     // Dynamically build calls array based on whether we need approve / balanceOf (this activates ERC20 handling in assetChanges)
+    const approvalToken = quote.approval?.token ?? swap.inputToken;
+    const approvalSpender = quote.approval?.spender ?? quote.txData.to;
     const calls = [
       isERC20In
         ? {
-            to: swap.inputToken,
+            to: approvalToken,
             data: encodeFunctionData({
               abi: erc20Abi,
               functionName: "approve",
-              args: [quote.txData.to, quote.inputAmount],
+              args: [approvalSpender, quote.inputAmount],
             }),
           }
         : undefined,

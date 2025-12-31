@@ -4,7 +4,7 @@ import { FabricAggregator, type FabricQuoteResponse, fabricRouteGraph } from "./
 
 describe("Fabric Router API test", () => {
   it("provides metadata", () => {
-    const aggregator = new FabricAggregator();
+    const aggregator = new FabricAggregator({ clientId: "test" });
     expect(aggregator.name()).toBe("fabric");
     expect(aggregator.features()).not.toBeEmpty();
     const metadata = aggregator.metadata();
@@ -15,7 +15,7 @@ describe("Fabric Router API test", () => {
   });
 
   it("generates a quote", async () => {
-    const quoter = new FabricAggregator();
+    const quoter = new FabricAggregator({ clientId: "test" });
     const quote = await quoter.fetchQuote(defaultSwapParams, {
       integratorSwapFeeBps: 20,
       integratorFeeAddress: "0xfee000000000000000000000000000000000beef",
@@ -40,7 +40,7 @@ describe("Fabric Router API test", () => {
   }, 30_000);
 
   it("generates a quote for exact out", async () => {
-    const quoter = new FabricAggregator();
+    const quoter = new FabricAggregator({ clientId: "test" });
     const quote = await quoter.fetchQuote({
       chainId: 8453,
       inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",

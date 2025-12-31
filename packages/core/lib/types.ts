@@ -37,16 +37,36 @@ export type ProviderDefinitions = {
 export type ProviderKey = keyof ProviderDefinitions;
 
 /**
+ * Shared configuration supported by all providers.
+ */
+export type ProviderConfig = {
+  /**
+   * Provider-specific timeout that overrides the meta-aggregator deadline.
+   */
+  timeoutMs?: number;
+  /**
+   * Optional negotiated features that can be forced on for a provider.
+   * Only integrator fee/surplus capabilities are supported here.
+   */
+  negotiatedFeatures?: NegotiatedFeature[];
+};
+
+/**
  * Provider-specific configuration keyed by the provider identifier.
  *
  * Supply only the providers you want enabled; omitted keys are skipped entirely.
  */
-export type ProviderConfig = Partial<{ [K in ProviderKey]: ProviderDefinitions[K]["config"] }>;
+export type ProvidersConfig = Partial<{ [K in ProviderKey]: ProviderDefinitions[K]["config"] }>;
 
 /**
  * Features that an aggregator may support. Used for capability detection and filtering.
  */
 export type AggregatorFeature = "exactIn" | "targetOut" | "integratorFees" | "integratorSurplus";
+
+/**
+ * Features that can be enabled via negotiated terms.
+ */
+export type NegotiatedFeature = "integratorFees" | "integratorSurplus";
 
 /**
  * Metadata about an dex aggregation provider.
@@ -110,6 +130,18 @@ export type GenericQuote<P extends ProviderKey, T> = {
    * Optional route visualization supplied by the provider.
    */
   route?: RouteGraph;
+  /**
+   * Optional pricing metadata for the input/output tokens.
+   */
+  pricing?: QuotePricing;
+  /**
+   * Optional fee details associated with the quote.
+   */
+  fees?: Fee[];
+  /**
+   * Optional metrics such as price impact.
+   */
+  metrics?: QuoteMetrics;
 };
 
 /**
@@ -134,6 +166,10 @@ export class QuoteError extends Error {
     public readonly details?: unknown,
   ) {
     super(message);
+  }
+
+  override get name() {
+    return "QuoteError";
   }
 }
 
@@ -285,6 +321,58 @@ export type RouteGraph = {
 };
 
 /**
+ * Token metadata enriched with pricing signals.
+ */
+export type TokenPricing = TokenNode & {
+  /**
+   * USD price per 1 unit of the token.
+   */
+  usdPrice?: number;
+};
+
+/**
+ * Pricing details attached to a quote.
+ */
+export type QuotePricing = {
+  /**
+   * Input token pricing metadata.
+   */
+  inputToken?: TokenPricing;
+  /**
+   * Output token pricing metadata.
+   */
+  outputToken?: TokenPricing;
+};
+
+/**
+ * Fee breakdown item.
+ */
+export type Fee = {
+  /**
+   * Fee category.
+   */
+  type: "network" | "integrator" | "aggregator" | "relayer" | "app" | "other";
+  /**
+   * Optional token address for the fee.
+   */
+  token?: Address;
+  /**
+   * Fee amount in base units.
+   */
+  amount?: bigint;
+};
+
+/**
+ * Quote quality metrics.
+ */
+export type QuoteMetrics = {
+  /**
+   * Price impact expressed in basis points.
+   */
+  priceImpactBps?: number;
+};
+
+/**
  * Options controlling retry and timeout behavior for quote requests.
  */
 export type TimingOptions = {
@@ -340,7 +428,7 @@ export type ConfigParams = {
   /**
    * Provider-specific configuration keyed by provider identifier (optional to allow a subset).
    */
-  providers: ProviderConfig;
+  providers: ProvidersConfig;
   /**
    * Clients used to simulate quotes (one per chain).
    */
@@ -473,3 +561,21 @@ export type QuoteSelectionName = "fastest" | "bestPrice" | "estimatedGas" | "pri
  * Strategy reference, either by name or via custom function.
  */
 export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;
+
+/**
+ * Aggregated pricing summary derived from multiple quotes.
+ */
+export type PricingSummary = {
+  /**
+   * Input token pricing summary.
+   */
+  inputToken?: TokenPricing;
+  /**
+   * Output token pricing summary.
+   */
+  outputToken?: TokenPricing;
+  /**
+   * Providers that contributed pricing signals.
+   */
+  sources: ProviderKey[];
+};

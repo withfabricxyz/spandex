@@ -11,7 +11,7 @@ const walletClient = createWalletClient({
 
 export const config = createConfig({
   providers: {
-    fabric: {},
+    fabric: { clientId: "your client id" },
   },
 });
 

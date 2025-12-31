@@ -3,17 +3,20 @@ import {
   type AggregatorFeature,
   type AggregatorMetadata,
   type ExactInSwapParams,
+  type ProviderConfig,
   type ProviderKey,
   QuoteError,
+  type QuoteMetrics,
   type SuccessfulQuote,
   type SwapParams,
+  type TokenPricing,
 } from "../types.js";
 import { Aggregator } from "./index.js";
 
 /**
  * Configuration options for the Odos aggregator.
  */
-export type OdosConfig = {
+export type OdosConfig = ProviderConfig & {
   /**
    * Optional integrator identifier used for referral attribution.
    */
@@ -22,21 +25,17 @@ export type OdosConfig = {
    * Optional API key for Odos.
    */
   apiKey?: string;
-  /**
-   * Enables fee sharing features such as integrator fees and surplus. This assumes negotiated rates.
-   */
-  feeSharing?: boolean;
 };
 
 /**
  * Aggregator implementation for the Odos routing API.
  */
-export class OdosAggregator extends Aggregator {
+export class OdosAggregator extends Aggregator<OdosConfig> {
   /**
    * @param config - Optional Odos-specific configuration such as referral codes.
    */
-  constructor(private readonly config: OdosConfig = {}) {
-    super();
+  constructor(config: OdosConfig = {}) {
+    super(config);
   }
 
   override metadata(): AggregatorMetadata {
@@ -58,14 +57,7 @@ export class OdosAggregator extends Aggregator {
    * @inheritdoc
    */
   override features(): AggregatorFeature[] {
-    const result: AggregatorFeature[] = ["exactIn"];
-
-    if (this.config.feeSharing) {
-      result.push("integratorFees");
-      result.push("integratorSurplus");
-    }
-
-    return result;
+    return ["exactIn"];
   }
 
   /**
@@ -86,6 +78,8 @@ export class OdosAggregator extends Aggregator {
     const txData = await this.assembleOdosTx(response.pathId, request.swapperAccount);
     const outputAmount = BigInt(response.outAmounts[0] || "0");
     const inputAmount = BigInt(response.inAmounts[0] || "0");
+    const pricing = buildOdosPricing(request as ExactInSwapParams);
+    const metrics = buildOdosMetrics(response);
 
     return {
       success: true,
@@ -103,6 +97,8 @@ export class OdosAggregator extends Aggregator {
               spender: txData.to,
             }
           : undefined,
+      pricing,
+      metrics,
     };
   }
 
@@ -300,6 +296,29 @@ export type OdosQuoteResponse = {
    */
   partnerFeePercent: number;
 };
+
+function buildOdosPricing(request: ExactInSwapParams): {
+  inputToken: TokenPricing;
+  outputToken: TokenPricing;
+} {
+  return {
+    inputToken: {
+      address: request.inputToken,
+    },
+    outputToken: {
+      address: request.outputToken,
+    },
+  };
+}
+
+function buildOdosMetrics(response: OdosQuoteResponse): QuoteMetrics | undefined {
+  if (!Number.isFinite(response.priceImpact)) {
+    return undefined;
+  }
+  return {
+    priceImpactBps: Math.round(response.priceImpact * 100),
+  };
+}
 
 /**
  * Request payload accepted by the Odos `/sor/assemble` endpoint.

@@ -29,7 +29,7 @@ export type Config = {
 export function defaultProviders(params: { appId: string }): ConfigParams["providers"] {
   return {
     kyberswap: { clientId: params.appId },
-    fabric: {},
+    fabric: { clientId: params.appId },
     odos: {},
   };
 }

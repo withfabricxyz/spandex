@@ -1,4 +1,4 @@
-import { encodeFunctionData, erc20Abi } from "viem";
+import { encodeFunctionData, erc20Abi, type PublicClient } from "viem";
 import type { Config } from "./createConfig.js";
 import type { SuccessfulQuote, SwapParams, TxData } from "./types.js";
 
@@ -19,6 +19,8 @@ export type BuildCallsParams = {
   swap: SwapParams;
   /** The configuration (required for onchain calls). */
   config: Config;
+  /** Optional client to use for onchain allowance reads. */
+  publicClient?: PublicClient;
   /** The allowance mode for approvals. Exact amount for swap or unlimited to reduce future approvals. */
   allowanceMode?: "unlimited" | "exact";
   /** Whether to force the approval call without checking allowance. */
@@ -54,6 +56,7 @@ async function getApprovalCall({
   quote,
   swap,
   config,
+  publicClient,
   allowanceMode = "exact",
   force = false,
 }: BuildCallsParams): Promise<TxData | null> {
@@ -83,7 +86,7 @@ async function getApprovalCall({
   }
 
   // Check the allowance onchain to see if approval is necessary
-  const client = config.clientLookup(swap.chainId);
+  const client = publicClient ?? config.clientLookup(swap.chainId);
   if (!client) {
     throw new Error(`No client available for chain ID ${swap.chainId}`);
   }

@@ -4,12 +4,14 @@ import {
   type AggregatorMetadata,
   type ExactInSwapParams,
   type PoolEdge,
+  type ProviderConfig,
   type ProviderKey,
   QuoteError,
   type RouteGraph,
   type SuccessfulQuote,
   type SwapOptions,
   type SwapParams,
+  type TokenPricing,
 } from "../types.js";
 import { Aggregator } from "./index.js";
 
@@ -36,7 +38,7 @@ const chainNameLookup: Record<number, string> = {
 /**
  * Configuration options for the KyberSwap aggregator.
  */
-export type KyberConfig = {
+export type KyberConfig = ProviderConfig & {
   /**
    * Client ID for accessing the KyberSwap API. You can make it up.
    */
@@ -46,12 +48,12 @@ export type KyberConfig = {
 /**
  * Aggregator implementation for the KyberSwap routing API.
  */
-export class KyberAggregator extends Aggregator {
+export class KyberAggregator extends Aggregator<KyberConfig> {
   /**
    * @param config - Kyber-specific configuration, defaulting to the `spandex` client id.
    */
-  constructor(private config: KyberConfig = { clientId: "spandex" }) {
-    super();
+  constructor(config: KyberConfig = { clientId: "spandex" }) {
+    super(config);
   }
 
   /**
@@ -93,6 +95,7 @@ export class KyberAggregator extends Aggregator {
     }
 
     const response = await this.getRoute(request as ExactInSwapParams, options);
+    const pricing = buildKyberPricing(request as ExactInSwapParams, response);
     const networkFee =
       BigInt(response.totalGas) * BigInt(Math.round(Number(response.gasPriceGwei) * 10 ** 9));
     return {
@@ -115,6 +118,7 @@ export class KyberAggregator extends Aggregator {
             }
           : undefined,
       route: kyberRouteGraph(response),
+      pricing,
     };
   }
 
@@ -193,6 +197,36 @@ export function kyberRouteGraph(response: KyberQuoteResponse): RouteGraph {
     nodes,
     edges,
   };
+}
+
+function buildKyberPricing(
+  request: ExactInSwapParams,
+  response: KyberQuoteResponse,
+): { inputToken: TokenPricing; outputToken: TokenPricing } {
+  const inputTokenInfo = resolveTokenInfo(response.tokens, request.inputToken);
+  const outputTokenInfo = resolveTokenInfo(response.tokens, request.outputToken);
+
+  return {
+    inputToken: {
+      address: request.inputToken,
+      symbol: inputTokenInfo?.symbol,
+      decimals: inputTokenInfo?.decimals,
+      usdPrice: inputTokenInfo?.price,
+    },
+    outputToken: {
+      address: request.outputToken,
+      symbol: outputTokenInfo?.symbol,
+      decimals: outputTokenInfo?.decimals,
+      usdPrice: outputTokenInfo?.price,
+    },
+  };
+}
+
+function resolveTokenInfo(tokens: KyberQuoteResponse["tokens"], address: Address) {
+  return (
+    tokens[address as Address] ||
+    Object.values(tokens).find((token) => token.address.toLowerCase() === address.toLowerCase())
+  );
 }
 
 //////// Types /////////

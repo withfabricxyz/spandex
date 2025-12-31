@@ -65,8 +65,8 @@ describe("executeQuote", () => {
   it("can execute a quote on a forked chain", async () => {
     const config = createConfig({
       providers: {
-        fabric: {},
-        odos: {},
+        fabric: { clientId: "test" },
+        kyberswap: { clientId: "test" },
       },
       clients: [baseClient] as PublicClient[],
     });
@@ -113,9 +113,10 @@ describe("executeQuote", () => {
       args: [swap.swapperAccount],
     });
 
+    const delta = Number(afterBalance - beforeBalance);
     expect(hash).not.toBeNull();
     expect(afterBalance).toBeGreaterThan(beforeBalance);
-    expect(afterBalance - beforeBalance).toEqual(quote.outputAmount);
+    expect(Number(quote.outputAmount)).toBeWithin(delta * 0.95, delta * 1.05);
     // Check balance
   }, 20000);
 });

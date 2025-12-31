@@ -1,13 +1,18 @@
 import type { Address, Hex } from "viem";
+import { amountToNumber } from "../pricing.js";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
+  type Fee,
+  type ProviderConfig,
   type ProviderKey,
   QuoteError,
+  type QuoteMetrics,
   type RouteGraph,
   type SuccessfulQuote,
   type SwapOptions,
   type SwapParams,
+  type TokenPricing,
 } from "../types.js";
 import { Aggregator } from "./index.js";
 
@@ -31,11 +36,11 @@ export type FabricQuoteResponse = {
     data: `0x${string}`;
     value: string;
   };
-  fees: Fee[];
+  fees: FabricFee[];
   id: string;
 };
 
-type Fee = {
+type FabricFee = {
   recipient: Address;
   token: Address;
   amount: string;
@@ -68,7 +73,9 @@ type Route = {
 /**
  * Configuration options for the Fabric aggregator.
  */
-export type FabricConfig = {
+export type FabricConfig = ProviderConfig & {
+  /** Client ID for accessing the Fabric API. */
+  clientId: string;
   /** Base URL for the Fabric API. */
   url?: string;
   /** API key for accessing the Fabric API. */
@@ -78,14 +85,7 @@ export type FabricConfig = {
 /**
  * Aggregator implementation that queries the Fabric routing API.
  */
-export class FabricAggregator extends Aggregator {
-  /**
-   * @param config - Fabric-specific configuration such as base URL or API key.
-   */
-  constructor(private config: FabricConfig = {}) {
-    super();
-  }
-
+export class FabricAggregator extends Aggregator<FabricConfig> {
   /**
    * @inheritdoc
    */
@@ -120,14 +120,28 @@ export class FabricAggregator extends Aggregator {
     options: SwapOptions,
   ): Promise<SuccessfulQuote> {
     const response = await this.makeRequest(request, options);
+    const inputAmount = BigInt(response.amountIn);
+    const outputAmount = BigInt(response.amountOut);
+    const tokenLookup = buildTokenLookup(response.tokens);
+    const inputToken = buildTokenPricing(request.inputToken, tokenLookup);
+    const outputToken = buildTokenPricing(request.outputToken, tokenLookup);
+
+    const fees = buildFees(response.fees);
+    const metrics = buildFabricMetrics(
+      response,
+      inputAmount,
+      outputAmount,
+      inputToken,
+      outputToken,
+    );
 
     return {
       success: true,
       provider: "fabric",
       details: response,
       latency: 0, // Filled in by MetaAggregator
-      inputAmount: BigInt(response.amountIn),
-      outputAmount: BigInt(response.amountOut),
+      inputAmount,
+      outputAmount,
       networkFee: 0n, // TODO
       txData: {
         to: response.transaction.to,
@@ -136,6 +150,12 @@ export class FabricAggregator extends Aggregator {
       },
       approval: response.approval,
       route: fabricRouteGraph(response),
+      pricing: {
+        inputToken,
+        outputToken,
+      },
+      fees,
+      metrics,
     };
   }
 
@@ -148,6 +168,7 @@ export class FabricAggregator extends Aggregator {
     return await fetch(`${this.config.url || DEFAULT_URL}/v1/quote?${query.toString()}`, {
       headers: {
         accept: "application/json",
+        "X-ClientId": this.config.clientId,
       },
     }).then(async (response) => {
       const body = await response.json();
@@ -173,6 +194,66 @@ export function fabricRouteGraph(quote: FabricQuoteResponse): RouteGraph {
   return {
     nodes,
     edges,
+  };
+}
+
+function buildTokenLookup(tokens: TokenData[]): Map<string, TokenData> {
+  const map = new Map<string, TokenData>();
+  for (const token of tokens) {
+    map.set(token.address.toLowerCase(), token);
+  }
+  return map;
+}
+
+function buildTokenPricing(address: Address, lookup: Map<string, TokenData>): TokenPricing {
+  const token = lookup.get(address.toLowerCase());
+  return {
+    address,
+    symbol: token?.symbol,
+    decimals: token?.decimals,
+    usdPrice: token?.priceUsd,
+  };
+}
+
+function buildFees(fees: FabricFee[]): Fee[] | undefined {
+  if (fees.length === 0) {
+    return undefined;
+  }
+
+  return fees.map((fee) => ({
+    type: "other",
+    token: fee.token,
+    amount: BigInt(fee.amount),
+  }));
+}
+
+function buildFabricMetrics(
+  response: FabricQuoteResponse,
+  inputAmount: bigint,
+  outputAmount: bigint,
+  inputToken: TokenPricing,
+  outputToken: TokenPricing,
+): QuoteMetrics | undefined {
+  const spotPrice = response.price;
+  if (!Number.isFinite(spotPrice) || spotPrice === 0) {
+    return undefined;
+  }
+
+  const inputNormalized = amountToNumber(inputAmount, inputToken.decimals);
+  const outputNormalized = amountToNumber(outputAmount, outputToken.decimals);
+
+  if (inputNormalized === null || outputNormalized === null) {
+    return undefined;
+  }
+
+  const executionPrice = outputNormalized / inputNormalized;
+  if (!Number.isFinite(executionPrice)) {
+    return undefined;
+  }
+
+  const impact = Math.abs(spotPrice - executionPrice) / spotPrice;
+  return {
+    priceImpactBps: Math.round(impact * 10_000),
   };
 }
 

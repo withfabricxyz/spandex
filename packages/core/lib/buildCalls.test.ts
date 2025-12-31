@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { type Address, encodeFunctionData, erc20Abi, zeroAddress } from "viem";
+import { type Address, encodeFunctionData, erc20Abi, type PublicClient, zeroAddress } from "viem";
 import { buildCalls } from "./buildCalls.js";
 import type { Config } from "./createConfig.js";
 import type { SuccessfulQuote, SwapParams } from "./types.js";
@@ -112,5 +112,26 @@ describe("buildCalls", () => {
 
     expect(calls[0]?.type).toBe("approval");
     expect(calls[0]?.txn?.data).toBe(expectedData);
+  });
+
+  it("uses provided publicClient when config lookup is missing", async () => {
+    const approval = {
+      token: "0x00000000000000000000000000000000000000ab" as Address,
+      spender: "0x00000000000000000000000000000000000000cd" as Address,
+    };
+    const quote: SuccessfulQuote = { ...baseQuote, approval, inputAmount: 1234n };
+    const publicClient = {
+      readContract: async () => 0n,
+    } as PublicClient;
+
+    const calls = await buildCalls({
+      quote,
+      swap: baseSwap,
+      config,
+      publicClient,
+    });
+
+    expect(calls).toHaveLength(2);
+    expect(calls[0]?.type).toBe("approval");
   });
 });
