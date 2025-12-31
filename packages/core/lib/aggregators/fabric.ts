@@ -1,5 +1,5 @@
 import type { Address, Hex } from "viem";
-import { amountToNumber } from "../pricing.js";
+import { amountToNumber } from "../util/pricing.js";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,

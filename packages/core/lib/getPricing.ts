@@ -1,4 +1,4 @@
-import { average } from "./pricing.js";
+import { average } from "./util/pricing.js";
 import type { PricingSummary, Quote, TokenPricing } from "./types.js";
 
 /**
