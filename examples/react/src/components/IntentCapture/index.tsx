@@ -24,17 +24,18 @@ export function IntentCapture() {
   const { address, chainId } = useConnection();
   const [numSellTokens, setNumSellTokens] = useState<string>("20");
   const [selectedMetric, setSelectedMetric] = useState<Metric>("price");
+  const [slippageBps, setSlippageBps] = useState<number>(100);
 
   const swap = useMemo(
     () => ({
       chainId,
       inputToken: sellToken.address,
       outputToken: buyToken.address,
-      slippageBps: 100,
+      slippageBps,
       mode: "exactIn" as const,
       inputAmount: BigInt(Number(numSellTokens) * 10 ** sellToken.decimals),
     }),
-    [sellToken, buyToken, numSellTokens, chainId],
+    [sellToken, buyToken, numSellTokens, chainId, slippageBps],
   );
 
   const query = useMemo(
@@ -137,6 +138,8 @@ export function IntentCapture() {
           numSellTokens={numSellTokens}
           selectedMetric={selectedMetric}
           setSelectedMetric={setSelectedMetric}
+          slippageBps={slippageBps}
+          setSlippageBps={setSlippageBps}
           currentAllowance={allowance}
         />
         <hr className="block bg-primary" />

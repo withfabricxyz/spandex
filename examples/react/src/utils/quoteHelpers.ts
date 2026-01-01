@@ -86,6 +86,8 @@ function getQuotedVsSimulated(quote: SimulatedQuote): {
   return { quotedOutput, simulatedOutput };
 }
 
+// spot price, ratio of tokens
+// price impact = current spot vs known spot after trade
 export function getQuotePriceImpact(quote?: SimulatedQuote): number | null {
   if (!quote?.success) return null;
 

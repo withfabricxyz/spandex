@@ -1,6 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 import { SpandexProvider } from "@withfabric/spandex-react";
+import { Tooltip } from "radix-ui";
 import { Header } from "@/components/Header";
 import { TokenSelectProvider } from "@/providers/TokenSelectProvider";
 import { Web3Provider } from "@/providers/Web3Provider";
@@ -51,11 +52,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               },
             }}
           >
-            <TokenSelectProvider>
-              <Header />
-              <div className="pt-80 pb-20 max-w-[614px] mx-auto">{children}</div>
-              <div id="dialog-root" />
-            </TokenSelectProvider>
+            <Tooltip.Provider>
+              <TokenSelectProvider>
+                <Header />
+                <div className="pt-80 pb-20 max-w-[614px] mx-auto">{children}</div>
+                <div id="dialog-root" />
+              </TokenSelectProvider>
+            </Tooltip.Provider>
           </SpandexProvider>
         </Web3Provider>
         <Scripts />

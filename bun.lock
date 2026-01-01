@@ -5,6 +5,7 @@
     "": {
       "dependencies": {
         "@changesets/cli": "^2.29.8",
+        "@radix-ui/react-tooltip": "^1.2.8",
       },
       "devDependencies": {
         "@biomejs/biome": "^2.3.11",

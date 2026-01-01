@@ -6,6 +6,10 @@
   --color-secondary-1: #666;
   --color-tertiary: #B3B3B3;
 
+  --color-surface-1: #f3f3f3;
+
+  --color-border: rgba(179, 179, 179, 0.20);
+
   --color-pink: #FB42DF;
   --color-red: #FA0B54;
   --color-yellow: #FBA808;

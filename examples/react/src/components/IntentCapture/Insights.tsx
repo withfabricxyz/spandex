@@ -13,6 +13,8 @@ type InsightsProps = {
   numSellTokens: string;
   selectedMetric: Metric;
   setSelectedMetric: (metric: Metric) => void;
+  slippageBps: number;
+  setSlippageBps: (value: number) => void;
   currentAllowance?: bigint;
 };
 
@@ -24,6 +26,8 @@ export function Insights({
   numSellTokens,
   selectedMetric,
   setSelectedMetric,
+  slippageBps,
+  setSlippageBps,
   currentAllowance,
 }: InsightsProps) {
   const [quoteHistory, setQuoteHistory] = useState<SimulatedQuote[][]>([]);
@@ -51,8 +55,13 @@ export function Insights({
       <hr className="block bg-primary" />
       <LineItems
         quote={bestQuote}
+        quotes={quotes}
         inputToken={sellToken}
         outputToken={buyToken}
+        sellToken={sellToken}
+        numSellTokens={numSellTokens}
+        slippageBps={slippageBps}
+        setSlippageBps={setSlippageBps}
         currentAllowance={currentAllowance}
       />
     </>
