@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, Close } from "@/components/icons";
 import type { TokenMetadata } from "@/services/tokens";
 import { formatTokenValue } from "@/utils/strings";
 
@@ -87,34 +88,14 @@ export function SlippageControls({
             className="h-8 w-8 flex items-center justify-center cursor-pointer rounded-xs hover:bg-border active:bg-tertiary"
             type="submit"
           >
-            <svg
-              className="fill-primary"
-              xmlns="http://www.w3.org/2000/svg"
-              width="11"
-              height="9"
-              viewBox="0 0 11 9"
-              fill="none"
-            >
-              <title>✓</title>
-              <path d="M3.8 8.01667L0 4.21667L0.95 3.26667L3.8 6.11667L9.91667 0L10.8667 0.95L3.8 8.01667Z" />
-            </svg>
+            <Check className="fill-primary" title="✓" />
           </button>
           <button
             className="h-8 w-8 flex items-center justify-center cursor-pointer rounded-xs hover:bg-border active:bg-tertiary"
             type="button"
             onClick={() => setIsEditing(false)}
           >
-            <svg
-              className="fill-primary"
-              xmlns="http://www.w3.org/2000/svg"
-              width="10"
-              height="10"
-              viewBox="0 0 10 10"
-              fill="none"
-            >
-              <title>ｘ</title>
-              <path d="M0.933334 9.33334L0 8.4L3.73333 4.66667L0 0.933334L0.933334 0L4.66667 3.73333L8.4 0L9.33334 0.933334L5.6 4.66667L9.33334 8.4L8.4 9.33334L4.66667 5.6L0.933334 9.33334Z" />
-            </svg>
+            <Close className="fill-primary" title="ｘ" />
           </button>
         </form>
       ) : (

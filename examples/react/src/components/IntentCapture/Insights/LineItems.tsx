@@ -9,31 +9,31 @@ import {
   getSimulationFailureReason,
 } from "@/utils/quoteHelpers";
 import { formatTokenValue } from "@/utils/strings";
-import { Skeleton } from "../Skeleton";
+import { Skeleton } from "../../Skeleton";
+import { SlippageControls } from "../SlippageControls";
 import { COLORS } from "./BumpChart";
-import { SlippageControls } from "./SlippageControls";
+
+type LineItemsProps = {
+  quote?: SimulatedQuote;
+  quotes?: SimulatedQuote[];
+  sellToken: TokenMetadata;
+  buyToken: TokenMetadata;
+  numSellTokens: string;
+  slippageBps: number;
+  setSlippageBps: (value: number) => void;
+  currentAllowance?: bigint;
+};
 
 export function LineItems({
   quote,
   quotes,
-  inputToken,
-  outputToken,
+  buyToken,
   sellToken,
   numSellTokens,
   slippageBps,
   setSlippageBps,
   currentAllowance,
-}: {
-  quote?: SimulatedQuote;
-  quotes?: SimulatedQuote[];
-  inputToken: TokenMetadata;
-  outputToken: TokenMetadata;
-  sellToken: TokenMetadata;
-  numSellTokens: string;
-  slippageBps: number;
-  setSlippageBps: (value: number) => void;
-  currentAllowance?: bigint;
-}) {
+}: LineItemsProps) {
   const simulationFailure = quote ? getSimulationFailureReason(quote, currentAllowance) : null;
   const successfulQuotes = quotes?.filter((q) => q.success) || [];
 
@@ -187,7 +187,7 @@ export function LineItems({
               </span>
               <div className="flex monospace justify-between text-primary text-[12px]">
                 <span>Aggregator</span>
-                <span className="text-right">{outputToken.symbol}</span>
+                <span className="text-right">{buyToken.symbol}</span>
                 <span className="text-right">Delta</span>
                 <span className="text-right">Gap</span>
               </div>
@@ -196,8 +196,8 @@ export function LineItems({
                 ?.map((q) => ({
                   quote: q,
                   rate:
-                    Number((q.outputAmount * BigInt(10 ** inputToken.decimals)) / q.inputAmount) /
-                    10 ** outputToken.decimals,
+                    Number((q.outputAmount * BigInt(10 ** sellToken.decimals)) / q.inputAmount) /
+                    10 ** buyToken.decimals,
                 }))
                 .sort((a, b) => b.rate - a.rate)
                 .map((item, i, sortedItems) => {
@@ -231,10 +231,10 @@ export function LineItems({
         </Tooltip.Root>
       ),
       value: quote?.success
-        ? `1 ${inputToken.symbol} = ${formatTokenValue(
-            (quote.outputAmount * BigInt(10 ** inputToken.decimals)) / quote.inputAmount,
-            outputToken.decimals,
-          )} ${outputToken.symbol}`
+        ? `1 ${sellToken.symbol} = ${formatTokenValue(
+            (quote.outputAmount * BigInt(10 ** sellToken.decimals)) / quote.inputAmount,
+            buyToken.decimals,
+          )} ${buyToken.symbol}`
         : null,
       tooltip: true,
     },
@@ -303,7 +303,7 @@ export function LineItems({
     {
       label: "Total",
       value: quote?.success
-        ? `${formatTokenValue(BigInt(quote.outputAmount), outputToken.decimals)} ${outputToken.symbol}`
+        ? `${formatTokenValue(BigInt(quote.outputAmount), buyToken.decimals)} ${buyToken.symbol}`
         : null,
     },
   ];

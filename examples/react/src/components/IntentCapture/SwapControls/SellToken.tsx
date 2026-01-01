@@ -1,7 +1,8 @@
 import { useCallback } from "react";
+import { ChevronDown } from "@/components/icons";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
-import { Button } from "../Button";
+import { Button } from "../../Button";
 
 type SellTokenProps = {
   token: TokenMetadata;
@@ -66,16 +67,7 @@ export function SellToken({
             <img src={token.logoURI} alt={token.symbol} className="w-8 h-8 rounded-full" />
             <span className="font-['Sohne_Breit'] text-[20px]">{token.symbol}</span>
             <div className="h-12 w-12 flex items-center">
-              {/** biome-ignore lint/a11y/noSvgWithoutTitle: <> */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="8"
-                viewBox="0 0 12 8"
-                fill="none"
-              >
-                <path d="M6 7.4L0 1.4L1.4 0L6 4.6L10.6 0L12 1.4L6 7.4Z" fill="#0F0F0F" />
-              </svg>
+              <ChevronDown />
             </div>
           </div>
         </Button>

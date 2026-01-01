@@ -1,6 +1,7 @@
 import type { SimulatedQuote } from "@withfabric/spandex";
 import { useEffect, useMemo } from "react";
 import { useConnection } from "wagmi";
+import { ArrowsUpDown } from "@/components/icons";
 import { useBalance } from "@/hooks/useBalance";
 import type { TokenMetadata } from "@/services/tokens";
 import { formatTokenValue } from "@/utils/strings";
@@ -17,31 +18,16 @@ type SwapControlsProps = {
   onSwitchTokens: () => void;
 };
 
-function TokenSwitcher({ canSwitch, onSwitch }: { canSwitch: boolean; onSwitch: () => void }) {
-  if (!canSwitch) return null;
+type SwapControlsInputsProps = SwapControlsProps & {
+  numBuyTokens: string;
+  inputBalance?: bigint;
+  outputBalance?: bigint;
+  isLoadingBalances: boolean;
+};
 
-  return (
-    <button
-      type="button"
-      className="absolute right-0 top-1/2 -translate-y-1/2 h-12 w-12 flex items-center justify-center cursor-pointer"
-      onClick={onSwitch}
-    >
-      {/** biome-ignore lint/a11y/noSvgWithoutTitle: <> */}
-      <svg
-        className="fill-tertiary"
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="20"
-        viewBox="0 0 16 20"
-        fill="none"
-      >
-        <path d="M16 15L11 20L6 15L7.425 13.6L10 16.175V9H12V16.175L14.575 13.6L16 15ZM10 5L8.575 6.4L6 3.825V11H4V3.825L1.425 6.4L0 5L5 0L10 5Z" />
-      </svg>
-    </button>
-  );
-}
-
-export function SwapControls({
+// SwapControls - loads balances, renders token controls. The loader does all required
+// fetching/loading and wraps the inputs
+function SwapControlsLoader({
   bestQuote,
   sellToken,
   numSellTokens,
@@ -71,6 +57,7 @@ export function SwapControls({
     owner: address,
     token: sellToken.address,
   });
+
   const {
     data: outputBalance,
     isLoading: outputBalanceLoading,
@@ -88,6 +75,34 @@ export function SwapControls({
 
   const isLoadingBalances = inputBalanceLoading || outputBalanceLoading;
 
+  return (
+    <Inputs
+      sellToken={sellToken}
+      numSellTokens={numSellTokens}
+      setNumSellTokens={setNumSellTokens}
+      buyToken={buyToken}
+      numBuyTokens={numBuyTokens}
+      isLoadingQuotes={isLoadingQuotes}
+      inputBalance={inputBalance}
+      outputBalance={outputBalance}
+      isLoadingBalances={isLoadingBalances}
+      onSwitchTokens={onSwitchTokens}
+    />
+  );
+}
+
+function Inputs({
+  sellToken,
+  numSellTokens,
+  setNumSellTokens,
+  buyToken,
+  numBuyTokens,
+  isLoadingQuotes,
+  inputBalance,
+  outputBalance,
+  isLoadingBalances,
+  onSwitchTokens,
+}: SwapControlsInputsProps) {
   return (
     <div className="relative flex flex-col gap-20">
       <SellToken
@@ -110,3 +125,19 @@ export function SwapControls({
     </div>
   );
 }
+
+function TokenSwitcher({ canSwitch, onSwitch }: { canSwitch: boolean; onSwitch: () => void }) {
+  if (!canSwitch) return null;
+
+  return (
+    <button
+      type="button"
+      className="absolute right-0 top-1/2 -translate-y-1/2 h-12 w-12 flex items-center justify-center cursor-pointer"
+      onClick={onSwitch}
+    >
+      <ArrowsUpDown className="fill-tertiary" />
+    </button>
+  );
+}
+
+export { SwapControlsLoader as SwapControls };
