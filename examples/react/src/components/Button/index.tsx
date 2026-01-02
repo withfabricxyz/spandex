@@ -14,7 +14,7 @@ function BigButton(props: Omit<ButtonProps, "size">) {
       type={props.type}
       disabled={props.disabled}
       onClick={props.onClick}
-      className="bg-primary py-10 px-5 flex justify-center items-center gap-5 text-secondary text-[40px] uppercase leading-[0.825] h-[69px] rounded-xs cursor-pointer"
+      className="bg-primary py-10 px-5 flex justify-center items-center gap-5 text-surface-base text-[40px] uppercase leading-[0.825] h-[69px] rounded-xs cursor-pointer"
     >
       {props.children}
     </button>
@@ -34,7 +34,7 @@ export function Button({ children, type = "button", disabled, size = "md", onCli
     <button
       type={type}
       disabled={disabled}
-      className="relative bg-white font-['Sohne_Mono'] text-xs cursor-pointer border border-primary rounded-xs p-4 h-20 flex gap-4 items-center justify-between whitespace-nowrap"
+      className="relative bg-surface-base text-xs cursor-pointer border border-primary rounded-xs p-4 h-20 flex gap-4 items-center justify-between whitespace-nowrap text-primary"
       onClick={onClick}
     >
       {children}

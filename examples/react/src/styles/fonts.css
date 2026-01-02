@@ -385,3 +385,7 @@
 body {
   font-family: "Sohne Breit", sans-serif;
 }
+
+.monospace {
+  font-family: "Sohne Mono", monospace;
+}

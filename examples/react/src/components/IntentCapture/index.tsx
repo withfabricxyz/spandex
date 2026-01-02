@@ -129,7 +129,7 @@ export function IntentCapture() {
           isLoadingQuotes={isLoadingQuotes}
           onSwitchTokens={onSwitchTokens}
         />
-        <hr className="block bg-primary" />
+        <hr className="block h-1 bg-primary" />
         <Insights
           bestQuote={bestQuote}
           quotes={quotes}
@@ -142,7 +142,7 @@ export function IntentCapture() {
           setSlippageBps={setSlippageBps}
           currentAllowance={allowance}
         />
-        <hr className="block bg-primary" />
+        <hr className="block h-1 bg-primary" />
         <TxBatchButton variant="sell" blocked={calls.length === 0} calls={calls} />
       </div>
     </ClientOnly>

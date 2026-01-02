@@ -19,7 +19,7 @@ function BaseTooltip({ children, title }: { children: ReactNode; title: string }
         {title}
       </Tooltip.Trigger>
       <Tooltip.Content>
-        <div className="p-10 rounded-xs max-w-[336px] flex flex-col gap-10 bg-surface-1">
+        <div className="p-10 rounded-xs max-w-[336px] flex flex-col gap-10 bg-surface-base">
           {children}
         </div>
       </Tooltip.Content>
@@ -115,7 +115,7 @@ export function LatencyTooltip({ successfulQuotes }: { successfulQuotes: Success
 
   return (
     <BaseTooltip title="Latency">
-      <span className="font-medium font-['Sohne_Breit'] text-[16px] text-primary">
+      <span className="font-medium  text-[16px] text-primary">
         How long did it take to provide a quote?
       </span>
       <TooltipTable data={data} columns={columns as ColumnDef<LatencyRow>[]} />
@@ -177,7 +177,7 @@ export function InaccuracyTooltip({ successfulQuotes }: { successfulQuotes: Succ
 
   return (
     <BaseTooltip title="Inaccuracy">
-      <span className="font-medium font-['Sohne_Breit'] text-[16px] text-primary">
+      <span className="font-medium  text-[16px] text-primary">
         How wide was the delta between quote and execution?
       </span>
       <TooltipTable data={data} columns={columns as ColumnDef<InaccuracyRow>[]} />
@@ -258,7 +258,7 @@ export function PriceTooltip({
 
   return (
     <BaseTooltip title="Price">
-      <span className="font-medium font-['Sohne_Breit'] text-[16px] text-primary">
+      <span className="font-medium  text-[16px] text-primary">
         How does the token output vs input compare to peers?
       </span>
       <TooltipTable data={data} columns={columns as ColumnDef<PriceRow>[]} />

@@ -23,7 +23,7 @@ export function BuyToken({
 
   return (
     <div className="flex flex-col gap-10">
-      <span className="text-secondary-1">Buy</span>
+      <span className="text-secondary">Buy</span>
       <div className="flex justify-between items-center">
         {isLoadingQuotes ? (
           <Skeleton height={44} width="calc(100% - 176px)" />
@@ -39,14 +39,14 @@ export function BuyToken({
         <Button onClick={() => openDrawer("buy")}>
           <div className="flex items-center gap-4 pr-4">
             <img src={token.logoURI} alt={token.symbol} className="w-8 h-8 rounded-full" />
-            <span className="font-['Sohne_Breit'] text-[20px]">{token.symbol}</span>
+            <span className=" text-[20px]">{token.symbol}</span>
             <div className="h-12 w-12 flex items-center">
-              <ChevronDown />
+              <ChevronDown fill="var(--color-primary)" />
             </div>
           </div>
         </Button>
       </div>
-      <span className="text-tertiary font-['Sohne_Mono'] text-[12px]">
+      <span className="text-quaternary monospace text-[12px]">
         {isLoadingBalances ? "Loading..." : balance || "0"} {token.symbol}
       </span>
     </div>

@@ -80,7 +80,7 @@ export function SlippageControls({
             </span>
           </div>
           <span
-            className={`font-['Sohne_Mono'] text-[12px] select-none ${inputValue !== "" ? "text-primary" : "text-tertiary"}`}
+            className={`monospace text-[12px] select-none ${inputValue !== "" ? "text-primary" : "text-tertiary"}`}
           >
             ({slippageTokenValue} {sellToken.symbol})
           </span>
@@ -101,7 +101,7 @@ export function SlippageControls({
       ) : (
         <button
           type="button"
-          className="font-['Sohne_Mono'] text-[12px] text-primary cursor-pointer"
+          className="monospace text-[12px] text-primary cursor-pointer"
           onClick={() => setIsEditing(true)}
         >
           {slippagePercent}% ({slippageTokenValue} {sellToken.symbol})

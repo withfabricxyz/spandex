@@ -65,7 +65,7 @@ function ContractAddressInput() {
     <div className={`${styles.tokenDrawerInput} px-20 mb-20 relative`}>
       <input
         type="text"
-        className="h-20 font-['Sohne_Breit'] w-full border rounded-xs p-4 focus:outline-0 active:outline-0 placeholder:text-[#b3b3b3]"
+        className="h-20  w-full border rounded-xs p-4 focus:outline-0 active:outline-0 placeholder:text-[#b3b3b3]"
         value={inputValue}
         onChange={({ target }) => setInputValue(target.value)}
         placeholder="Contract address"

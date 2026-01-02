@@ -43,10 +43,10 @@ export function SellToken({
   return (
     <div className="flex flex-col gap-10">
       <div className="flex items-center gap-10">
-        <span className="text-secondary-1">Sell</span>
+        <span className="text-secondary">Sell</span>
         {["25%", "50%", "Max"].map((label) => (
           <button
-            className="text-tertiary hover:text-secondary-1 cursor-pointer select-none"
+            className="text-quaternary hover:text-secondary cursor-pointer select-none"
             type="button"
             key={label}
             onClick={() => handlePercentClick(label.toLowerCase())}
@@ -65,14 +65,14 @@ export function SellToken({
         <Button onClick={() => openDrawer("sell")}>
           <div className="flex items-center gap-4 pr-4">
             <img src={token.logoURI} alt={token.symbol} className="w-8 h-8 rounded-full" />
-            <span className="font-['Sohne_Breit'] text-[20px]">{token.symbol}</span>
+            <span className=" text-[20px]">{token.symbol}</span>
             <div className="h-12 w-12 flex items-center">
-              <ChevronDown />
+              <ChevronDown fill="var(--color-primary)" />
             </div>
           </div>
         </Button>
       </div>
-      <span className="text-tertiary font-['Sohne_Mono'] text-[12px]">
+      <span className="text-quaternary monospace text-[12px]">
         {isLoadingBalances ? "Loading..." : balance || "0"} {token.symbol}
       </span>
     </div>

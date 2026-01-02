@@ -4,6 +4,7 @@ import { type Connector, useConnect, useConnection, useConnectors, useDisconnect
 import { formatAddress } from "../../utils/strings";
 import { Button } from "../Button";
 import { Dialog } from "../Dialog";
+import { ThemePicker } from "../ThemePicker";
 import { TokenDrawer } from "../TokenDrawer";
 import { Logo } from "./Logo";
 
@@ -86,7 +87,7 @@ export function Header() {
   }, [disconnect]);
 
   return (
-    <nav className="fixed top-0 left-10 right-10 sm:left-0 sm:right-0 z-layer-navigation bg-white">
+    <nav className="fixed top-0 left-10 right-10 sm:left-0 sm:right-0 z-layer-navigation bg-surface-base">
       <div
         className={`relative max-w-[614px] mx-auto border-b border-primary ${isScrolled ? "py-10" : "py-20"} transition-[padding]`}
       >
@@ -100,28 +101,30 @@ export function Header() {
               handleDisconnect();
             }}
           >
-            {mounted && address ? (
-              <div className="flex items-center justify-between gap-4">
-                <span>{formatAddress(address)}</span>
-                <div className="h-16 w-16 flex items-center justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="13"
-                    height="13"
-                    viewBox="0 0 13 13"
-                    fill="none"
-                  >
-                    <title>Disconnect</title>
-                    <path
-                      d="M1.44444 13C1.04722 13 0.707176 12.8586 0.424306 12.5757C0.141435 12.2928 0 11.9528 0 11.5556V1.44444C0 1.04722 0.141435 0.707176 0.424306 0.424306C0.707176 0.141435 1.04722 0 1.44444 0H6.5V1.44444H1.44444V11.5556H6.5V13H1.44444ZM9.38889 10.1111L8.39583 9.06389L10.2375 7.22222H4.33333V5.77778H10.2375L8.39583 3.93611L9.38889 2.88889L13 6.5L9.38889 10.1111Z"
-                      fill="#0F0F0F"
-                    />
-                  </svg>
+            <div className="monospace">
+              {mounted && address ? (
+                <div className="flex items-center justify-between gap-4">
+                  <span>{formatAddress(address)}</span>
+                  <div className="h-16 w-16 flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="13"
+                      height="13"
+                      viewBox="0 0 13 13"
+                      fill="none"
+                    >
+                      <title>Disconnect</title>
+                      <path
+                        d="M1.44444 13C1.04722 13 0.707176 12.8586 0.424306 12.5757C0.141435 12.2928 0 11.9528 0 11.5556V1.44444C0 1.04722 0.141435 0.707176 0.424306 0.424306C0.707176 0.141435 1.04722 0 1.44444 0H6.5V1.44444H1.44444V11.5556H6.5V13H1.44444ZM9.38889 10.1111L8.39583 9.06389L10.2375 7.22222H4.33333V5.77778H10.2375L8.39583 3.93611L9.38889 2.88889L13 6.5L9.38889 10.1111Z"
+                        fill="var(--color-primary)"
+                      />
+                    </svg>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              "Connect Wallet"
-            )}
+              ) : (
+                "Connect Wallet"
+              )}
+            </div>
           </Button>
         </div>
 
@@ -143,6 +146,8 @@ export function Header() {
           />
         </div>
       </Dialog>
+
+      <ThemePicker />
     </nav>
   );
 }

@@ -144,17 +144,17 @@ export function LineItems({
           key={i}
           className={`flex justify-between${i === items.length - 1 ? " font-bold" : ""}`}
         >
-          <span className="font-['Sohne_Mono'] text-[12px] text-secondary-1">{item.label}</span>
+          <span className="text-primary monospace text-[12px] text-secondary-1">{item.label}</span>
           {item.value ? (
             item.color ? (
               <span
-                className="font-['Sohne_Mono'] text-[12px] capitalize"
+                className="monospace text-[12px] capitalize"
                 style={{ color: item.color }}
               >
                 {item.value}
               </span>
             ) : (
-              <span className="font-['Sohne_Mono'] text-[12px] text-primary">{item.value}</span>
+              <span className="monospace text-[12px] text-primary">{item.value}</span>
             )
           ) : (
             <Skeleton height={12} width={40} />

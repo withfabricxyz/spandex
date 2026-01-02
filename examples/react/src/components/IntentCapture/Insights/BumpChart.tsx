@@ -10,14 +10,13 @@ type BumpChartProps = {
 };
 
 export const COLORS: Record<string, string> = {
-  fabric: "#8B5CF6",
-  "0x": "#FF006B",
-  uniswap: "#FF007A",
-  odos: "#FB42DF",
-  kyberswap: "#117D45",
+  fabric: "var(--color-fabric-purple)",
+  "0x": "var(--color-fabric-red)",
+  odos: "var(--color-fabric-pink)",
+  kyberswap: "var(--color-fabric-green)",
   fallback: "#999999",
-  secondary: "rgba(179, 179, 179, 0.20)",
-  tertiary: "rgba(179, 179, 179, 0.10)",
+  secondary: "var(--color-border)",
+  tertiary: "var(--color-outline)",
 };
 
 function MetricSelect({
@@ -39,7 +38,7 @@ function MetricSelect({
       <button
         type="button"
         onClick={() => handleSelect("price")}
-        className={`font-['Sohne_Mono'] text-[12px] underline decoration-dotted underline-offset-[3px] hover:cursor-pointer hover:decoration-solid ${
+        className={`text-primary monospace text-[12px] underline decoration-dotted underline-offset-[3px] hover:cursor-pointer hover:decoration-solid ${
           selectedMetric === "price" ? "decoration-solid" : ""
         }`}
       >
@@ -48,7 +47,7 @@ function MetricSelect({
       <button
         type="button"
         onClick={() => handleSelect("accuracy")}
-        className={`font-['Sohne_Mono'] text-[12px] underline decoration-dotted underline-offset-[3px] hover:cursor-pointer hover:decoration-solid ${
+        className={`text-primary monospace text-[12px] underline decoration-dotted underline-offset-[3px] hover:cursor-pointer hover:decoration-solid ${
           selectedMetric === "accuracy" ? "decoration-solid" : ""
         }`}
       >
@@ -58,7 +57,7 @@ function MetricSelect({
       <button
         type="button"
         onClick={() => handleSelect("latency")}
-        className={`font-['Sohne_Mono'] text-[12px] underline decoration-dotted underline-offset-[3px] hover:cursor-pointer hover:decoration-solid ${
+        className={`text-primary monospace text-[12px] underline decoration-dotted underline-offset-[3px] hover:cursor-pointer hover:decoration-solid ${
           selectedMetric === "latency" ? "decoration-solid" : ""
         }`}
       >
@@ -177,10 +176,10 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
       <MetricSelect selectedMetric={selectedMetric} setSelectedMetric={setSelectedMetric} />
       {quoteHistory.length === 0 ? (
         <div
-          className="bg-tertiary flex items-center justify-center animate-pulse"
+          className="bg-surface-mid flex items-center justify-center"
           style={{ height: `${chartHeight}px` }}
         >
-          <span className="font-['Sohne_Mono'] text-[12px] text-[#999]">Fetching quotes...</span>
+          <span className="monospace text-[12px] text-primary animate-pulse">Fetching quotes...</span>
         </div>
       ) : (
         <div style={{ height: `${chartHeight}px` }}>
