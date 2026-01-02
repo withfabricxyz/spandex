@@ -86,7 +86,7 @@ export function Header() {
   }, [disconnect]);
 
   return (
-    <nav className="fixed w-full top-0 z-layer-navigation bg-white">
+    <nav className="fixed top-0 left-10 right-10 sm:left-0 sm:right-0 z-layer-navigation bg-white">
       <div
         className={`relative max-w-[614px] mx-auto border-b border-primary ${isScrolled ? "py-10" : "py-20"} transition-[padding]`}
       >

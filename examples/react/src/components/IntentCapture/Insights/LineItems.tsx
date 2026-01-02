@@ -1,5 +1,4 @@
 import type { SimulatedQuote } from "@withfabric/spandex";
-import { Tooltip } from "radix-ui";
 import type { JSX } from "react";
 import type { TokenMetadata } from "@/services/tokens";
 import {
@@ -12,6 +11,14 @@ import { formatTokenValue } from "@/utils/strings";
 import { Skeleton } from "../../Skeleton";
 import { SlippageControls } from "../SlippageControls";
 import { COLORS } from "./BumpChart";
+import {
+  GasTooltip,
+  InaccuracyTooltip,
+  LatencyTooltip,
+  MaxSlippageTooltip,
+  PriceImpactTooltip,
+  PriceTooltip,
+} from "./Tooltips";
 
 type LineItemsProps = {
   quote?: SimulatedQuote;
@@ -69,166 +76,27 @@ export function LineItems({
     label: JSX.Element | string;
     value: JSX.Element | string | null;
     color?: string;
-    tooltip?: boolean;
   }[] = [
     {
       label: "Winning Aggregator",
       value: quote ? quote.provider : null,
       color: quote ? COLORS[quote.provider.toLowerCase()] : undefined,
-      tooltip: true,
     },
     {
-      label: (
-        <Tooltip.Root>
-          <Tooltip.Trigger className="underline cursor-pointer decoration-dotted hover:decoration-solid">
-            Latency
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            <div className="p-10 rounded-xs max-w-[336px] flex flex-col gap-10 bg-surface-1">
-              <span className="font-medium font-['Sohne_Breit'] text-[16px] text-primary">
-                How long did it take to provide a quote?
-              </span>
-              <div className="flex monospace justify-between text-primary text-[12px]">
-                <span>Aggregator</span>
-                <span className="text-right">Time</span>
-                <span className="text-right">Gap</span>
-              </div>
-              <hr className="block bg-primary" />
-              {successfulQuotes
-                ?.sort((a, b) => a.latency - b.latency)
-                .map((q, i, sortedQuotes) => {
-                  const color = COLORS[q.provider.toLowerCase()];
-                  const isLast = i === sortedQuotes.length - 1;
-                  const gap = isLast ? null : q.latency - sortedQuotes[i + 1].latency;
-
-                  return (
-                    <div
-                      key={q.provider}
-                      className="flex monospace justify-between text-primary text-[12px]"
-                    >
-                      <span className="capitalize" style={{ color }}>
-                        {q.provider}
-                      </span>
-                      <span className="text-right">{`${q.latency.toFixed(1)}ms`}</span>
-                      <span className="text-right">
-                        {gap === null ? "--" : `${gap.toFixed(1)}ms`}
-                      </span>
-                    </div>
-                  );
-                })}
-            </div>
-          </Tooltip.Content>
-        </Tooltip.Root>
-      ),
+      label: <LatencyTooltip successfulQuotes={successfulQuotes} />,
       value: quote?.success ? `${quote.latency.toFixed(1)}ms` : null,
-      tooltip: true,
     },
     {
-      label: (
-        <Tooltip.Root>
-          <Tooltip.Trigger className="underline cursor-pointer decoration-dotted hover:decoration-solid">
-            Inaccuracy
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            <div className="p-10 rounded-xs max-w-[336px] flex flex-col gap-10 bg-surface-1">
-              <span className="font-medium font-['Sohne_Breit'] text-[16px] text-primary">
-                How wide was the delta between quote and execution?
-              </span>
-              <div className="flex monospace justify-between text-primary text-[12px]">
-                <span>Aggregator</span>
-                <span className="text-right">Delta</span>
-                <span className="text-right">Gap</span>
-              </div>
-              <hr className="block bg-primary" />
-              {successfulQuotes
-                ?.map((q) => ({ quote: q, inaccuracy: getQuoteInaccuracy(q) }))
-                .filter((item) => item.inaccuracy !== null)
-                .sort((a, b) => (a.inaccuracy || 0) - (b.inaccuracy || 0))
-                .map((item, i, sortedItems) => {
-                  const { quote: q, inaccuracy } = item;
-                  const color = COLORS[q.provider.toLowerCase()];
-                  const isLast = i === sortedItems.length - 1;
-                  const gap = isLast
-                    ? null
-                    : (sortedItems[i + 1].inaccuracy || 0) - (inaccuracy || 0);
-
-                  return (
-                    <div
-                      key={q.provider}
-                      className="flex monospace justify-between text-primary text-[12px]"
-                    >
-                      <span className="capitalize" style={{ color }}>
-                        {q.provider}
-                      </span>
-                      <span className="text-right">{`${((inaccuracy || 0) / 100).toFixed(3)}bps`}</span>
-                      <span className="text-right">
-                        {gap === null ? "--" : `${(gap / 100).toFixed(3)}bps`}
-                      </span>
-                    </div>
-                  );
-                })}
-            </div>
-          </Tooltip.Content>
-        </Tooltip.Root>
-      ),
+      label: <InaccuracyTooltip successfulQuotes={successfulQuotes} />,
       value: getInaccuracyValue(),
-      tooltip: true,
     },
     {
       label: (
-        <Tooltip.Root>
-          <Tooltip.Trigger className="underline cursor-pointer decoration-dotted hover:decoration-solid">
-            Price
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            <div className="p-10 rounded-xs max-w-[336px] flex flex-col gap-10 bg-surface-1">
-              <span className="font-medium font-['Sohne_Breit'] text-[16px] text-primary">
-                How does the token output vs input compare to peers?
-              </span>
-              <div className="flex monospace justify-between text-primary text-[12px]">
-                <span>Aggregator</span>
-                <span className="text-right">{buyToken.symbol}</span>
-                <span className="text-right">Delta</span>
-                <span className="text-right">Gap</span>
-              </div>
-              <hr className="block bg-primary" />
-              {successfulQuotes
-                ?.map((q) => ({
-                  quote: q,
-                  rate:
-                    Number((q.outputAmount * BigInt(10 ** sellToken.decimals)) / q.inputAmount) /
-                    10 ** buyToken.decimals,
-                }))
-                .sort((a, b) => b.rate - a.rate)
-                .map((item, i, sortedItems) => {
-                  const { quote: q, rate } = item;
-                  const color = COLORS[q.provider.toLowerCase()];
-                  const isLast = i === sortedItems.length - 1;
-                  const baseline = sortedItems[sortedItems.length - 1].rate;
-                  const delta = ((rate - baseline) / baseline) * 100;
-                  const gap = isLast ? null : ((rate - sortedItems[i + 1].rate) / baseline) * 10000;
-
-                  return (
-                    <div
-                      key={q.provider}
-                      className="flex monospace justify-between text-primary text-[12px]"
-                    >
-                      <span className="capitalize" style={{ color }}>
-                        {q.provider}
-                      </span>
-                      <span className="text-right">{rate.toFixed(8)}</span>
-                      <span className="text-right">
-                        {isLast ? "(Baseline)" : `${delta.toFixed(4)}%`}
-                      </span>
-                      <span className="text-right">
-                        {gap === null ? "--" : `${gap.toFixed(1)}bps`}
-                      </span>
-                    </div>
-                  );
-                })}
-            </div>
-          </Tooltip.Content>
-        </Tooltip.Root>
+        <PriceTooltip
+          successfulQuotes={successfulQuotes}
+          sellToken={sellToken}
+          buyToken={buyToken}
+        />
       ),
       value: quote?.success
         ? `1 ${sellToken.symbol} = ${formatTokenValue(
@@ -236,40 +104,13 @@ export function LineItems({
             buyToken.decimals,
           )} ${buyToken.symbol}`
         : null,
-      tooltip: true,
     },
     {
-      label: (
-        <Tooltip.Root>
-          <Tooltip.Trigger className="underline cursor-pointer decoration-dotted hover:decoration-solid">
-            Gas
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            <div className="p-10 rounded-xs max-w-[336px] flex flex-col gap-10 bg-surface-1">
-              <span className="monospace text-primary text-[12px]">
-                The network fee required to process this transaction on-chain.
-              </span>
-            </div>
-          </Tooltip.Content>
-        </Tooltip.Root>
-      ),
+      label: <GasTooltip />,
       value: quote?.success ? `$${(Number(quote.networkFee) / 1e18).toFixed(2)}` : null,
     },
     {
-      label: (
-        <Tooltip.Root>
-          <Tooltip.Trigger className="underline cursor-pointer decoration-dotted hover:decoration-solid">
-            Max Slippage
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            <div className="p-10 rounded-xs max-w-[336px] flex flex-col gap-10 bg-surface-1">
-              <span className="monospace text-primary text-[12px]">
-                How much the price is allowed to change before your trade reverts.
-              </span>
-            </div>
-          </Tooltip.Content>
-        </Tooltip.Root>
-      ),
+      label: <MaxSlippageTooltip />,
       value: (
         <SlippageControls
           sellToken={sellToken}
@@ -280,20 +121,7 @@ export function LineItems({
       ),
     },
     {
-      label: (
-        <Tooltip.Root>
-          <Tooltip.Trigger className="underline cursor-pointer decoration-dotted hover:decoration-solid">
-            Price Impact
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            <div className="p-10 rounded-xs max-w-[336px] flex flex-col gap-10 bg-surface-1">
-              <span className="monospace text-primary text-[12px]">
-                How much your trade moves the market price.
-              </span>
-            </div>
-          </Tooltip.Content>
-        </Tooltip.Root>
-      ),
+      label: <PriceImpactTooltip />,
       value: getPriceImpactValue(),
     },
     {
