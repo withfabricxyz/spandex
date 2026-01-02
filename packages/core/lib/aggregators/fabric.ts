@@ -1,5 +1,4 @@
 import type { Address, Hex } from "viem";
-import { amountToNumber } from "../util/pricing.js";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -14,6 +13,7 @@ import {
   type SwapParams,
   type TokenPricing,
 } from "../types.js";
+import { amountToNumber } from "../util/pricing.js";
 import { Aggregator } from "./index.js";
 
 const DEFAULT_URL = "https://booda.defi.withfabric.xyz";

@@ -151,9 +151,10 @@ async function performSimulation({
     });
     const latency = performance.now() - time;
 
-    // If any call failed, extract error (TODO: consider treating approval failure differently?)
+    // If any call failed, extract error
     validateSimulation(results, calls, block);
 
+    // Extract transfers from relevant call logs
     const transfers = extractTransfers((isERC20In ? results[1]?.logs : results[0]?.logs) || []);
 
     return {
@@ -164,6 +165,7 @@ async function performSimulation({
       gasUsed: isERC20In ? results[1]?.gasUsed : results[0]?.gasUsed,
       blockNumber: block.number,
       transfers,
+      assetChanges,
     };
   } catch (error) {
     return {

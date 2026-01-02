@@ -1,3 +1,6 @@
+import { createPublicClient, http, type PublicClient } from "viem";
+import { base } from "viem/chains";
+import { createConfig, getQuote } from "../index.js";
 import type { FabricQuoteResponse } from "../lib/aggregators/fabric.js";
 import { Aggregator } from "../lib/aggregators/index.js";
 import type {
@@ -6,8 +9,13 @@ import type {
   ProviderKey,
   Quote,
   SuccessfulQuote,
+  SuccessfulSimulatedQuote,
   SwapParams,
 } from "../lib/types.js";
+
+const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
+export const ETH_WHALE = "0x611f7bf868a6212f871e89f7e44684045ddfb09d";
+export const USDC_WHALE = "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055";
 
 export const defaultSwapParams: SwapParams = {
   chainId: 8453,
@@ -82,6 +90,20 @@ export class MockAggregator extends Aggregator {
   }
 }
 
+export function testConfigSingleProvider() {
+  return createConfig({
+    providers: {
+      fabric: { clientId: "spandex" },
+    },
+    clients: [
+      createPublicClient({
+        chain: base,
+        transport: http(`https://rpc.ankr.com/base/${ANKR_API_KEY}`),
+      }) as PublicClient,
+    ],
+  });
+}
+
 const BIGINT_KEY = "__bigint__";
 
 const bigintReplacer = (_key: string, value: unknown) =>
@@ -109,4 +131,37 @@ export async function recordOutput<T>(name: string, fn: () => Promise<T>): Promi
   await Bun.write(file, JSON.stringify(result, bigintReplacer, 2));
 
   return { result };
+}
+
+export function recordedFabricSimulation(
+  name: string,
+  swap: SwapParams,
+): Promise<SuccessfulSimulatedQuote> {
+  const realizedName = `fabric-simulation-${name}-${hashSwapParams(swap)}`;
+
+  return recordOutput<SuccessfulSimulatedQuote>(realizedName, async () => {
+    const config = testConfigSingleProvider();
+    const quote = await getQuote({ config, swap, strategy: "fastest" });
+
+    if (!quote) {
+      throw new Error("Fabric simulation failed");
+    }
+
+    return quote;
+  }).then((res) => res.result);
+}
+
+function hashSwapParams(swap: SwapParams): number {
+  const keys = Object.keys(swap).sort();
+  let hash = 0;
+  for (const key of keys) {
+    const value = (swap as Record<string, unknown>)[key];
+    const str = `${key}:${String(value)};`;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash |= 0;
+    }
+  }
+  return Math.abs(hash);
 }
