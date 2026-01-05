@@ -24,7 +24,7 @@ export function TriggerWalletButton({
       {processing && (
         <div className="flex flex-row items-center gap-1 justify-center">
           {/* <IconPlus className="animate-spin fill-acid-10" /> */}
-          <span className="text-center text-type-primary-80">Confirm in wallet...</span>
+          <span className="text-center text-tertiary">Confirm in wallet...</span>
         </div>
       )}
       {error && (

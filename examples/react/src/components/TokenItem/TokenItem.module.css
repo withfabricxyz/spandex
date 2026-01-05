@@ -1,9 +1,9 @@
 .tokenItem {
   &:hover {
-    background-color: rgba(179, 179, 179, 0.1);
+    background-color: var(--color-outline);
   }
 
   &:active {
-    background-color: rgba(179, 179, 179, 0.2);
+    background-color: var(--color-border);
   }
 }

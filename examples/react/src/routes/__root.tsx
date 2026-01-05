@@ -31,6 +31,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         href: appCss,
       },
     ],
+    scripts: [
+      {
+        // prevent flash of default theme if user has other theme selected
+        src: "/theme-init.js",
+      },
+    ],
   }),
 
   shellComponent: RootDocument,

@@ -1,4 +1,4 @@
-import type { SimulatedQuote } from "@withfabric/spandex";
+import type { SimulatedQuote, SuccessfulQuote } from "@withfabric/spandex";
 import type { JSX } from "react";
 import type { TokenMetadata } from "@/services/tokens";
 import {
@@ -42,7 +42,7 @@ export function LineItems({
   currentAllowance,
 }: LineItemsProps) {
   const simulationFailure = quote ? getSimulationFailureReason(quote, currentAllowance) : null;
-  const successfulQuotes = quotes?.filter((q) => q.success) || [];
+  const successfulQuotes: SuccessfulQuote[] = quotes?.filter((q) => q.success) || [];
 
   const getInaccuracyValue = () => {
     const quoteInaccuracy = getQuoteInaccuracy(quote);
