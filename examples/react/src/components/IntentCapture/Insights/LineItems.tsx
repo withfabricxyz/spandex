@@ -147,10 +147,7 @@ export function LineItems({
           <span className="text-primary monospace text-[12px] text-secondary-1">{item.label}</span>
           {item.value ? (
             item.color ? (
-              <span
-                className="monospace text-[12px] capitalize"
-                style={{ color: item.color }}
-              >
+              <span className="monospace text-[12px] capitalize" style={{ color: item.color }}>
                 {item.value}
               </span>
             ) : (

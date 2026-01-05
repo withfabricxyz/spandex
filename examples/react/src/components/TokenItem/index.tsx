@@ -18,9 +18,7 @@ export function TokenItem({ token, onClick }: TokenItemProps) {
             <img src={token.logoURI} alt={token.symbol} className="h-16 w-16 rounded-full" />
           </div>
           <div className="tokenMeta flex flex-col gap-4">
-            <div className="tokenSymbol text-[20px] leading-10 ">
-              {token.symbol}
-            </div>
+            <div className="tokenSymbol text-[20px] leading-10 ">{token.symbol}</div>
             <div className="tokenName text-[11px] text-secondary-1 leading-[11px] monospace">
               {formatAddress(token.address)}
             </div>

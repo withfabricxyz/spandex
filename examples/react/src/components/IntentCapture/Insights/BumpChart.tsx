@@ -179,7 +179,9 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
           className="bg-surface-mid flex items-center justify-center"
           style={{ height: `${chartHeight}px` }}
         >
-          <span className="monospace text-[12px] text-primary animate-pulse">Fetching quotes...</span>
+          <span className="monospace text-[12px] text-primary animate-pulse">
+            Fetching quotes...
+          </span>
         </div>
       ) : (
         <div style={{ height: `${chartHeight}px` }}>

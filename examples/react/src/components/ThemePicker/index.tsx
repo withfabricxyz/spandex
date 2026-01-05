@@ -83,7 +83,11 @@ export const ThemePicker = () => {
     };
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (!isMouseDownInsideRef.current && containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        !isMouseDownInsideRef.current &&
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         handleClose();
       }
     };
@@ -143,4 +147,3 @@ export const ThemePicker = () => {
     </section>
   );
 };
-
