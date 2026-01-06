@@ -14,7 +14,7 @@ function BigButton(props: Omit<ButtonProps, "size">) {
       type={props.type}
       disabled={props.disabled}
       onClick={props.onClick}
-      className="bg-primary py-10 px-5 flex justify-center items-center gap-5 text-surface-base text-[40px] uppercase leading-[0.825] h-[69px] rounded-xs cursor-pointer"
+      className="bg-primary py-10 px-5 flex justify-center items-center gap-5 text-surface-base text-[40px] uppercase leading-[0.825] h-[69px] rounded-xs cursor-pointer disabled:bg-surface-sub"
     >
       {props.children}
     </button>

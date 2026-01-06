@@ -3,10 +3,13 @@ import { useQuotes } from "@withfabric/spandex-react";
 import { useCallback, useMemo, useState } from "react";
 import { type Address, encodeFunctionData, erc20Abi, type Hex, maxUint256 } from "viem";
 import { useConnection } from "wagmi";
+import { getExplorerLink } from "@/config/onchain";
 import { useAllowance } from "@/hooks/useAllowance";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import { getBestQuoteByMetric, type Metric } from "@/utils/quoteHelpers";
+import { toast } from "../Toast";
 import { Insights } from "./Insights";
+import { SuccessSplash } from "./SuccessSplash";
 import { SwapControls } from "./SwapControls";
 import { TxBatchButton } from "./TxBatchButton";
 
@@ -25,6 +28,7 @@ export function IntentCapture() {
   const [numSellTokens, setNumSellTokens] = useState<string>("20");
   const [selectedMetric, setSelectedMetric] = useState<Metric>("price");
   const [slippageBps, setSlippageBps] = useState<number>(100);
+  const [showSuccessSplash, setShowSuccessSplash] = useState<boolean>(false);
 
   const swap = useMemo(
     () => ({
@@ -69,10 +73,11 @@ export function IntentCapture() {
   });
 
   const needsApproval = useMemo(() => {
-    if (!bestQuote?.success || !allowance) return false;
+    if (!bestQuote?.success) return false;
 
     const inputAmount = BigInt(bestQuote.inputAmount || 0);
     const currentAllowance = BigInt(allowance || 0);
+
     return inputAmount > 0n && currentAllowance < inputAmount;
   }, [bestQuote, allowance]);
 
@@ -117,6 +122,19 @@ export function IntentCapture() {
     setBuyToken(sellToken);
   }, [buyToken, sellToken, setSellToken, setBuyToken]);
 
+  const onComplete = useCallback(
+    (hash: string) => {
+      if (!chainId) return;
+
+      toast("Transaction Success", {
+        link: getExplorerLink(chainId, "tx", hash),
+      });
+
+      setShowSuccessSplash(true);
+    },
+    [chainId],
+  );
+
   return (
     <ClientOnly>
       <div className="flex flex-col gap-20">
@@ -143,8 +161,16 @@ export function IntentCapture() {
           currentAllowance={allowance}
         />
         <hr className="block h-1 bg-primary" />
-        <TxBatchButton variant="sell" blocked={calls.length === 0} calls={calls} />
+        <TxBatchButton blocked={calls.length === 0} calls={calls} onComplete={onComplete} />
       </div>
+      {showSuccessSplash && address ? (
+        <SuccessSplash
+          sellToken={sellToken}
+          buyToken={buyToken}
+          account={address}
+          onClose={() => setShowSuccessSplash(false)}
+        />
+      ) : null}
     </ClientOnly>
   );
 }

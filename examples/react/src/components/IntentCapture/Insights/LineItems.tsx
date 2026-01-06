@@ -57,9 +57,7 @@ export function LineItems({
   const getPriceImpactValue = () => {
     const priceImpact = getQuotePriceImpact(quote);
 
-    if (simulationFailure) return simulationFailure;
     if (priceImpact !== null) return `${priceImpact.toFixed(2)}%`;
-    if (quote) return "—";
 
     return null;
   };

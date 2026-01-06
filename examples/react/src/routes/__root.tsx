@@ -3,6 +3,7 @@ import { createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/reac
 import { SpandexProvider } from "@withfabric/spandex-react";
 import { Tooltip } from "radix-ui";
 import { Header } from "@/components/Header";
+import { ToastPortal } from "@/components/Toast";
 import { TokenSelectProvider } from "@/providers/TokenSelectProvider";
 import { Web3Provider } from "@/providers/Web3Provider";
 import appCss from "../styles.css?url";
@@ -65,6 +66,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <div id="dialog-root" />
               </TokenSelectProvider>
             </Tooltip.Provider>
+            <ToastPortal />
           </SpandexProvider>
         </Web3Provider>
         <Scripts />

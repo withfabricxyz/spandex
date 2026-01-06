@@ -91,15 +91,14 @@ function getQuotedVsSimulated(quote: SimulatedQuote): {
 export function getQuotePriceImpact(quote?: SimulatedQuote): number | null {
   if (!quote?.success) return null;
 
-  if (isOdosQuote(quote)) {
+  // use provider-supplied price impact if available
+  if (isFabricQuote(quote)) {
+    return quote.details.price;
+  } else if (isOdosQuote(quote)) {
     return quote.details.priceImpact;
   }
 
-  const outputs = getQuotedVsSimulated(quote);
-  if (!outputs) return null;
-
-  const { quotedOutput, simulatedOutput } = outputs;
-  return ((simulatedOutput - quotedOutput) / quotedOutput) * 100;
+  return null;
 }
 
 export function getQuoteInaccuracy(quote?: SimulatedQuote): number | null {

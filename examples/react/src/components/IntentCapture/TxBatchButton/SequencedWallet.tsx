@@ -1,30 +1,28 @@
 import { call as wagmiCall } from "@wagmi/core";
 import { useCallback, useState } from "react";
-import { useAccount, useConfig, useSendTransaction } from "wagmi";
-// import { toast } from "~/components/library/Toast";
-// import { getExplorerLink } from "~/config/onchain";
-import { type StructuredError, structureError } from "@/utils/errors";
+import { useConfig, useConnection, useSendTransaction } from "wagmi";
+import { Loading } from "@/components/icons";
+import { toast } from "@/components/Toast";
+import { getExplorerLink } from "@/config/onchain";
+import { structureError } from "@/utils/errors";
 import type { TxBatchButtonProps } from ".";
 import { TriggerWalletButton } from "./TriggerWalletButton";
 
-const dwellTime = 2500; // 1 second
+const dwellTime = 2500;
 
-export function SequencedWalletTxBatchButton({
-  variant,
-  calls,
-  blocked,
-  onComplete,
-}: TxBatchButtonProps) {
-  const [error, setError] = useState<StructuredError | undefined>(undefined);
+export function SequencedWalletTxBatchButton({ calls, blocked, onComplete }: TxBatchButtonProps) {
   const [state, setState] = useState<"idle" | "processing">("idle");
 
-  const { address } = useAccount();
+  const { address } = useConnection();
   const config = useConfig();
-  const { sendTransactionAsync } = useSendTransaction();
+  const sendTransaction = useSendTransaction();
 
   const executeStep = useCallback(async () => {
-    setError(undefined);
     setState("processing");
+
+    const initialToast = toast("Confirm in wallet...", {
+      icon: <Loading className="fill-surface-base" />,
+    });
 
     try {
       for (const call of calls) {
@@ -35,31 +33,38 @@ export function SequencedWalletTxBatchButton({
           to: call.to,
         });
 
-        const hash = await sendTransactionAsync(call);
-        console.log("Transaction submitted with hash:", hash);
-        // toast(`${call.name} Tx Submitted`, {
-        //   link: getExplorerLink(call.chainId, "tx", hash),
-        // });
-        await new Promise((resolve) => setTimeout(resolve, dwellTime)); // Wait for dwell time before next transaction
-      }
+        const hash = await sendTransaction.mutateAsync({
+          data: call.data,
+          to: call.to,
+          value: call.value,
+          chainId: call.chainId,
+        });
 
-      if (onComplete) {
-        await onComplete();
+        initialToast.dismiss();
+
+        toast(`${call.name} Tx Submitted`, {
+          link: getExplorerLink(call.chainId, "tx", hash),
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, dwellTime)); // Wait for dwell time before next transaction
+
+        if (calls.indexOf(call) === calls.length - 1 && onComplete) {
+          onComplete(hash);
+        }
       }
     } catch (e) {
       console.error("Error executing route:", e);
-      setError(structureError(e));
+      initialToast.dismiss();
+      toast(structureError(e).title);
     } finally {
       setState("idle");
     }
-  }, [calls, sendTransactionAsync, onComplete, config, address]);
+  }, [calls, sendTransaction, onComplete, config, address]);
 
   return (
     <TriggerWalletButton
-      variant={variant}
       disabled={blocked || state === "processing"}
       processing={state === "processing"}
-      error={error}
       onClick={executeStep}
     />
   );

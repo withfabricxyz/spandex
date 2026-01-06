@@ -1,3 +1,4 @@
+import { ClientOnly } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { THEME_VALUES, THEMES, type Theme, useTheme } from "../../hooks/useTheme";
 
@@ -104,46 +105,48 @@ export const ThemePicker = () => {
   }, [isExpanded, handleClose]);
 
   return (
-    <section
-      ref={containerRef}
-      className={`fixed top-1/2 right-10 -translate-y-1/2 ${isExpanded ? "h-78" : "overflow-hidden h-14"} transition-all duration-500 origin-center`}
-      aria-label="Theme picker"
-    >
-      <form className="flex flex-col gap-2">
-        <fieldset className="border-0 p-0 m-0">
-          <legend className="sr-only">Choose theme</legend>
-          {orderedThemes.map(({ name, colors, icon }) => (
-            <div key={name} className="relative">
-              <input
-                type="radio"
-                id={`theme-${name}`}
-                name="theme"
-                value={name}
-                checked={theme === name}
-                onChange={handleChange}
-                className="sr-only peer"
-              />
-              <label
-                htmlFor={`theme-${name}`}
-                onClick={handleLabelClick}
-                onKeyDown={handleLabelClick}
-                className="block p-2 rounded-full cursor-pointer"
-                title={`Switch to ${name} theme`}
-              >
-                {icon()}
-              </label>
-              <div
-                className={`
-                  absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-layer-background scale-0 origin-center transition-transform rounded-full h-15 w-15 pointer-events-none
-                  ${theme === name && isExpanded ? "scale-100" : "scale-0"}
-                `}
-                style={{ border: `0.125rem solid ${colors[1]}` }}
-                aria-hidden="true"
-              />
-            </div>
-          ))}
-        </fieldset>
-      </form>
-    </section>
+    <ClientOnly>
+      <section
+        ref={containerRef}
+        className={`fixed top-1/2 right-10 -translate-y-1/2 ${isExpanded ? "h-78" : "overflow-hidden h-14"} transition-all duration-500 origin-center`}
+        aria-label="Theme picker"
+      >
+        <form className="flex flex-col gap-2">
+          <fieldset className="border-0 p-0 m-0">
+            <legend className="sr-only">Choose theme</legend>
+            {orderedThemes.map(({ name, colors, icon }) => (
+              <div key={name} className="relative">
+                <input
+                  type="radio"
+                  id={`theme-${name}`}
+                  name="theme"
+                  value={name}
+                  checked={theme === name}
+                  onChange={handleChange}
+                  className="sr-only peer"
+                />
+                <label
+                  htmlFor={`theme-${name}`}
+                  onClick={handleLabelClick}
+                  onKeyDown={handleLabelClick}
+                  className="block p-2 rounded-full cursor-pointer"
+                  title={`Switch to ${name} theme`}
+                >
+                  {icon()}
+                </label>
+                <div
+                  className={`
+                    absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-layer-background scale-0 origin-center transition-transform rounded-full h-15 w-15 pointer-events-none
+                    ${theme === name && isExpanded ? "scale-100" : "scale-0"}
+                  `}
+                  style={{ border: `0.125rem solid ${colors[1]}` }}
+                  aria-hidden="true"
+                />
+              </div>
+            ))}
+          </fieldset>
+        </form>
+      </section>
+    </ClientOnly>
   );
 };
