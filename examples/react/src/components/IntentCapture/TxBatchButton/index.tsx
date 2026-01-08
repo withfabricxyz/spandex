@@ -7,7 +7,7 @@ import { WalletDeferredTxBatchButton } from "./WalletDeferred";
 export type TxBatchButtonProps = {
   blocked: boolean;
   calls: TxData[];
-  onComplete?: (txHash: string) => void; // Optional callback when all transactions are completed
+  onComplete?: (hash: `0x${string}`) => void; // Optional callback when all transactions are completed
 };
 
 export function TxBatchButton(props: TxBatchButtonProps) {

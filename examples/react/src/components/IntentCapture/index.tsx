@@ -29,6 +29,12 @@ export function IntentCapture() {
   const [selectedMetric, setSelectedMetric] = useState<Metric>("price");
   const [slippageBps, setSlippageBps] = useState<number>(100);
   const [showSuccessSplash, setShowSuccessSplash] = useState<boolean>(false);
+  const [successfulTx, setSuccessfulTx] = useState<{
+    hash: `0x${string}`;
+    chainId: number;
+    inputAmount: bigint;
+    outputAmount: bigint;
+  } | null>(null);
 
   const swap = useMemo(
     () => ({
@@ -123,20 +129,34 @@ export function IntentCapture() {
   }, [buyToken, sellToken, setSellToken, setBuyToken]);
 
   const onComplete = useCallback(
-    (hash: string) => {
-      if (!chainId) return;
+    (hash: `0x${string}`) => {
+      if (!chainId || !bestQuote?.success) return;
 
       toast("Transaction Success", {
         link: getExplorerLink(chainId, "tx", hash),
       });
 
+      setSuccessfulTx({
+        hash,
+        chainId,
+        inputAmount: swap.inputAmount,
+        outputAmount: BigInt(bestQuote.txData.value || 0),
+      });
+
       setShowSuccessSplash(true);
     },
-    [chainId],
+    [chainId, bestQuote, swap.inputAmount],
   );
 
   return (
     <ClientOnly>
+      <button
+        className="text-primary p-4 w-full mb-16 border border-primary"
+        type="button"
+        onClick={() => setShowSuccessSplash(true)}
+      >
+        Clicky
+      </button>
       <div className="flex flex-col gap-20">
         <SwapControls
           bestQuote={bestQuote}
@@ -163,12 +183,13 @@ export function IntentCapture() {
         <hr className="block h-1 bg-primary" />
         <TxBatchButton blocked={calls.length === 0} calls={calls} onComplete={onComplete} />
       </div>
-      {showSuccessSplash && address ? (
+      {/* TODO: simplify condition */}
+      {showSuccessSplash && address && successfulTx ? (
         <SuccessSplash
           sellToken={sellToken}
           buyToken={buyToken}
-          account={address}
           onClose={() => setShowSuccessSplash(false)}
+          successfulTx={successfulTx}
         />
       ) : null}
     </ClientOnly>
