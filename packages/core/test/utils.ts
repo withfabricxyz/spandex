@@ -1,12 +1,13 @@
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
-import { createConfig, getQuote } from "../index.js";
+import { type Config, createConfig, getQuote } from "../index.js";
 import type { FabricQuoteResponse } from "../lib/aggregators/fabric.js";
 import { Aggregator } from "../lib/aggregators/index.js";
 import type {
   AggregatorFeature,
   AggregatorMetadata,
   ProviderKey,
+  ProvidersConfig,
   Quote,
   SuccessfulQuote,
   SuccessfulSimulatedQuote,
@@ -90,11 +91,9 @@ export class MockAggregator extends Aggregator {
   }
 }
 
-export function testConfigSingleProvider() {
+export function testConfig(providers: ProvidersConfig) {
   return createConfig({
-    providers: {
-      fabric: { clientId: "spandex" },
-    },
+    providers,
     clients: [
       createPublicClient({
         chain: base,
@@ -133,18 +132,18 @@ export async function recordOutput<T>(name: string, fn: () => Promise<T>): Promi
   return { result };
 }
 
-export function recordedFabricSimulation(
+export function recordedSimulation(
   name: string,
   swap: SwapParams,
+  config: Config,
 ): Promise<SuccessfulSimulatedQuote> {
-  const realizedName = `fabric-simulation-${name}-${hashSwapParams(swap)}`;
+  const realizedName = `simulation-${name}-${hashSwapParams(swap)}`;
 
   return recordOutput<SuccessfulSimulatedQuote>(realizedName, async () => {
-    const config = testConfigSingleProvider();
     const quote = await getQuote({ config, swap, strategy: "fastest" });
 
     if (!quote) {
-      throw new Error("Fabric simulation failed");
+      throw new Error("Simulation failed");
     }
 
     return quote;
