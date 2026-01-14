@@ -1,0 +1,55 @@
+name: Bug Report
+description: Report a bug or regression.
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please provide enough detail to reproduce the issue.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem and the impact.
+      placeholder: The quote API returns an empty route when...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide a minimal reproducible example.
+      placeholder: |
+        1. Configure provider X with...
+        2. Call getQuote with...
+        3. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Provide versions and runtime details.
+      placeholder: |
+        - OS:
+        - Node/Bun:
+        - Package version:
+        - Chain ID:
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Add any relevant logs, errors, or screenshots.
+      render: shell
+    validations:
+      required: false
