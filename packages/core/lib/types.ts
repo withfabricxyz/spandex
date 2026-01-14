@@ -2,6 +2,7 @@ import type { Address, PublicClient, SimulateCallsReturnType } from "viem";
 import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x.js";
 import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js";
 import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
+import type { LifiConfig, LifiQuoteResponse } from "./aggregators/lifi.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
 import type { RelayConfig, RelayQuoteResponse } from "./aggregators/relay.js";
 
@@ -20,6 +21,10 @@ export type ProviderDefinitions = {
   kyberswap: {
     config: KyberConfig;
     quote: KyberQuoteResponse;
+  };
+  lifi: {
+    config: LifiConfig;
+    quote: LifiQuoteResponse;
   };
   odos: {
     config: OdosConfig;

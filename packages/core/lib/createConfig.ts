@@ -3,6 +3,7 @@ import { ZeroXAggregator } from "./aggregators/0x.js";
 import { FabricAggregator } from "./aggregators/fabric.js";
 import type { Aggregator } from "./aggregators/index.js";
 import { KyberAggregator } from "./aggregators/kyber.js";
+import { LifiAggregator } from "./aggregators/lifi.js";
 import { OdosAggregator } from "./aggregators/odos.js";
 import { RelayAggregator } from "./aggregators/relay.js";
 import type { AggregationOptions, ConfigParams } from "./types.js";
@@ -72,6 +73,9 @@ export function createConfig(params: ConfigParams): Config {
   }
   if (configured.fabric) {
     aggregators.push(new FabricAggregator(configured.fabric));
+  }
+  if (configured.lifi) {
+    aggregators.push(new LifiAggregator(configured.lifi));
   }
   if (configured.odos) {
     aggregators.push(new OdosAggregator(configured.odos));
