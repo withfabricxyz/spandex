@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature Requests
+    url: https://github.com/withfabric/spandex/discussions
+    about: Propose new features or enhancements in Discussions.
+  - name: Help & Support
+    url: https://github.com/withfabric/spandex/discussions
+    about: Ask questions and get help in Discussions.

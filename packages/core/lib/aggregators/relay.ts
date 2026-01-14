@@ -1,5 +1,4 @@
 import { type Address, zeroAddress } from "viem";
-import { computeUsdPriceFromValue } from "../pricing.js";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -13,6 +12,7 @@ import {
   type SwapParams,
   type TokenPricing,
 } from "../types.js";
+import { computeUsdPriceFromValue } from "../util/pricing.js";
 import { Aggregator } from "./index.js";
 
 /**

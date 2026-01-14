@@ -1,5 +1,5 @@
-import { average } from "./pricing.js";
 import type { PricingSummary, Quote, TokenPricing } from "./types.js";
+import { average } from "./util/pricing.js";
 
 /**
  * Aggregates pricing metadata across quotes, averaging USD prices when multiple sources are present.

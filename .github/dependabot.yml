@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 5
+  - package-ecosystem: "npm"
+    directory: "/packages/core"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 5
+  - package-ecosystem: "npm"
+    directory: "/packages/react"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 5
+  - package-ecosystem: "npm"
+    directory: "/site"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 5
