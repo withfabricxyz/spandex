@@ -7,7 +7,7 @@
 .spark,
 .wordmark {
   path {
-    fill: var(--color-secondary);
+    fill: var(--color-primary);
   }
 }
 

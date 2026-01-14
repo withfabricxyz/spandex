@@ -116,6 +116,49 @@ function EndPointsLayer({ series }: any) {
   );
 }
 
+// Custom grid layer that constrains vertical lines to data bounds
+// biome-ignore lint/suspicious/noExplicitAny: nivo types
+function CustomGridLayer({ series, xScale }: any) {
+  if (!series || series.length === 0) return null;
+
+  // Find min and max y positions from all data points
+  let minY = Number.POSITIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  // biome-ignore lint/suspicious/noExplicitAny: nivo types
+  series.forEach((serie: any) => {
+    if (!serie.linePoints || serie.linePoints.length === 0) return;
+    // biome-ignore lint/suspicious/noExplicitAny: nivo types
+    serie.linePoints.forEach((point: any) => {
+      const y = point[1];
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    });
+  });
+
+  if (!Number.isFinite(minY) || !Number.isFinite(maxY)) return null;
+
+  // Get all x positions for grid lines
+  const xPositions = xScale.domain().map((d: number) => xScale(d));
+
+  return (
+    <g>
+      {xPositions.map((x: number, i: number) => (
+        <line
+          // biome-ignore lint/suspicious/noArrayIndexKey: <>
+          key={`grid-${i}`}
+          x1={x}
+          x2={x}
+          y1={minY}
+          y2={maxY}
+          stroke={COLORS.secondary}
+          strokeWidth={1}
+        />
+      ))}
+    </g>
+  );
+}
+
 export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: BumpChartProps) {
   const chartData = useMemo(() => {
     if (quoteHistory.length === 0) return [];
@@ -169,7 +212,9 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
     return Math.max(...chartData.flatMap((serie) => serie.data.map((d) => d.y)));
   }, [chartData]);
 
-  const chartHeight = maxRank * 20 + 40; // 40px per rank + 40px padding
+  const rowHeight = 40;
+  const verticalPadding = 0;
+  const chartHeight = maxRank * rowHeight + verticalPadding * 2;
 
   return (
     <div className="flex flex-col gap-20 overflow-hidden">
@@ -189,18 +234,18 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
             data={chartData}
             colors={(serie) => COLORS[serie.id] || COLORS.fallback}
             lineWidth={2}
-            activeLineWidth={6}
+            activeLineWidth={2}
             inactiveLineWidth={2}
             inactiveOpacity={0.15}
             pointSize={0}
             activePointSize={0}
             inactivePointSize={0}
-            enableGridX={true}
+            enableGridX={false}
             enableGridY={false}
             xPadding={0}
             xOuterPadding={0}
-            margin={{ top: 0, right: 80, bottom: 0, left: 0 }}
-            layers={["grid", ShadowLinesLayer, "lines", EndPointsLayer, "labels"]}
+            margin={{ top: verticalPadding, right: 80, bottom: verticalPadding, left: 0 }}
+            layers={[CustomGridLayer, ShadowLinesLayer, "lines", EndPointsLayer, "labels"]}
             axisTop={null}
             axisBottom={null}
             axisLeft={null}

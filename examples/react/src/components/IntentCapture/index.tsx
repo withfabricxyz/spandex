@@ -150,13 +150,6 @@ export function IntentCapture() {
 
   return (
     <ClientOnly>
-      <button
-        className="text-primary p-4 w-full mb-16 border border-primary"
-        type="button"
-        onClick={() => setShowSuccessSplash(true)}
-      >
-        Clicky
-      </button>
       <div className="flex flex-col gap-20">
         <SwapControls
           bestQuote={bestQuote}
