@@ -74,8 +74,8 @@ type Route = {
  * Configuration options for the Fabric aggregator.
  */
 export type FabricConfig = ProviderConfig & {
-  /** Client ID for accessing the Fabric API. */
-  clientId: string;
+  /** App ID for accessing the Fabric API. */
+  appId: string;
   /** Base URL for the Fabric API. */
   url?: string;
   /** API key for accessing the Fabric API. */
@@ -168,7 +168,7 @@ export class FabricAggregator extends Aggregator<FabricConfig> {
     return await fetch(`${this.config.url || DEFAULT_URL}/v1/quote?${query.toString()}`, {
       headers: {
         accept: "application/json",
-        "X-ClientId": this.config.clientId,
+        "X-App-Id": this.config.appId,
       },
     }).then(async (response) => {
       const body = await response.json();
@@ -280,8 +280,13 @@ function extractQueryParams(params: SwapParams, options: SwapOptions): Record<st
     result.feeBps = options.integratorSwapFeeBps.toString();
   }
 
-  if (options.integratorSurplusBps !== undefined) {
-    result.surplusBps = options.integratorSurplusBps.toString();
+  if (
+    options.integratorSurplusBps !== undefined &&
+    (options.integratorFeeAddress || options.integratorSurplusAddress)
+  ) {
+    result.surplusFeeBps = options.integratorSurplusBps.toString();
+    result.surplusFeeRecipient =
+      options.integratorSurplusAddress || options.integratorFeeAddress || "";
   }
 
   return result;

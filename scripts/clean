@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Remove node_modules
+rm -rf ./node_modules
+rm -rf ./packages/core/node_modules
+rm -rf ./packages/react/node_modules
+rm -rf ./site/node_modules
+
+# Remove package builds
+rm -rf ./packages/core/dist
+rm -rf ./packages/react/dist
+rm -rf ./site/dist

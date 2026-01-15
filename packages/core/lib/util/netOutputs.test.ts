@@ -21,7 +21,7 @@ describe("netOutputs", () => {
       "netOutputs-erc20-out",
       swap,
       testConfig({
-        fabric: { clientId: "spandex" },
+        fabric: { appId: "spandex" },
       }),
     );
 

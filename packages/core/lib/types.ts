@@ -411,6 +411,10 @@ export type FeeOptions = {
    * Surplus share for the integrator (in basis points). Only applicable if the provider supports surplus sharing.
    */
   integratorSurplusBps?: number;
+  /**
+   * Address that should receive the integrator surplus. Defaults to `integratorFeeAddress` if not specified.
+   */
+  integratorSurplusAddress?: Address;
 };
 
 /**

@@ -28,7 +28,7 @@ describe("simulateQuote", () => {
   const config = createConfig({
     providers: {
       kyberswap: { clientId: "spandex-test-env" },
-      fabric: { clientId: "spandex-test-env" },
+      fabric: { appId: "spandex-test-env" },
     },
     clients: [client] as PublicClient[],
   });

@@ -2,7 +2,7 @@ import { createConfig, getQuote } from "@withfabric/spandex";
 
 export const config = createConfig({
   providers: {
-    fabric: { clientId: "spandex" },
+    fabric: { appId: "spandex" },
     kyberswap: {
       clientId: "spandex",
     },
