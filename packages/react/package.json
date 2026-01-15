@@ -22,22 +22,21 @@
     "test": "bun test --preload ./test-setup.ts"
   },
   "devDependencies": {
-    "@tanstack/react-query": "^5.90.10",
-    "@testing-library/react": "^16.3.0",
+    "@tanstack/react-query": "^5.90.17",
+    "@testing-library/react": "^16.3.1",
     "@testing-library/react-hooks": "^8.0.1",
     "@types/bun": "latest",
-    "@types/react": "^19.2.6",
-    "happy-dom": "^20.0.10",
-    "react-dom": "^19.2.0"
+    "@types/react": "^19.2.8",
+    "happy-dom": "^20.3.0",
+    "react-dom": "^19.2.3"
   },
   "dependencies": {
-    "@withfabric/spandex": "workspace:*"
+    "@withfabric/spandex": "workspace:*",
+    "wagmi": "^3.3.2"
   },
   "peerDependencies": {
-    "react": "^19.2.0",
-    "viem": "^2.39.3",
-    "wagmi": "^3.0.1",
-    "typescript": ">=5.0.4"
+    "react": "^19.2.3",
+    "typescript": "^5.9.3"
   },
   "peerDependenciesMeta": {
     "typescript": {

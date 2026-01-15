@@ -10,7 +10,7 @@ const baseClient = createPublicClient({
 
 export const config = createConfig({
   providers: {
-    fabric: { clientId: "your client id" },
+    fabric: { appId: "your app id" },
     odos: { referralCode: 1234 },
     kyberswap: { clientId: "your client id" },
   },

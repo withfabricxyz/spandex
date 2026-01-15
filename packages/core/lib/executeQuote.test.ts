@@ -65,7 +65,7 @@ describe("executeQuote", () => {
   it("can execute a quote on a forked chain", async () => {
     const config = createConfig({
       providers: {
-        fabric: { clientId: "test" },
+        fabric: { appId: "test" },
         kyberswap: { clientId: "test" },
       },
       clients: [baseClient] as PublicClient[],

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+cd $(dirname "$0")/..
+
+./scripts/clean
+
+bun i
+bun run lint:fix
+bun audit --audit-level=critical
+bun run build
+bun test
+
+(
+  cd site
+  bun run build
+)
+
+GREEN='\033[0;32m'
+RESET='\033[0m'
+printf "%b[✔] Local QA check successful!%b\n" "$GREEN" "$RESET"
