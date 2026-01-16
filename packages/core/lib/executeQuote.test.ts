@@ -15,7 +15,7 @@ const swap: SwapParams = {
   inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   outputToken: "0x4200000000000000000000000000000000000006",
   inputAmount: 500_000_000n,
-  slippageBps: 500,
+  slippageBps: 1000,
   swapperAccount: "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055",
   mode: "exactIn",
 };

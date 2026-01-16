@@ -4,7 +4,8 @@
   "workspaces": [
     "packages/core",
     "packages/react",
-    "site"
+    "site",
+    "examples/*"
   ],
   "scripts": {
     "lint": "biome check --formatter-enabled=true --linter-enabled=true",

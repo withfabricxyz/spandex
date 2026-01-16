@@ -1,13 +1,14 @@
 import { type UseQueryOptions, type UseQueryResult, useQuery } from "@tanstack/react-query";
 import {
+  deserializeWithBigInt,
   type ExactInSwapParams,
   getQuotes,
   type Quote,
   type SimulatedQuote,
   type SwapParams,
+  serializeWithBigInt,
   type TargetOutSwapParams,
 } from "@withfabric/spandex";
-import { bigintReplacer, bigintReviver } from "lib/util/index.js";
 import { useMemo } from "react";
 import { useConnection } from "wagmi";
 import { useSpandexConfig } from "../context/SpandexProvider.js";
@@ -89,14 +90,14 @@ export function useQuotes<TSelectData = SimulatedQuote[]>(
       } else if (params.serverAction === true) {
         const { getServerQuotes } = await import("lib/functions/getServerQuotes.js");
         const quotesString = await getServerQuotes({ swap: fullParams as SwapParams });
-        return JSON.parse(quotesString, bigintReviver);
+        return deserializeWithBigInt(quotesString);
       } else {
         return fetch(params.serverAction, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ swap: fullParams }, bigintReplacer),
+          body: serializeWithBigInt({ swap: fullParams }),
         })
           .then((res) => {
             if (!res.ok) {
@@ -104,7 +105,7 @@ export function useQuotes<TSelectData = SimulatedQuote[]>(
             }
             return res.text();
           })
-          .then((text) => JSON.parse(text, bigintReviver));
+          .then((text) => deserializeWithBigInt(text));
       }
     },
     retry: 0,
