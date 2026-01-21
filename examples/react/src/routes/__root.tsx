@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { SpandexProvider } from "@withfabric/spandex-react";
 import { Tooltip } from "radix-ui";
+import { DialogPortal } from "@/components/Dialog";
 import { Header } from "@/components/Header";
 import { ToastPortal } from "@/components/Toast";
 import { TokenSelectProvider } from "@/providers/TokenSelectProvider";
@@ -28,13 +29,26 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "Spandex React Example",
       },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "icon",
+        href: "/favicon.ico",
+        type: "image/x-icon",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "/apple-touch-icon.png",
+      },
+      {
+        rel: "manifest",
+        href: "/manifest.json",
       },
     ],
     scripts: [
@@ -69,7 +83,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <TokenSelectProvider>
                   <Header />
                   <div className="pt-80 pb-20 max-w-[614px] mx-auto">{children}</div>
-                  <div id="dialog-root" />
+                  <DialogPortal />
                 </TokenSelectProvider>
               </Tooltip.Provider>
               <ToastPortal />

@@ -3,25 +3,13 @@ import type { SimulatedQuote } from "@withfabric/spandex";
 export type Metric = "price" | "accuracy" | "latency";
 
 // TODO: how should we do this? re: generic quote details
-export function isFabricQuote(
+function isFabricQuote(
   quote: SimulatedQuote,
 ): quote is Extract<SimulatedQuote, { provider: "fabric" }> {
   return quote.success && quote.provider === "fabric";
 }
 
-export function isZeroXQuote(
-  quote: SimulatedQuote,
-): quote is Extract<SimulatedQuote, { provider: "0x" }> {
-  return quote.success && quote.provider === "0x";
-}
-
-export function isKyberQuote(
-  quote: SimulatedQuote,
-): quote is Extract<SimulatedQuote, { provider: "kyberswap" }> {
-  return quote.success && quote.provider === "kyberswap";
-}
-
-export function isOdosQuote(
+function isOdosQuote(
   quote: SimulatedQuote,
 ): quote is Extract<SimulatedQuote, { provider: "odos" }> {
   return quote.success && quote.provider === "odos";
@@ -49,9 +37,11 @@ export function getBestQuoteByMetric({
   quotes,
   metric,
 }: {
-  quotes: SimulatedQuote[];
+  quotes?: SimulatedQuote[];
   metric: Metric;
 }): SimulatedQuote | undefined {
+  if (!quotes || quotes.length === 0) return undefined;
+
   const bestQuoteByMetric = {
     price: getBestQuoteByPrice,
     accuracy: getBestQuoteByAccuracy,
@@ -112,15 +102,6 @@ export function getQuoteInaccuracy(quote?: SimulatedQuote): number | null {
   const diff = Math.abs(simulatedOutput - quotedOutput);
 
   return Math.round((diff / quotedOutput) * 10000);
-}
-
-export function getQuoteSlippageData(quote: SimulatedQuote): {
-  maxSlippage?: number;
-  actualSlippage?: number;
-} | null {
-  if (!quote.success) return null;
-
-  return null;
 }
 
 export function getSimulationFailureReason(

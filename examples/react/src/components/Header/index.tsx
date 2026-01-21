@@ -8,7 +8,7 @@ import { ThemePicker } from "../ThemePicker";
 import { TokenDrawer } from "../TokenDrawer";
 import { Logo } from "./Logo";
 
-export function WalletOptions({ onConnected }: { onConnected: () => void }) {
+function WalletOptions({ onConnected }: { onConnected: () => void }) {
   const connect = useConnect();
   const connectors = useConnectors();
 

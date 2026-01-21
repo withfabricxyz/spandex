@@ -1,6 +1,4 @@
 import { type Chain, decodeErrorResult, erc20Abi, type Hex } from "viem";
-import { executorAbi } from "@/contracts/executor";
-import { swapIntentProtocolAbi } from "@/contracts/sip";
 
 export type StructuredError = {
   title: string;
@@ -10,7 +8,7 @@ export type StructuredError = {
   soft?: boolean;
 };
 
-const abis = [executorAbi, swapIntentProtocolAbi, erc20Abi];
+const abis = [/*executorAbi, swapIntentProtocolAbi, */ erc20Abi];
 
 function tryDecodeCustomError(data: Hex): string | undefined {
   for (const abi of abis) {

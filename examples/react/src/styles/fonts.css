@@ -1,177 +1,9 @@
 @font-face {
-  font-family: "Sohne";
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-extraleicht.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 200;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-extraleicht-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-leicht.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-leicht-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-buch.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-buch-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-kraftig.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-kraftig-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-halbfett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 600;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-halbfett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-dreiviertelfett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-dreiviertelfett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-fett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 800;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-fett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-extrafett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 900;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-extrafett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-extraleicht.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 200;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-extraleicht-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-leicht.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-leicht-kursiv.woff2") format("woff2");
-}
-
-@font-face {
   font-family: "Sohne Breit";
   font-weight: 400;
   font-style: normal;
   font-display: swap;
   src: url("/fonts/Sohne/Breit/soehne-breit-buch.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-buch-kursiv.woff2") format("woff2");
 }
 
 @font-face {
@@ -184,106 +16,10 @@
 
 @font-face {
   font-family: "Sohne Breit";
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-kraftig-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-halbfett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 600;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-halbfett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
   font-weight: 700;
   font-style: normal;
   font-display: swap;
   src: url("/fonts/Sohne/Breit/soehne-breit-dreiviertelfett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-dreiviertelfett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-fett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 800;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-fett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-extrafett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 900;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Breit/soehne-breit-extrafett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-extraleicht.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 200;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-extraleicht-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-leicht.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-leicht-kursiv.woff2") format("woff2");
 }
 
 @font-face {
@@ -296,14 +32,6 @@
 
 @font-face {
   font-family: "Sohne Mono";
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-buch-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -312,74 +40,10 @@
 
 @font-face {
   font-family: "Sohne Mono";
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-kraftig-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-halbfett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 600;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-halbfett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
   font-weight: 700;
   font-style: normal;
   font-display: swap;
   src: url("/fonts/Sohne/Mono/soehne-mono-dreiviertelfett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-dreiviertelfett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-fett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 800;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-fett-kursiv.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-extrafett.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne Mono";
-  font-weight: 900;
-  font-style: italic;
-  font-display: swap;
-  src: url("/fonts/Sohne/Mono/soehne-mono-extrafett-kursiv.woff2") format("woff2");
 }
 
 body {

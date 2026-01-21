@@ -3,10 +3,17 @@ import { createConfig, WagmiProvider } from "wagmi";
 import { coinbaseWallet, injected, safe, walletConnect } from "wagmi/connectors";
 import { configuredChains } from "../config/onchain";
 
-const projectId = "24d9e4b37d24c4299a623e063e8ab853";
-export const config = createConfig({
+const projectId = import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID;
+const connectors = [
+  injected(),
+  ...(projectId ? [walletConnect({ projectId })] : []),
+  safe(),
+  coinbaseWallet(),
+];
+
+const config = createConfig({
   chains: configuredChains.map(({ chain }) => chain) as [Chain, ...Chain[]],
-  connectors: [injected(), walletConnect({ projectId }), safe(), coinbaseWallet()],
+  connectors,
   transports: Object.fromEntries(
     configuredChains.map(({ chain, transport }) => [chain.id, transport]),
   ),

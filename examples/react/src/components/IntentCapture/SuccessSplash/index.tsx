@@ -164,7 +164,7 @@ export function SuccessSplash({ sellToken, buyToken, successfulTx, onClose }: Su
             Done
           </button>
           <a
-            href="docs.withfabric.xyz"
+            href="https://docs.withfabric.xyz"
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full h-20 bg-white text-surface-base py-4 px-8 text-center monospace text-[12px] cursor-pointer"

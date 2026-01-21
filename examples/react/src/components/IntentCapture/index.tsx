@@ -1,4 +1,4 @@
-import { ClientOnly } from "@tanstack/react-router";
+import type { SimulatedQuote } from "@withfabric/spandex";
 import { useQuotes } from "@withfabric/spandex-react";
 import { useCallback, useMemo, useState } from "react";
 import { type Address, encodeFunctionData, erc20Abi, type Hex, maxUint256 } from "viem";
@@ -19,8 +19,53 @@ export type TxData = {
   to: Address;
   value?: bigint;
   chainId: number;
-  afterSubmit?: () => Promise<void>; // Optional callback after submission
 };
+
+function prepareCalls({
+  chainId,
+  bestQuote,
+  needsApproval,
+  sellTokenAddress,
+}: {
+  chainId?: number;
+  bestQuote?: SimulatedQuote;
+  needsApproval: boolean;
+  sellTokenAddress: Address;
+}): TxData[] {
+  if (!chainId || !bestQuote?.success) return [];
+
+  const calls: TxData[] = [];
+
+  if (bestQuote.txData.data) {
+    const spender = bestQuote.txData.to;
+
+    if (needsApproval) {
+      const approvalData = encodeFunctionData({
+        abi: erc20Abi,
+        functionName: "approve",
+        args: [spender, maxUint256],
+      });
+
+      calls.push({
+        to: sellTokenAddress,
+        name: "APPROVE",
+        data: approvalData,
+        chainId,
+        value: 0n,
+      });
+    }
+
+    calls.push({
+      to: bestQuote.txData.to,
+      name: "SELL",
+      data: bestQuote.txData.data,
+      chainId,
+      value: BigInt(bestQuote.txData.value || 0),
+    });
+  }
+
+  return calls;
+}
 
 export function IntentCapture() {
   const { sellToken, setSellToken, buyToken, setBuyToken } = useTokenSelect();
@@ -28,7 +73,6 @@ export function IntentCapture() {
   const [numSellTokens, setNumSellTokens] = useState<string>("20");
   const [selectedMetric, setSelectedMetric] = useState<Metric>("price");
   const [slippageBps, setSlippageBps] = useState<number>(100);
-  const [showSuccessSplash, setShowSuccessSplash] = useState<boolean>(false);
   const [successfulTx, setSuccessfulTx] = useState<{
     hash: `0x${string}`;
     chainId: number;
@@ -63,7 +107,7 @@ export function IntentCapture() {
 
   // TODO: useBestQuote?
   const bestQuote = getBestQuoteByMetric({
-    quotes: quotes || [],
+    quotes,
     metric: selectedMetric,
   });
 
@@ -87,41 +131,16 @@ export function IntentCapture() {
     return inputAmount > 0n && currentAllowance < inputAmount;
   }, [bestQuote, allowance]);
 
-  const calls = useMemo(() => {
-    if (!chainId || !bestQuote?.success) return [];
-
-    const calls: TxData[] = [];
-
-    if (bestQuote.txData.data) {
-      const spender = bestQuote.txData.to;
-
-      if (needsApproval) {
-        const approvalData = encodeFunctionData({
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [spender, maxUint256],
-        });
-
-        calls.push({
-          to: sellToken.address,
-          name: "APPROVE",
-          data: approvalData,
-          chainId,
-          value: 0n,
-        });
-      }
-
-      calls.push({
-        to: bestQuote.txData.to,
-        name: "SELL",
-        data: bestQuote.txData.data,
+  const calls = useMemo(
+    () =>
+      prepareCalls({
         chainId,
-        value: BigInt(bestQuote.txData.value || 0),
-      });
-    }
-
-    return calls;
-  }, [bestQuote, needsApproval, chainId, sellToken.address]);
+        bestQuote,
+        needsApproval,
+        sellTokenAddress: sellToken.address,
+      }),
+    [bestQuote, needsApproval, chainId, sellToken.address],
+  );
 
   const onSwitchTokens = useCallback(() => {
     setSellToken(buyToken);
@@ -142,49 +161,44 @@ export function IntentCapture() {
         inputAmount: swap.inputAmount,
         outputAmount: BigInt(bestQuote.txData.value || 0),
       });
-
-      setShowSuccessSplash(true);
     },
     [chainId, bestQuote, swap.inputAmount],
   );
 
   return (
-    <ClientOnly>
-      <div className="flex flex-col gap-20">
-        <SwapControls
-          bestQuote={bestQuote}
-          sellToken={sellToken}
-          numSellTokens={numSellTokens}
-          setNumSellTokens={setNumSellTokens}
-          buyToken={buyToken}
-          isLoadingQuotes={isLoadingQuotes}
-          onSwitchTokens={onSwitchTokens}
-        />
-        <hr className="block h-1 bg-primary" />
-        <Insights
-          bestQuote={bestQuote}
-          quotes={quotes}
-          sellToken={sellToken}
-          buyToken={buyToken}
-          numSellTokens={numSellTokens}
-          selectedMetric={selectedMetric}
-          setSelectedMetric={setSelectedMetric}
-          slippageBps={slippageBps}
-          setSlippageBps={setSlippageBps}
-          currentAllowance={allowance}
-        />
-        <hr className="block h-1 bg-primary" />
-        <TxBatchButton blocked={calls.length === 0} calls={calls} onComplete={onComplete} />
-      </div>
-      {/* TODO: simplify condition */}
-      {showSuccessSplash && address && successfulTx ? (
+    <div className="flex flex-col gap-20">
+      <SwapControls
+        bestQuote={bestQuote}
+        sellToken={sellToken}
+        numSellTokens={numSellTokens}
+        setNumSellTokens={setNumSellTokens}
+        buyToken={buyToken}
+        isLoadingQuotes={isLoadingQuotes}
+        onSwitchTokens={onSwitchTokens}
+      />
+      <hr className="block h-1 bg-primary" />
+      <Insights
+        bestQuote={bestQuote}
+        quotes={quotes}
+        sellToken={sellToken}
+        buyToken={buyToken}
+        numSellTokens={numSellTokens}
+        selectedMetric={selectedMetric}
+        setSelectedMetric={setSelectedMetric}
+        slippageBps={slippageBps}
+        setSlippageBps={setSlippageBps}
+        currentAllowance={allowance}
+      />
+      <hr className="block h-1 bg-primary" />
+      <TxBatchButton blocked={calls.length === 0} calls={calls} onComplete={onComplete} />
+      {successfulTx && address ? (
         <SuccessSplash
           sellToken={sellToken}
           buyToken={buyToken}
-          onClose={() => setShowSuccessSplash(false)}
+          onClose={() => setSuccessfulTx(null)}
           successfulTx={successfulTx}
         />
       ) : null}
-    </ClientOnly>
+    </div>
   );
 }

@@ -15,22 +15,3 @@ export type TokenMetadata = TokenId & {
   risk?: number;
   tags?: string[];
 };
-
-export type TokenDetail = TokenMetadata & {
-  description?: string;
-  website?: string;
-  twitter?: string;
-  telegram?: string;
-};
-
-export type TokenApproval = {
-  chainId: number;
-  tokenAddress: Address;
-  spenderAddress: Address;
-  amount: bigint;
-};
-
-export type TokenWithBalance = {
-  token: TokenMetadata;
-  balance: bigint;
-};

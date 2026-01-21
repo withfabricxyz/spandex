@@ -18,10 +18,6 @@ export function DialogPortal() {
   return <div id="dialog-root" />;
 }
 
-export function DialogActions(props: React.PropsWithChildren) {
-  return <div className="flex flex-col gap-5">{props.children}</div>;
-}
-
 export function Dialog(props: DialogProps) {
   const root = useRef(null);
 
