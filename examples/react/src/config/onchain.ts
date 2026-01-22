@@ -19,9 +19,7 @@ type ChainConfig = {
 export const configuredChains: ChainConfig[] = [
   {
     chain: base,
-    transport: fallback(
-      RPC_URLS.length > 0 ? RPC_URLS.map((url) => http(url)) : [http()],
-    ),
+    transport: fallback(RPC_URLS.length > 0 ? RPC_URLS.map((url) => http(url)) : [http()]),
   },
 ];
 
