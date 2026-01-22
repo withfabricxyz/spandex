@@ -154,6 +154,11 @@ async function performSimulation({
     // If any call failed, extract error
     validateSimulation(results, calls, block);
 
+    const outputAmount = extractOutputAmount(assetChanges, swap.outputToken);
+
+    // Extra safety: Ensure output amount is positive. Consider simulation failed if not. Could extend to MEV and slippage checks here.
+    validateOutputAmount(outputAmount);
+
     // Extract transfers from relevant call logs
     const transfers = extractTransfers((isERC20In ? results[1]?.logs : results[0]?.logs) || []);
 
@@ -201,6 +206,12 @@ function validateSimulation(
 
   if (errors.length > 0) {
     throw new SimulationRevertError(errors, block);
+  }
+}
+
+function validateOutputAmount(amount: bigint) {
+  if (amount <= 0n) {
+    throw new Error(`Simulated output amount is zero or negative: ${amount.toString()}`);
   }
 }
 

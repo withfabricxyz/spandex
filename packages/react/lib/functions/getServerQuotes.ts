@@ -1,7 +1,6 @@
 "use server";
 
-import { type Config, getQuotes, type SwapParams } from "@withfabric/spandex";
-import { bigintReplacer } from "lib/util/index.js";
+import { type Config, getQuotes, type SwapParams, serializeWithBigInt } from "@withfabric/spandex";
 
 let globalSpandex: Config | null = null;
 export function configureSpandexServer(config: Config) {
@@ -18,5 +17,5 @@ export async function getServerQuotes({ swap }: { swap: SwapParams }): Promise<s
     config: globalSpandex,
   });
 
-  return JSON.stringify(quotes, bigintReplacer, 2);
+  return serializeWithBigInt(quotes);
 }

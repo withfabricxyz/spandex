@@ -12,11 +12,6 @@
       "types": "./dist/types/index.d.ts",
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js"
-    },
-    "./lib/*": {
-      "types": "./dist/types/lib/*.d.ts",
-      "import": "./dist/esm/lib/*.js",
-      "require": "./dist/cjs/lib/*.js"
     }
   },
   "files": [
