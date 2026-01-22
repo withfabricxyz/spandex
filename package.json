@@ -5,7 +5,7 @@
     "packages/core",
     "packages/react",
     "site",
-    "examples/*"
+    "examples/hono"
   ],
   "scripts": {
     "lint": "biome check --formatter-enabled=true --linter-enabled=true",
