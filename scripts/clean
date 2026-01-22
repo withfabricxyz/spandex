@@ -4,6 +4,7 @@
 rm -rf ./node_modules
 rm -rf ./packages/core/node_modules
 rm -rf ./packages/react/node_modules
+rm -rf ./examples/hono/node_modules
 rm -rf ./site/node_modules
 
 # Remove package builds
