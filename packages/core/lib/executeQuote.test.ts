@@ -3,9 +3,10 @@ import { afterEach } from "node:test";
 import { Instance, Server } from "prool";
 import { createPublicClient, createWalletClient, erc20Abi, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
+import { recordedSimulation } from "../test/utils.js";
+import type { FabricQuoteResponse } from "./aggregators/fabric.js";
 import { createConfig } from "./createConfig.js";
 import { executeQuote } from "./executeQuote.js";
-import { getQuote } from "./getQuote.js";
 import type { SwapParams } from "./types.js";
 
 const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
@@ -56,34 +57,25 @@ describe("executeQuote", () => {
   });
 
   it("forks correctly", async () => {
-    const baseBlockNumber = await baseClient.getBlockNumber();
-    await createFork(baseBlockNumber);
+    await createFork(41166265n);
     const forkBlockNumber = await forkClient.getBlockNumber();
-    expect(forkBlockNumber).toEqual(baseBlockNumber);
+    expect(forkBlockNumber).toEqual(41166265n);
   });
 
   it("can execute a quote on a forked chain", async () => {
     const config = createConfig({
       providers: {
         fabric: { appId: "test" },
-        kyberswap: { clientId: "test" },
       },
       clients: [baseClient] as PublicClient[],
     });
 
-    const quote = await getQuote({
-      swap,
-      config,
-      strategy: "fastest",
-    });
+    const quote = await recordedSimulation("executeQuote/fabricBaseSwap", swap, config);
 
     if (!quote || !quote.success || !quote?.simulation.success)
       throw new Error("Quote or simulation failed");
 
-    const baseBlockNumber = await baseClient.getBlockNumber();
-    await createFork(baseBlockNumber);
-
-    // Use forkClient for execution
+    await createFork(BigInt((quote.details as FabricQuoteResponse).blockNumber));
 
     const walletClient = createWalletClient({
       account: swap.swapperAccount,
