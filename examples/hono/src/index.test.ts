@@ -34,7 +34,6 @@ describe("API tests", async () => {
 
     const promises = await decodeQuoteStream(reader);
     const resolved = await Promise.all(promises);
-
-    console.log(resolved);
+    expect(resolved.length).toBeGreaterThan(0);
   }, 30_000);
 });
