@@ -1,0 +1,151 @@
+@layer theme {
+  :root {
+    --color-primary: #0f0f0f;
+    --color-secondary: #666666;
+    --color-tertiary: #757575;
+    --color-quaternary: #b3b3b3;
+    
+    --color-surface-base: #fafafa;
+    --color-surface-mid: #f3f3f3;
+    --color-surface-low: rgba(15, 15, 15, 0.05);
+    --color-surface-sub: rgba(15, 15, 15, 0.20);
+    
+    --color-border: rgba(179, 179, 179, 0.20);
+    --color-outline: rgba(179, 179, 179, 0.10);
+    --color-disabled: rgba(179, 179, 179, 0.45);
+    
+    --color-focus: #000000;
+    --color-black: #000000;
+    --color-white: #ffffff;
+    
+    --color-pink: #fb42df;
+    --color-red: #fa0b54;
+    --color-yellow: #fba808;
+    --color-green: #117d45;
+    
+    --color-fabric-purple: #8800ff;
+    --color-fabric-red: #fa0b54;
+    --color-fabric-acid: #91f925;
+    --color-fabric-green: #117d45;
+    --color-fabric-pink: #fb42df;
+    --color-fabric-yellow: #fba808;
+    --color-fabric-light-blue: #0bc1fa;
+
+    background-color: var(--color-surface-base);
+  }
+
+  .dark {
+    --color-primary: #ffffff;
+    --color-secondary: #969696;
+    --color-tertiary: #7b7b7b;
+    --color-quaternary: #707070;
+    
+    --color-surface-base: #1f1f1f;
+    --color-surface-mid: #252525;
+    --color-surface-low: rgba(255, 255, 255, 0.10);
+    --color-surface-sub: rgba(0, 0, 0, 0.30);
+    
+    --color-border: rgba(179, 179, 179, 0.10);
+    --color-outline: rgba(179, 179, 179, 0.05);
+    --color-disabled: rgba(179, 179, 179, 0.45);
+    
+    --color-focus: #f3f3f3;
+  }
+
+  .blue {
+    --color-primary: #3a26e6;
+    --color-secondary: #7566f6;
+    --color-tertiary: #7f70ff;
+    --color-quaternary: #897aff;
+    
+    --color-surface-base: #fdfdff;
+    --color-surface-mid: #f9f9fb;
+    --color-surface-low: rgba(0, 0, 80, 0.05);
+    --color-surface-sub: rgba(0, 0, 80, 0.10);
+    
+    --color-border: rgba(179, 179, 179, 0.20);
+    --color-outline: rgba(179, 179, 179, 0.10);
+    --color-disabled: rgba(179, 179, 179, 0.45);
+    
+    --color-focus: #301cdc;
+  }
+
+  .coffee {
+    --color-primary: #5c4033;
+    --color-secondary: #84685b;
+    --color-tertiary: #8e7265;
+    --color-quaternary: #987c6f;
+    
+    --color-surface-base: #fff8e7;
+    --color-surface-mid: #faf3e1;
+    --color-surface-low: rgba(22, 0, 0, 0.05);
+    --color-surface-sub: rgba(27, 0, 0, 0.10);
+    
+    --color-border: rgba(179, 179, 179, 0.20);
+    --color-outline: rgba(179, 179, 179, 0.10);
+    --color-disabled: rgba(179, 179, 179, 0.45);
+    
+    --color-focus: #523629;
+  }
+
+  .terminal {
+    --color-primary: #00fa9a;
+    --color-secondary: #00dc7c;
+    --color-tertiary: #00c868;
+    --color-quaternary: #00b454;
+    
+    --color-surface-base: #151515;
+    --color-surface-mid: #002800;
+    --color-surface-low: rgba(0, 160, 64, 0.20);
+    --color-surface-sub: rgba(0, 160, 64, 0.30);
+    
+    --color-border: rgba(179, 179, 179, 0.10);
+    --color-outline: rgba(179, 179, 179, 0.05);
+    --color-disabled: rgba(179, 179, 179, 0.45);
+    
+    --color-focus: #0afa4a;
+  }
+}
+
+@theme {
+  --spacing: 0.125rem;
+
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-tertiary: var(--color-tertiary);
+  --color-quaternary: var(--color-quaternary);
+  
+  --color-surface-base: var(--color-surface-base);
+  --color-surface-mid: var(--color-surface-mid);
+  --color-surface-low: var(--color-surface-low);
+  --color-surface-sub: var(--color-surface-sub);
+  
+  --color-border: var(--color-border);
+  --color-outline: var(--color-outline);
+  --color-disabled: var(--color-disabled);
+  
+  --color-focus: var(--color-focus);
+  --color-black: var(--color-black);
+  --color-white: var(--color-white);
+  
+  --color-pink: var(--color-pink);
+  --color-red: var(--color-red);
+  --color-yellow: var(--color-yellow);
+  --color-green: var(--color-green);
+  
+  --color-fabric-purple: var(--color-fabric-purple);
+  --color-fabric-acid: var(--color-fabric-acid);
+  --color-fabric-pink: var(--color-fabric-pink);
+  --color-fabric-orange: var(--color-fabric-orange);
+  --color-fabric-light-blue: var(--color-fabric-light-blue);
+
+  --z-index-layer-background: -1;
+  --z-index-layer-base: 0;
+  --z-index-layer-navigation: 5;
+  --z-index-layer-dialog-scrim: 9;
+  --z-index-layer-dialog: 10;
+  --z-index-layer-bottom-sheet-scrim: 14;
+  --z-index-layer-bottom-sheet: 15;
+  --z-index-layer-toast: 20;
+  --z-index-layer-tooltip: 25;
+}

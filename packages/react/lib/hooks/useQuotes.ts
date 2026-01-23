@@ -88,7 +88,7 @@ export function useQuotes<TSelectData = SimulatedQuote[]>(
       if (params.serverAction === undefined) {
         return getQuotes({ config, swap: fullParams as SwapParams });
       } else if (params.serverAction === true) {
-        const { getServerQuotes } = await import("lib/functions/getServerQuotes.js");
+        const { getServerQuotes } = await import("../functions/getServerQuotes.js");
         const quotesString = await getServerQuotes({ swap: fullParams as SwapParams });
         return deserializeWithBigInt(quotesString);
       } else {

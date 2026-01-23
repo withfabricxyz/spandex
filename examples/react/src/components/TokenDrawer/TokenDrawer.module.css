@@ -1,0 +1,38 @@
+.tokenDrawer {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: 100%;
+  max-width: 694px;
+  transform: translateX(-50%);
+  transition: transform 0.225s var(--ease-in-out-ios);
+  z-index: var(--z-index-layer-dialog);
+  opacity: 0;
+  pointer-events: none;
+  padding-top: 40px;
+  background-color: var(--color-surface-base);
+  box-shadow: 8px 0 16px 0 rgba(15, 15, 15, 0.06), -8px 0 16px 0 rgba(15, 15, 15, 0.06);
+
+  &.open {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: 0;
+  }
+}
+
+.tokenDrawerContent {
+  --input-container-height: 120px;
+
+  position: relative;
+  padding-bottom: 40px;
+  min-height: calc(100dvh - var(--input-container-height));
+  min-height: calc(100svh - var(--input-container-height));
+  max-height: calc(100dvh - var(--input-container-height));
+  max-height: calc(100svh - var(--input-container-height));
+  overflow: scroll;
+  background-color: var(--color-surface-base);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

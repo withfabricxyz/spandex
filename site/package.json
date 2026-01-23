@@ -10,10 +10,11 @@
   "dependencies": {
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "viem": "^2.40.1",
     "vocs": "^1.4.1"
   },
   "devDependencies": {
-    "@types/react": "latest",
+    "@types/react": "^19.2.0",
     "typescript": "latest",
     "@withfabric/spandex": "workspace:*",
     "@withfabric/spandex-react": "workspace:*"

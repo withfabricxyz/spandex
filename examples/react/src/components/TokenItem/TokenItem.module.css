@@ -1,0 +1,9 @@
+.tokenItem {
+  &:hover {
+    background-color: var(--color-outline);
+  }
+
+  &:active {
+    background-color: var(--color-border);
+  }
+}

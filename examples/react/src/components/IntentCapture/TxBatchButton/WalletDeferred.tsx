@@ -1,0 +1,39 @@
+import { useCallback, useState } from "react";
+import { useSendCalls } from "wagmi";
+import { toast } from "@/components/Toast";
+import { structureError } from "@/utils/errors";
+import type { TxBatchButtonProps } from ".";
+import { TriggerWalletButton } from "./TriggerWalletButton";
+
+// EIP-5792 UX Buff - https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_sendcalls
+export function WalletDeferredTxBatchButton({ calls, blocked, onComplete }: TxBatchButtonProps) {
+  const [state, setState] = useState<"idle" | "processing">("idle");
+  const sendCalls = useSendCalls();
+
+  const executeStep = useCallback(async () => {
+    setState("processing");
+
+    try {
+      // TODO: Inject capaibilites if we want to use paymasters
+      const hash = await sendCalls.mutateAsync({ calls });
+
+      // TODO: useCallStatus? there is a specialized hook for this
+      if (onComplete) {
+        onComplete(hash.id);
+      }
+    } catch (e) {
+      console.error("Error executing route:", e);
+      toast(structureError(e).title);
+    } finally {
+      setState("idle");
+    }
+  }, [calls, sendCalls, onComplete]);
+
+  return (
+    <TriggerWalletButton
+      disabled={blocked || state === "processing"}
+      processing={state === "processing"}
+      onClick={executeStep}
+    />
+  );
+}

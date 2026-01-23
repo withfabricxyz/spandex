@@ -1,0 +1,35 @@
+@layer theme {
+  :root {
+    .dialog__sheet {
+      background-color: var(--color-surface-high);
+    }
+  }
+}
+
+@layer base {
+  .dialog__sheet.bottom-sheet {
+    padding: 1.25rem;
+
+    @media (min-width: 768px) {
+      padding: 2.5rem;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: fit-content;
+      max-width: 37.5rem;
+      border-radius: 1.25rem;
+    }
+  }
+
+  .dialog__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .dialog__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
