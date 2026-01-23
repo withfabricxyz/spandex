@@ -22,7 +22,9 @@ export function SlippageControls({
   // value of slippage, denominated in sell token, based on passed slippage setting or current input (if editing)
   const slippageTokenValue = useMemo(() => {
     const base = isEditing ? inputValue : slippagePercent;
-    const amount = BigInt((Number(numSellTokens) / 100) * Number(base) * 10 ** sellToken.decimals);
+    const amount = BigInt(
+      Math.round((Number(numSellTokens) / 100) * Number(base) * 10 ** sellToken.decimals),
+    );
 
     return formatTokenValue(amount, sellToken.decimals);
   }, [numSellTokens, slippagePercent, inputValue, sellToken.decimals, isEditing]);

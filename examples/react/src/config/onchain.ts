@@ -4,7 +4,7 @@ import { base } from "wagmi/chains";
 
 // allow VITE_RPC_URLS to be a comma-separated list of URLs for fallback purposes
 // falls back to default if none provided
-const RPC_URLS = (import.meta.env.VITE_RPC_URLS || "")
+const _RPC_URLS = (import.meta.env.VITE_RPC_URLS || "")
   .split(",")
   .map((url) => url.trim())
   .filter(Boolean);
@@ -19,7 +19,14 @@ type ChainConfig = {
 export const configuredChains: ChainConfig[] = [
   {
     chain: base,
-    transport: fallback(RPC_URLS.length > 0 ? RPC_URLS.map((url) => http(url)) : [http()]),
+    transport: fallback([
+      http("https://base.drpc.org", {
+        batch: true,
+      }),
+      http("https://1rpc.io/base", {
+        batch: true,
+      }),
+    ]),
   },
 ];
 

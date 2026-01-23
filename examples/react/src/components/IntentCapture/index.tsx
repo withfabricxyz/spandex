@@ -94,7 +94,7 @@ export function IntentCapture() {
 
   const query = useMemo(
     () => ({
-      refetchInterval: 2500, // refetch to build quote history
+      refetchInterval: 10000, // refetch to build quote history
       enabled: swap.inputAmount > 0n && !!chainId && !!address,
     }),
     [swap.inputAmount, chainId, address],

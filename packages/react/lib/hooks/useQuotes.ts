@@ -12,7 +12,6 @@ import {
 import { useMemo } from "react";
 import { useConnection } from "wagmi";
 import { useSpandexConfig } from "../context/SpandexProvider.js";
-import { bigintReplacer, bigintReviver } from "../util/index.js";
 
 type UseSwapParams = (
   | Omit<ExactInSwapParams, "chainId" | "swapperAccount">
