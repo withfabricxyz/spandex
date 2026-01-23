@@ -28,7 +28,6 @@ async function createFork(forkBlockNumber: bigint) {
       forkUrl: `https://rpc.ankr.com/base/${ANKR_API_KEY}`,
       forkBlockNumber,
       autoImpersonate: true,
-      blockTime: 0.1,
     }),
     host: "127.0.0.1",
     port: 31337,
