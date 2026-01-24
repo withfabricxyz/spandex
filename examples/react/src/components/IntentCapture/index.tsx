@@ -7,6 +7,7 @@ import { getExplorerLink } from "@/config/onchain";
 import { useAllowance } from "@/hooks/useAllowance";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import { getBestQuoteByMetric, type Metric } from "@/utils/quoteHelpers";
+import { parseTokenValue } from "@/utils/strings";
 import { toast } from "../Toast";
 import { Insights } from "./Insights";
 import { SuccessSplash } from "./SuccessSplash";
@@ -87,7 +88,7 @@ export function IntentCapture() {
       outputToken: buyToken.address,
       slippageBps,
       mode: "exactIn" as const,
-      inputAmount: BigInt(Number(numSellTokens) * 10 ** sellToken.decimals),
+      inputAmount: parseTokenValue(numSellTokens, sellToken.decimals),
     }),
     [sellToken, buyToken, numSellTokens, chainId, slippageBps],
   );
@@ -126,7 +127,7 @@ export function IntentCapture() {
     if (!bestQuote?.success) return false;
 
     const inputAmount = BigInt(bestQuote.inputAmount || 0);
-    const currentAllowance = BigInt(allowance || 0);
+    const currentAllowance = allowance || 0n;
 
     return inputAmount > 0n && currentAllowance < inputAmount;
   }, [bestQuote, allowance]);
@@ -176,7 +177,7 @@ export function IntentCapture() {
         isLoadingQuotes={isLoadingQuotes}
         onSwitchTokens={onSwitchTokens}
       />
-      <hr className="block h-1 bg-primary" />
+      <hr className="border-primary" />
       <Insights
         bestQuote={bestQuote}
         quotes={quotes}
@@ -189,7 +190,7 @@ export function IntentCapture() {
         setSlippageBps={setSlippageBps}
         currentAllowance={allowance}
       />
-      <hr className="block h-1 bg-primary" />
+      <hr className="border-primary" />
       <TxBatchButton blocked={calls.length === 0} calls={calls} onComplete={onComplete} />
       {successfulTx && address ? (
         <SuccessSplash

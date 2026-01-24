@@ -4,7 +4,7 @@ import { useConnection } from "wagmi";
 import { ArrowsUpDown } from "@/components/icons";
 import { useBalance } from "@/hooks/useBalance";
 import type { TokenMetadata } from "@/services/tokens";
-import { formatTokenValue } from "@/utils/strings";
+import { bigintToDecimalString, formatTokenValue } from "@/utils/strings";
 import { BuyToken } from "./BuyToken";
 import { SellToken } from "./SellToken";
 
@@ -70,7 +70,7 @@ function SwapControlsLoader({
 
   // TODO: make better? when switching tokens, set the initial sell value to max?
   useEffect(() => {
-    setNumSellTokens(formatTokenValue(BigInt(inputBalance || "0"), sellToken.decimals));
+    setNumSellTokens(bigintToDecimalString(inputBalance || 0n, sellToken.decimals));
   }, [inputBalance, setNumSellTokens, sellToken.decimals]);
 
   const isLoadingBalances = inputBalanceLoading || outputBalanceLoading;
@@ -107,7 +107,7 @@ function Inputs({
     <div className="relative flex flex-col gap-20">
       <SellToken
         token={sellToken}
-        balance={formatTokenValue(BigInt(inputBalance || "0"), sellToken.decimals)}
+        balance={inputBalance}
         isLoadingBalances={isLoadingBalances}
         numTokens={numSellTokens}
         onChange={setNumSellTokens}

@@ -217,7 +217,7 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
   const chartHeight = maxRank * rowHeight + verticalPadding * 2;
 
   return (
-    <div className="flex flex-col gap-20 overflow-hidden">
+    <div className="flex flex-col gap-5 overflow-hidden">
       <MetricSelect selectedMetric={selectedMetric} setSelectedMetric={setSelectedMetric} />
       {quoteHistory.length === 0 ? (
         <div
@@ -244,6 +244,7 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
             enableGridY={false}
             xPadding={0}
             xOuterPadding={0}
+            lineTooltip={() => <></>}
             margin={{ top: verticalPadding, right: 80, bottom: verticalPadding, left: 0 }}
             layers={[CustomGridLayer, ShadowLinesLayer, "lines", EndPointsLayer, "labels"]}
             axisTop={null}
