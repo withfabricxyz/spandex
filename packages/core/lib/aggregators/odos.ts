@@ -187,6 +187,10 @@ export class OdosAggregator extends Aggregator<OdosConfig> {
   }
 }
 
+export function odos(config?: OdosConfig): OdosAggregator {
+  return new OdosAggregator(config);
+}
+
 /**
  * Request payload accepted by the Odos `/sor/quote/v3` endpoint.
  *

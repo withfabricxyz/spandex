@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test";
+import { zeroX } from "./aggregators/0x.js";
+import { fabric } from "./aggregators/fabric.js";
 import { type Config, createConfig } from "./createConfig.js";
 import { prepareQuotes } from "./prepareQuotes.js";
 import type { Quote } from "./types.js";
@@ -6,10 +8,7 @@ import type { Quote } from "./types.js";
 describe("prepareQuotes", () => {
   it("prepares an array of promises", async () => {
     const config: Config = createConfig({
-      providers: {
-        "0x": { apiKey: "test" },
-        fabric: { appId: "test" },
-      },
+      providers: [zeroX({ apiKey: "test" }), fabric({ appId: "test" })],
     });
 
     const prepared = prepareQuotes({

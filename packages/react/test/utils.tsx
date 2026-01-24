@@ -5,6 +5,7 @@ import {
   render as tlRender,
   renderHook as tlRenderHook,
 } from "@testing-library/react";
+import { fabric } from "@withfabric/spandex";
 import type { ReactNode } from "react";
 import { createConfig, http, WagmiProvider } from "wagmi";
 import { base, mainnet } from "wagmi/chains";
@@ -21,7 +22,7 @@ const wagmiConfig = createConfig({
 });
 
 export const DEFAULT_TEST_CONFIG: SpandexProviderProps["config"] = {
-  providers: { fabric: {} },
+  providers: [fabric({ appId: "test" })],
 };
 
 export function createWrapper(config?: SpandexProviderProps["config"]) {

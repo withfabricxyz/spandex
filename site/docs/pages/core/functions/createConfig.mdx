@@ -2,20 +2,18 @@ import ConfigParams from '../../../snippets/params/config.mdx'
 
 # createConfig
 
-Create a configuration object to customize proivders and options for all aggregation functions.
+Create a configuration object to customize providers and options for all aggregation functions.
 
 ```ts
-import { createConfig } from "@withfabric/spandex";
+import { createConfig, fabric, kyberswap, odos, zeroX } from "@withfabric/spandex";
 
 export const config = createConfig({
-  providers: {
-    '0x': {
-      apiKey: "YOUR_0X_API_KEY",
-    },
-    fabric: { appId: "YOUR_FABRIC_APP_ID" },
-    odos: {},
-    kyberswap: { clientId: "YOUR_KYBER_CLIENT_ID" },
-  },
+  providers: [
+    zeroX({ apiKey: "YOUR_0X_API_KEY" }),
+    fabric({ appId: "YOUR_FABRIC_APP_ID" }),
+    odos({}),
+    kyberswap({ clientId: "YOUR_KYBER_CLIENT_ID" }),
+  ],
   options: {
     deadlineMs: 10000,
     numRetries: 2,

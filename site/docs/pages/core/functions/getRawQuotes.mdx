@@ -25,15 +25,10 @@ const quotes = await getRawQuotes({
 ```
 
 ```ts [config] filename="config.ts" twoslash
-import {
-  createConfig
-} from "@withfabric/spandex";
+import { createConfig, fabric, odos } from "@withfabric/spandex";
 
 export const config = createConfig({
-  providers: {
-    fabric: { appId: "your app id" },
-    odos: {},
-  }
+  providers: [fabric({ appId: "your app id" }), odos({})],
 });
 ```
 

@@ -2,32 +2,35 @@
 
 ### providers
 
-`Partial<{ [K in ProviderKey]: ProviderDefinitions[K]["config"] }>`
+`Aggregator[]`
 
-The map of active providers and their configuration. Each provider has its own configuration options.
+List of active provider aggregators. Each provider has a factory function that returns an
+`Aggregator` instance with its configuration. You can include multiple instances for the same
+provider to test alternate configurations.
 
-| Key | API Key Required? | Config Docs |
+| Factory | API Key Required? | Config Docs |
 |----------|-----------|----------|
-| `0x` | yes | [View](/providers/0x.mdx) |
+| `zeroX` | yes | [View](/providers/0x.mdx) |
 | `fabric` | no | [View](/providers/fabric.mdx) |
 | `kyberswap` | no | [View](/providers/kyberswap.mdx) |
-| `1inch` | no | [View](/providers/1inch.mdx) |
 | `odos` | no | [View](/providers/odos.mdx) |
 | `lifi` | no | [View](/providers/lifi.mdx) |
 
 Example:
 
 ```ts
-const providerConfig: ProvidersConfig = {
-  '0x': {
+import { fabric, zeroX } from "@withfabric/spandex";
+
+const providers = [
+  zeroX({
     apiKey: "YOUR_0X_API_KEY",
     timeoutMs: 12_000,
     negotiatedFeatures: ["integratorFees"],
-  },
-  fabric: {
+  }),
+  fabric({
     appId: "YOUR_FABRIC_APP_ID",
-  },
-};
+  }),
+];
 ```
 
 ---

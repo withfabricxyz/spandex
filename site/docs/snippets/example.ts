@@ -1,15 +1,11 @@
-import { createConfig, getQuote } from "@withfabric/spandex";
+import { createConfig, fabric, getQuote, kyberswap, odos } from "@withfabric/spandex";
 
 export const config = createConfig({
-  providers: {
-    fabric: { appId: "spandex" },
-    kyberswap: {
-      clientId: "spandex",
-    },
-    odos: {
-      referralCode: 1234,
-    },
-  },
+  providers: [
+    fabric({ appId: "spandex" }),
+    kyberswap({ clientId: "spandex" }),
+    odos({ referralCode: 1234 }),
+  ],
   options: {
     deadlineMs: 10_000,
     integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",

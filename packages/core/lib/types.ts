@@ -1,6 +1,7 @@
 import type { Address, PublicClient, SimulateCallsReturnType } from "viem";
 import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x.js";
 import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js";
+import type { Aggregator } from "./aggregators/index.js";
 import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
 import type { LifiConfig, LifiQuoteResponse } from "./aggregators/lifi.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
@@ -55,13 +56,6 @@ export type ProviderConfig = {
    */
   negotiatedFeatures?: NegotiatedFeature[];
 };
-
-/**
- * Provider-specific configuration keyed by the provider identifier.
- *
- * Supply only the providers you want enabled; omitted keys are skipped entirely.
- */
-export type ProvidersConfig = Partial<{ [K in ProviderKey]: ProviderDefinitions[K]["config"] }>;
 
 /**
  * Features that an aggregator may support. Used for capability detection and filtering.
@@ -435,9 +429,9 @@ export type AggregationOptions = TimingOptions & FeeOptions;
  */
 export type ConfigParams = {
   /**
-   * Provider-specific configuration keyed by provider identifier (optional to allow a subset).
+   * Aggregator instances to include in the meta-aggregator.
    */
-  providers: ProvidersConfig;
+  providers: Aggregator[];
   /**
    * Clients used to simulate quotes (one per chain).
    */

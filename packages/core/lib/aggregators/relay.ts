@@ -109,6 +109,10 @@ export class RelayAggregator extends Aggregator<RelayConfig> {
   }
 }
 
+export function relay(config?: RelayConfig): RelayAggregator {
+  return new RelayAggregator(config);
+}
+
 function buildRequest(request: SwapParams, options: SwapOptions): RelayQuoteRequest {
   const tradeType = request.mode === "exactIn" ? "EXACT_INPUT" : "EXPECTED_OUTPUT";
   const amount = request.mode === "exactIn" ? request.inputAmount : request.outputAmount;

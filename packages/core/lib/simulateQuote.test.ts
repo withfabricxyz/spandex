@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import type { Address, PublicClient } from "viem";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
-import { createConfig, getRawQuotes, type SwapParams } from "../index.js";
+import { createConfig, fabric, getRawQuotes, kyberswap, type SwapParams } from "../index.js";
 import { simulateQuotes } from "./simulateQuote.js";
 import type { SimulatedQuote } from "./types.js";
 
@@ -26,10 +26,7 @@ describe("simulateQuote", () => {
   }) as PublicClient;
 
   const config = createConfig({
-    providers: {
-      kyberswap: { clientId: "spandex-test-env" },
-      fabric: { appId: "spandex-test-env" },
-    },
+    providers: [kyberswap({ clientId: "spandex-test-env" }), fabric({ appId: "spandex-test-env" })],
     clients: [client] as PublicClient[],
   });
 

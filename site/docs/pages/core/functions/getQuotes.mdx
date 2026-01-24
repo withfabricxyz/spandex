@@ -36,9 +36,7 @@ for (const quote of quotes) {
 ```
 
 ```ts [config] filename="config.ts" twoslash
-import {
-  createConfig
-} from "@withfabric/spandex";
+import { createConfig, fabric, odos } from "@withfabric/spandex";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
@@ -48,11 +46,7 @@ const client = createPublicClient({
 });
 
 export const config = createConfig({
-  providers: {
-    fabric: { appId: "your app id" },
-    odos: {},
-  }
-  ,
+  providers: [fabric({ appId: "your app id" }), odos({})],
   clients: [client] as PublicClient[],
 });
 ```

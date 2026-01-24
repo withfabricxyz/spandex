@@ -148,6 +148,10 @@ export class LifiAggregator extends Aggregator<LifiConfig> {
   }
 }
 
+export function lifi(config?: LifiConfig): LifiAggregator {
+  return new LifiAggregator(config);
+}
+
 function buildQueryParams(params: ExactInSwapParams, options: SwapOptions): Record<string, string> {
   const result: Record<string, string> = {
     fromChain: params.chainId.toString(),

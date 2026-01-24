@@ -25,7 +25,7 @@ bun i viem @withfabic/spandex
 See the [configuration reference](/configuration.mdx) for all options.
 
 ```ts filename="config.ts" twoslash
-import { createConfig } from "@withfabric/spandex";
+import { createConfig, fabric, kyberswap, odos } from "@withfabric/spandex";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
@@ -37,11 +37,7 @@ const baseClient = createPublicClient({
 
 // The aggregator instance can be shared across your application
 export const config = createConfig({
-  providers: {
-    fabric: { appId: "test" },
-    odos: {},
-    kyberswap: { clientId: "test" },
-  },
+  providers: [fabric({ appId: "test" }), odos({}), kyberswap({ clientId: "test" })],
   clients: [baseClient] as PublicClient[],
 });
 ```

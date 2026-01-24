@@ -1,5 +1,5 @@
 import type { ExactInSwapParams } from "@withfabric/spandex";
-import { createConfig, getQuote } from "@withfabric/spandex";
+import { createConfig, fabric, getQuote } from "@withfabric/spandex";
 import { createWalletClient, http } from "viem";
 import { base } from "viem/chains";
 
@@ -10,9 +10,7 @@ const walletClient = createWalletClient({
 });
 
 export const config = createConfig({
-  providers: {
-    fabric: { appId: "your app id" },
-  },
+  providers: [fabric({ appId: "your app id" })],
 });
 
 const swap: ExactInSwapParams = {
