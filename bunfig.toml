@@ -1,3 +1,6 @@
+[install]
+linker = "isolated"
+
 [test]
 preload = ["./packages/react/test-setup.ts"]
 coverage = true

@@ -25,7 +25,6 @@
     "@types/node": "^25.0.8"
   },
   "dependencies": {
-    "@changesets/cli": "^2.29.8",
-    "@radix-ui/react-tooltip": "^1.2.8"
+    "@changesets/cli": "^2.29.8"
   }
 }
