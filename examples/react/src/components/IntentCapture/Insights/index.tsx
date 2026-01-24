@@ -42,7 +42,7 @@ function QuoteDataView({
         selectedMetric={selectedMetric}
         setSelectedMetric={setSelectedMetric}
       />
-      <hr className="block h-1 bg-primary" />
+      <hr className="border-primary" />
       <LineItems
         quote={bestQuote}
         quotes={quotes}

@@ -66,3 +66,45 @@ export function formatTokenValue(
 
   return formatNumberFancy(value);
 }
+
+export function parseTokenValue(value: string, decimals: number): bigint {
+  if (!value || value === "" || value === ".") return 0n;
+
+  const parts = value.trim().split(".");
+
+  if (parts.length > 2) return 0n;
+
+  const integerPart = parts[0] || "0";
+  const decimalPart = parts[1] || "";
+
+  const paddedDecimalPart = decimalPart.padEnd(decimals, "0").slice(0, decimals);
+  const combinedValue = integerPart + paddedDecimalPart;
+
+  try {
+    return BigInt(combinedValue);
+  } catch {
+    return 0n;
+  }
+}
+
+export function bigintToDecimalString(amount: bigint, decimals: number): string {
+  if (amount === 0n) return "0";
+
+  const amountStr = amount.toString();
+
+  // Pad with zeros if needed
+  const paddedAmount = amountStr.padStart(decimals + 1, "0");
+
+  // Split into integer and decimal parts
+  const integerPart = paddedAmount.slice(0, -decimals) || "0";
+  const decimalPart = paddedAmount.slice(-decimals);
+
+  // Remove trailing zeros from decimal part
+  const trimmedDecimal = decimalPart.replace(/0+$/, "");
+
+  if (trimmedDecimal === "") {
+    return `${integerPart}`;
+  }
+
+  return `${integerPart}.${trimmedDecimal}`;
+}

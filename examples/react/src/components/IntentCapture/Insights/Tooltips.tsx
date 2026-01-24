@@ -6,26 +6,11 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import type { SimulatedQuote, SuccessfulQuote } from "@withfabric/spandex";
-import { Tooltip } from "radix-ui";
-import { type ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import type { TokenMetadata } from "@/services/tokens";
 import { getQuoteInaccuracy } from "@/utils/quoteHelpers";
+import { Tooltip } from "../../Tooltip";
 import { COLORS } from "./BumpChart";
-
-function BaseTooltip({ children, title }: { children: ReactNode; title: string }) {
-  return (
-    <Tooltip.Root>
-      <Tooltip.Trigger className="underline cursor-pointer decoration-dotted hover:decoration-solid">
-        {title}
-      </Tooltip.Trigger>
-      <Tooltip.Content>
-        <div className="p-10 rounded-xs max-w-[336px] flex flex-col gap-10 bg-surface-base">
-          {children}
-        </div>
-      </Tooltip.Content>
-    </Tooltip.Root>
-  );
-}
 
 function TooltipTable<TData>({ data, columns }: { data: TData[]; columns: ColumnDef<TData>[] }) {
   const table = useReactTable({
@@ -35,7 +20,7 @@ function TooltipTable<TData>({ data, columns }: { data: TData[]; columns: Column
   });
 
   return (
-    <table className="w-full monospace text-[12px] text-primary">
+    <table className="w-full monospace text-[12px] text-surface-base">
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
@@ -114,12 +99,21 @@ export function LatencyTooltip({ successfulQuotes }: { successfulQuotes: Success
   );
 
   return (
-    <BaseTooltip title="Latency">
-      <span className="font-medium  text-[16px] text-primary">
-        How long did it take to provide a quote?
-      </span>
-      <TooltipTable data={data} columns={columns as ColumnDef<LatencyRow>[]} />
-    </BaseTooltip>
+    <Tooltip
+      trigger={
+        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+          Latency
+        </span>
+      }
+      content={
+        <div className="flex flex-col gap-8">
+          <span className="font-medium text-surface-base font-[Sohne_Breit] text-[16px]">
+            How long did it take to provide a quote?
+          </span>
+          <TooltipTable data={data} columns={columns as ColumnDef<LatencyRow>[]} />
+        </div>
+      }
+    ></Tooltip>
   );
 }
 
@@ -176,12 +170,21 @@ export function InaccuracyTooltip({ successfulQuotes }: { successfulQuotes: Succ
   );
 
   return (
-    <BaseTooltip title="Inaccuracy">
-      <span className="font-medium  text-[16px] text-primary">
-        How wide was the delta between quote and execution?
-      </span>
-      <TooltipTable data={data} columns={columns as ColumnDef<InaccuracyRow>[]} />
-    </BaseTooltip>
+    <Tooltip
+      trigger={
+        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+          Inaccuracy
+        </span>
+      }
+      content={
+        <div className="flex flex-col gap-8">
+          <span className="font-medium text-surface-base font-[Sohne_Breit] text-[16px]">
+            How wide was the delta between quote and execution?
+          </span>
+          <TooltipTable data={data} columns={columns as ColumnDef<InaccuracyRow>[]} />
+        </div>
+      }
+    />
   );
 }
 
@@ -257,41 +260,77 @@ export function PriceTooltip({
   );
 
   return (
-    <BaseTooltip title="Price">
-      <span className="font-medium  text-[16px] text-primary">
-        How does the token output vs input compare to peers?
-      </span>
-      <TooltipTable data={data} columns={columns as ColumnDef<PriceRow>[]} />
-    </BaseTooltip>
+    <Tooltip
+      trigger={
+        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+          Price
+        </span>
+      }
+      content={
+        <div className="flex flex-col gap-8">
+          <span className="font-medium text-surface-base font-[Sohne_Breit] text-[16px]">
+            How does the token output vs input compare to peers?
+          </span>
+          <TooltipTable data={data} columns={columns as ColumnDef<PriceRow>[]} />
+        </div>
+      }
+    />
   );
 }
 
 export function GasTooltip() {
   return (
-    <BaseTooltip title="Gas">
-      <span className="monospace text-primary text-[12px]">
-        The network fee required to process this transaction on-chain.
-      </span>
-    </BaseTooltip>
+    <Tooltip
+      trigger={
+        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+          Gas
+        </span>
+      }
+      content={
+        <div className="flex flex-col gap-8">
+          <span className="monospace text-surface-base text-[12px]">
+            The network fee required to process this transaction on-chain.
+          </span>
+        </div>
+      }
+    />
   );
 }
 
 export function MaxSlippageTooltip() {
   return (
-    <BaseTooltip title="Max Slippage">
-      <span className="monospace text-primary text-[12px]">
-        How much the price is allowed to change before your trade reverts.
-      </span>
-    </BaseTooltip>
+    <Tooltip
+      trigger={
+        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+          Max Slippage
+        </span>
+      }
+      content={
+        <div className="flex flex-col gap-8">
+          <span className="monospace text-surface-base text-[12px]">
+            How much the price is allowed to change before your trade reverts.
+          </span>
+        </div>
+      }
+    />
   );
 }
 
 export function PriceImpactTooltip() {
   return (
-    <BaseTooltip title="Price Impact">
-      <span className="monospace text-primary text-[12px]">
-        How much your trade moves the market price.
-      </span>
-    </BaseTooltip>
+    <Tooltip
+      trigger={
+        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+          Price Impact
+        </span>
+      }
+      content={
+        <div className="flex flex-col gap-8">
+          <span className="monospace text-surface-base text-[12px]">
+            How much your trade moves the market price.
+          </span>
+        </div>
+      }
+    />
   );
 }

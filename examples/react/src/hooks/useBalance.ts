@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/correctness/useHookAtTopLevel: <> */
+import type { UseQueryResult } from "@tanstack/react-query";
 import { type Address, erc20Abi, ethAddress, zeroAddress } from "viem";
 import { useBalance as useEthBalance, useReadContract } from "wagmi";
 
@@ -10,7 +11,7 @@ export function useBalance({
   chainId?: number;
   owner?: Address;
   token?: Address;
-}) {
+}): UseQueryResult<bigint> {
   if (token === zeroAddress || token === ethAddress) {
     return useEthBalance({
       chainId: chainId,
@@ -19,7 +20,7 @@ export function useBalance({
         enabled: !!owner && !!chainId,
         select: (data) => data.value,
       },
-    });
+    }) as UseQueryResult<bigint>;
   }
 
   return useReadContract({
@@ -31,5 +32,5 @@ export function useBalance({
     query: {
       enabled: !!owner && !!token && !!chainId,
     },
-  });
+  }) as UseQueryResult<bigint>;
 }

@@ -1,7 +1,7 @@
 @layer theme {
   :root {
     .bottom-sheet {
-      background-color: var(--color-surface-high);
+      background-color: var(--color-surface-base);
     }
 
     .bottom-sheet__scrim {
@@ -24,6 +24,7 @@
     transition: transform 0.175s var(--ease-in-ios);
     transform: translateY(calc(100% + var(--safe-area-site-header)));
     pointer-events: none;
+    box-shadow: 8px 0 16px 0 rgba(15, 15, 15, 0.06), -8px 0 16px 0 rgba(15, 15, 15, 0.06);
   }
 
   .bottom-sheet--open {

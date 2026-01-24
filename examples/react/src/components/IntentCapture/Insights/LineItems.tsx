@@ -41,6 +41,7 @@ export function LineItems({
   setSlippageBps,
   currentAllowance,
 }: LineItemsProps) {
+  // TODO: handle simulation failure higher up so we can cascade state across the IntentCapture
   const simulationFailure = quote ? getSimulationFailureReason(quote, currentAllowance) : null;
   const successfulQuotes: SuccessfulQuote[] = quotes?.filter((q) => q.success) || [];
 
@@ -59,7 +60,7 @@ export function LineItems({
 
     if (priceImpact !== null) return `${priceImpact.toFixed(2)}%`;
 
-    return null;
+    return "N/A";
   };
 
   const getFeesValue = () => {

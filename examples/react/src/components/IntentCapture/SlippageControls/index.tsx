@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Close } from "@/components/icons";
 import type { TokenMetadata } from "@/services/tokens";
-import { formatTokenValue } from "@/utils/strings";
+import { formatTokenValue, parseTokenValue } from "@/utils/strings";
 
 export function SlippageControls({
   sellToken,
@@ -21,12 +21,11 @@ export function SlippageControls({
 
   // value of slippage, denominated in sell token, based on passed slippage setting or current input (if editing)
   const slippageTokenValue = useMemo(() => {
-    const base = isEditing ? inputValue : slippagePercent;
-    const amount = BigInt(
-      Math.round((Number(numSellTokens) / 100) * Number(base) * 10 ** sellToken.decimals),
-    );
+    const base = isEditing ? inputValue : slippagePercent.toString();
+    const inputAmount = parseTokenValue(numSellTokens, sellToken.decimals);
+    const slippageAmount = (inputAmount * BigInt(Math.round(Number(base) * 100))) / 10000n;
 
-    return formatTokenValue(amount, sellToken.decimals);
+    return formatTokenValue(slippageAmount, sellToken.decimals);
   }, [numSellTokens, slippagePercent, inputValue, sellToken.decimals, isEditing]);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {

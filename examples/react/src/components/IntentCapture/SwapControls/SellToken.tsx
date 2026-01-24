@@ -2,11 +2,12 @@ import { useCallback } from "react";
 import { ChevronDown } from "@/components/icons";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
+import { bigintToDecimalString, formatTokenValue } from "@/utils/strings";
 import { Button } from "../../Button";
 
 type SellTokenProps = {
   token: TokenMetadata;
-  balance?: string;
+  balance?: bigint;
   isLoadingBalances: boolean;
   numTokens: string;
   onChange: (value: string) => void;
@@ -25,19 +26,19 @@ export function SellToken({
     (percent: string) => {
       if (!balance) return;
 
-      const balanceNum = Number(balance);
       let newValue = "0";
 
       if (percent === "max") {
-        newValue = balanceNum.toString();
+        newValue = bigintToDecimalString(balance, token.decimals);
       } else {
-        const fraction = parseInt(percent, 10) / 100;
-        newValue = (balanceNum * fraction).toString();
+        const fraction = BigInt(parseInt(percent, 10));
+        const percentAmount = (balance * fraction) / 100n;
+        newValue = bigintToDecimalString(percentAmount, token.decimals);
       }
 
       onChange(newValue);
     },
-    [balance, onChange],
+    [balance, token.decimals, onChange],
   );
 
   return (
@@ -73,7 +74,8 @@ export function SellToken({
         </Button>
       </div>
       <span className="text-quaternary monospace text-[12px]">
-        {isLoadingBalances ? "Loading..." : balance || "0"} {token.symbol}
+        {isLoadingBalances ? "Loading..." : formatTokenValue(balance || 0n, token.decimals)}{" "}
+        {token.symbol}
       </span>
     </div>
   );
