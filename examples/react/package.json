@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
+    "start": "bun run server.ts",
     "preview": "vite preview",
     "test": "vitest run",
     "format": "biome format",
@@ -25,7 +26,6 @@
     "@withfabric/spandex-react": "workspace:*",
     "@radix-ui/react-tooltip": "^1.2.8",
     "animejs": "^4.2.2",
-    "nitro": "latest",
     "radix-ui": "^1.4.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
