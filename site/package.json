@@ -7,16 +7,16 @@
     "build": "vocs build",
     "preview": "vocs preview"
   },
-  "dependencies": {
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "viem": "^2.40.1",
-    "vocs": "^1.4.1"
-  },
-  "devDependencies": {
+    "vocs": "^1.4.1",
     "@types/react": "^19.2.0",
-    "typescript": "latest",
     "@withfabric/spandex": "workspace:*",
-    "@withfabric/spandex-react": "workspace:*"
+    "@withfabric/spandex-react": "workspace:*",
+    "tailwindcss": "^4.1.18",
+    "typescript": "latest"
   }
 }

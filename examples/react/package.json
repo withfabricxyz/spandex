@@ -1,5 +1,5 @@
 {
-  "name": "@smal/example-react",
+  "name": "spandex-react-example",
   "private": true,
   "type": "module",
   "scripts": {
@@ -23,6 +23,7 @@
     "@wagmi/core": "^3.2.2",
     "@withfabric/spandex": "workspace:*",
     "@withfabric/spandex-react": "workspace:*",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "animejs": "^4.2.2",
     "nitro": "latest",
     "radix-ui": "^1.4.3",
