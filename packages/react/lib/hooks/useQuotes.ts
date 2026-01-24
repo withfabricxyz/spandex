@@ -1,12 +1,10 @@
 import { type UseQueryOptions, type UseQueryResult, useQuery } from "@tanstack/react-query";
 import {
-  deserializeWithBigInt,
   type ExactInSwapParams,
   getQuotes,
   type Quote,
   type SimulatedQuote,
   type SwapParams,
-  serializeWithBigInt,
   type TargetOutSwapParams,
 } from "@withfabric/spandex";
 import { useMemo } from "react";
@@ -24,7 +22,6 @@ type UseSwapParams = (
 export type UseQuotesParams<TSelectData = Quote[]> = {
   swap: UseSwapParams;
   query?: Omit<UseQueryOptions<SimulatedQuote[], Error, TSelectData>, "queryKey" | "queryFn">;
-  serverAction?: true | string;
 };
 
 export function useQuotes<TSelectData = SimulatedQuote[]>(
@@ -82,31 +79,9 @@ export function useQuotes<TSelectData = SimulatedQuote[]>(
       fullParams?.mode === "exactIn"
         ? fullParams?.inputAmount.toString()
         : fullParams?.outputAmount.toString(),
-      params.serverAction,
     ],
     queryFn: async () => {
-      if (params.serverAction === undefined) {
-        return getQuotes({ config, swap: fullParams as SwapParams });
-      } else if (params.serverAction === true) {
-        const { getServerQuotes } = await import("../functions/getServerQuotes.js");
-        const quotesString = await getServerQuotes({ swap: fullParams as SwapParams });
-        return deserializeWithBigInt(quotesString);
-      } else {
-        return fetch(params.serverAction, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: serializeWithBigInt({ swap: fullParams }),
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error(`Network response was not ok: ${res.statusText}`);
-            }
-            return res.text();
-          })
-          .then((text) => deserializeWithBigInt(text));
-      }
+      return getQuotes({ config, swap: fullParams as SwapParams });
     },
     retry: 0,
     enabled: !!finalChainId && !!finalSwapperAccount && (query?.enabled ?? true),

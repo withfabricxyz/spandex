@@ -73,20 +73,9 @@ function createDirectConfig(params: DirectConfigParams): Config {
 
   validateOptions(params.options || {});
 
-  // Build client lookup function
-  let clientLookup: (chainId: number) => PublicClient | undefined = () => undefined;
-  if (params.clients !== undefined) {
-    if (typeof params.clients === "function") {
-      clientLookup = params.clients;
-    } else if (Array.isArray(params.clients)) {
-      clientLookup = (chainId: number) =>
-        (params.clients as PublicClient[]).find((c) => c.chain?.id === chainId);
-    }
-  }
-
   return {
     options: params.options || {},
-    clientLookup,
+    clientLookup: createClientLookupFunction(params.clients),
     aggregators: aggregators,
   };
 }
@@ -94,10 +83,26 @@ function createDirectConfig(params: DirectConfigParams): Config {
 function createProxyConfig(params: ProxyConfigParams): Config {
   return {
     options: {},
-    clientLookup: () => undefined, // ?
+    clientLookup: createClientLookupFunction(params.clients),
     aggregators: [],
     proxy: params.proxy,
   };
+}
+
+// Normalize the contract for fetching a client
+function createClientLookupFunction(
+  clients?: PublicClient | PublicClient[] | ((chainId: number) => PublicClient | undefined),
+): (chainId: number) => PublicClient | undefined {
+  let clientLookup: (chainId: number) => PublicClient | undefined = () => undefined;
+  if (clients !== undefined) {
+    if (typeof clients === "function") {
+      clientLookup = clients;
+    } else if (Array.isArray(clients)) {
+      clientLookup = (chainId: number) =>
+        (clients as PublicClient[]).find((c) => c.chain?.id === chainId);
+    }
+  }
+  return clientLookup;
 }
 
 function validateOptions(options: AggregationOptions): void {

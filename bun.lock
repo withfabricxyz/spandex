@@ -50,6 +50,7 @@
         "viem": "^2.21.54",
         "vite-tsconfig-paths": "^5.1.4",
         "wagmi": "^3.1.0",
+        "zod": "^4.3.6",
       },
       "devDependencies": {
         "@biomejs/biome": "2.2.4",

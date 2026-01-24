@@ -5,7 +5,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { kyberswap, odos } from "@withfabric/spandex";
+import { proxy } from "@withfabric/spandex";
 import { SpandexProvider } from "@withfabric/spandex-react";
 import { Tooltip } from "radix-ui";
 import { DialogPortal } from "@/components/Dialog";
@@ -74,7 +74,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Web3Provider>
             <SpandexProvider
               config={{
-                providers: [odos({}), kyberswap({ clientId: "spandex_ui" })],
+                proxy: proxy({ pathOrUrl: "/api/quotes" }),
               }}
             >
               <Tooltip.Provider>
