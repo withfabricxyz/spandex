@@ -1,9 +1,9 @@
-import { ZeroXAggregator } from "./lib/aggregators/0x.js";
-import { FabricAggregator } from "./lib/aggregators/fabric.js";
-import { KyberAggregator } from "./lib/aggregators/kyber.js";
-import { LifiAggregator } from "./lib/aggregators/lifi.js";
-import { OdosAggregator } from "./lib/aggregators/odos.js";
-import { RelayAggregator } from "./lib/aggregators/relay.js";
+import { ZeroXAggregator, zeroX } from "./lib/aggregators/0x.js";
+import { FabricAggregator, fabric } from "./lib/aggregators/fabric.js";
+import { KyberAggregator, kyberswap } from "./lib/aggregators/kyber.js";
+import { LifiAggregator, lifi } from "./lib/aggregators/lifi.js";
+import { OdosAggregator, odos } from "./lib/aggregators/odos.js";
+import { RelayAggregator, relay } from "./lib/aggregators/relay.js";
 
 export {
   FabricAggregator,
@@ -12,6 +12,12 @@ export {
   LifiAggregator,
   OdosAggregator,
   RelayAggregator,
+  fabric,
+  zeroX,
+  kyberswap,
+  lifi,
+  odos,
+  relay,
 };
 export { Aggregator } from "./lib/aggregators/index.js";
 export { type Config, createConfig, defaultProviders } from "./lib/createConfig.js";

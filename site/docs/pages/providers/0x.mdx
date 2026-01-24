@@ -14,18 +14,20 @@ import { Callout } from 'vocs/components'
   0x requires an API key for access. You can obtain one by [signing up](https://dashboard.0x.org/create-account).
 </Callout>
 
+Use the `zeroX` factory since JavaScript identifiers cannot start with a number.
+
 ```ts twoslash
-import { createConfig } from "@withfabric/spandex";
+import { createConfig, zeroX } from "@withfabric/spandex";
 
 export const config = createConfig({
-  providers: {
-    '0x': {
+  providers: [
+    zeroX({
       // required!
       apiKey: "YOUR_0X_API_KEY",
       // If you have negotiated surplus sharing with 0x, override negotiatedOptions
       // negotiatedFeatures: ["integratorSurplus"],
-    },
+    }),
     // ...
-  },
+  ],
 });
 ```

@@ -1,4 +1,4 @@
-import { createConfig } from "@withfabric/spandex";
+import { createConfig, fabric, kyberswap, odos } from "@withfabric/spandex";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
@@ -9,11 +9,11 @@ const baseClient = createPublicClient({
 });
 
 export const config = createConfig({
-  providers: {
-    fabric: { appId: "your app id" },
-    odos: { referralCode: 1234 },
-    kyberswap: { clientId: "your client id" },
-  },
+  providers: [
+    fabric({ appId: "your app id" }),
+    odos({ referralCode: 1234 }),
+    kyberswap({ clientId: "your client id" }),
+  ],
   options: {
     deadlineMs: 5_000,
     integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",

@@ -2,7 +2,15 @@ import { describe, expect, it } from "bun:test";
 import type { PublicClient } from "viem";
 import { createPublicClient, http, zeroAddress } from "viem";
 import { base } from "viem/chains";
-import { getQuotes, type SuccessfulQuote, type SwapParams } from "../index.js";
+import {
+  fabric,
+  getQuotes,
+  kyberswap,
+  odos,
+  type SuccessfulQuote,
+  type SwapParams,
+  zeroX,
+} from "../index.js";
 import { createConfig } from "./createConfig.js";
 
 const defaultSwapParams: SwapParams = {
@@ -26,12 +34,12 @@ describe("getQuotes", () => {
   }) as PublicClient;
 
   const config = createConfig({
-    providers: {
-      odos: {},
-      kyberswap: { clientId: "spandex" },
-      fabric: { appId: "spandex" },
-      "0x": { apiKey: process.env.ZEROX_API_KEY || "" },
-    },
+    providers: [
+      odos({}),
+      kyberswap({ clientId: "spandex" }),
+      fabric({ appId: "spandex" }),
+      zeroX({ apiKey: process.env.ZEROX_API_KEY || "" }),
+    ],
     clients: [client] as PublicClient[],
   });
 

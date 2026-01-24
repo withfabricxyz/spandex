@@ -1,4 +1,5 @@
 import { describe, expect, it, mock } from "bun:test";
+import { fabric, zeroX } from "@withfabric/spandex";
 import { render, screen } from "../../test/utils.js";
 import { useSpandexConfig } from "./SpandexProvider.js";
 
@@ -18,10 +19,7 @@ describe("SpandexProvider", () => {
   it("should provide metaAggregator to children", () => {
     render(<TestComponent />, {
       spandexConfig: {
-        providers: {
-          "0x": { apiKey: "test" },
-          fabric: {},
-        },
+        providers: [zeroX({ apiKey: "test" }), fabric({ appId: "test" })],
       },
     });
 

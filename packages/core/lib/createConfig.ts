@@ -1,11 +1,8 @@
 import type { PublicClient } from "viem";
-import { ZeroXAggregator } from "./aggregators/0x.js";
-import { FabricAggregator } from "./aggregators/fabric.js";
+import { fabric } from "./aggregators/fabric.js";
 import type { Aggregator } from "./aggregators/index.js";
-import { KyberAggregator } from "./aggregators/kyber.js";
-import { LifiAggregator } from "./aggregators/lifi.js";
-import { OdosAggregator } from "./aggregators/odos.js";
-import { RelayAggregator } from "./aggregators/relay.js";
+import { kyberswap } from "./aggregators/kyber.js";
+import { odos } from "./aggregators/odos.js";
 import type { AggregationOptions, ConfigParams } from "./types.js";
 
 /**
@@ -25,14 +22,10 @@ export type Config = {
  *
  * @param params.appId - Id used to identify your application to providers that require it.
  *
- * @returns Provider configuration object with default providers enabled.
+ * @returns Provider list with default aggregators enabled.
  */
 export function defaultProviders(params: { appId: string }): ConfigParams["providers"] {
-  return {
-    kyberswap: { clientId: params.appId },
-    fabric: { appId: params.appId },
-    odos: {},
-  };
+  return [kyberswap({ clientId: params.appId }), fabric({ appId: params.appId }), odos({})];
 }
 
 /**
@@ -45,10 +38,10 @@ export function defaultProviders(params: { appId: string }): ConfigParams["provi
  * @example
  * ```ts
  * const config = createConfig({
- *   providers: {
- *     "0x": { apiKey: "your-0x-api-key" },
- *     kyberswap: { clientId: "your-kyberswap-client-id" },
- *   },
+ *   providers: [
+ *     zeroX({ apiKey: "your-0x-api-key" }),
+ *     kyberswap({ clientId: "your-kyberswap-client-id" }),
+ *   ],
  *   options: {
  *     deadlineMs: 10000,
  *   },
@@ -56,33 +49,12 @@ export function defaultProviders(params: { appId: string }): ConfigParams["provi
  * ```
  */
 export function createConfig(params: ConfigParams): Config {
-  if (Object.keys(params.providers).length === 0) {
+  if (params.providers.length === 0) {
     throw new Error(
       "At least one provider must be configured in createConfig. You can also use defaultProviders({ appId: 'my-app-id' }) to get a standard set of providers.",
     );
   }
-
-  const aggregators = [];
-
-  const configured = params.providers;
-  if (configured["0x"]) {
-    aggregators.push(new ZeroXAggregator(configured["0x"]));
-  }
-  if (configured.kyberswap) {
-    aggregators.push(new KyberAggregator(configured.kyberswap));
-  }
-  if (configured.fabric) {
-    aggregators.push(new FabricAggregator(configured.fabric));
-  }
-  if (configured.lifi) {
-    aggregators.push(new LifiAggregator(configured.lifi));
-  }
-  if (configured.odos) {
-    aggregators.push(new OdosAggregator(configured.odos));
-  }
-  if (configured.relay) {
-    aggregators.push(new RelayAggregator(configured.relay));
-  }
+  const aggregators = params.providers;
 
   validateOptions(params.options || {});
 

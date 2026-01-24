@@ -7,7 +7,6 @@ import type {
   AggregatorFeature,
   AggregatorMetadata,
   ProviderKey,
-  ProvidersConfig,
   Quote,
   SuccessfulQuote,
   SuccessfulSimulatedQuote,
@@ -91,7 +90,7 @@ export class MockAggregator extends Aggregator {
   }
 }
 
-export function testConfig(providers: ProvidersConfig) {
+export function testConfig(providers: Aggregator[]) {
   return createConfig({
     providers,
     clients: [

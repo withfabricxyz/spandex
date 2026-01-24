@@ -11,20 +11,19 @@ import { Callout } from 'vocs/components'
 ## Configuration
 
 ```ts twoslash
-import { createConfig } from "@withfabric/spandex";
+import { createConfig, odos } from "@withfabric/spandex";
 
 export const config = createConfig({
-  providers: {
-    odos: {
+  providers: [
+    odos({
       // Optional. Use for attribution
       referralCode: undefined,
       // Optional. Use it if you got it
       apiKey: undefined,
       // Optional. Enable fees and surplus if negotiated with Odos.
       // negotiatedFeatures: ["integratorSurplus", "integratorFees"],
-    },
+    }),
     // ...
-  },
+  ],
 });
 ```
-

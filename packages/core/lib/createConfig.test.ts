@@ -1,22 +1,19 @@
 import { describe, expect, it } from "bun:test";
+import { zeroX } from "./aggregators/0x.js";
 import { createConfig } from "./createConfig.js";
 
 describe("createConfig", () => {
   it("throws on misconfiguration", async () => {
     expect(() => {
       createConfig({
-        providers: {},
+        providers: [],
       });
     }).toThrow();
   });
 
   it("supports manual configuration", async () => {
     const config = createConfig({
-      providers: {
-        "0x": {
-          apiKey: "test",
-        },
-      },
+      providers: [zeroX({ apiKey: "test" })],
     });
 
     expect(config).toBeDefined();

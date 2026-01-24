@@ -116,6 +116,10 @@ export class ZeroXAggregator extends Aggregator<ZeroXConfig> {
   }
 }
 
+export function zeroX(config: ZeroXConfig): ZeroXAggregator {
+  return new ZeroXAggregator(config);
+}
+
 function extractQueryParams(
   params: ExactInSwapParams,
   options: SwapOptions,

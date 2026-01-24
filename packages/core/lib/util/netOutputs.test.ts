@@ -6,6 +6,9 @@ import {
   USDC_WHALE,
 } from "packages/core/test/utils.js";
 import type { Address } from "viem";
+import { zeroX } from "../aggregators/0x.js";
+import { fabric } from "../aggregators/fabric.js";
+import { kyberswap } from "../aggregators/kyber.js";
 import type { SwapParams } from "../types.js";
 import { netOutputs } from "./netOutputs.js";
 
@@ -20,9 +23,7 @@ describe("netOutputs", () => {
     const quote = await recordedSimulation(
       "netOutputs-erc20-out",
       swap,
-      testConfig({
-        fabric: { appId: "spandex" },
-      }),
+      testConfig([fabric({ appId: "spandex" })]),
     );
 
     const net = netOutputs({
@@ -48,9 +49,7 @@ describe("netOutputs", () => {
     const quote = await recordedSimulation(
       "netout-kyberswap-erc20-out",
       swap,
-      testConfig({
-        kyberswap: { clientId: "test-setup" },
-      }),
+      testConfig([kyberswap({ clientId: "test-setup" })]),
     );
 
     const net = netOutputs({
@@ -76,11 +75,7 @@ describe("netOutputs", () => {
     const quote = await recordedSimulation(
       "netout-0x-erc20-out",
       swap,
-      testConfig({
-        "0x": {
-          apiKey: process.env.ZEROX_API_KEY || "demo",
-        },
-      }),
+      testConfig([zeroX({ apiKey: process.env.ZEROX_API_KEY || "demo" })]),
     );
 
     const net = netOutputs({

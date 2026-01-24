@@ -28,12 +28,10 @@ See the [configuration reference](/configuration.mdx) for all options.
 import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "./wagmiConfig.js";
 import { SpandexProvider } from "@withfabric/spandex-react";
+import { fabric, zeroX } from "@withfabric/spandex";
 
 const config = {
-  aggregators: [
-    { provider: "fabric", config: {} },
-    { provider: "0x", config: {} },
-  ],
+  providers: [fabric({ appId: "YOUR_FABRIC_APP_ID" }), zeroX({ apiKey: "YOUR_0X_API_KEY" })],
 };
 
 export function App() {
@@ -77,4 +75,3 @@ export function Quotes() {
   );
 }
 ```
-

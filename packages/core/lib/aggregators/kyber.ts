@@ -149,6 +149,10 @@ export class KyberAggregator extends Aggregator<KyberConfig> {
   }
 }
 
+export function kyberswap(config?: KyberConfig): KyberAggregator {
+  return new KyberAggregator(config);
+}
+
 function extractQueryParams(
   params: ExactInSwapParams,
   options: SwapOptions,

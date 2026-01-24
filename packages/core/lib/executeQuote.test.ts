@@ -5,6 +5,7 @@ import { createPublicClient, createWalletClient, erc20Abi, http, type PublicClie
 import { base } from "viem/chains";
 import { recordedSimulation } from "../test/utils.js";
 import type { FabricQuoteResponse } from "./aggregators/fabric.js";
+import { fabric } from "./aggregators/fabric.js";
 import { createConfig } from "./createConfig.js";
 import { executeQuote } from "./executeQuote.js";
 import type { SwapParams } from "./types.js";
@@ -63,9 +64,7 @@ describe("executeQuote", () => {
 
   it("can execute a quote on a forked chain", async () => {
     const config = createConfig({
-      providers: {
-        fabric: { appId: "test" },
-      },
+      providers: [fabric({ appId: "test" })],
       clients: [baseClient] as PublicClient[],
     });
 

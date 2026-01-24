@@ -180,6 +180,10 @@ export class FabricAggregator extends Aggregator<FabricConfig> {
   }
 }
 
+export function fabric(config: FabricConfig): FabricAggregator {
+  return new FabricAggregator(config);
+}
+
 export function fabricRouteGraph(quote: FabricQuoteResponse): RouteGraph {
   const swaps = quote.route.swaps.flat();
   const nodes = quote.tokens;
