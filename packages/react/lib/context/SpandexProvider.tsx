@@ -7,16 +7,14 @@ import type { SpandexContextValue, SpandexProviderProps } from "../types.js";
 export const SpandexContext = createContext<SpandexContextValue | null>(null);
 
 export function SpandexProvider({ config, children }: SpandexProviderProps) {
-  const { providers, options } = config;
   const { getClient } = useConfig();
 
   const spandexConfig = useMemo(() => {
     return createConfig({
-      providers,
-      options,
+      ...config,
       clients: (chainId: number) => getClient({ chainId }) as PublicClient | undefined,
     });
-  }, [providers, options, getClient]);
+  }, [config, getClient]);
 
   const contextValue: SpandexContextValue = useMemo(() => spandexConfig, [spandexConfig]);
 

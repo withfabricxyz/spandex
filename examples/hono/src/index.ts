@@ -57,7 +57,7 @@ app.get("/quotes/select", zValidator("query", querySchema), async (c) => {
 app.get("/quotes/stream", zValidator("query", querySchema), async (c) => {
   const swap = c.req.valid("query") satisfies SwapParams;
   return stream(c, async (stream) => {
-    const prepared = prepareQuotes<Quote>({
+    const prepared = await prepareQuotes<Quote>({
       swap,
       config,
       mapFn: (quote: Quote) => Promise.resolve(quote), // No-op mapper to get raw quotes

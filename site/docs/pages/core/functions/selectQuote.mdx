@@ -10,7 +10,7 @@ Pick the best simulated quote from a set of in-flight quote+simulation promises.
 import { prepareQuotes, selectQuote, simulateQuote } from "@withfabric/spandex";
 import { config, client, swap } from "./config.ts";
 
-const quotes = prepareQuotes({
+const quotes = await prepareQuotes({
   config,
   swap,
   mapFn: (quote) => simulateQuote({ quote, swap, client }),

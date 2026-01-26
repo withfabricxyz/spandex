@@ -15,7 +15,7 @@ async function mapFn(quote: Quote) => Promise<Quote> {
   return quote;
 };
 
-const promises = prepareQuotes({
+const promises = await prepareQuotes({
   config,
   swap: {
     chainId: 8453,

@@ -1,6 +1,6 @@
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
-import { type Config, createConfig, getQuote } from "../index.js";
+import { type Config, createConfig, getQuote, getRawQuotes } from "../index.js";
 import type { FabricQuoteResponse } from "../lib/aggregators/fabric.js";
 import { Aggregator } from "../lib/aggregators/index.js";
 import type {
@@ -129,6 +129,23 @@ export async function recordOutput<T>(name: string, fn: () => Promise<T>): Promi
   await Bun.write(file, JSON.stringify(result, bigintReplacer, 2));
 
   return { result };
+}
+
+export function recordedQuotes(name: string, swap: SwapParams, config: Config): Promise<Quote[]> {
+  const realizedName = `quotes-${name}-${hashSwapParams(swap)}`;
+
+  return recordOutput<Quote[]>(realizedName, async () => {
+    const quotes = await getRawQuotes({
+      config,
+      swap,
+    });
+
+    if (!quotes) {
+      throw new Error("Simulation failed");
+    }
+
+    return quotes;
+  }).then((res) => res.result);
 }
 
 export function recordedSimulation(

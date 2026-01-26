@@ -18,5 +18,5 @@ export async function getRawQuotes({
   config: Config;
   swap: SwapParams;
 }): Promise<Quote[]> {
-  return Promise.all(prepareQuotes({ config, swap, mapFn: QuoteIdentifyFn }));
+  return Promise.all(await prepareQuotes({ config, swap, mapFn: QuoteIdentifyFn }));
 }

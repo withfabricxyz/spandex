@@ -7,7 +7,7 @@ import type { AggregationOptions, AggregatorFeature, Quote, SwapParams } from ".
  * @param params - Swap request parameters.
  * @returns Array of quote promises to be awaited elsewhere.
  */
-export function prepareQuotes<T>({
+export async function prepareQuotes<T>({
   config,
   swap,
   mapFn,
@@ -15,7 +15,12 @@ export function prepareQuotes<T>({
   config: Config;
   swap: SwapParams;
   mapFn: (quote: Quote) => Promise<T>;
-}): Array<Promise<T>> {
+}): Promise<Array<Promise<T>>> {
+  // Delegate the quote fetching to a remote server if a proxy is configured
+  if (config.proxy !== undefined) {
+    return (await config.proxy.prepareQuotes(swap, config.options)).map((a) => a.then(mapFn));
+  }
+
   const options = config.options;
 
   // Get the required features for this request and filter aggregators accordingly
@@ -28,8 +33,6 @@ export function prepareQuotes<T>({
       `No aggregators available that support all required features: ${features.join(", ")}. Consider adjusting your MetaAggregator configuration or request parameters.`,
     );
   }
-
-  // Inject quote fetching here from proxy
 
   return candidates.map((aggregator) => aggregator.fetchQuote(swap, options).then(mapFn));
 }
