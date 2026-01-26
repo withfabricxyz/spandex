@@ -428,11 +428,11 @@ export type AggregationOptions = TimingOptions & FeeOptions;
 type ClientLookup = PublicClient[] | ((chainId: number) => PublicClient | undefined);
 
 /**
- * Configuration for constructing a MetaAggregator instance.
+ * Configuration for constructing a MetaAggregator instance with direct provider access.
  */
 export type DirectConfigParams = {
   /**
-   * Aggregation providers to fetch quotes from, either direct instances or proxies.
+   * Aggregation providers to fetch quotes from.
    */
   providers: Aggregator[];
   /**
@@ -443,19 +443,38 @@ export type DirectConfigParams = {
    * Default options applied to the meta-aggregator and the individual provider calls.
    */
   options?: AggregationOptions;
+  /**
+   * Cannot specify proxy when using direct providers.
+   */
+  proxy?: never;
 };
 
+/**
+ * Configuration for constructing a MetaAggregator instance with proxy-based quote fetching.
+ */
 export type ProxyConfigParams = {
   /**
-   * Proxy instance used to delegate quote fetching from client to server. Useful in browser environments where CORs constraints exist with providers.
+   * Proxy instance used to delegate quote fetching from client to server. Useful in browser environments where CORS constraints exist with providers.
    */
   proxy: AggregatorProxy;
   /**
    * Clients used to simulate quotes (one per chain).
    */
   clients?: ClientLookup;
+  /**
+   * Cannot specify providers when using a proxy.
+   */
+  providers?: never;
+  /**
+   * Options are configured by the proxy, not at client-side config time.
+   */
+  options?: never;
 };
 
+/**
+ * Configuration parameters for creating a Spandex config.
+ * Use either `providers` for direct aggregator access, or `proxy` for server-side quote fetching.
+ */
 export type ConfigParams = DirectConfigParams | ProxyConfigParams;
 
 ///////////////////// Simulation Types /////////////////////
