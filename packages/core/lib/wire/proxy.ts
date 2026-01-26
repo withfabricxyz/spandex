@@ -12,10 +12,8 @@ export class AggregatorProxy {
     params: SwapParams,
     _options?: AggregationOptions,
   ): Promise<Array<Promise<Quote>>> {
-    const url = new URL(this.config.pathOrUrl);
-
-    // Form get request to proxy with query params for swap and options
-    const query = url.searchParams;
+    const [prefix, suffix] = this.config.pathOrUrl.split("?");
+    const query = new URLSearchParams(suffix || "");
     query.append("chainId", params.chainId.toString());
     query.append("inputToken", params.inputToken);
     query.append("outputToken", params.outputToken);
@@ -28,7 +26,7 @@ export class AggregatorProxy {
       query.append("outputAmount", params.outputAmount.toString());
     }
 
-    return fetch(url.toString(), {
+    return fetch(`${prefix}?${query.toString()}`, {
       method: "GET",
     })
       .then((response) =>

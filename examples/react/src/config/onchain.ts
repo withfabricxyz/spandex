@@ -2,13 +2,6 @@ import type { Chain } from "viem";
 import { fallback, http } from "wagmi";
 import { base } from "wagmi/chains";
 
-// allow VITE_RPC_URLS to be a comma-separated list of URLs for fallback purposes
-// falls back to default if none provided
-const _RPC_URLS = (import.meta.env.VITE_RPC_URLS || "")
-  .split(",")
-  .map((url) => url.trim())
-  .filter(Boolean);
-
 // Single configuration of multiple chains
 type ChainConfig = {
   chain: Chain;
