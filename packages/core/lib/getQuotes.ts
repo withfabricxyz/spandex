@@ -37,5 +37,5 @@ export async function getQuotes({
     });
   };
 
-  return Promise.all(prepareQuotes({ config, swap, mapFn }));
+  return Promise.all(await prepareQuotes({ config, swap, mapFn }));
 }

@@ -11,7 +11,7 @@ describe("prepareQuotes", () => {
       providers: [zeroX({ apiKey: "test" }), fabric({ appId: "test" })],
     });
 
-    const prepared = prepareQuotes({
+    const prepared = await prepareQuotes({
       config,
       swap: {
         chainId: 8453,
@@ -37,8 +37,8 @@ describe("prepareQuotes", () => {
       clientLookup: () => undefined,
     };
 
-    expect(() => {
-      prepareQuotes({
+    expect(async () => {
+      await prepareQuotes({
         config,
         swap: {
           chainId: 8453,

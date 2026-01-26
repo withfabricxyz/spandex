@@ -6,6 +6,7 @@ import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
 import type { LifiConfig, LifiQuoteResponse } from "./aggregators/lifi.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
 import type { RelayConfig, RelayQuoteResponse } from "./aggregators/relay.js";
+import type { AggregatorProxy } from "./wire/proxy.js";
 
 /**
  * Definitions for each supported provider including their configuration and quote response types.
@@ -424,23 +425,38 @@ export type SwapOptions = FeeOptions;
  */
 export type AggregationOptions = TimingOptions & FeeOptions;
 
+type ClientLookup = PublicClient[] | ((chainId: number) => PublicClient | undefined);
+
 /**
  * Configuration for constructing a MetaAggregator instance.
  */
-export type ConfigParams = {
+export type DirectConfigParams = {
   /**
-   * Aggregator instances to include in the meta-aggregator.
+   * Aggregation providers to fetch quotes from, either direct instances or proxies.
    */
   providers: Aggregator[];
   /**
    * Clients used to simulate quotes (one per chain).
    */
-  clients?: PublicClient[] | ((chainId: number) => PublicClient | undefined);
+  clients?: ClientLookup;
   /**
    * Default options applied to the meta-aggregator and the individual provider calls.
    */
   options?: AggregationOptions;
 };
+
+export type ProxyConfigParams = {
+  /**
+   * Proxy instance used to delegate quote fetching from client to server. Useful in browser environments where CORs constraints exist with providers.
+   */
+  proxy: AggregatorProxy;
+  /**
+   * Clients used to simulate quotes (one per chain).
+   */
+  clients?: ClientLookup;
+};
+
+export type ConfigParams = DirectConfigParams | ProxyConfigParams;
 
 ///////////////////// Simulation Types /////////////////////
 

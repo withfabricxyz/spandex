@@ -3,7 +3,13 @@ import { fabric } from "./aggregators/fabric.js";
 import type { Aggregator } from "./aggregators/index.js";
 import { kyberswap } from "./aggregators/kyber.js";
 import { odos } from "./aggregators/odos.js";
-import type { AggregationOptions, ConfigParams } from "./types.js";
+import type {
+  AggregationOptions,
+  ConfigParams,
+  DirectConfigParams,
+  ProxyConfigParams,
+} from "./types.js";
+import type { AggregatorProxy } from "./wire/proxy.js";
 
 /**
  * Configuration used in various library functions.
@@ -15,6 +21,8 @@ export type Config = {
   options: AggregationOptions;
   /** Instantiated aggregators based on the provided configuration. */
   aggregators: Aggregator[];
+  /** Proxy configuration or instance */
+  proxy?: AggregatorProxy;
 };
 
 /**
@@ -24,7 +32,7 @@ export type Config = {
  *
  * @returns Provider list with default aggregators enabled.
  */
-export function defaultProviders(params: { appId: string }): ConfigParams["providers"] {
+export function defaultProviders(params: { appId: string }): DirectConfigParams["providers"] {
   return [kyberswap({ clientId: params.appId }), fabric({ appId: params.appId }), odos({})];
 }
 
@@ -49,6 +57,13 @@ export function defaultProviders(params: { appId: string }): ConfigParams["provi
  * ```
  */
 export function createConfig(params: ConfigParams): Config {
+  if (Object.hasOwn(params, "proxy")) {
+    return createProxyConfig(params as ProxyConfigParams);
+  }
+  return createDirectConfig(params as DirectConfigParams);
+}
+
+function createDirectConfig(params: DirectConfigParams): Config {
   if (params.providers.length === 0) {
     throw new Error(
       "At least one provider must be configured in createConfig. You can also use defaultProviders({ appId: 'my-app-id' }) to get a standard set of providers.",
@@ -72,7 +87,16 @@ export function createConfig(params: ConfigParams): Config {
   return {
     options: params.options || {},
     clientLookup,
-    aggregators,
+    aggregators: aggregators,
+  };
+}
+
+function createProxyConfig(params: ProxyConfigParams): Config {
+  return {
+    options: {},
+    clientLookup: () => undefined, // ?
+    aggregators: [],
+    proxy: params.proxy,
   };
 }
 

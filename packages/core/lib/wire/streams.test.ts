@@ -7,7 +7,7 @@ import { decodeQuoteStream, newQuoteStream } from "./streams.js";
 
 describe("streaming", () => {
   it("properly streams serialized quotes", async () => {
-    const quotes = prepareQuotes({
+    const quotes = await prepareQuotes({
       swap: defaultSwapParams,
       config: testConfig([
         fabric({ appId: "test-fabric-key" }),

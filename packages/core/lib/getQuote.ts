@@ -35,7 +35,7 @@ export async function getQuote({
 
   return selectQuote({
     strategy,
-    quotes: prepareQuotes({
+    quotes: await prepareQuotes({
       config,
       swap,
       mapFn: (quote) =>
