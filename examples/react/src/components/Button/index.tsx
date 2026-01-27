@@ -5,6 +5,7 @@ type ButtonProps = {
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
   size?: "md" | "lg";
+  variant?: "primary" | "secondary";
   onClick?: () => void;
 };
 
@@ -14,14 +15,21 @@ function BigButton(props: Omit<ButtonProps, "size">) {
       type={props.type}
       disabled={props.disabled}
       onClick={props.onClick}
-      className="bg-primary py-10 px-5 flex justify-center items-center gap-5 text-surface-base text-[40px] uppercase leading-[0.825] h-[69px] rounded-xs cursor-pointer disabled:bg-surface-sub"
+      className="bg-primary py-10 px-5 flex justify-center items-center gap-5 text-surface-base text-[40px] uppercase leading-[0.825] h-34.5 rounded-xs cursor-pointer disabled:bg-surface-sub"
     >
       {props.children}
     </button>
   );
 }
 
-export function Button({ children, type = "button", disabled, size = "md", onClick }: ButtonProps) {
+export function Button({
+  children,
+  type = "button",
+  disabled,
+  size = "md",
+  variant = "primary",
+  onClick,
+}: ButtonProps) {
   if (size === "lg") {
     return (
       <BigButton type={type} disabled={disabled} onClick={onClick}>
@@ -34,7 +42,7 @@ export function Button({ children, type = "button", disabled, size = "md", onCli
     <button
       type={type}
       disabled={disabled}
-      className="relative bg-surface-base text-xs cursor-pointer border border-primary rounded-xs p-4 h-20 flex gap-4 items-center justify-between whitespace-nowrap text-primary"
+      className={`${variant === "primary" ? "bg-primary text-surface-base" : "bg-surface-base text-primary"} relative text-xs cursor-pointer border border-primary rounded-xs p-4 h-20 flex gap-4 items-center justify-between whitespace-nowrap hover:bg-surface-mid active:bg-border`}
       onClick={onClick}
     >
       {children}

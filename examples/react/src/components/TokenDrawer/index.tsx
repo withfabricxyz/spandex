@@ -4,6 +4,7 @@ import { useReadContracts } from "wagmi";
 import { CloseAlt, Loading } from "@/components/icons";
 import { TokenItem } from "@/components/TokenItem";
 import { SUPPORTED_BASE_TOKENS } from "@/constants/tokens";
+import { useNoScroll } from "@/hooks/useNoScroll";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
 import styles from "./TokenDrawer.module.css";
@@ -85,6 +86,8 @@ function ContractAddressInput() {
 export function TokenDrawer() {
   const { selectContext, setSellToken, setBuyToken, isDrawerOpen, closeDrawer } = useTokenSelect();
   const ref = useRef<HTMLDivElement>(null);
+
+  useNoScroll(isDrawerOpen);
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {

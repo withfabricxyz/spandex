@@ -19,13 +19,16 @@ function TooltipTable<TData>({ data, columns }: { data: TData[]; columns: Column
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const headerGroups = table.getHeaderGroups();
+  const rows = table.getRowModel().rows;
+
   return (
     <table className="w-full monospace text-[12px] text-surface-base">
-      <thead>
-        {table.getHeaderGroups().map((headerGroup) => (
+      <thead className="border-b border-surface-high">
+        {headerGroups.map((headerGroup) => (
           <tr key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <th key={header.id} className="text-left pb-2">
+              <th key={header.id} className="text-right first:text-left py-10">
                 {flexRender(header.column.columnDef.header, header.getContext())}
               </th>
             ))}
@@ -33,10 +36,13 @@ function TooltipTable<TData>({ data, columns }: { data: TData[]; columns: Column
         ))}
       </thead>
       <tbody>
-        {table.getRowModel().rows.map((row) => (
+        {rows.map((row, rowIndex) => (
           <tr key={row.id}>
             {row.getVisibleCells().map((cell) => (
-              <td key={cell.id} className="text-right first:text-left">
+              <td
+                key={cell.id}
+                className={`text-right first:text-left py-5 ${rowIndex === 0 ? "pt-10" : ""} ${rowIndex === rows.length - 1 ? "pb-0" : ""}`}
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
             ))}
@@ -101,17 +107,20 @@ export function LatencyTooltip({ successfulQuotes }: { successfulQuotes: Success
   return (
     <Tooltip
       trigger={
-        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+        <span
+          className="underline cursor-pointer decoration-dotted hover:decoration-solid"
+          style={{ textUnderlineOffset: "25%" }}
+        >
           Latency
         </span>
       }
       content={
-        <div className="flex flex-col gap-8">
-          <span className="font-medium text-surface-base font-[Sohne_Breit] text-[16px]">
+        <>
+          <span className="text-surface-base font-[Sohne_Breit] text-[16px]">
             How long did it take to provide a quote?
           </span>
           <TooltipTable data={data} columns={columns as ColumnDef<LatencyRow>[]} />
-        </div>
+        </>
       }
     ></Tooltip>
   );
@@ -172,13 +181,16 @@ export function InaccuracyTooltip({ successfulQuotes }: { successfulQuotes: Succ
   return (
     <Tooltip
       trigger={
-        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+        <span
+          className="underline cursor-pointer decoration-dotted hover:decoration-solid"
+          style={{ textUnderlineOffset: "25%" }}
+        >
           Inaccuracy
         </span>
       }
       content={
         <div className="flex flex-col gap-8">
-          <span className="font-medium text-surface-base font-[Sohne_Breit] text-[16px]">
+          <span className="text-surface-base font-[Sohne_Breit] text-[16px]">
             How wide was the delta between quote and execution?
           </span>
           <TooltipTable data={data} columns={columns as ColumnDef<InaccuracyRow>[]} />
@@ -262,13 +274,16 @@ export function PriceTooltip({
   return (
     <Tooltip
       trigger={
-        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+        <span
+          className="underline cursor-pointer decoration-dotted hover:decoration-solid"
+          style={{ textUnderlineOffset: "25%" }}
+        >
           Price
         </span>
       }
       content={
         <div className="flex flex-col gap-8">
-          <span className="font-medium text-surface-base font-[Sohne_Breit] text-[16px]">
+          <span className="text-surface-base font-[Sohne_Breit] text-[16px]">
             How does the token output vs input compare to peers?
           </span>
           <TooltipTable data={data} columns={columns as ColumnDef<PriceRow>[]} />
@@ -282,7 +297,10 @@ export function GasTooltip() {
   return (
     <Tooltip
       trigger={
-        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+        <span
+          className="underline cursor-pointer decoration-dotted hover:decoration-solid"
+          style={{ textUnderlineOffset: "25%" }}
+        >
           Gas
         </span>
       }
@@ -301,7 +319,10 @@ export function MaxSlippageTooltip() {
   return (
     <Tooltip
       trigger={
-        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+        <span
+          className="underline cursor-pointer decoration-dotted hover:decoration-solid"
+          style={{ textUnderlineOffset: "25%" }}
+        >
           Max Slippage
         </span>
       }
@@ -320,7 +341,10 @@ export function PriceImpactTooltip() {
   return (
     <Tooltip
       trigger={
-        <span className="underline cursor-pointer decoration-dotted hover:decoration-solid">
+        <span
+          className="underline cursor-pointer decoration-dotted hover:decoration-solid"
+          style={{ textUnderlineOffset: "25%" }}
+        >
           Price Impact
         </span>
       }

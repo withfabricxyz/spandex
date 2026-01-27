@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { Tooltip } from "radix-ui";
 import { DialogPortal } from "@/components/Dialog";
+import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { ToastPortal } from "@/components/Toast";
 import { TokenSelectProvider } from "@/providers/TokenSelectProvider";
@@ -30,7 +31,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "Spandex React Example",
+        title: "spanDEX Swap - Free and Open Source Crypto Meta-Aggregator",
       },
     ],
     links: [
@@ -81,6 +82,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <TokenSelectProvider>
                   <Header />
                   <div className="pt-80 pb-20 max-w-360 mx-auto">{children}</div>
+                  <Footer />
                   <DialogPortal />
                 </TokenSelectProvider>
               </Tooltip.Provider>

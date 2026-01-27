@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { ChevronDown } from "@/components/icons";
+import { TokenImage } from "@/components/TokenImage";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
 import type { StructuredError } from "@/utils/errors";
@@ -62,16 +63,20 @@ export function SellToken({
       <div className="flex justify-between items-center">
         <input
           type="text"
-          className={`w-full text-primary text-[56px] leading-1 h-22 outline-0 ${error ? "text-red" : ""}`}
+          className={`w-full text-primary text-[56px] leading-1 h-22 outline-none ${error ? "text-red" : ""}`}
+          style={{ maxWidth: "calc(100% - 176px)" }}
           value={numTokens}
           onChange={(e) => onChange(e.target.value)}
         />
-        <Button onClick={() => openDrawer("sell")}>
-          <div className="flex items-center gap-4 pr-4">
-            <img src={token.logoURI} alt={token.symbol} className="w-8 h-8 rounded-full" />
-            <span className=" text-[20px]">{token.symbol}</span>
-            <div className="h-12 w-12 flex items-center">
-              <ChevronDown fill="var(--color-primary)" />
+        <Button onClick={() => openDrawer("buy")} variant="secondary">
+          <div className="flex items-center gap-4">
+            <TokenImage token={token} size="sm" />
+            <span className="text-[20px]">{token.symbol}</span>
+            <div className="h-12 w-12 relative">
+              <ChevronDown
+                fill="var(--color-primary)"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              />
             </div>
           </div>
         </Button>

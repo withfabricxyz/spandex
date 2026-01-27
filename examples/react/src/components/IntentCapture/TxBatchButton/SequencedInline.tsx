@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import { useSendTransaction } from "wagmi";
-import { Loading } from "@/components/icons/Loading";
 import { toast } from "@/components/Toast";
 import { getExplorerLink } from "@/config/onchain";
 import type { TxBatchButtonProps } from ".";
@@ -20,14 +19,8 @@ export function SequencedInlineTxBatchButton({
   const executeStep = useCallback(async () => {
     setState("processing");
 
-    const initialToast = toast("Confirm in wallet...", {
-      icon: <Loading className="fill-surface-base" />,
-    });
-
     try {
       const hash = await sendTransaction.mutateAsync(calls[step]);
-
-      initialToast.dismiss();
 
       toast("Tx Submitted", {
         link: getExplorerLink(calls[step].chainId, "tx", hash),
@@ -41,7 +34,6 @@ export function SequencedInlineTxBatchButton({
       }
     } catch (e) {
       console.error("Error executing route:", e);
-      initialToast.dismiss();
       onError?.(e);
     } finally {
       setState("idle");
