@@ -92,9 +92,9 @@ export class FabricAggregator extends Aggregator<FabricConfig> {
   override metadata(): AggregatorMetadata {
     return {
       name: "Fabric",
-      url: "https://withfabric.xyz",
-      docsUrl: "https://docs.withfabric.xyz",
-      logoUrl: "https://withfabric.xyz/images/fabric.svg",
+      url: "https://spandex.sh",
+      docsUrl: "https://spandex.sh",
+      logoUrl: "https://spandex.sh/images/fabric.svg",
     };
   }
 

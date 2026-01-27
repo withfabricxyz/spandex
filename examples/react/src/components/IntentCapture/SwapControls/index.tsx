@@ -1,4 +1,4 @@
-import type { SimulatedQuote } from "@withfabric/spandex";
+import type { SimulatedQuote } from "@spandex/core";
 import { useEffect, useMemo } from "react";
 import { ArrowsUpDown } from "@/components/icons";
 import type { TokenMetadata } from "@/services/tokens";

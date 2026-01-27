@@ -7,7 +7,7 @@ Fetches quotes from all configured providers. This function does not perform any
 :::code-group
 
 ```ts [getRawQuotes] twoslash
-import { getRawQuotes } from "@withfabric/spandex";
+import { getRawQuotes } from "@spandex/core";
 import { config } from "./config.js";
 
 const quotes = await getRawQuotes({
@@ -25,7 +25,7 @@ const quotes = await getRawQuotes({
 ```
 
 ```ts [config] filename="config.ts" twoslash
-import { createConfig, fabric, odos } from "@withfabric/spandex";
+import { createConfig, fabric, odos } from "@spandex/core";
 
 export const config = createConfig({
   providers: [fabric({ appId: "your app id" }), odos({})],

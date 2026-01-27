@@ -7,7 +7,7 @@ Fetches quotes from all configured providers and simulate the provided transacti
 :::code-group
 
 ```ts [getQuotes] twoslash
-import { getQuotes } from "@withfabric/spandex";
+import { getQuotes } from "@spandex/core";
 import { config } from "./config.js";
 
 const quotes = await getQuotes({
@@ -36,7 +36,7 @@ for (const quote of quotes) {
 ```
 
 ```ts [config] filename="config.ts" twoslash
-import { createConfig, fabric, odos } from "@withfabric/spandex";
+import { createConfig, fabric, odos } from "@spandex/core";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 

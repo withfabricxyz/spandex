@@ -1,4 +1,4 @@
-import { getQuotes } from "@withfabric/spandex";
+import { getQuotes } from "@spandex/core";
 import { config } from "./config.js";
 
 const quotes = await getQuotes({

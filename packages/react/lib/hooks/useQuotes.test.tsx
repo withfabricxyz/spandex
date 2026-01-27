@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import type { Quote } from "@withfabric/spandex";
+import type { Quote } from "@spandex/core";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 import { TEST_ADDRESSES, TEST_CHAINS } from "../../test/constants.js";
@@ -12,7 +12,7 @@ let mockFetchAllQuotes: ReturnType<typeof mock>;
 describe("useQuotes", () => {
   beforeEach(() => {
     mockFetchAllQuotes = mock(() => Promise.resolve([createMockQuote()]));
-    mock.module("@withfabric/spandex", () => ({
+    mock.module("@spandex/core", () => ({
       getQuotes: mockFetchAllQuotes,
     }));
 
@@ -72,7 +72,7 @@ describe("useQuotes", () => {
 
   it("should accept hook-level overrides", async () => {
     const mockFetchAllQuotes = mock(() => Promise.resolve([]));
-    mock.module("@withfabric/spandex", () => ({
+    mock.module("@spandex/core", () => ({
       getQuotes: mockFetchAllQuotes,
     }));
 

@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
-    "@withfabric/spandex": "workspace:*",
+    "@spandex/core": "workspace:*",
     "hono": "^4.11.4",
     "viem": "^2.40",
     "zod": "^4.3.6"

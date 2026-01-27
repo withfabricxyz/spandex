@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { decodeQuoteStream } from "@withfabric/spandex";
+import { decodeQuoteStream } from "@spandex/core";
 import app from "./index.js";
 
 describe("API tests", async () => {

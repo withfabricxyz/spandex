@@ -1,4 +1,4 @@
-import type { SimulatedQuote } from "@withfabric/spandex";
+import type { SimulatedQuote } from "@spandex/core";
 
 export type Metric = "price" | "accuracy" | "latency";
 

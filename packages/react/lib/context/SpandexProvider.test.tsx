@@ -1,5 +1,5 @@
 import { describe, expect, it, mock } from "bun:test";
-import { fabric, zeroX } from "@withfabric/spandex";
+import { fabric, zeroX } from "@spandex/core";
 import { render, screen } from "../../test/utils.js";
 import { useSpandexConfig } from "./SpandexProvider.js";
 

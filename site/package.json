@@ -14,8 +14,8 @@
     "viem": "^2.40.1",
     "vocs": "^1.4.1",
     "@types/react": "^19.2.0",
-    "@withfabric/spandex": "workspace:*",
-    "@withfabric/spandex-react": "workspace:*",
+    "@spandex/core": "workspace:*",
+    "@spandex/react": "workspace:*",
     "tailwindcss": "^4.1.18",
     "typescript": "latest"
   }

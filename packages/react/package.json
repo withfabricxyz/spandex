@@ -1,5 +1,5 @@
 {
-  "name": "@withfabric/spandex-react",
+  "name": "@spandex/react",
   "version": "0.1.0",
   "description": "React hooks for SpanDEX",
   "type": "module",
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.17",
-    "@withfabric/spandex": "workspace:*",
+    "@spandex/core": "workspace:*",
     "wagmi": "^3.3.2",
     "viem": "^2.40"
   },

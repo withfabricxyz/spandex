@@ -1,6 +1,6 @@
 {
   "private": true,
-  "description": "SpanDEX - Open Source DEX Meta-Aggregator Library for Best Swap Prices",
+  "description": "SpanDEX - Open Source DEX Meta-Aggregator Library for Token Swaps",
   "workspaces": [
     "packages/core",
     "packages/react",

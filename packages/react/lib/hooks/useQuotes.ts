@@ -1,4 +1,3 @@
-import { type UseQueryOptions, type UseQueryResult, useQuery } from "@tanstack/react-query";
 import {
   type ExactInSwapParams,
   getQuotes,
@@ -6,7 +5,8 @@ import {
   type SimulatedQuote,
   type SwapParams,
   type TargetOutSwapParams,
-} from "@withfabric/spandex";
+} from "@spandex/core";
+import { type UseQueryOptions, type UseQueryResult, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useConnection } from "wagmi";
 import { useSpandexConfig } from "../context/SpandexProvider.js";

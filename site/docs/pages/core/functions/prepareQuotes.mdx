@@ -7,7 +7,7 @@ Prepare a list of swap quote promise chains for quote fetching and secondary act
 :::code-group
 
 ```ts [getQuotes]
-import { prepareQuotes, type Quote } from "@withfabric/spandex";
+import { prepareQuotes, type Quote } from "@spandex/core";
 import { config } from "./config.ts";
 
 // Identity fn
@@ -31,7 +31,7 @@ const promises = await prepareQuotes({
 ```
 
 ```ts [config.ts] filename="config.ts" twoslash
-import { createConfig, fabric, odos } from "@withfabric/spandex";
+import { createConfig, fabric, odos } from "@spandex/core";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 

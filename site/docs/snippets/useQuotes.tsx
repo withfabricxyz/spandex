@@ -1,4 +1,4 @@
-import { useQuotes } from "@withfabric/spandex-react";
+import { useQuotes } from "@spandex/react";
 
 export function App() {
   const { data, isLoading, error } = useQuotes({

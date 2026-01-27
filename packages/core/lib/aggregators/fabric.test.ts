@@ -10,8 +10,8 @@ describe("Fabric Router API test", () => {
     const metadata = aggregator.metadata();
     expect(metadata).toBeDefined();
     expect(metadata.name).toBe("Fabric");
-    expect(metadata.url).toMatch(/withfabric/);
-    expect(metadata.docsUrl).toMatch(/withfabric/);
+    expect(metadata.url).toMatch(/spandex\.sh/);
+    expect(metadata.docsUrl).toMatch(/spandex\.sh/);
   });
 
   it("generates a quote", async () => {

@@ -1,3 +1,4 @@
+import { fabric } from "@spandex/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   type RenderHookOptions,
@@ -5,7 +6,6 @@ import {
   render as tlRender,
   renderHook as tlRenderHook,
 } from "@testing-library/react";
-import { fabric } from "@withfabric/spandex";
 import type { ReactNode } from "react";
 import { createConfig, http, WagmiProvider } from "wagmi";
 import { base, mainnet } from "wagmi/chains";

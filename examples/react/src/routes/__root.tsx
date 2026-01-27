@@ -1,3 +1,5 @@
+import { proxy } from "@spandex/core";
+import { SpandexProvider } from "@spandex/react";
 import type { QueryClient } from "@tanstack/react-query";
 import {
   ClientOnly,
@@ -5,8 +7,6 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { proxy } from "@withfabric/spandex";
-import { SpandexProvider } from "@withfabric/spandex-react";
 import { Tooltip } from "radix-ui";
 import { DialogPortal } from "@/components/Dialog";
 import { Header } from "@/components/Header";

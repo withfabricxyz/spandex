@@ -1,4 +1,4 @@
-import { createConfig, fabric, kyberswap, odos } from "@withfabric/spandex";
+import { createConfig, fabric, kyberswap, odos } from "@spandex/core";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
