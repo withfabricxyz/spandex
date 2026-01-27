@@ -4,7 +4,7 @@ import { useConnection } from "wagmi";
 import { ArrowsUpDown } from "@/components/icons";
 import type { TokenMetadata } from "@/services/tokens";
 import type { SwapErrorState } from "@/utils/errors";
-import { bigintToDecimalString, formatTokenValue } from "@/utils/strings";
+import { bigintToDecimalString, formatTokenValue, parseTokenValue } from "@/utils/strings";
 import { BuyToken } from "./BuyToken";
 import { SellToken } from "./SellToken";
 
@@ -53,11 +53,17 @@ function SwapControlsLoader({
     return "";
   }, [bestQuote, buyToken.decimals]);
 
-  // TODO: make better? when switching tokens, set the initial sell value to max?
   useEffect(() => {
     if (!isConnected) return;
-    setNumSellTokens(bigintToDecimalString(balances.sellToken || 0n, sellToken.decimals));
-  }, [isConnected, balances.sellToken, setNumSellTokens, sellToken.decimals]);
+
+    const defaultAmount = parseTokenValue(sellToken.defaultInput, sellToken.decimals);
+    const sellBalance = balances.sellToken ?? 0n;
+
+    // use wallet balance if positive and less than default, otherwise use sellToken default
+    const amount = sellBalance > 0n && sellBalance < defaultAmount ? sellBalance : defaultAmount;
+
+    setNumSellTokens(bigintToDecimalString(amount, sellToken.decimals));
+  }, [isConnected, balances.sellToken, sellToken, setNumSellTokens]);
 
   return (
     <Inputs

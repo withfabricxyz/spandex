@@ -42,7 +42,7 @@ export function LineItems({
   const getInaccuracyValue = () => {
     const quoteInaccuracy = getQuoteInaccuracy(quote);
 
-    if (errors?.simulation) return "Simulation Error";
+    if (errors?.simulation) return errors.simulation.title;
     if (quoteInaccuracy !== null) return `${quoteInaccuracy / 100} bps`;
 
     return "N/A";

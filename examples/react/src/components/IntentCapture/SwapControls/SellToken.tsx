@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { ChevronDown } from "@/components/icons";
+import { Skeleton } from "@/components/Skeleton";
 import { TokenImage } from "@/components/TokenImage";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
@@ -61,14 +62,19 @@ export function SellToken({
         ))}
       </div>
       <div className="flex justify-between items-center">
-        <input
-          type="text"
-          className={`w-full text-primary text-[56px] leading-1 h-22 outline-none ${error ? "text-red" : ""}`}
-          style={{ maxWidth: "calc(100% - 176px)" }}
-          value={numTokens}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        <Button onClick={() => openDrawer("buy")} variant="secondary">
+        {isLoadingBalances ? (
+          <Skeleton height={44} width="calc(100% - 176px)" />
+        ) : (
+          <input
+            type="text"
+            className={`w-full text-primary text-[56px] leading-1 h-22 outline-none ${error ? "text-red" : ""}`}
+            style={{ maxWidth: "calc(100% - 176px)" }}
+            value={numTokens}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        )}
+
+        <Button onClick={() => openDrawer("sell")} variant="secondary">
           <div className="flex items-center gap-4">
             <TokenImage token={token} size="sm" />
             <span className="text-[20px]">{token.symbol}</span>

@@ -11,6 +11,7 @@ const dwellTime = 2500;
 export function SequencedWalletTxBatchButton({
   calls,
   blocked,
+  errors,
   onComplete,
   onError,
 }: TxBatchButtonProps) {
@@ -61,6 +62,7 @@ export function SequencedWalletTxBatchButton({
     <TriggerWalletButton
       disabled={blocked || state === "processing"}
       processing={state === "processing"}
+      errors={errors}
       onClick={executeStep}
     />
   );

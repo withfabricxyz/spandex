@@ -8,6 +8,7 @@ import { TriggerWalletButton } from "./TriggerWalletButton";
 export function SequencedInlineTxBatchButton({
   calls,
   blocked,
+  errors,
   onComplete,
   onError,
 }: TxBatchButtonProps) {
@@ -44,6 +45,7 @@ export function SequencedInlineTxBatchButton({
     <TriggerWalletButton
       disabled={blocked || state === "processing"}
       processing={state === "processing"}
+      errors={errors}
       onClick={executeStep}
     />
   );

@@ -47,9 +47,13 @@ export function newQuoteStream(promises: Array<Promise<Quote>>): ReadableStream<
           .then((quote) => quote)
           .catch((error) => toFailedQuote(error))
           .then((quote) => {
-            controller.enqueue(encodeQuoteFrame(quote));
-          })
-          .finally(finish);
+            try {
+              controller.enqueue(encodeQuoteFrame(quote));
+            } catch {
+              // Controller may be closed if stream was cancelled
+            }
+            finish();
+          });
       }
     },
   });
