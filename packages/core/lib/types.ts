@@ -518,16 +518,14 @@ export type SimulationSuccess = {
   success: true;
   /** Final output token amount derived from asset changes. */
   outputAmount: bigint;
-  /** Raw `simulateCalls` results for each executed call. */
-  callsResults: SimulateCallsReturnType["results"];
+  /** Raw `simulateCall` results for swap call. */
+  swapResult: SimulateCallsReturnType["results"][0];
   /** Gas used for the swap call. */
   gasUsed?: bigint;
   /** Client-measured duration in milliseconds for the simulated call batch. */
   latency: number;
   /** Block number tied to the simulation response, if the client returned one. */
   blockNumber: bigint | null;
-  /** ERC-20 Transfer events extracted from the simulation logs. */
-  transfers: TransferData[];
   /** Asset changes observed on the swapper account during simulation. */
   assetChanges: readonly {
     token: {
@@ -557,6 +555,19 @@ export type SimulationFailure = {
  */
 export type SimulationResult = SimulationSuccess | SimulationFailure;
 
+export type QuotePerformance = {
+  /** Latency in milliseconds to receive a quote, does not include simulation time */
+  latency: number;
+  /** Gas used for the swap during the quote simulation */
+  gasUsed: bigint;
+  /** Output amount received from the swap during the quote simulation */
+  outputAmount: bigint;
+  /** Price delta of the quote in basis points (bps), or undefined if the quoted amount is zero. A value of 0 bps indicates perfect accuracy. A negative value indicates slippage against the quoted amount, and a positive value indicates better-than-quoted execution (positive slippage). */
+  priceDelta: number | undefined;
+  /** Absolute accuracy of the quote in basis points (bps), or undefined if the quoted amount is zero. A lower value indicates a more accurate quote. */
+  accuracy: number | undefined;
+};
+
 /**
  * Quote decorated with the corresponding simulation result, both successful.
  *
@@ -565,6 +576,8 @@ export type SimulationResult = SimulationSuccess | SimulationFailure;
 export type SuccessfulSimulatedQuote = SuccessfulQuote & {
   /** Successful simulation metadata for the quote. */
   simulation: SimulationSuccess;
+  /** Performance measurements associated with the quote and simulation. */
+  performance: QuotePerformance;
 };
 
 /**

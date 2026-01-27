@@ -37,7 +37,7 @@ const sortByGasUsed: SimulatedQuoteSort = (a, b) => {
 };
 
 function gasCost(quote: SuccessfulSimulatedQuote): bigint {
-  return quote.simulation.gasUsed ?? quote.networkFee;
+  return quote.simulation.gasUsed ?? 0n;
 }
 
 const quotedPrice: QuoteSelectionFn = async (

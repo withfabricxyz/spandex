@@ -94,8 +94,8 @@ describe("getQuotes", () => {
       if (quote.simulation.success) {
         expect(quote.simulation.outputAmount).toBeDefined();
         expect(typeof quote.simulation.outputAmount).toBe("bigint");
-        expect(quote.simulation.callsResults.length).toBe(3); // approve, swap, balance
-        expect(quote.simulation.callsResults.every((res) => res.status === "success")).toBe(true);
+        expect(quote.simulation.swapResult).toBeDefined();
+        expect(quote.simulation.swapResult?.status).toBe("success");
         expect(quote.simulation.gasUsed).toBeDefined();
 
         const tolerance = ((quote as SuccessfulQuote).outputAmount * 5000n) / 10000n; // output within 50%
@@ -154,8 +154,8 @@ describe("getQuotes", () => {
       if (quote.simulation.success) {
         expect(quote.simulation.outputAmount).toBeDefined();
         expect(typeof quote.simulation.outputAmount).toBe("bigint");
-        expect(quote.simulation.callsResults.length).toBe(2); // swap, balance
-        expect(quote.simulation.callsResults.every((res) => res.status === "success")).toBe(true);
+        expect(quote.simulation.swapResult).toBeDefined();
+        expect(quote.simulation.swapResult?.status).toBe("success");
         expect(quote.simulation.gasUsed).toBeDefined();
 
         const tolerance = ((quote as SuccessfulQuote).outputAmount * 500n) / 10000n; // output within 5%
@@ -213,8 +213,8 @@ describe("getQuotes", () => {
       if (quote.simulation.success) {
         expect(quote.simulation.outputAmount).toBeDefined();
         expect(typeof quote.simulation.outputAmount).toBe("bigint");
-        expect(quote.simulation.callsResults.length).toBe(2); // swap, balance
-        expect(quote.simulation.callsResults.every((res) => res.status === "success")).toBe(true);
+        expect(quote.simulation.swapResult).toBeDefined();
+        expect(quote.simulation.swapResult?.status).toBe("success");
         expect(quote.simulation.gasUsed).toBeDefined();
 
         const tolerance = ((quote as SuccessfulQuote).outputAmount * 500n) / 10000n; // output within 5%

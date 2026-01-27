@@ -1,20 +1,16 @@
-import type { Address, Block, Log, PublicClient, SimulateCallsReturnType } from "viem";
-import {
-  decodeEventLog,
-  encodeFunctionData,
-  erc20Abi,
-  ethAddress,
-  parseEther,
-  zeroAddress,
-} from "viem";
+import type { Address, Block, PublicClient, SimulateCallsReturnType } from "viem";
+import { encodeFunctionData, erc20Abi, ethAddress, parseEther, zeroAddress } from "viem";
 import { simulateCalls } from "viem/actions";
 import type {
   Quote,
+  QuotePerformance,
   SimulatedQuote,
   SimulationArgs,
   SimulationResult,
+  SimulationSuccess,
+  SuccessfulQuote,
+  SuccessfulSimulatedQuote,
   SwapParams,
-  TransferData,
   TxData,
 } from "./types.js";
 
@@ -87,7 +83,15 @@ export async function simulateQuotes(
  * @returns Quote data merged with its simulation result.
  */
 export async function simulateQuote(args: SimulationArgs): Promise<SimulatedQuote> {
-  return { ...args.quote, simulation: await performSimulation(args) } as SimulatedQuote;
+  const simulation = await performSimulation(args);
+  if (!simulation.success) {
+    return { ...args.quote, simulation };
+  }
+  return {
+    ...args.quote,
+    simulation,
+    performance: quotePerformance(args.quote as SuccessfulQuote, simulation),
+  } as SuccessfulSimulatedQuote;
 }
 
 async function performSimulation({
@@ -160,16 +164,17 @@ async function performSimulation({
     validateOutputAmount(outputAmount);
 
     // Extract transfers from relevant call logs
-    const transfers = extractTransfers((isERC20In ? results[1]?.logs : results[0]?.logs) || []);
+    const swapResult = (
+      isERC20In ? results[1] : results[0]
+    ) as SimulateCallsReturnType["results"][0];
 
     return {
       success: true,
       outputAmount: extractOutputAmount(assetChanges, swap.outputToken),
-      callsResults: results,
+      swapResult,
       latency,
       gasUsed: isERC20In ? results[1]?.gasUsed : results[0]?.gasUsed,
       blockNumber: block.number,
-      transfers,
       assetChanges,
     };
   } catch (error) {
@@ -209,32 +214,38 @@ function validateSimulation(
   }
 }
 
+// We consider a zero or negative output amount as a simulation failure (really a setup or contract issue)
+// We may also want to consider slippage or MEV checks here.
 function validateOutputAmount(amount: bigint) {
   if (amount <= 0n) {
     throw new Error(`Simulated output amount is zero or negative: ${amount.toString()}`);
   }
 }
 
-function extractTransfers(logs: Log[]): TransferData[] {
-  return logs
-    .map((log) => {
-      try {
-        const decoded = decodeEventLog({
-          abi: erc20Abi,
-          data: log.data,
-          topics: log.topics,
-        });
-        if (decoded.eventName === "Transfer") {
-          return {
-            index: log.logIndex || 0,
-            token: log.address,
-            from: decoded.args.from,
-            to: decoded.args.to,
-            value: decoded.args.value,
-          };
-        }
-      } catch {}
-      return null;
-    })
-    .filter((t) => t !== null);
+/**
+ * Extract common quote metrics from a successful simulated quote.
+ * @param quote The successful simulated quote
+ * @returns An object containing quote metrics
+ */
+function quotePerformance(quote: SuccessfulQuote, simulation: SimulationSuccess): QuotePerformance {
+  const priceDelta = quoteVersusExecution(quote, simulation);
+  return {
+    latency: quote.latency,
+    gasUsed: simulation.gasUsed ?? 0n,
+    outputAmount: simulation.outputAmount,
+    priceDelta,
+    accuracy: priceDelta !== undefined ? Math.abs(priceDelta) : undefined,
+  };
+}
+
+function quoteVersusExecution(
+  quote: SuccessfulQuote,
+  simulation: SimulationSuccess,
+): number | undefined {
+  const quoted = quote.outputAmount;
+  if (quoted === 0n) {
+    return undefined;
+  }
+  const executed = simulation.outputAmount;
+  return (Number(executed - quoted) / Number(quoted)) * 10_000;
 }
