@@ -144,7 +144,7 @@ export function SuccessSplash({ sellToken, buyToken, successfulTx, onClose }: Su
   return (
     <div
       style={{ backgroundImage: "url(/images/splash-success-bg@2px.png)" }}
-      className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-307 text-primary z-layer-dialog p-20"
+      className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-360 text-primary z-layer-dialog p-20"
     >
       <div className="h-dvh flex flex-col items-center justify-center gap-40 text-white text-center">
         <span className="uppercase text-[28px] leading-12">Success</span>
@@ -158,7 +158,7 @@ export function SuccessSplash({ sellToken, buyToken, successfulTx, onClose }: Su
         <div className="flex flex-col gap-4 w-full">
           <button
             type="button"
-            className="w-full h-20 bg-black text-primary py-4 px-8 text-center monospace text-[12px] cursor-pointer"
+            className="w-full h-20 bg-black text-surface-high py-4 px-8 text-center monospace text-[12px] cursor-pointer"
             onClick={onClose}
           >
             Done
@@ -167,7 +167,7 @@ export function SuccessSplash({ sellToken, buyToken, successfulTx, onClose }: Su
             href="https://spandex.sh"
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full h-20 bg-white text-surface-base py-4 px-8 text-center monospace text-[12px] cursor-pointer"
+            className="block w-full h-20 bg-white text-primary py-4 px-8 text-center monospace text-[12px] cursor-pointer"
           >
             Get Started
           </a>

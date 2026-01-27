@@ -1,6 +1,8 @@
 .tokenItem {
+  cursor: pointer;
+
   &:hover {
-    background-color: var(--color-outline);
+    background-color: var(--color-surface-mid);
   }
 
   &:active {

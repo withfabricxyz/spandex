@@ -287,7 +287,24 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
   const chartHeight = maxRank * rowHeight + verticalPadding * 2;
 
   return (
-    <div className="flex flex-col gap-5 overflow-hidden">
+    <div className="flex flex-col gap-10 overflow-hidden relative">
+      <a href="https://quote-bench-production.up.railway.app/">
+        <div className="h-12 w-12 absolute top-12 right-0 cursor-pointer hover:fill-primary">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="13"
+            height="13"
+            viewBox="0 0 13 13"
+            fill="none"
+          >
+            <title>Open Quote Bench</title>
+            <path
+              d="M1.4 13L0 11.6L9.6 2H1V0H13V12H11V3.4L1.4 13Z"
+              fill="var(--color-quaternary)"
+            />
+          </svg>
+        </div>
+      </a>
       <MetricSelect selectedMetric={selectedMetric} setSelectedMetric={setSelectedMetric} />
       {quoteHistory.length === 0 ? (
         <div

@@ -1,5 +1,6 @@
 import type { SimulatedQuote } from "@spandex/core";
 import { useEffect, useMemo } from "react";
+import { useConnection } from "wagmi";
 import { ArrowsUpDown } from "@/components/icons";
 import type { TokenMetadata } from "@/services/tokens";
 import type { SwapErrorState } from "@/utils/errors";
@@ -40,6 +41,8 @@ function SwapControlsLoader({
   onSwitchTokens,
   errors,
 }: SwapControlsProps) {
+  const { isConnected } = useConnection();
+
   const numBuyTokens = useMemo(() => {
     // convert to <input /> value
     if (bestQuote?.success) {
@@ -52,8 +55,9 @@ function SwapControlsLoader({
 
   // TODO: make better? when switching tokens, set the initial sell value to max?
   useEffect(() => {
+    if (!isConnected) return;
     setNumSellTokens(bigintToDecimalString(balances.sellToken || 0n, sellToken.decimals));
-  }, [balances.sellToken, setNumSellTokens, sellToken.decimals]);
+  }, [isConnected, balances.sellToken, setNumSellTokens, sellToken.decimals]);
 
   return (
     <Inputs

@@ -82,7 +82,7 @@ function prepareCalls({
 export function IntentCapture() {
   const { sellToken, setSellToken, buyToken, setBuyToken } = useTokenSelect();
   const { address, chainId } = useConnection();
-  const [numSellTokens, setNumSellTokens] = useState<string>("20");
+  const [numSellTokens, setNumSellTokens] = useState<string>("100");
   const [selectedMetric, setSelectedMetric] = useState<Metric>("price");
   const [slippageBps, setSlippageBps] = useState<number>(100);
   const [txError, setTxError] = useState<StructuredError | null>(null);
@@ -235,7 +235,7 @@ export function IntentCapture() {
         hash,
         chainId,
         inputAmount: swap.inputAmount,
-        outputAmount: BigInt(bestQuote.txData.value || 0),
+        outputAmount: bestQuote.outputAmount || 0n,
       });
     },
     [chainId, bestQuote, swap.inputAmount],

@@ -42,7 +42,7 @@ export function Button({
     <button
       type={type}
       disabled={disabled}
-      className={`${variant === "primary" ? "bg-primary text-surface-base" : "bg-surface-base text-primary"} relative text-xs cursor-pointer border border-primary rounded-xs p-4 h-20 flex gap-4 items-center justify-between whitespace-nowrap`}
+      className={`${variant === "primary" ? "bg-primary text-surface-base" : "bg-surface-base text-primary"} relative text-xs cursor-pointer border border-primary rounded-xs p-4 h-20 flex gap-4 items-center justify-between whitespace-nowrap hover:bg-surface-mid active:bg-border`}
       onClick={onClick}
     >
       {children}
