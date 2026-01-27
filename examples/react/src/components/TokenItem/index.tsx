@@ -1,5 +1,6 @@
 import type { TokenMetadata } from "../../services/tokens";
 import { formatAddress } from "../../utils/strings";
+import { TokenImage } from "../TokenImage";
 import styles from "./TokenItem.module.css";
 
 type TokenItemProps = {
@@ -14,12 +15,10 @@ export function TokenItem({ token, onClick }: TokenItemProps) {
     <div className={styles.tokenItem} onClick={() => onClick(token)}>
       <div className="flex justify-between py-10 px-20">
         <div className="flex gap-6">
-          <div className="coinImage h-16 w-16 rounded-full relative overflow-hidden">
-            <img src={token.logoURI} alt={token.symbol} className="h-16 w-16 rounded-full" />
-          </div>
+          <TokenImage token={token} />
           <div className="tokenMeta flex flex-col gap-4">
             <div className="tokenSymbol text-[20px] leading-10 text-primary">{token.symbol}</div>
-            <div className="tokenName text-[11px] text-secondary leading-[11px] monospace">
+            <div className="tokenName text-[11px] text-secondary leading-5.5 monospace">
               {formatAddress(token.address)}
             </div>
           </div>

@@ -67,6 +67,76 @@ function MetricSelect({
   );
 }
 
+// Custom labels layer with overlap detection and adjustment
+// biome-ignore lint/suspicious/noExplicitAny: nivo types
+function CustomLabelsLayer({ series }: any) {
+  if (!series || series.length === 0) return null;
+
+  const LABEL_HEIGHT = 14;
+  const MIN_SPACING = 2;
+  const LABEL_OFFSET = 10;
+
+  interface LabelData {
+    id: string;
+    x: number;
+    y: number;
+    color: string;
+    adjustedY: number;
+  }
+
+  const labels: LabelData[] = series
+    // biome-ignore lint/suspicious/noExplicitAny: nivo types
+    .map((serie: any) => {
+      const points = serie.linePoints || [];
+      if (points.length === 0) return null;
+
+      const lastPoint = points[points.length - 1];
+      return {
+        id: serie.id,
+        x: lastPoint[0],
+        y: lastPoint[1],
+        color: COLORS[serie.id] || COLORS.fallback,
+        adjustedY: lastPoint[1],
+      };
+    })
+    .filter(Boolean)
+    .sort((a: LabelData, b: LabelData) => a.y - b.y);
+
+  // Adjust overlapping labels
+  for (let i = 1; i < labels.length; i++) {
+    const prev = labels[i - 1];
+    const curr = labels[i];
+    const minAllowedY = prev.adjustedY + LABEL_HEIGHT + MIN_SPACING;
+
+    if (curr.adjustedY < minAllowedY) {
+      curr.adjustedY = minAllowedY;
+    }
+  }
+
+  return (
+    <g>
+      {labels.map((label) => (
+        <text
+          key={`label-${label.id}`}
+          x={label.x + LABEL_OFFSET}
+          y={label.adjustedY}
+          textAnchor="start"
+          dominantBaseline="middle"
+          style={{
+            fontFamily: "Sohne Mono",
+            fontSize: 12,
+            textTransform: "capitalize",
+            fill: label.color,
+            pointerEvents: "none",
+          }}
+        >
+          {label.id}
+        </text>
+      ))}
+    </g>
+  );
+}
+
 // Custom layer to render shadow lines behind the main lines
 // biome-ignore lint/suspicious/noExplicitAny: <>
 function ShadowLinesLayer({ series, lineGenerator }: any) {
@@ -246,7 +316,7 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
             xOuterPadding={0}
             lineTooltip={() => <></>}
             margin={{ top: verticalPadding, right: 80, bottom: verticalPadding, left: 0 }}
-            layers={[CustomGridLayer, ShadowLinesLayer, "lines", EndPointsLayer, "labels"]}
+            layers={[CustomGridLayer, ShadowLinesLayer, "lines", EndPointsLayer, CustomLabelsLayer]}
             axisTop={null}
             axisBottom={null}
             axisLeft={null}

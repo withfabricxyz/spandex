@@ -12,18 +12,17 @@ function WalletOptions({ onConnected }: { onConnected: () => void }) {
   const connect = useConnect();
   const connectors = useConnectors();
 
-  const filtered = useMemo(() => {
+  const injectedConnectors = useMemo(() => {
     let injected = connectors.filter((c) => c.type === "injected");
     if (injected.length > 1) {
       // Remove generic injected if we have MetaMask
       injected = injected.filter((c) => c.id !== "injected");
     }
-    const other = connectors.filter((c) => c.type !== "injected");
 
-    return [...injected, ...other];
+    return injected;
   }, [connectors]);
 
-  return filtered.map((connector) => (
+  return injectedConnectors.map((connector) => (
     <button
       key={connector.uid}
       onClick={async () => {
@@ -89,13 +88,14 @@ export function Header() {
   return (
     <nav className="fixed top-0 left-10 right-10 sm:left-0 sm:right-0 z-layer-navigation bg-surface-base">
       <div
-        className={`relative max-w-[614px] mx-auto border-b border-primary ${isScrolled ? "py-10" : "py-20"} transition-[padding]`}
+        className={`relative max-w-360 mx-auto border-b border-primary ${isScrolled ? "py-10" : "py-20"} transition-[padding]`}
       >
         <div className="flex items-center justify-between gap-8">
           <Link to="/" aria-label="Home">
             <Logo />
           </Link>
           <Button
+            variant={isConnected ? "secondary" : "primary"}
             onClick={() => {
               if (!isConnected) return setIsModalOpen(true);
               handleDisconnect();

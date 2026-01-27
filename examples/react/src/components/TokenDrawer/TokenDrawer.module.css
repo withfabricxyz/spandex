@@ -3,7 +3,7 @@
   top: 0;
   left: 50%;
   width: 100%;
-  max-width: 694px;
+  max-width: 720px;
   transform: translateX(-50%);
   transition: transform 0.225s var(--ease-in-out-ios);
   z-index: var(--z-index-layer-dialog);
