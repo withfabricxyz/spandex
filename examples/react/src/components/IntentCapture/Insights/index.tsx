@@ -1,6 +1,7 @@
 import type { SimulatedQuote } from "@withfabric/spandex";
 import { useEffect, useState } from "react";
 import type { TokenMetadata } from "@/services/tokens";
+import type { SwapErrorState } from "@/utils/errors";
 import type { Metric } from "@/utils/quoteHelpers";
 import { BumpChart } from "./BumpChart";
 import { LineItems } from "./LineItems";
@@ -15,7 +16,7 @@ type InsightsProps = {
   setSelectedMetric: (metric: Metric) => void;
   slippageBps: number;
   setSlippageBps: (value: number) => void;
-  currentAllowance?: bigint;
+  errors?: SwapErrorState;
 };
 
 type QuoteDataViewProps = InsightsProps & {
@@ -33,7 +34,7 @@ function QuoteDataView({
   setSelectedMetric,
   slippageBps,
   setSlippageBps,
-  currentAllowance,
+  errors,
 }: QuoteDataViewProps) {
   return (
     <>
@@ -51,14 +52,14 @@ function QuoteDataView({
         numSellTokens={numSellTokens}
         slippageBps={slippageBps}
         setSlippageBps={setSlippageBps}
-        currentAllowance={currentAllowance}
+        errors={errors}
       />
     </>
   );
 }
 
 // handles quoteHistory state and shares with BumpChart and LineItems
-export function Insights({
+function QuoteHistoryWrapper({
   bestQuote,
   quotes,
   sellToken,
@@ -68,7 +69,7 @@ export function Insights({
   setSelectedMetric,
   slippageBps,
   setSlippageBps,
-  currentAllowance,
+  errors,
 }: InsightsProps) {
   const [quoteHistory, setQuoteHistory] = useState<SimulatedQuote[][]>([]);
 
@@ -97,7 +98,9 @@ export function Insights({
       numSellTokens={numSellTokens}
       slippageBps={slippageBps}
       setSlippageBps={setSlippageBps}
-      currentAllowance={currentAllowance}
+      errors={errors}
     />
   );
 }
+
+export { QuoteHistoryWrapper as Insights };

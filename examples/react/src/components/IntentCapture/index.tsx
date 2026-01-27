@@ -5,8 +5,19 @@ import { type Address, encodeFunctionData, erc20Abi, type Hex, maxUint256 } from
 import { useConnection } from "wagmi";
 import { getExplorerLink } from "@/config/onchain";
 import { useAllowance } from "@/hooks/useAllowance";
+import { useBalance } from "@/hooks/useBalance";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
-import { getBestQuoteByMetric, type Metric } from "@/utils/quoteHelpers";
+import {
+  type StructuredError,
+  type SwapErrorState,
+  structureError,
+  validateSwapInput,
+} from "@/utils/errors";
+import {
+  getBestQuoteByMetric,
+  getSimulationFailureReason,
+  type Metric,
+} from "@/utils/quoteHelpers";
 import { parseTokenValue } from "@/utils/strings";
 import { toast } from "../Toast";
 import { Insights } from "./Insights";
@@ -74,12 +85,30 @@ export function IntentCapture() {
   const [numSellTokens, setNumSellTokens] = useState<string>("20");
   const [selectedMetric, setSelectedMetric] = useState<Metric>("price");
   const [slippageBps, setSlippageBps] = useState<number>(100);
+  const [txError, setTxError] = useState<StructuredError | null>(null);
   const [successfulTx, setSuccessfulTx] = useState<{
     hash: `0x${string}`;
     chainId: number;
     inputAmount: bigint;
     outputAmount: bigint;
   } | null>(null);
+
+  const { data: sellTokenBalance, isLoading: isLoadingBalance } = useBalance({
+    chainId,
+    owner: address,
+    token: sellToken.address,
+  });
+
+  const { data: buyTokenBalance } = useBalance({
+    chainId,
+    owner: address,
+    token: buyToken.address,
+  });
+
+  const balances = {
+    sellToken: sellTokenBalance,
+    buyToken: buyTokenBalance,
+  };
 
   const swap = useMemo(
     () => ({
@@ -132,6 +161,48 @@ export function IntentCapture() {
     return inputAmount > 0n && currentAllowance < inputAmount;
   }, [bestQuote, allowance]);
 
+  // derive all swap errors
+  const errors: SwapErrorState = useMemo(() => {
+    const state: SwapErrorState = {};
+
+    const inputError = validateSwapInput(numSellTokens, sellTokenBalance, sellToken.decimals);
+
+    if (inputError) {
+      state.input = inputError;
+    }
+
+    // TODO: spandex selectQuote
+    // quotes failed
+    if (quotes?.length && !bestQuote) {
+      state.quote = {
+        title: "No valid quotes available",
+        description: "All aggregators failed to return a quote",
+        cause: quotes,
+      };
+    }
+
+    // we have our best quote, but that quote's simulation failed
+    if (bestQuote?.success && !bestQuote.simulation.success) {
+      const reason = getSimulationFailureReason(bestQuote, allowance);
+      state.simulation = {
+        title: reason || "Simulation failed",
+        description: "This swap will likely fail if executed",
+        details: bestQuote.simulation.error?.message,
+        cause: bestQuote.simulation,
+      };
+    }
+
+    // set by tx button callback
+    if (txError) {
+      state.transaction = txError;
+    }
+
+    return state;
+  }, [numSellTokens, sellTokenBalance, sellToken.decimals, quotes, bestQuote, allowance, txError]);
+
+  // TODO: handle no wallet connected state
+  const hasBlockingError = Boolean(errors.input || errors.quote || errors.simulation);
+
   const calls = useMemo(
     () =>
       prepareCalls({
@@ -147,6 +218,10 @@ export function IntentCapture() {
     setSellToken(buyToken);
     setBuyToken(sellToken);
   }, [buyToken, sellToken, setSellToken, setBuyToken]);
+
+  const onTxError = useCallback((error: unknown) => {
+    setTxError(structureError(error));
+  }, []);
 
   const onComplete = useCallback(
     (hash: `0x${string}`) => {
@@ -171,11 +246,14 @@ export function IntentCapture() {
       <SwapControls
         bestQuote={bestQuote}
         sellToken={sellToken}
+        balances={balances}
+        isLoadingBalances={isLoadingBalance}
         numSellTokens={numSellTokens}
         setNumSellTokens={setNumSellTokens}
         buyToken={buyToken}
         isLoadingQuotes={isLoadingQuotes}
         onSwitchTokens={onSwitchTokens}
+        errors={errors}
       />
       <hr className="border-primary" />
       <Insights
@@ -188,10 +266,16 @@ export function IntentCapture() {
         setSelectedMetric={setSelectedMetric}
         slippageBps={slippageBps}
         setSlippageBps={setSlippageBps}
-        currentAllowance={allowance}
+        errors={errors}
       />
       <hr className="border-primary" />
-      <TxBatchButton blocked={calls.length === 0} calls={calls} onComplete={onComplete} />
+      <TxBatchButton
+        blocked={calls.length === 0 || hasBlockingError}
+        calls={calls}
+        onComplete={onComplete}
+        onError={onTxError}
+        errors={errors}
+      />
       {successfulTx && address ? (
         <SuccessSplash
           sellToken={sellToken}

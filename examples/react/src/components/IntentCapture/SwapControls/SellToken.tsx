@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { ChevronDown } from "@/components/icons";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
+import type { StructuredError } from "@/utils/errors";
 import { bigintToDecimalString, formatTokenValue } from "@/utils/strings";
 import { Button } from "../../Button";
 
@@ -11,6 +12,7 @@ type SellTokenProps = {
   isLoadingBalances: boolean;
   numTokens: string;
   onChange: (value: string) => void;
+  error?: StructuredError;
 };
 
 export function SellToken({
@@ -19,6 +21,7 @@ export function SellToken({
   isLoadingBalances,
   numTokens,
   onChange,
+  error,
 }: SellTokenProps) {
   const { openDrawer } = useTokenSelect();
 
@@ -59,7 +62,7 @@ export function SellToken({
       <div className="flex justify-between items-center">
         <input
           type="text"
-          className="w-full text-primary text-[56px] leading-1 h-22 outline-0"
+          className={`w-full text-primary text-[56px] leading-1 h-22 outline-0 ${error ? "text-red" : ""}`}
           value={numTokens}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -73,7 +76,7 @@ export function SellToken({
           </div>
         </Button>
       </div>
-      <span className="text-quaternary monospace text-[12px]">
+      <span className={`text-quaternary monospace text-[12px] ${error ? "text-red" : ""}`}>
         {isLoadingBalances ? "Loading..." : formatTokenValue(balance || 0n, token.decimals)}{" "}
         {token.symbol}
       </span>

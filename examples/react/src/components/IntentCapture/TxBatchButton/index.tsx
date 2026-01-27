@@ -1,4 +1,5 @@
 import { useWalletProperties } from "@/hooks/useWalletProperties";
+import type { SwapErrorState } from "@/utils/errors";
 import type { TxData } from "../index";
 import { SequencedInlineTxBatchButton } from "./SequencedInline";
 import { SequencedWalletTxBatchButton } from "./SequencedWallet";
@@ -7,7 +8,9 @@ import { WalletDeferredTxBatchButton } from "./WalletDeferred";
 export type TxBatchButtonProps = {
   blocked: boolean;
   calls: TxData[];
-  onComplete?: (hash: `0x${string}`) => void; // Optional callback when all transactions are completed
+  onComplete?: (hash: `0x${string}`) => void;
+  onError?: (error: unknown) => void;
+  errors?: SwapErrorState;
 };
 
 export function TxBatchButton(props: TxBatchButtonProps) {

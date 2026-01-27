@@ -1,9 +1,8 @@
 import type { SimulatedQuote } from "@withfabric/spandex";
 import { useEffect, useMemo } from "react";
-import { useConnection } from "wagmi";
 import { ArrowsUpDown } from "@/components/icons";
-import { useBalance } from "@/hooks/useBalance";
 import type { TokenMetadata } from "@/services/tokens";
+import type { SwapErrorState } from "@/utils/errors";
 import { bigintToDecimalString, formatTokenValue } from "@/utils/strings";
 import { BuyToken } from "./BuyToken";
 import { SellToken } from "./SellToken";
@@ -11,33 +10,36 @@ import { SellToken } from "./SellToken";
 type SwapControlsProps = {
   bestQuote?: SimulatedQuote;
   sellToken: TokenMetadata;
+  balances: {
+    sellToken?: bigint;
+    buyToken?: bigint;
+  };
+  isLoadingBalances: boolean;
   numSellTokens: string;
   setNumSellTokens: (value: string) => void;
   buyToken: TokenMetadata;
   isLoadingQuotes: boolean;
   onSwitchTokens: () => void;
+  errors?: SwapErrorState;
 };
 
 type SwapControlsInputsProps = SwapControlsProps & {
   numBuyTokens: string;
-  inputBalance?: bigint;
-  outputBalance?: bigint;
-  isLoadingBalances: boolean;
 };
 
-// SwapControls - loads balances, renders token controls. The loader does all required
-// fetching/loading and wraps the inputs
+// SwapControls - renders token controls with hoisted balance from IntentCapture
 function SwapControlsLoader({
   bestQuote,
   sellToken,
+  balances,
+  isLoadingBalances,
   numSellTokens,
   setNumSellTokens,
   buyToken,
   isLoadingQuotes,
   onSwitchTokens,
+  errors,
 }: SwapControlsProps) {
-  const { chainId, address } = useConnection();
-
   const numBuyTokens = useMemo(() => {
     // convert to <input /> value
     if (bestQuote?.success) {
@@ -48,76 +50,60 @@ function SwapControlsLoader({
     return "";
   }, [bestQuote, buyToken.decimals]);
 
-  const {
-    data: inputBalance,
-    isLoading: inputBalanceLoading,
-    // error: inputBalanceError,
-  } = useBalance({
-    chainId: chainId,
-    owner: address,
-    token: sellToken.address,
-  });
-
-  const {
-    data: outputBalance,
-    isLoading: outputBalanceLoading,
-    // error: outputBalanceError,
-  } = useBalance({
-    chainId: chainId,
-    owner: address,
-    token: buyToken.address,
-  });
-
   // TODO: make better? when switching tokens, set the initial sell value to max?
   useEffect(() => {
-    setNumSellTokens(bigintToDecimalString(inputBalance || 0n, sellToken.decimals));
-  }, [inputBalance, setNumSellTokens, sellToken.decimals]);
-
-  const isLoadingBalances = inputBalanceLoading || outputBalanceLoading;
+    setNumSellTokens(bigintToDecimalString(balances.sellToken || 0n, sellToken.decimals));
+  }, [balances.sellToken, setNumSellTokens, sellToken.decimals]);
 
   return (
     <Inputs
+      bestQuote={bestQuote}
       sellToken={sellToken}
+      balances={balances}
+      isLoadingBalances={isLoadingBalances}
       numSellTokens={numSellTokens}
       setNumSellTokens={setNumSellTokens}
       buyToken={buyToken}
       numBuyTokens={numBuyTokens}
       isLoadingQuotes={isLoadingQuotes}
-      inputBalance={inputBalance}
-      outputBalance={outputBalance}
-      isLoadingBalances={isLoadingBalances}
       onSwitchTokens={onSwitchTokens}
+      errors={errors}
     />
   );
 }
 
 function Inputs({
   sellToken,
+  balances,
+  isLoadingBalances,
   numSellTokens,
   setNumSellTokens,
   buyToken,
   numBuyTokens,
   isLoadingQuotes,
-  inputBalance,
-  outputBalance,
-  isLoadingBalances,
   onSwitchTokens,
+  errors,
 }: SwapControlsInputsProps) {
   return (
     <div className="relative flex flex-col gap-20">
       <SellToken
         token={sellToken}
-        balance={inputBalance}
+        balance={balances.sellToken}
         isLoadingBalances={isLoadingBalances}
         numTokens={numSellTokens}
         onChange={setNumSellTokens}
+        // simulation error can be related to input
+        error={errors?.input || errors?.simulation}
       />
 
-      <TokenSwitcher canSwitch={!!outputBalance && outputBalance > 0n} onSwitch={onSwitchTokens} />
+      <TokenSwitcher
+        canSwitch={!!balances.buyToken && balances.buyToken > 0n}
+        onSwitch={onSwitchTokens}
+      />
 
       <BuyToken
         token={buyToken}
-        balance={formatTokenValue(BigInt(outputBalance || "0"), buyToken.decimals)}
+        balance={formatTokenValue(BigInt(balances.buyToken || 0n), buyToken.decimals)}
         isLoadingQuotes={isLoadingQuotes}
         numTokens={numBuyTokens}
         isLoadingBalances={isLoadingBalances}
