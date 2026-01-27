@@ -3,11 +3,11 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [
-    ["@withfabric/spandex", "@withfabric/spandex-react"]
+    ["@spandex/core", "@spandex/react"]
   ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["docs"]
+  "ignore": []
 }

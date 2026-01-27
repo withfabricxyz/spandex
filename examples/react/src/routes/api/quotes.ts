@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import {
   createConfig,
   fabric,
@@ -9,7 +8,8 @@ import {
   type Quote,
   type SwapParams,
   zeroX,
-} from "@withfabric/spandex";
+} from "@spandex/core";
+import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 // Server side config for fetching quotes

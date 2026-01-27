@@ -1,4 +1,4 @@
-import { createConfig, fabric, getQuote, kyberswap, odos } from "@withfabric/spandex";
+import { createConfig, fabric, getQuote, kyberswap, odos } from "@spandex/core";
 
 export const config = createConfig({
   providers: [

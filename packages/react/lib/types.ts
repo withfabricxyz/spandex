@@ -1,4 +1,4 @@
-import type { Config, ConfigParams } from "@withfabric/spandex";
+import type { Config, ConfigParams } from "@spandex/core";
 
 export type SpandexProviderProps = {
   config: ConfigParams;

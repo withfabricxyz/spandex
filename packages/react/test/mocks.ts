@@ -1,5 +1,5 @@
 import { mock } from "bun:test";
-import type { MetaAggregator } from "@withfabric/spandex";
+import type { MetaAggregator } from "@spandex/core";
 import { TEST_ADDRESSES, TEST_CHAINS } from "./constants.js";
 
 export function mockWagmiConnection(options?: {
@@ -29,7 +29,7 @@ export function createMockMetaAggregator(overrides?: Partial<MetaAggregator>): M
 }
 
 export function mockBuildMetaAggregator(metaAggregator: MetaAggregator) {
-  return mock.module("@withfabric/spandex", () => ({
+  return mock.module("@spandex/core", () => ({
     buildMetaAggregator: () => metaAggregator,
   }));
 }

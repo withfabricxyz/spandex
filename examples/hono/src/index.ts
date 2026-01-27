@@ -6,7 +6,7 @@ import {
   type Quote,
   type SwapParams,
   serializeWithBigInt,
-} from "@withfabric/spandex";
+} from "@spandex/core";
 import { Hono } from "hono";
 import { stream } from "hono/streaming";
 import { z } from "zod";

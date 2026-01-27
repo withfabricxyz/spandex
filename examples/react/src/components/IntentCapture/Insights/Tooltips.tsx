@@ -1,3 +1,4 @@
+import type { SimulatedQuote, SuccessfulQuote } from "@spandex/core";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   createColumnHelper,
@@ -5,7 +6,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import type { SimulatedQuote, SuccessfulQuote } from "@withfabric/spandex";
 import { useMemo } from "react";
 import type { TokenMetadata } from "@/services/tokens";
 import { getQuoteInaccuracy } from "@/utils/quoteHelpers";

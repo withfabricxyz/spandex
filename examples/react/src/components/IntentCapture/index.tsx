@@ -1,5 +1,5 @@
-import type { SimulatedQuote } from "@withfabric/spandex";
-import { useQuotes } from "@withfabric/spandex-react";
+import type { SimulatedQuote } from "@spandex/core";
+import { useQuotes } from "@spandex/react";
 import { useCallback, useMemo, useState } from "react";
 import { type Address, encodeFunctionData, erc20Abi, type Hex, maxUint256 } from "viem";
 import { useConnection } from "wagmi";

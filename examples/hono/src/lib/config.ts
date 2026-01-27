@@ -1,4 +1,4 @@
-import { createConfig, defaultProviders } from "@withfabric/spandex";
+import { createConfig, defaultProviders } from "@spandex/core";
 import { createPublicClient, fallback, http, type PublicClient, type Transport } from "viem";
 import { base, unichain } from "viem/chains";
 

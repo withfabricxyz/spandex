@@ -8,15 +8,15 @@ Install the core library:
 
 :::code-group
 ```bash [npm]
-npm i viem @withfabic/spandex
+npm i viem @spandex/core
 ```
 
 ```bash [pnpm]
-pnpm i viem @withfabric/spandex
+pnpm i viem @spandex/core
 ```
 
 ```bash [bun]
-bun i viem @withfabic/spandex
+bun i viem @spandex/core
 ```
 :::
 
@@ -25,7 +25,7 @@ bun i viem @withfabic/spandex
 See the [configuration reference](/configuration.mdx) for all options.
 
 ```ts filename="config.ts" twoslash
-import { createConfig, fabric, kyberswap, odos } from "@withfabric/spandex";
+import { createConfig, fabric, kyberswap, odos } from "@spandex/core";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
@@ -47,7 +47,7 @@ export const config = createConfig({
 ```ts filename="quote.ts" twoslash
 import { config } from "./config.js";
 import { createWalletClient } from "viem";
-import { executeBestQuote } from "@withfabric/spandex";
+import { executeBestQuote } from "@spandex/core";
 
 const swapParams = {
   chainId: 8453,

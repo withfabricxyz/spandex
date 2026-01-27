@@ -1,4 +1,4 @@
-import type { SimulatedQuote } from "@withfabric/spandex";
+import type { SimulatedQuote } from "@spandex/core";
 import { useEffect, useState } from "react";
 import type { TokenMetadata } from "@/services/tokens";
 import type { SwapErrorState } from "@/utils/errors";

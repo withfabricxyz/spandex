@@ -17,7 +17,7 @@
       "name": "spandex-hono-example",
       "dependencies": {
         "@hono/zod-validator": "^0.7.6",
-        "@withfabric/spandex": "workspace:*",
+        "@spandex/core": "workspace:*",
         "hono": "^4.11.4",
         "viem": "^2.40",
         "zod": "^4.3.6",
@@ -39,8 +39,8 @@
         "@tanstack/react-start": "^1.132.0",
         "@tanstack/react-table": "^8.21.2",
         "@wagmi/core": "^3.2.2",
-        "@withfabric/spandex": "workspace:*",
-        "@withfabric/spandex-react": "workspace:*",
+        "@spandex/core": "workspace:*",
+        "@spandex/react": "workspace:*",
         "animejs": "^4.2.2",
         "radix-ui": "^1.4.3",
         "react": "^19.2.0",
@@ -64,7 +64,7 @@
       },
     },
     "packages/core": {
-      "name": "@withfabric/spandex",
+      "name": "@spandex/core",
       "version": "0.1.0",
       "dependencies": {
         "viem": "^2.40",
@@ -81,11 +81,11 @@
       ],
     },
     "packages/react": {
-      "name": "@withfabric/spandex-react",
+      "name": "@spandex/react",
       "version": "0.1.0",
       "dependencies": {
         "@tanstack/react-query": "^5.90.17",
-        "@withfabric/spandex": "workspace:*",
+        "@spandex/core": "workspace:*",
         "viem": "^2.40",
         "wagmi": "^3.3.2",
       },
@@ -112,8 +112,8 @@
       "devDependencies": {
         "@tailwindcss/vite": "^4.1.18",
         "@types/react": "^19.2.0",
-        "@withfabric/spandex": "workspace:*",
-        "@withfabric/spandex-react": "workspace:*",
+        "@spandex/core": "workspace:*",
+        "@spandex/react": "workspace:*",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "tailwindcss": "^4.1.18",
@@ -820,9 +820,9 @@
 
     "@wagmi/core": ["@wagmi/core@3.3.1", "", { "dependencies": { "eventemitter3": "5.0.1", "mipd": "0.0.7", "zustand": "5.0.0" }, "peerDependencies": { "@tanstack/query-core": ">=5.0.0", "ox": ">=0.11.1", "typescript": ">=5.7.3", "viem": "2.x" }, "optionalPeers": ["@tanstack/query-core", "ox", "typescript"] }, "sha512-0Q8VYnVNPHe/gZsvj+Zddt8VpmKoMHXoVd887svL21QGKXEIVYiV/8R3qMv0SyC7q+GbQ5x9xezB56u3S8bWAQ=="],
 
-    "@withfabric/spandex": ["@withfabric/spandex@workspace:packages/core"],
+    "@spandex/core": ["@spandex/core@workspace:packages/core"],
 
-    "@withfabric/spandex-react": ["@withfabric/spandex-react@workspace:packages/react"],
+    "@spandex/react": ["@spandex/react@workspace:packages/react"],
 
     "abitype": ["abitype@1.2.3", "", { "peerDependencies": { "typescript": ">=5.0.4", "zod": "^3.22.0 || ^4.0.0" }, "optionalPeers": ["typescript", "zod"] }, "sha512-Ofer5QUnuUdTFsBRwARMoWKOH1ND5ehwYhJ3OJ/BQO+StkwQjHw0XyVh4vDttzHB7QOFhPHa/o413PJ82gU/Tg=="],
 

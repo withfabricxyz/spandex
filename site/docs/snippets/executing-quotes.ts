@@ -1,5 +1,5 @@
-import type { ExactInSwapParams } from "@withfabric/spandex";
-import { createConfig, fabric, getQuote } from "@withfabric/spandex";
+import type { ExactInSwapParams } from "@spandex/core";
+import { createConfig, fabric, getQuote } from "@spandex/core";
 import { createWalletClient, http } from "viem";
 import { base } from "viem/chains";
 

@@ -1,4 +1,4 @@
-import { createConfig } from "@withfabric/spandex";
+import { createConfig } from "@spandex/core";
 import { createContext, useContext, useMemo } from "react";
 import type { PublicClient } from "viem";
 import { useConfig } from "wagmi";

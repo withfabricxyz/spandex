@@ -8,15 +8,15 @@ Install the core library:
 
 :::code-group
 ```bash [npm]
-npm i wagmi @withfabric/spandex-react
+npm i wagmi @spandex/react
 ```
 
 ```bash [bun]
-bun i wagmi @withfabric/spandex-react
+bun i wagmi @spandex/react
 ```
 
 ```bash [pnpm]
-pnpm i wagmi @withfabric/spandex-react
+pnpm i wagmi @spandex/react
 ```
 :::
 
@@ -27,8 +27,8 @@ See the [configuration reference](/configuration.mdx) for all options.
 ```ts
 import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "./wagmiConfig.js";
-import { SpandexProvider } from "@withfabric/spandex-react";
-import { fabric, zeroX } from "@withfabric/spandex";
+import { SpandexProvider } from "@spandex/react";
+import { fabric, zeroX } from "@spandex/core";
 
 const config = {
   providers: [fabric({ appId: "YOUR_FABRIC_APP_ID" }), zeroX({ apiKey: "YOUR_0X_API_KEY" })],
@@ -48,7 +48,7 @@ export function App() {
 ## 3. Fetch Quotes
 
 ```ts
-import { useQuotes } from "@withfabric/spandex-react";
+import { useQuotes } from "@spandex/react";
 
 export function Quotes() {
   const { data, isLoading, error } = useQuotes({

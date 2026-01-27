@@ -1,5 +1,5 @@
 import { ResponsiveBump } from "@nivo/bump";
-import type { SimulatedQuote } from "@withfabric/spandex";
+import type { SimulatedQuote } from "@spandex/core";
 import { useCallback, useMemo } from "react";
 import type { Metric } from "@/utils/quoteHelpers";
 
