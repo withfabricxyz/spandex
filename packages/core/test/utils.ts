@@ -27,6 +27,11 @@ export const defaultSwapParams: SwapParams = {
   mode: "exactIn",
 };
 
+export const usdcBalanceSwap: SwapParams = {
+  ...defaultSwapParams,
+  swapperAccount: USDC_WHALE,
+};
+
 export const quoteSuccess: SuccessfulQuote = {
   success: true,
   provider: "fabric",
