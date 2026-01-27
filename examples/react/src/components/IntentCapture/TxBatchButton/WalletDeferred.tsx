@@ -1,12 +1,15 @@
 import { useCallback, useState } from "react";
 import { useSendCalls } from "wagmi";
-import { toast } from "@/components/Toast";
-import { structureError } from "@/utils/errors";
 import type { TxBatchButtonProps } from ".";
 import { TriggerWalletButton } from "./TriggerWalletButton";
 
 // EIP-5792 UX Buff - https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_sendcalls
-export function WalletDeferredTxBatchButton({ calls, blocked, onComplete }: TxBatchButtonProps) {
+export function WalletDeferredTxBatchButton({
+  calls,
+  blocked,
+  onComplete,
+  onError,
+}: TxBatchButtonProps) {
   const [state, setState] = useState<"idle" | "processing">("idle");
   const sendCalls = useSendCalls();
 
@@ -19,15 +22,15 @@ export function WalletDeferredTxBatchButton({ calls, blocked, onComplete }: TxBa
 
       // TODO: useCallStatus? there is a specialized hook for this
       if (onComplete) {
-        onComplete(hash.id);
+        onComplete(hash.id as `0x${string}`);
       }
     } catch (e) {
       console.error("Error executing route:", e);
-      toast(structureError(e).title);
+      onError?.(e);
     } finally {
       setState("idle");
     }
-  }, [calls, sendCalls, onComplete]);
+  }, [calls, sendCalls, onComplete, onError]);
 
   return (
     <TriggerWalletButton

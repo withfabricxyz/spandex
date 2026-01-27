@@ -3,11 +3,15 @@ import { useSendTransaction } from "wagmi";
 import { Loading } from "@/components/icons/Loading";
 import { toast } from "@/components/Toast";
 import { getExplorerLink } from "@/config/onchain";
-import { structureError } from "@/utils/errors";
 import type { TxBatchButtonProps } from ".";
 import { TriggerWalletButton } from "./TriggerWalletButton";
 
-export function SequencedInlineTxBatchButton({ calls, blocked, onComplete }: TxBatchButtonProps) {
+export function SequencedInlineTxBatchButton({
+  calls,
+  blocked,
+  onComplete,
+  onError,
+}: TxBatchButtonProps) {
   const [state, setState] = useState<"idle" | "processing">("idle");
   const [step, setStep] = useState(0);
 
@@ -37,11 +41,12 @@ export function SequencedInlineTxBatchButton({ calls, blocked, onComplete }: TxB
       }
     } catch (e) {
       console.error("Error executing route:", e);
-      toast(structureError(e).title);
+      initialToast.dismiss();
+      onError?.(e);
     } finally {
       setState("idle");
     }
-  }, [calls, sendTransaction, step, onComplete]);
+  }, [calls, sendTransaction, step, onComplete, onError]);
 
   return (
     <TriggerWalletButton

@@ -80,7 +80,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               <Tooltip.Provider>
                 <TokenSelectProvider>
                   <Header />
-                  <div className="pt-80 pb-20 max-w-[614px] mx-auto">{children}</div>
+                  <div className="pt-80 pb-20 max-w-360 mx-auto">{children}</div>
                   <DialogPortal />
                 </TokenSelectProvider>
               </Tooltip.Provider>

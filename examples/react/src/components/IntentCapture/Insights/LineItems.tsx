@@ -1,12 +1,8 @@
 import type { SimulatedQuote, SuccessfulQuote } from "@withfabric/spandex";
 import type { JSX } from "react";
 import type { TokenMetadata } from "@/services/tokens";
-import {
-  getQuoteFees,
-  getQuoteInaccuracy,
-  getQuotePriceImpact,
-  getSimulationFailureReason,
-} from "@/utils/quoteHelpers";
+import type { SwapErrorState } from "@/utils/errors";
+import { getQuoteFees, getQuoteInaccuracy, getQuotePriceImpact } from "@/utils/quoteHelpers";
 import { formatTokenValue } from "@/utils/strings";
 import { Skeleton } from "../../Skeleton";
 import { SlippageControls } from "../SlippageControls";
@@ -28,7 +24,7 @@ type LineItemsProps = {
   numSellTokens: string;
   slippageBps: number;
   setSlippageBps: (value: number) => void;
-  currentAllowance?: bigint;
+  errors?: SwapErrorState;
 };
 
 export function LineItems({
@@ -39,20 +35,17 @@ export function LineItems({
   numSellTokens,
   slippageBps,
   setSlippageBps,
-  currentAllowance,
+  errors,
 }: LineItemsProps) {
-  // TODO: handle simulation failure higher up so we can cascade state across the IntentCapture
-  const simulationFailure = quote ? getSimulationFailureReason(quote, currentAllowance) : null;
   const successfulQuotes: SuccessfulQuote[] = quotes?.filter((q) => q.success) || [];
 
   const getInaccuracyValue = () => {
     const quoteInaccuracy = getQuoteInaccuracy(quote);
 
-    if (simulationFailure) return simulationFailure;
+    if (errors?.simulation) return "Simulation Error";
     if (quoteInaccuracy !== null) return `${quoteInaccuracy / 100} bps`;
-    if (quote) return "—";
 
-    return null;
+    return "N/A";
   };
 
   const getPriceImpactValue = () => {
@@ -68,7 +61,7 @@ export function LineItems({
 
     if (quoteFees !== null) return `$${(Number(quoteFees) / 1e18).toFixed(2)}`;
 
-    return "—";
+    return "N/A";
   };
 
   const items: {
@@ -78,12 +71,12 @@ export function LineItems({
   }[] = [
     {
       label: "Winning Aggregator",
-      value: quote ? quote.provider : null,
+      value: quote ? quote.provider : "N/A",
       color: quote ? COLORS[quote.provider.toLowerCase()] : undefined,
     },
     {
       label: <LatencyTooltip successfulQuotes={successfulQuotes} />,
-      value: quote?.success ? `${quote.latency.toFixed(1)}ms` : null,
+      value: quote?.success ? `${quote.latency.toFixed(1)}ms` : "N/A",
     },
     {
       label: <InaccuracyTooltip successfulQuotes={successfulQuotes} />,
@@ -102,11 +95,11 @@ export function LineItems({
             (quote.outputAmount * BigInt(10 ** sellToken.decimals)) / quote.inputAmount,
             buyToken.decimals,
           )} ${buyToken.symbol}`
-        : null,
+        : "N/A",
     },
     {
       label: <GasTooltip />,
-      value: quote?.success ? `$${(Number(quote.networkFee) / 1e18).toFixed(2)}` : null,
+      value: quote?.success ? `$${(Number(quote.networkFee) / 1e18).toFixed(2)}` : "N/A",
     },
     {
       label: <MaxSlippageTooltip />,
@@ -131,7 +124,7 @@ export function LineItems({
       label: "Total",
       value: quote?.success
         ? `${formatTokenValue(BigInt(quote.outputAmount), buyToken.decimals)} ${buyToken.symbol}`
-        : null,
+        : "N/A",
     },
   ];
 

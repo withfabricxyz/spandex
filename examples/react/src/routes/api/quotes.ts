@@ -8,12 +8,18 @@ import {
   prepareQuotes,
   type Quote,
   type SwapParams,
+  zeroX,
 } from "@withfabric/spandex";
 import { z } from "zod";
 
 // Server side config for fetching quotes
 const config = createConfig({
-  providers: [odos({}), kyberswap({ clientId: "spandex_ui" }), fabric({ appId: "spandex_ui" })],
+  providers: [
+    odos({}),
+    kyberswap({ clientId: "spandex_ui" }),
+    fabric({ appId: "spandex_ui" }),
+    zeroX({ apiKey: process.env.ZEROX_API_KEY || "" }),
+  ],
   options: {
     deadlineMs: 5_000,
     // Add integrator fees, etc
