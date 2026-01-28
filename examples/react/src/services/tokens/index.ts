@@ -14,4 +14,6 @@ export type TokenMetadata = TokenId & {
   change24h: number;
   risk?: number;
   tags?: string[];
+  defaultInput: string;
+  whaleAddress: Address;
 };

@@ -99,7 +99,7 @@ export function Header() {
             {isConnected ? (
               <Tooltip
                 trigger={
-                  <div className="rounded-[0_0_2px_2px] h-20 w-20 relative border border-primary border-r-0 hover:bg-surface-mid active:bg-border">
+                  <div className="rounded-[0_0_2px_2px] h-20 w-20 relative border border-primary border-r-0">
                     <div className="h-10 w-10 absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
                       <img src={`/images/${chainId}@2x.png`} alt={`Chain ${chainId}`} />
                     </div>

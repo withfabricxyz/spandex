@@ -1,13 +1,16 @@
 import { Button } from "@/components/Button";
 import { Loading } from "@/components/icons";
+import type { SwapErrorState } from "@/utils/errors";
 
 export function TriggerWalletButton({
   processing,
   disabled,
+  errors,
   onClick,
 }: {
   disabled: boolean;
   processing: boolean;
+  errors?: SwapErrorState;
   onClick: () => void;
 }) {
   return (
@@ -17,6 +20,17 @@ export function TriggerWalletButton({
       </Button>
       {processing ? (
         <span className="text-[12px] text-secondary text-center">Processing...</span>
+      ) : null}
+      {Object.entries(errors || {}).length > 0 ? (
+        <div className="flex flex-col gap-4">
+          {Object.entries(errors || {}).map(([key, error]) =>
+            error ? (
+              <span key={key} className="text-[12px] text-red text-center">
+                {error.title}
+              </span>
+            ) : null,
+          )}
+        </div>
       ) : null}
     </div>
   );

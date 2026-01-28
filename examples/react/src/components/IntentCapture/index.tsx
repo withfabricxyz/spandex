@@ -81,8 +81,9 @@ function prepareCalls({
 
 export function IntentCapture() {
   const { sellToken, setSellToken, buyToken, setBuyToken } = useTokenSelect();
-  const { address, chainId } = useConnection();
-  const [numSellTokens, setNumSellTokens] = useState<string>("100");
+  const { address, chainId, isConnected } = useConnection();
+  const [prevSellToken, setPrevSellToken] = useState(sellToken);
+  const [numSellTokens, setNumSellTokens] = useState<string>(sellToken.defaultInput);
   const [selectedMetric, setSelectedMetric] = useState<Metric>("price");
   const [slippageBps, setSlippageBps] = useState<number>(100);
   const [txError, setTxError] = useState<StructuredError | null>(null);
@@ -92,6 +93,11 @@ export function IntentCapture() {
     inputAmount: bigint;
     outputAmount: bigint;
   } | null>(null);
+
+  if (sellToken !== prevSellToken) {
+    setPrevSellToken(sellToken);
+    setNumSellTokens(sellToken.defaultInput);
+  }
 
   const { data: sellTokenBalance, isLoading: isLoadingBalance } = useBalance({
     chainId,
@@ -112,25 +118,32 @@ export function IntentCapture() {
 
   const swap = useMemo(
     () => ({
-      chainId,
+      // allow quotes to be fetched without connected wallet
+      chainId: chainId || 8453,
+      swapperAccount: address || sellToken.whaleAddress,
+
       inputToken: sellToken.address,
       outputToken: buyToken.address,
       slippageBps,
       mode: "exactIn" as const,
       inputAmount: parseTokenValue(numSellTokens, sellToken.decimals),
     }),
-    [sellToken, buyToken, numSellTokens, chainId, slippageBps],
+    [sellToken, buyToken, numSellTokens, chainId, slippageBps, address],
   );
 
   const query = useMemo(
     () => ({
       refetchInterval: 10000, // refetch to build quote history
-      enabled: swap.inputAmount > 0n && !!chainId && !!address,
+      enabled: swap.inputAmount > 0n,
     }),
-    [swap.inputAmount, chainId, address],
+    [swap.inputAmount],
   );
 
-  const { data: quotes, isLoading: isLoadingQuotes } = useQuotes({
+  const {
+    data: quotes,
+    isLoading: isLoadingQuotes,
+    error: quotesError,
+  } = useQuotes({
     swap,
     query,
   });
@@ -165,10 +178,26 @@ export function IntentCapture() {
   const errors: SwapErrorState = useMemo(() => {
     const state: SwapErrorState = {};
 
+    if (!isConnected) {
+      state.connection = {
+        title: "Connect wallet to swap",
+        cause: "disconnected",
+      };
+    }
+
     const inputError = validateSwapInput(numSellTokens, sellTokenBalance, sellToken.decimals);
 
     if (inputError) {
       state.input = inputError;
+    }
+
+    if (quotesError) {
+      state.quote = {
+        title: "Failed to fetch quotes",
+        description: "There was an error fetching quotes for this swap",
+        details: quotesError.message,
+        cause: quotesError,
+      };
     }
 
     // TODO: spandex selectQuote
@@ -198,7 +227,17 @@ export function IntentCapture() {
     }
 
     return state;
-  }, [numSellTokens, sellTokenBalance, sellToken.decimals, quotes, bestQuote, allowance, txError]);
+  }, [
+    isConnected,
+    numSellTokens,
+    sellTokenBalance,
+    sellToken.decimals,
+    quotes,
+    quotesError,
+    bestQuote,
+    allowance,
+    txError,
+  ]);
 
   // TODO: handle no wallet connected state
   const hasBlockingError = Boolean(errors.input || errors.quote || errors.simulation);

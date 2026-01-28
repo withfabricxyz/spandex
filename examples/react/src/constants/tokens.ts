@@ -14,6 +14,8 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: ["major", "stablecoin"],
     usdPriceCents: 100,
     change24h: 0,
+    defaultInput: "100",
+    whaleAddress: "0x02C79843B9548fC0Cb4B35Bf6840538a73fC3422" as Address,
   },
   {
     chainId: 8453,
@@ -27,6 +29,8 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: ["major"],
     usdPriceCents: 0,
     change24h: 0,
+    defaultInput: "0.025",
+    whaleAddress: "0xD4a0e0b9149BCee3C920d2E00b5dE09138fd8bb7" as Address,
   },
   {
     chainId: 8453,
@@ -39,6 +43,8 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: ["major"],
     usdPriceCents: 0,
     change24h: 0,
+    defaultInput: "0.001",
+    whaleAddress: "0xBdb9300b7CDE636d9cD4AFF00f6F009fFBBc8EE6" as Address,
   },
   {
     chainId: 8453,
@@ -52,6 +58,8 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: ["major", "stablecoin"],
     usdPriceCents: 100,
     change24h: 0,
+    defaultInput: "100",
+    whaleAddress: "0x07aE8551Be970cB1cCa11Dd7a11F47Ae82e70E67" as Address,
   },
   {
     chainId: 8453,
@@ -65,6 +73,8 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: ["major", "stablecoin"],
     usdPriceCents: 100,
     change24h: 0,
+    defaultInput: "10",
+    whaleAddress: "0xb8C6A7E8B6970b7C33bC61455416F1EC8015a8cA" as Address,
   },
   {
     chainId: 8453,
@@ -78,6 +88,8 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: ["major", "stablecoin"],
     usdPriceCents: 100,
     change24h: 0,
+    defaultInput: "10",
+    whaleAddress: "0x58Ee32056D946a37f5b49582dE3dEE1dAc0Bb974" as Address,
   },
   {
     chainId: 8453,
@@ -90,6 +102,8 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: [],
     usdPriceCents: 0,
     change24h: 0,
+    defaultInput: "15",
+    whaleAddress: "0x8a34E9E94Deb1d810C0E87a84eB36a2C7538B28C" as Address,
   },
   {
     chainId: 8453,
@@ -102,6 +116,8 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: ["popular"],
     usdPriceCents: 0,
     change24h: 0,
+    defaultInput: "10000",
+    whaleAddress: "0x4Cc69ff3264e61D5D5E8F368331320c66daD2714" as Address,
   },
   {
     chainId: 8453,
@@ -114,6 +130,8 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: [],
     usdPriceCents: 0,
     change24h: 0,
+    defaultInput: "100",
+    whaleAddress: "0x4cFB67f6b7A011c268e10E266E80Bd64B88e4a11" as Address,
   },
   {
     chainId: 8453,
@@ -126,6 +144,8 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: ["popular"],
     usdPriceCents: 0,
     change24h: 0,
+    defaultInput: "1000",
+    whaleAddress: "0x7061f0B28F5a95AaE717905Bb59AA4e08C165268" as Address,
   },
   {
     chainId: 8453,
@@ -138,5 +158,7 @@ export const SUPPORTED_BASE_TOKENS: TokenMetadata[] = [
     tags: ["popular"],
     usdPriceCents: 0,
     change24h: 0,
+    defaultInput: "100000",
+    whaleAddress: "0x8C2E59E0F28308EE1eA0FF92E9235AE4cFE9d3bA" as Address,
   },
 ];

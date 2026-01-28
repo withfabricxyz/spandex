@@ -7,6 +7,7 @@ import { TriggerWalletButton } from "./TriggerWalletButton";
 export function WalletDeferredTxBatchButton({
   calls,
   blocked,
+  errors,
   onComplete,
   onError,
 }: TxBatchButtonProps) {
@@ -36,6 +37,7 @@ export function WalletDeferredTxBatchButton({
     <TriggerWalletButton
       disabled={blocked || state === "processing"}
       processing={state === "processing"}
+      errors={errors}
       onClick={executeStep}
     />
   );
