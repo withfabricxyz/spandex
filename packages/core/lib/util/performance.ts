@@ -1,11 +1,13 @@
 import type { QuotePerformance, SuccessfulSimulatedQuote } from "../types.js";
 
 /**
- * Sort an array of successful simulated quotes based on a specified performance metric.
- * @param quotes The array of successful simulated quotes to sort
- * @param metric The metric to sort by (e.g., 'latency', 'gasUsed', 'outputAmount', 'accuracy')
- * @param ascending Whether to sort in ascending order (default: true)
- * @returns An array of quotes sorted by the specified performance metric
+ * Sorts successful simulated quotes by a specified performance metric.
+ *
+ * @param params - Sorting parameters.
+ * @param params.quotes - Quotes to sort.
+ * @param params.metric - Performance metric to sort by.
+ * @param params.ascending - Whether to sort in ascending order (default: true).
+ * @returns Quotes sorted by the specified performance metric.
  */
 export function sortQuotesByPerformance({
   quotes,

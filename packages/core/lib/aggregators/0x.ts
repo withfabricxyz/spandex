@@ -116,6 +116,12 @@ export class ZeroXAggregator extends Aggregator<ZeroXConfig> {
   }
 }
 
+/**
+ * Convenience factory for creating a 0x aggregator instance.
+ *
+ * @param config - 0x configuration (API key, timeouts, negotiated features).
+ * @returns ZeroXAggregator instance.
+ */
 export function zeroX(config: ZeroXConfig): ZeroXAggregator {
   return new ZeroXAggregator(config);
 }

@@ -187,6 +187,12 @@ export class OdosAggregator extends Aggregator<OdosConfig> {
   }
 }
 
+/**
+ * Convenience factory for creating an Odos aggregator instance.
+ *
+ * @param config - Optional Odos configuration.
+ * @returns OdosAggregator instance.
+ */
 export function odos(config?: OdosConfig): OdosAggregator {
   return new OdosAggregator(config);
 }

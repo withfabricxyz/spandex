@@ -149,6 +149,12 @@ export class KyberAggregator extends Aggregator<KyberConfig> {
   }
 }
 
+/**
+ * Convenience factory for creating a KyberSwap aggregator instance.
+ *
+ * @param config - Optional KyberSwap configuration.
+ * @returns KyberAggregator instance.
+ */
 export function kyberswap(config?: KyberConfig): KyberAggregator {
   return new KyberAggregator(config);
 }

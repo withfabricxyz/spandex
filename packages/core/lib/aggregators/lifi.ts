@@ -148,6 +148,12 @@ export class LifiAggregator extends Aggregator<LifiConfig> {
   }
 }
 
+/**
+ * Convenience factory for creating a LI.FI aggregator instance.
+ *
+ * @param config - Optional LI.FI configuration.
+ * @returns LifiAggregator instance.
+ */
 export function lifi(config?: LifiConfig): LifiAggregator {
   return new LifiAggregator(config);
 }
