@@ -180,6 +180,12 @@ export class FabricAggregator extends Aggregator<FabricConfig> {
   }
 }
 
+/**
+ * Convenience factory for creating a Fabric aggregator instance.
+ *
+ * @param config - Fabric configuration (app id, base URL, API key).
+ * @returns FabricAggregator instance.
+ */
 export function fabric(config: FabricConfig): FabricAggregator {
   return new FabricAggregator(config);
 }

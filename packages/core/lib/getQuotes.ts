@@ -5,12 +5,12 @@ import { simulateQuote } from "./simulateQuote.js";
 import type { Quote, SimulatedQuote, SwapParams } from "./types.js";
 
 /**
- * Fetches quotes from all providers and simulates quote exeuction using the provided client or client lookup.
+ * Fetches quotes from all providers and simulates execution using the provided or configured client.
  *
- * @param config - meta aggregation configuration.
- * @param params - Swap request parameters.
- * @param client - Public client used to simulate quote tx data.
- *
+ * @param params - Request parameters.
+ * @param params.config - Meta-aggregator configuration.
+ * @param params.swap - Swap request parameters.
+ * @param params.client - Public client used to simulate quote transaction data.
  * @returns Quotes enriched with simulation metadata.
  */
 export async function getQuotes({

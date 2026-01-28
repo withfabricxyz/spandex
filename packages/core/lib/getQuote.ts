@@ -6,11 +6,14 @@ import { simulateQuote } from "./simulateQuote.js";
 import type { QuoteSelectionStrategy, SuccessfulSimulatedQuote, SwapParams } from "./types.js";
 
 /**
- * Fetches quotes and applies the configured strategy to pick the best result.
+ * Fetches quotes, simulates them, and selects a winner using the provided strategy.
  *
- * @param params - Swap request parameters.
- * @param options - Strategy configuration for selecting the winning quote.
- *
+ * @param params - Request parameters.
+ * @param params.config - Meta-aggregator configuration and providers.
+ * @param params.swap - Swap request parameters.
+ * @param params.strategy - Strategy used to pick the winning quote.
+ * @param params.client - Optional public client used for simulation.
+ * @param params.simulate - Optional simulation function override.
  * @returns Winning quote, or `null` if no provider succeeds.
  */
 export async function getQuote({

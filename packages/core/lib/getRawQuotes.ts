@@ -5,10 +5,11 @@ import type { Quote, SwapParams } from "./types.js";
 const QuoteIdentifyFn = async (quote: Quote): Promise<Quote> => quote;
 
 /**
- * Fetches quotes from all providers and returns every result, including failures. These quotes are not simulated.
+ * Fetches quotes from all providers and returns every result, including failures. Quotes are not simulated.
  *
- * @param config - MetaAggregator configuration.
- * @param params - Swap request parameters.
+ * @param params - Request parameters.
+ * @param params.config - Meta-aggregator configuration.
+ * @param params.swap - Swap request parameters.
  * @returns Array of successful or failed quote responses.
  */
 export async function getRawQuotes({

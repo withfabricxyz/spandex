@@ -109,6 +109,12 @@ export class RelayAggregator extends Aggregator<RelayConfig> {
   }
 }
 
+/**
+ * Convenience factory for creating a Relay aggregator instance.
+ *
+ * @param config - Optional Relay configuration.
+ * @returns RelayAggregator instance.
+ */
 export function relay(config?: RelayConfig): RelayAggregator {
   return new RelayAggregator(config);
 }

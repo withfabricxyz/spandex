@@ -86,6 +86,14 @@ const fastest: QuoteSelectionFn = async (
   ).catch(() => null);
 };
 
+/**
+ * Selects a winning quote from a set of simulated quote promises.
+ *
+ * @param params - Selection parameters.
+ * @param params.strategy - Strategy name or custom selector function.
+ * @param params.quotes - Simulated quote promises to evaluate.
+ * @returns The winning successful quote, or `null` when no quote succeeds.
+ */
 export async function selectQuote({
   strategy,
   quotes,

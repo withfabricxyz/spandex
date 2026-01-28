@@ -69,7 +69,7 @@ export type AggregatorFeature = "exactIn" | "targetOut" | "integratorFees" | "in
 export type NegotiatedFeature = "integratorFees" | "integratorSurplus";
 
 /**
- * Metadata about an dex aggregation provider.
+ * Metadata about a DEX aggregation provider.
  */
 export type AggregatorMetadata = {
   name: string;
@@ -219,6 +219,9 @@ type SwapBase = {
   swapperAccount: Address;
 };
 
+/**
+ * Swap parameters for exact-input quotes (sell a fixed input amount).
+ */
 export type ExactInSwapParams = SwapBase & {
   mode: "exactIn";
   /**
@@ -227,6 +230,9 @@ export type ExactInSwapParams = SwapBase & {
   inputAmount: bigint;
 };
 
+/**
+ * Swap parameters for exact-output quotes (buy a fixed output amount).
+ */
 export type TargetOutSwapParams = SwapBase & {
   mode: "targetOut";
   /**
@@ -555,6 +561,9 @@ export type SimulationFailure = {
  */
 export type SimulationResult = SimulationSuccess | SimulationFailure;
 
+/**
+ * Performance metrics derived from quote latency and simulation results.
+ */
 export type QuotePerformance = {
   /** Latency in milliseconds to receive a quote, does not include simulation time */
   latency: number;

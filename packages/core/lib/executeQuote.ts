@@ -3,6 +3,9 @@ import { type BuiltCall, buildCalls } from "./buildCalls.js";
 import type { Config } from "./createConfig.js";
 import type { SimulatedQuote, SwapParams } from "./types.js";
 
+/**
+ * Error thrown when quote execution fails or cannot be attempted.
+ */
 export class ExecutionError extends Error {
   constructor(message: string) {
     super(message);
@@ -23,15 +26,19 @@ export type ExecutedQuoteReturnType = {
 };
 
 /**
+ * Executes a simulated quote by sending the required approval and swap transactions.
  *
- * @param {object} params - Parameters for executing the quote.
- * @param {SwapParams} params.swap - The swap parameters.
- * @param {SimulatedQuote} params.quote - The quote to execute.
- * @param {Config} params.config - The configuration object.
- * @param {WalletClient} params.walletClient - The wallet client to use for signing and sending transactions.
- * @param {PublicClient} [params.publicClient] - Optional public client for reading blockchain data.
+ * Uses EIP-5792 batch calls when supported by the wallet, otherwise falls back to sequential
+ * transactions and waits for receipts.
  *
- * @returns {Promise<ExecutedQuoteReturnType>} - The result of the executed quote, including the transaction hash.
+ * @param params - Parameters for executing the quote.
+ * @param params.swap - Swap parameters used to construct the calls.
+ * @param params.quote - Simulated quote to execute (must be successful).
+ * @param params.config - Meta-aggregator configuration used to resolve clients and options.
+ * @param params.walletClient - Wallet client used to sign and send transactions.
+ * @param params.publicClient - Optional public client for reading chain data and receipts.
+ * @returns The executed quote result containing the transaction hash.
+ * @throws ExecutionError - When the wallet chain mismatches, the quote is unsuccessful, or execution fails.
  */
 export async function executeQuote({
   swap,

@@ -50,10 +50,10 @@ export class SimulationRevertError extends Error {
 }
 
 /**
- * Simulate a batch of quotes given the shared params/client context.
+ * Simulate a batch of quotes given the shared swap/client context.
  *
- * @param args - Shared simulation inputs describing client, params, and quotes to simulate.
- * @param args.params - Swap parameters shared across all quotes.
+ * @param args - Shared simulation inputs describing client, swap parameters, and quotes to simulate.
+ * @param args.swap - Swap parameters shared across all quotes.
  * @param args.client - Public client used to perform the simulations.
  * @param args.quotes - Quotes that should be simulated.
  * @returns Quotes decorated with their simulation results.
@@ -78,7 +78,7 @@ export async function simulateQuotes(
  *
  * @param args - Parameter bundle including the client, swap params, and quote.
  * @param args.client - Client used to issue the simulation.
- * @param args.params - Swap parameters attached to the quote.
+ * @param args.swap - Swap parameters attached to the quote.
  * @param args.quote - Quote instance to simulate.
  * @returns Quote data merged with its simulation result.
  */
