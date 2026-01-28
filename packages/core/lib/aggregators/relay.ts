@@ -135,7 +135,7 @@ function buildRequest(request: SwapParams, options: SwapOptions): RelayQuoteRequ
     slippageTolerance: request.slippageBps.toString(),
     amount: amount.toString(),
     tradeType,
-    protocolVersion: "preferV2",
+    protocolVersion: "v2",
     appFees,
   };
 
@@ -145,17 +145,20 @@ function buildRequest(request: SwapParams, options: SwapOptions): RelayQuoteRequ
   return payload;
 }
 
+// Note: this will need to be adjusted for multi-step / cross-chain swaps in the future.
 function extractTransaction(response: RelayQuoteResponse): RelayTransaction | null {
-  if (!response.steps) return null;
-  for (const step of response.steps) {
-    if (!step.items) continue;
-    for (const item of step.items) {
-      const data = item.data;
-      if (data?.to && data?.data) {
-        return data;
-      }
+  const step = (response.steps || []).find((step) => step.id === "swap");
+  if (!step) {
+    return null;
+  }
+  const items = step.items || [];
+  for (const item of items) {
+    const data = item.data;
+    if (data?.to && data?.data) {
+      return data;
     }
   }
+
   return null;
 }
 
