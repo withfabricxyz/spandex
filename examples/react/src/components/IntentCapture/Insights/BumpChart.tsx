@@ -1,5 +1,10 @@
 import { ResponsiveBump } from "@nivo/bump";
-import type { SimulatedQuote } from "@spandex/core";
+import {
+  type QuotePerformance,
+  type SimulatedQuote,
+  type SuccessfulSimulatedQuote,
+  sortQuotesByPerformance,
+} from "@spandex/core";
 import { useCallback, useMemo } from "react";
 import type { Metric } from "@/utils/quoteHelpers";
 
@@ -229,46 +234,51 @@ function CustomGridLayer({ series, xScale }: any) {
   );
 }
 
+const metricMap: Record<Metric, keyof QuotePerformance> = {
+  price: "outputAmount",
+  accuracy: "accuracy",
+  latency: "latency",
+};
+
 export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: BumpChartProps) {
   const chartData = useMemo(() => {
     if (quoteHistory.length === 0) return [];
 
-    const providerMap = new Map<string, Array<{ x: number; y: number }>>();
+    const providers = new Set<string>(quoteHistory.flat().map((q) => q.provider));
+    const providerMap = new Map<string, Array<{ x: number; y: number | null }>>();
+    for (const provider of providers) {
+      providerMap.set(provider, []);
+    }
+
+    const metric = metricMap[selectedMetric];
 
     quoteHistory.forEach((snapshot, timeIndex) => {
-      const successfulQuotes = snapshot.filter((q) => q.success);
-
-      if (successfulQuotes.length === 0) return;
-
-      let sortedQuotes: SimulatedQuote[];
-      if (selectedMetric === "latency") {
-        sortedQuotes = [...successfulQuotes].sort((a, b) => (a.latency || 0) - (b.latency || 0));
-      } else if (selectedMetric === "accuracy") {
-        // accuracy === simmed out vs quoted out
-        sortedQuotes = [...successfulQuotes].sort((a, b) => {
-          const simmedA = a.simulation.success ? a.simulation.outputAmount : 0n;
-          const simmedB = b.simulation.success ? b.simulation.outputAmount : 0n;
-          const diffA = Math.abs(Number(a.outputAmount) - Number(simmedA));
-          const diffB = Math.abs(Number(b.outputAmount) - Number(simmedB));
-
-          return diffA - diffB;
-        });
-      } else {
-        // "higher" price is better
-        sortedQuotes = [...successfulQuotes].sort(
-          (a, b) => Number(b.outputAmount) - Number(a.outputAmount),
-        );
-      }
-
-      sortedQuotes.forEach((quote, rank) => {
-        if (!providerMap.has(quote.provider)) {
-          providerMap.set(quote.provider, []);
-        }
-        providerMap.get(quote.provider)?.push({
-          x: timeIndex,
-          y: rank + 1,
-        });
+      const successfulQuotes = snapshot.filter(
+        (q) => q.success && q.simulation.success,
+      ) as SuccessfulSimulatedQuote[];
+      const sorted = sortQuotesByPerformance({
+        quotes: successfulQuotes,
+        metric,
+        ascending: metric !== "outputAmount",
       });
+
+      // determine rank (where multiple can tie)
+      let rank = 1;
+      let lastValue: bigint | number | undefined = sorted[0].performance[metric];
+      const ranks = sorted.map((quote) => {
+        if (quote.performance[metric] !== lastValue) {
+          rank += 1;
+          lastValue = quote.performance[metric];
+        }
+        return { provider: quote.provider, rank };
+      });
+
+      for (const provider of providers) {
+        providerMap.get(provider)?.push({
+          x: timeIndex,
+          y: ranks.find((r) => r.provider === provider)?.rank || null,
+        });
+      }
     });
 
     return Array.from(providerMap.entries()).map(([provider, data]) => ({
@@ -278,8 +288,7 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
   }, [quoteHistory, selectedMetric]);
 
   const maxRank = useMemo(() => {
-    if (chartData.length === 0) return 2;
-    return Math.max(...chartData.flatMap((serie) => serie.data.map((d) => d.y)));
+    return Math.max(chartData.length, 2);
   }, [chartData]);
 
   const rowHeight = 40;
