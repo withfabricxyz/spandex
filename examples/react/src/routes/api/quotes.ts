@@ -18,11 +18,10 @@ const config = createConfig({
     odos({}),
     kyberswap({ clientId: "spandex_ui" }),
     fabric({ appId: "spandex_ui" }),
-    zeroX({ apiKey: process.env.ZEROX_API_KEY || "" }),
-  ],
+    process.env.ZEROX_API_KEY ? zeroX({ apiKey: process.env.ZEROX_API_KEY }) : undefined,
+  ].filter((p): p is NonNullable<typeof p> => Boolean(p)),
   options: {
     deadlineMs: 5_000,
-    // Add integrator fees, etc
   },
 });
 
