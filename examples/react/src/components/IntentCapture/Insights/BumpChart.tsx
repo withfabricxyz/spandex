@@ -100,7 +100,7 @@ function CustomLabelsLayer({ series }: any) {
         id: serie.id,
         x: lastPoint[0],
         y: lastPoint[1],
-        color: COLORS[serie.id] || COLORS.fallback,
+        color: serie.color || "#999",
         adjustedY: lastPoint[1],
       };
     })
@@ -180,7 +180,7 @@ function EndPointsLayer({ series }: any) {
         if (points.length === 0) return null;
 
         const lastPoint = points[points.length - 1];
-        const color = COLORS[serie.id] || "#999";
+        const color = serie.color || "#999";
 
         const x = lastPoint[0];
         const y = lastPoint[1];
@@ -245,7 +245,7 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
     if (quoteHistory.length === 0) return [];
 
     const providers = new Set<string>(quoteHistory.flat().map((q) => q.provider));
-    const providerMap = new Map<string, Array<{ x: number; y: number | null }>>();
+    const providerMap = new Map<string, Array<{ x: number; y: number; failed: boolean }>>();
     for (const provider of providers) {
       providerMap.set(provider, []);
     }
@@ -274,15 +274,18 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
       });
 
       for (const provider of providers) {
+        const rank = ranks.find((r) => r.provider === provider);
         providerMap.get(provider)?.push({
           x: timeIndex,
-          y: ranks.find((r) => r.provider === provider)?.rank || null,
+          y: rank?.rank || providers.size,
+          failed: rank === undefined,
         });
       }
     });
 
     return Array.from(providerMap.entries()).map(([provider, data]) => ({
       id: provider,
+      color: data[data.length - 1].failed ? COLORS.fallback : COLORS[provider] || COLORS.fallback,
       data,
     }));
   }, [quoteHistory, selectedMetric]);
@@ -328,7 +331,7 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
         <div style={{ height: `${chartHeight}px` }}>
           <ResponsiveBump
             data={chartData}
-            colors={(serie) => COLORS[serie.id] || COLORS.fallback}
+            colors={(serie) => serie.color}
             lineWidth={2}
             activeLineWidth={2}
             inactiveLineWidth={2}
