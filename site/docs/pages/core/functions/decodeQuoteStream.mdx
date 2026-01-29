@@ -1,0 +1,32 @@
+# decodeQuoteStream
+
+Decode a quote stream produced by `newQuoteStream` into an array of quote promises.
+
+## Example
+
+```ts
+import { decodeQuoteStream } from "@spandex/core";
+
+const response = await fetch("/api/quotes");
+if (!response.body) {
+  throw new Error("No response body");
+}
+
+const quotePromises = await decodeQuoteStream(response.body);
+const quotes = await Promise.all(quotePromises);
+
+console.log(quotes.length);
+```
+
+## Params
+
+### stream
+`ReadableStream<Uint8Array>`
+
+Stream of serialized quotes produced by `newQuoteStream`.
+
+## Returns
+
+`Promise<Array<Promise<Quote>>>`
+
+Promises that resolve to quotes as they stream in.

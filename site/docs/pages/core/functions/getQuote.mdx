@@ -1,0 +1,99 @@
+# getQuote
+
+Fetch quotes, simulate them, and return a single winning quote based on a selection strategy.
+
+## Example
+
+:::code-group
+
+```ts [getQuote] twoslash
+import { getQuote } from "@spandex/core";
+import { config } from "./config.js";
+
+const quote = await getQuote({
+  config,
+  swap: {
+    chainId: 8453,
+    inputToken: "0x4200000000000000000000000000000000000006", // WETH
+    outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
+    mode: "exactIn",
+    inputAmount: 1_000_000_000_000_000_000n, // 1 WETH
+    slippageBps: 50,
+    swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
+  },
+  strategy: "bestPrice",
+});
+
+if (!quote) {
+  throw new Error("No providers returned a successful quote");
+}
+
+console.log(quote.provider, quote.simulation.outputAmount);
+```
+
+```ts [config] filename="config.ts" twoslash
+import { createConfig, fabric, odos } from "@spandex/core";
+import { createPublicClient, http, type PublicClient } from "viem";
+import { base } from "viem/chains";
+
+const client = createPublicClient({
+  chain: base,
+  transport: http("https://base.drpc.org"),
+});
+
+export const config = createConfig({
+  providers: [fabric({ appId: "your app id" }), odos({})],
+  clients: [client] as PublicClient[],
+});
+```
+
+:::
+
+## Params
+
+### config
+`Config`
+
+Aggregator configuration object created via [`createConfig`](./createConfig.mdx).
+
+### swap
+`SwapParams`
+
+Parameters defining the swap operation. See [SwapParams reference](/reference/SwapParams.mdx) for details.
+
+### strategy
+`QuoteSelectionStrategy`
+
+Selection strategy used to pick a winning quote. Built-in strategy names:
+
+| Strategy | Waits for All | Selection Criteria | Best For |
+|----------|---------------|-------------------|----------|
+| `bestPrice` | ✓ | Highest simulated output | Price optimization |
+| `estimatedGas` | ✓ | Lowest simulated gas used | Gas efficiency |
+| `fastest` | ✗ | First success | Lowest latency |
+| `priority` | ✗ | Provider order | Failover chains |
+| Custom | Depends | Your logic | Special requirements |
+
+Custom function signature:
+
+```ts
+type QuoteSelectionFn = (
+  quotes: Array<Promise<SimulatedQuote>>
+) => Promise<SuccessfulSimulatedQuote | null>
+```
+
+### client
+`PublicClient | undefined`
+
+Optional custom PublicClient to use for onchain simulations. If not provided, the configured clients in the `config` will be used.
+
+### simulate
+`typeof simulateQuote | undefined`
+
+Optional override for the simulation function used on each quote.
+
+## Returns
+
+`Promise<SuccessfulSimulatedQuote | null>`
+
+Winning simulated quote, or `null` if no provider succeeds.

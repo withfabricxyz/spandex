@@ -15,6 +15,7 @@ provider to test alternate configurations.
 | `kyberswap` | no | [View](/providers/kyberswap.mdx) |
 | `odos` | no | [View](/providers/odos.mdx) |
 | `lifi` | no | [View](/providers/lifi.mdx) |
+| `relay` | no | [View](/providers/relay.mdx) |
 
 Example:
 
@@ -31,6 +32,25 @@ const providers = [
     appId: "YOUR_FABRIC_APP_ID",
   }),
 ];
+```
+
+---
+
+### proxy
+
+`AggregatorProxy`
+
+Proxy instance used to delegate quote fetching to a server endpoint. When `proxy` is set, you cannot
+set `providers` or `options` in the same config.
+
+Example:
+
+```ts
+import { createConfig, proxy } from "@spandex/core";
+
+const config = createConfig({
+  proxy: proxy({ pathOrUrl: "https://example.com/api/quotes" }),
+});
 ```
 
 ---
@@ -75,4 +95,4 @@ Surplus share for the integrator (in basis points). Only applicable if the provi
 
 `PublicClient[] | ((chainId: number) => PublicClient | undefined)`
 
-A list of viem/wagmi clients or a lookup function to get the client for a specific chain ID. This is used to fetch on-chain data for quote simulation and validation. If not provided `getQuotes` will fail. If you wish to only get quotes without validating onchain, use `getRawQuotes` instead. When using `SpandexProvider`, the wagmi clients from the provider will be used automatically.
+A list of viem/wagmi clients or a lookup function to get the client for a specific chain ID. This is used to fetch on-chain data for quote simulation and validation. If not provided, `getQuotes`, `getQuote`, and simulation utilities will fail. If you wish to only get quotes without validating onchain, use `getRawQuotes` instead. When using `SpandexProvider`, the wagmi clients from the provider will be used automatically.

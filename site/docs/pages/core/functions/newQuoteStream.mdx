@@ -1,0 +1,37 @@
+# newQuoteStream
+
+Create a `ReadableStream` that emits serialized quotes as each promise resolves. This is useful for server-to-client streaming.
+
+## Example
+
+```ts
+import { newQuoteStream, prepareQuotes } from "@spandex/core";
+import { config, swap } from "./config.js";
+
+export async function GET() {
+  const promises = await prepareQuotes({
+    config,
+    swap,
+    mapFn: async (quote) => quote,
+  });
+
+  return new Response(newQuoteStream(promises), {
+    headers: {
+      "Content-Type": "application/octet-stream",
+    },
+  });
+}
+```
+
+## Params
+
+### promises
+`Array<Promise<Quote>>`
+
+Quote promises to resolve and stream.
+
+## Returns
+
+`ReadableStream<Uint8Array>`
+
+Stream of serialized quote frames.

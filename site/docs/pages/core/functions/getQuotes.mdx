@@ -1,6 +1,6 @@
 # getQuotes
 
-Fetches quotes from all configured providers and simulate the provided transactions to validate the swap operation and the final token output amount.
+Fetches quotes from all configured providers and simulates the quote transactions to validate the swap operation and the final token output amount.
 
 ## Example
 
@@ -24,9 +24,9 @@ const quotes = await getQuotes({
 });
 
 for (const quote of quotes) {
-  if (quote.success) {
+  if (quote.success && quote.simulation.success) {
     console.log(
-      `${quote.provider} yields ${quote.simulatedOutputAmount}`
+      `${quote.provider} yields ${quote.simulation.outputAmount}`
     );
   }
 }

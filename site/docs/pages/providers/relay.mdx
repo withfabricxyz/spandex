@@ -1,0 +1,24 @@
+import { Button } from 'vocs/components'
+
+# Relay
+
+<div className="flex flex-row gap-4">
+  <Button href="https://relay.link">Homepage</Button>
+  <Button href="https://docs.relay.link/references/api/get-quote">Docs</Button>
+</div>
+
+## Configuration
+
+```ts twoslash
+import { createConfig, relay } from "@spandex/core";
+
+export const config = createConfig({
+  providers: [
+    relay({
+      // Optional, override the API base URL
+      url: undefined,
+    }),
+    // ...
+  ],
+});
+```
