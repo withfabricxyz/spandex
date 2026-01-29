@@ -34,12 +34,12 @@ A list of promises each resolving to a simulated quote. These can be created via
 ### strategy
 `QuoteSelectionStrategy`
 
-Function that maps each fetched quote to a promise of type `T`. This allows for custom processing of each quote, such as simulation or other enrichment. Identity function is also valid.
+Strategy used to pick a winning quote.
 
 | Strategy | Waits for All | Selection Criteria | Best For |
 |----------|---------------|-------------------|----------|
-| `quotedPrice` | ✓ | Highest simulated output | Price optimization |
-| `quotedGas` | ✓ | Lowest simulated gas | Gas efficiency |
+| `bestPrice` | ✓ | Highest simulated output | Price optimization |
+| `estimatedGas` | ✓ | Lowest simulated gas used | Gas efficiency |
 | `fastest` | ✗ | First success | Speed/latency |
 | `priority` | ✗ | Provider order | Fallback chains |
 | Custom | Depends | Your logic | Special requirements |
@@ -47,8 +47,7 @@ Function that maps each fetched quote to a promise of type `T`. This allows for 
 **Custom**
 ```ts
 type QuoteSelectionFn = (
-  quotes: Array<Promise<SimulatedQuote>>,
-  context?: QuoteSelectionContext
+  quotes: Array<Promise<SimulatedQuote>>
 ) => Promise<SuccessfulSimulatedQuote | null>
 ```
 
@@ -57,4 +56,3 @@ type QuoteSelectionFn = (
 `Promise<SuccessfulSimulatedQuote | null>`
 
 A promise for a single simulated quote that offers the best outcome depending on the strategy.
-

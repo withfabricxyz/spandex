@@ -1,0 +1,63 @@
+# simulateQuote
+
+Simulate a single quote onchain and decorate it with simulation results.
+
+## Example
+
+```ts
+import { getRawQuotes, simulateQuote } from "@spandex/core";
+import { config, client } from "./config.js";
+
+const swap = {
+  chainId: 8453,
+  inputToken: "0x4200000000000000000000000000000000000006",
+  outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA",
+  mode: "exactIn",
+  inputAmount: 1_000_000_000_000_000_000n,
+  slippageBps: 50,
+  swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
+};
+
+const quotes = await getRawQuotes({
+  config,
+  swap,
+});
+
+const first = quotes.find((quote) => quote.success);
+if (!first) {
+  throw new Error("No successful quotes to simulate");
+}
+
+const simulated = await simulateQuote({
+  quote: first,
+  swap,
+  client,
+});
+
+if (simulated.success && simulated.simulation.success) {
+  console.log(simulated.simulation.outputAmount);
+}
+```
+
+## Params
+
+### client
+`PublicClient`
+
+Client used to perform the simulation.
+
+### swap
+`SwapParams`
+
+Swap parameters associated with the quote. See [SwapParams reference](/reference/SwapParams.mdx) for details.
+
+### quote
+`Quote`
+
+Quote to simulate.
+
+## Returns
+
+`Promise<SimulatedQuote>`
+
+The quote decorated with simulation results. Simulation failures are returned in the `simulation` field (for example `SimulationRevertError`).

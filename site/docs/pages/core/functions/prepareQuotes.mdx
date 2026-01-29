@@ -11,9 +11,9 @@ import { prepareQuotes, type Quote } from "@spandex/core";
 import { config } from "./config.ts";
 
 // Identity fn
-async function mapFn(quote: Quote) => Promise<Quote> {
+async function mapFn(quote: Quote): Promise<Quote> {
   return quote;
-};
+}
 
 const promises = await prepareQuotes({
   config,

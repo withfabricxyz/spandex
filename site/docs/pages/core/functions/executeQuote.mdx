@@ -1,20 +1,67 @@
 # executeQuote
 
-Execute a quote single simulated quote onchain using a wallet client. Considers approval requirements and gas estimation.
+Execute a simulated quote onchain using a wallet client. Handles approval requirements and supports EIP-5792 batch calls when available.
 
 ## Example
 
-TODO: Flush out implementation example
-
 :::code-group
 
-```ts [executeQuote]
-import { executeQuote } from "@spandex/core";
+```ts [executeQuote] twoslash
+import { executeQuote, getQuote } from "@spandex/core";
+import { config, publicClient, walletClient } from "./config.js";
 
-const quote = executeQuote({
+const swap = {
+  chainId: 8453,
+  inputToken: "0x4200000000000000000000000000000000000006", // WETH
+  outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
+  mode: "exactIn",
+  inputAmount: 1_000_000_000_000_000_000n, // 1 WETH
+  slippageBps: 50, // Tolerance
+  swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
+};
+
+const quote = await getQuote({
+  config,
+  swap,
+  strategy: "bestPrice",
+});
+
+if (!quote) {
+  throw new Error("No providers returned a successful quote");
+}
+
+const result = await executeQuote({
+  config,
+  swap,
   quote,
   walletClient,
   publicClient,
+});
+
+console.log(result.transactionHash);
+```
+
+```ts [config] filename="config.ts" twoslash
+import { createConfig, fabric, odos } from "@spandex/core";
+import { createPublicClient, createWalletClient, http, type PublicClient } from "viem";
+import { base } from "viem/chains";
+
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http("https://base.drpc.org"),
+});
+
+const walletClient = createWalletClient({
+  account: "0xdead00000000000000000000000000000000beef",
+  chain: base,
+  transport: http(),
+});
+
+export { publicClient, walletClient };
+
+export const config = createConfig({
+  providers: [fabric({ appId: "your app id" }), odos({})],
+  clients: [publicClient] as PublicClient[],
 });
 ```
 
@@ -22,10 +69,20 @@ const quote = executeQuote({
 
 ## Params
 
+### swap
+`SwapParams`
+
+Swap parameters used to build the approval + swap transactions.
+
 ### quote
 `SimulatedQuote`
 
-The simulated quote to be executed. This should be obtained via the [`getQuotes`](./getQuotes.mdx) function and optionally processed via [`selectQuote`](./selectQuote.mdx).
+The simulated quote to be executed. This should be obtained via [`getQuotes`](./getQuotes.mdx) or [`getQuote`](./getQuote.mdx). If the quote is not successful, `executeQuote` throws an `ExecutionError`.
+
+### config
+`Config`
+
+Aggregator configuration object created via [`createConfig`](./createConfig.mdx). Used to resolve clients and options.
 
 ### walletClient
 `WalletClient`
@@ -33,12 +90,12 @@ The simulated quote to be executed. This should be obtained via the [`getQuotes`
 A Viem wallet client configured with the swapper's account and chain. This client is used to sign and send the transaction.
 
 ### publicClient
-`PublicClient`
+`PublicClient | undefined`
 
-A viem public client for onchain data fetching (e.g. allowance checks) and gas estimation.
+Optional public client for onchain reads (allowance checks, gas estimation, and receipt polling). If omitted, the configured client for the swap chain is used.
 
 ## Returns
 
-`Promise<QuoteExecutionResult>`
+`Promise<ExecutedQuoteReturnType>`
 
-A promise for an execution result containing the transaction receipt and details of the executed quote.
+A promise for an execution result containing the transaction hash.

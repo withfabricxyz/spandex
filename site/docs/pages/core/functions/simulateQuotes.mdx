@@ -1,0 +1,57 @@
+# simulateQuotes
+
+Simulate a batch of quotes given shared swap parameters and a client.
+
+## Example
+
+```ts
+import { getRawQuotes, simulateQuotes } from "@spandex/core";
+import { config, client } from "./config.js";
+
+const swap = {
+  chainId: 8453,
+  inputToken: "0x4200000000000000000000000000000000000006",
+  outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA",
+  mode: "exactIn",
+  inputAmount: 1_000_000_000_000_000_000n,
+  slippageBps: 50,
+  swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
+};
+
+const quotes = await getRawQuotes({ config, swap });
+
+const simulated = await simulateQuotes({
+  client,
+  swap,
+  quotes,
+});
+
+for (const quote of simulated) {
+  if (quote.success && quote.simulation.success) {
+    console.log(quote.provider, quote.simulation.outputAmount);
+  }
+}
+```
+
+## Params
+
+### client
+`PublicClient`
+
+Client used to perform the simulations.
+
+### swap
+`SwapParams`
+
+Swap parameters shared across all quotes. See [SwapParams reference](/reference/SwapParams.mdx) for details.
+
+### quotes
+`Quote[]`
+
+Quotes to simulate.
+
+## Returns
+
+`Promise<SimulatedQuote[]>`
+
+Quotes decorated with simulation results. Simulation failures are represented in the `simulation` field.

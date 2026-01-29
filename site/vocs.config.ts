@@ -36,6 +36,24 @@ export default defineConfig({
           text: "Functions",
           items: [
             {
+              text: "createConfig",
+              link: "/core/functions/createConfig",
+            },
+            {
+              text: "getQuote",
+              link: "/core/functions/getQuote",
+            },
+            {
+              text: "executeQuote",
+              link: "/core/functions/executeQuote",
+            },
+          ],
+        },
+        {
+          text: "Advanced",
+          collapsed: true,
+          items: [
+            {
               text: "getQuotes",
               link: "/core/functions/getQuotes",
             },
@@ -52,12 +70,34 @@ export default defineConfig({
               link: "/core/functions/selectQuote",
             },
             {
-              text: "executeQuote",
-              link: "/core/functions/executeQuote",
+              text: "simulateQuote",
+              link: "/core/functions/simulateQuote",
             },
             {
-              text: "createConfig",
-              link: "/core/functions/createConfig",
+              text: "simulateQuotes",
+              link: "/core/functions/simulateQuotes",
+            },
+          ],
+        },
+        {
+          text: "Utils",
+          collapsed: true,
+          items: [
+            {
+              text: "newQuoteStream",
+              link: "/core/functions/newQuoteStream",
+            },
+            {
+              text: "decodeQuoteStream",
+              link: "/core/functions/decodeQuoteStream",
+            },
+            {
+              text: "sortQuotesByPerformance",
+              link: "/core/functions/sortQuotesByPerformance",
+            },
+            {
+              text: "getPricing",
+              link: "/core/functions/getPricing",
             },
           ],
         },
@@ -126,8 +166,8 @@ export default defineConfig({
               link: "/providers/lifi",
             },
             {
-              text: "1inch",
-              link: "/providers/1inch",
+              text: "Relay",
+              link: "/providers/relay",
             },
           ],
         },

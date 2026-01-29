@@ -46,8 +46,9 @@ export const config = createConfig({
 
 ```ts filename="quote.ts" twoslash
 import { config } from "./config.js";
-import { createWalletClient } from "viem";
-import { executeBestQuote } from "@spandex/core";
+import { createWalletClient, http } from "viem";
+import { executeQuote, getQuote } from "@spandex/core";
+import { base } from "viem/chains";
 
 const swapParams = {
   chainId: 8453,
@@ -59,22 +60,29 @@ const swapParams = {
   swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
 };
 
-// Fetch quotes from all configured providers then simulate each onchain
-const quotes = await getQuotes({
+const quote = await getQuote({
   config,
-  params: swapParams,
+  swap: swapParams,
+  strategy: "bestPrice",
 });
 
-// Setup wallet and execute the best quote (max simulated output amount)
-const { receipt, quote } = executeBestQuote({
-  walletClient: createWalletClient({
-    account: "0xdead00000000000000000000000000000000beef",
-    chain: base,
-    transport: http(),
-  }),
-  quotes,
+if (!quote) {
+  throw new Error("No providers responded in time");
+}
+
+const walletClient = createWalletClient({
+  account: "0xdead00000000000000000000000000000000beef",
+  chain: base,
+  transport: http(),
 });
 
-console.log(`Swapped via ${quote.provider} @ ${receipt.transactionHash}`);
+const { transactionHash } = await executeQuote({
+  config,
+  swap: swapParams,
+  quote,
+  walletClient,
+});
+
+console.log(`Swapped via ${quote.provider} @ ${transactionHash}`);
 
 ```

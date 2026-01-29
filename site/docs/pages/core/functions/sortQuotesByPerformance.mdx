@@ -1,0 +1,62 @@
+# sortQuotesByPerformance
+
+Sort successful simulated quotes by a selected performance metric.
+
+## Example
+
+```ts
+import {
+  getRawQuotes,
+  simulateQuotes,
+  sortQuotesByPerformance,
+  type SuccessfulSimulatedQuote,
+} from "@spandex/core";
+import { config, client } from "./config.js";
+
+const swap = {
+  chainId: 8453,
+  inputToken: "0x4200000000000000000000000000000000000006",
+  outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA",
+  mode: "exactIn",
+  inputAmount: 1_000_000_000_000_000_000n,
+  slippageBps: 50,
+  swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
+};
+
+const quotes = await getRawQuotes({ config, swap });
+const simulated = await simulateQuotes({ quotes, swap, client });
+const successful = simulated.filter(
+  (quote) => quote.success && quote.simulation.success,
+) as SuccessfulSimulatedQuote[];
+
+const sorted = sortQuotesByPerformance({
+  quotes: successful,
+  metric: "accuracy",
+  ascending: true,
+});
+
+console.log(sorted[0]?.performance);
+```
+
+## Params
+
+### quotes
+`SuccessfulSimulatedQuote[]`
+
+Quotes to sort. Only successful simulated quotes include performance metrics.
+
+### metric
+`keyof QuotePerformance`
+
+Metric to sort by. Supported metrics include `latency`, `gasUsed`, `outputAmount`, `priceDelta`, and `accuracy`.
+
+### ascending
+`boolean | undefined`
+
+Sort order (default: `true`). When `false`, the list is sorted descending.
+
+## Returns
+
+`SuccessfulSimulatedQuote[]`
+
+New array of quotes sorted by the selected performance metric.

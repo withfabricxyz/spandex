@@ -28,6 +28,26 @@ export const config = createConfig({
 });
 ```
 
+## Proxy configuration
+
+Use a proxy when fetching quotes from a server (for example, to avoid browser CORS issues).
+
+```ts
+import { createConfig, proxy } from "@spandex/core";
+import { createPublicClient, http, type PublicClient } from "viem";
+import { base } from "viem/chains";
+
+const client = createPublicClient({
+  chain: base,
+  transport: http("https://base.drpc.org"),
+});
+
+export const config = createConfig({
+  proxy: proxy({ pathOrUrl: "https://example.com/api/quotes" }),
+  clients: [client] as PublicClient[],
+});
+```
+
 <ConfigParams />
 
 ## Returns
