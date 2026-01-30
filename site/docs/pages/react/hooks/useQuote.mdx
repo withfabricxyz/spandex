@@ -1,0 +1,56 @@
+# useQuote
+
+Fetch quotes from all configured aggregators, simulate them, and select a winner using a strategy.
+
+## Example
+
+```ts twoslash
+import { useQuote } from "@spandex/react";
+
+function App() {
+  const { data, isLoading, error } = useQuote({
+    swap: {
+      inputToken: "0x4200000000000000000000000000000000000006", // WETH
+      outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
+      mode: "exactIn",
+      inputAmount: 1_000_000_000_000_000_000n, // 1 WETH
+      slippageBps: 50, // Tolerance
+    },
+    strategy: "bestPrice",
+  });
+}
+```
+
+## Returns
+
+```ts
+{
+  data: SuccessfulSimulatedQuote | null | undefined;
+  isLoading: boolean;
+  error: Error | null;
+  // ...other React Query return values
+}
+```
+
+## Params
+
+### swap
+
+The swap parameters, with optional `chainId` and `swapperAccount`, which are inferred from the current connection if not provided.
+
+#### swap params
+
+- `inputToken: string` - The input token address.
+- `outputToken: string` - The output token address.
+- `mode: "exactIn" | "targetOut"` - The swap mode.
+- `inputAmount?: bigint` - The input amount (required if mode is "exactIn").
+- `outputAmount?: bigint` - The desired output amount (required if mode is "targetOut").
+- `slippageBps: number` - The slippage tolerance in basis points.
+
+### strategy
+
+Defines how to choose the winning quote. Built-in strategies are `"fastest"`, `"bestPrice"`, `"estimatedGas"`, and `"priority"`. You can also supply a custom selection function.
+
+### query
+
+Optional React Query overrides (for example `enabled`, `staleTime`, or `select`). queryKey and queryFn are managed by Spandex and cannot be provided.

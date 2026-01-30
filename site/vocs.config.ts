@@ -115,6 +115,10 @@ export default defineConfig({
           text: "Hooks",
           items: [
             {
+              text: "useQuote",
+              link: "/react/hooks/useQuote",
+            },
+            {
               text: "useQuotes",
               link: "/react/hooks/useQuotes",
             },
