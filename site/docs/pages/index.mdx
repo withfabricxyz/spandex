@@ -8,13 +8,8 @@ content:
   verticalPadding: 0px
 ---
 
-import { Logo0x } from '../components/logo/0x';
-import { LifiLogo } from '../components/logo/lifi';
-import { FabricLogo } from '../components/logo/fabric';
-import { KyberSwapLogo } from '../components/logo/kyberswap';
-import { OneInchLogo } from '../components/logo/1inch';
-import { OdosLogo } from '../components/logo/odos';
 import { SpandexLogo } from "../components/logo/spandex";
+import { ProviderMarquee } from "../components/ProviderMarquee";
 
 import '../styles.css'
 
@@ -23,31 +18,31 @@ import '../styles.css'
     <SpandexLogo />
   </div>
 
-  <div className="logos">
-    <Logo0x className="logos__item" />
-    <LifiLogo className="logos__item" />
-    <FabricLogo className="logos__item" />
-    <KyberSwapLogo className="logos__item" />
-    <OneInchLogo className="logos__item" />
-    <OdosLogo className="logos__item" />
-  </div>
+  <hr />
 
   <div className="value-prop">
-    <h1 className="value-prop__title">Query multiple DEX aggregators and find the best price</h1>
-    <ul className="value-prop__items">
-      <li className="value-prop__item">Expand tokens, pools, and chains beyond any single aggregator</li>
-      <li className="value-prop__item">Get multiple simulated quotes to ensure the best price</li>
-      <li className="value-prop__item">Fail over when providers fail</li>
-      <li className="value-prop__item">Open source library without middleman tax</li>
+    <h1>Query multiple DEX aggregators and find the best price</h1>
+    <ul>
+      <li className="value-prop__item">Expands tokens, pools, and chains beyond any single aggregator</li>
+      <li className="value-prop__item">Provides multiple quotes to find the best price</li>
+      <li className="value-prop__item">Provides redundancy when a provider fails</li>
     </ul>
   </div>
 
+  <hr />
+
   <div className="cta">
     <a href="/getting-started" className="cta__button cta__button--primary">Get Started</a>
-    <a href="/overview" className="cta__button cta__button--secondary">Why spanDEX?</a>
+    <a href="/overview" className="cta__button cta__button--secondary">Benefits</a>
     <a href="https://github.com/withfabricxyz/spandex" target="_blank" className="cta__button cta__button--tertiary">GitHub</a>
     <a href="https://swap.spandex.sh" target="_blank" className="cta__button cta__button--extrary">Demo</a>
   </div>
+
+  <div className="flex flex-col gap-4">
+    <span className="agg">Aggregators—</span>
+    <ProviderMarquee />
+  </div>
+
 
   :::code-group
   ```ts [core]
@@ -61,6 +56,20 @@ import '../styles.css'
   ```
 
   :::
+
+  <hr />
+
+  <div className="flex justify-between">
+    <div className="flex gap-10">
+      <a href="/getting-started" className="footer-cta__link">Get Started</a>
+      <a href="/overview" className="footer-cta__link">Benefits</a>
+      <a href="https://github.com/withfabricxyz/spandex" target="_blank" className="footer-cta__link">GitHub</a>
+    </div>
+    <div className="flex gap-10">
+      <a href="https://demo.spandex.sh" target="_blank" className="footer-cta__link">Demo</a>
+      <a href="https://benchmarks.spandex.sh" target="_blank" className="footer-cta__link">Quotebench</a>
+    </div>
+  </div>
 
 
 </div>
