@@ -142,7 +142,7 @@ export function IntentCapture() {
   const {
     data: quotes,
     isLoading: isLoadingQuotes,
-    error: quotesError,
+    error: quotesQueryError,
   } = useQuotes({
     swap,
     query,
@@ -173,54 +173,55 @@ export function IntentCapture() {
 
   // derive all swap errors
   const errors: SwapErrorState = useMemo(() => {
-    const state: SwapErrorState = {};
+    const state: SwapErrorState = {
+      connection: [],
+      input: [],
+      quote: [],
+      simulation: [],
+      transaction: [],
+    };
 
     if (!isConnected) {
-      state.connection = {
+      state.connection.push({
         title: "Connect wallet to swap",
         cause: "disconnected",
-      };
+      });
     }
 
-    const inputError = validateSwapInput(numSellTokens, sellTokenBalance, sellToken.decimals);
-
-    if (inputError) {
-      state.input = inputError;
+    const inputErrors = validateSwapInput(numSellTokens, sellTokenBalance, sellToken, buyToken);
+    if (inputErrors) {
+      state.input.push(...inputErrors);
     }
 
-    if (quotesError) {
-      state.quote = {
+    if (quotesQueryError) {
+      state.quote.push({
         title: "Failed to fetch quotes",
         description: "There was an error fetching quotes for this swap",
-        details: quotesError.message,
-        cause: quotesError,
-      };
+        details: quotesQueryError.message,
+        cause: quotesQueryError,
+      });
     }
 
-    // TODO: spandex selectQuote
-    // quotes failed
     if (quotes?.length && !bestQuote) {
-      state.quote = {
+      state.quote.push({
         title: "No valid quotes available",
         description: "All aggregators failed to return a quote",
         cause: quotes,
-      };
+      });
     }
 
-    // we have our best quote, but that quote's simulation failed
     if (bestQuote?.success && !bestQuote.simulation.success) {
       const reason = getSimulationFailureReason(bestQuote, allowance);
-      state.simulation = {
+      state.simulation.push({
         title: reason || "Simulation failed",
         description: "This swap will likely fail if executed",
         details: bestQuote.simulation.error?.message,
         cause: bestQuote.simulation,
-      };
+      });
     }
 
-    // set by tx button callback
     if (txError) {
-      state.transaction = txError;
+      state.transaction.push(txError);
     }
 
     return state;
@@ -228,16 +229,18 @@ export function IntentCapture() {
     isConnected,
     numSellTokens,
     sellTokenBalance,
-    sellToken.decimals,
+    sellToken,
+    buyToken,
     quotes,
-    quotesError,
+    quotesQueryError,
     bestQuote,
     allowance,
     txError,
   ]);
 
-  // TODO: handle no wallet connected state
-  const hasBlockingError = Boolean(errors.input || errors.quote || errors.simulation);
+  const hasBlockingError = Boolean(
+    errors.input.length || errors.quote.length || errors.simulation.length,
+  );
 
   const calls = useMemo(
     () =>

@@ -42,7 +42,8 @@ export function LineItems({
   const getInaccuracyValue = () => {
     const quoteInaccuracy = getQuoteInaccuracy(quote);
 
-    if (errors?.simulation) return errors.simulation.title;
+    if (errors?.simulation)
+      return errors.simulation.find((e) => e.cause === "simulation")?.title || "Simulation failed";
     if (quoteInaccuracy !== null) return `${quoteInaccuracy / 100} bps`;
 
     return "N/A";
@@ -71,8 +72,11 @@ export function LineItems({
   }[] = [
     {
       label: "Winning Aggregator",
-      value: quote ? quote.provider : "N/A",
-      color: quote ? COLORS[quote.provider.toLowerCase()] : undefined,
+      value: errors?.input.length || errors?.quote.length || !quote ? "N/A" : quote.provider,
+      color:
+        errors?.input.length || errors?.quote.length || !quote
+          ? undefined
+          : COLORS[quote.provider.toLowerCase()],
     },
     {
       label: <LatencyTooltip successfulQuotes={successfulQuotes} />,

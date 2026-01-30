@@ -99,7 +99,7 @@ export function Header() {
             {isConnected ? (
               <Tooltip
                 trigger={
-                  <div className="rounded-[0_0_2px_2px] h-20 w-20 relative border border-primary border-r-0">
+                  <div className="rounded-[2px_0px_0px_2px] h-20 w-20 relative border border-primary border-r-0">
                     <div className="h-10 w-10 absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
                       <img src={`/images/${chainId}@2x.png`} alt={`Chain ${chainId}`} />
                     </div>
@@ -110,6 +110,7 @@ export function Header() {
             ) : null}
             <Button
               variant={isConnected ? "secondary" : "primary"}
+              className={isConnected ? "rounded-[0_2px_2px_0px]" : undefined}
               onClick={() => {
                 if (!isConnected) return setIsModalOpen(true);
                 handleDisconnect();

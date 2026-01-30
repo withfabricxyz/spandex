@@ -144,7 +144,7 @@ export function SuccessSplash({ sellToken, buyToken, successfulTx, onClose }: Su
   return (
     <div
       style={{ backgroundImage: "url(/images/splash-success-bg@2px.png)" }}
-      className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-360 text-primary z-layer-dialog p-20"
+      className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-360 text-primary z-layer-dialog p-20 bg-cover"
     >
       <div className="h-dvh flex flex-col items-center justify-center gap-40 text-white text-center">
         <span className="uppercase text-[28px] leading-12">Success</span>

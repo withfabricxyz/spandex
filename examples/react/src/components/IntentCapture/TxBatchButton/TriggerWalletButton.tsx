@@ -23,10 +23,12 @@ export function TriggerWalletButton({
       ) : null}
       {Object.entries(errors || {}).length > 0 ? (
         <div className="flex flex-col gap-4">
-          {Object.entries(errors || {}).map(([key, error]) =>
-            error ? (
+          {Object.entries(errors || {}).map(([key, errorCategory]) =>
+            errorCategory ? (
               <span key={key} className="text-[12px] text-red text-center">
-                {error.title}
+                {errorCategory.map((error) => (
+                  <div key={error.title}>{error.title}</div>
+                ))}
               </span>
             ) : null,
           )}

@@ -1,7 +1,9 @@
 import type { SimulatedQuote } from "@spandex/core";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useConnection } from "wagmi";
+import { Button } from "@/components/Button";
 import { ArrowsUpDown } from "@/components/icons";
+import { Tooltip } from "@/components/Tooltip";
 import type { TokenMetadata } from "@/services/tokens";
 import type { SwapErrorState } from "@/utils/errors";
 import { bigintToDecimalString, formatTokenValue, parseTokenValue } from "@/utils/strings";
@@ -102,12 +104,12 @@ function Inputs({
         isLoadingBalances={isLoadingBalances}
         numTokens={numSellTokens}
         onChange={setNumSellTokens}
-        // simulation error can be related to input
-        error={errors?.input || errors?.simulation}
+        errors={errors}
       />
 
       <TokenSwitcher
         canSwitch={!!balances.buyToken && balances.buyToken > 0n}
+        buyToken={buyToken}
         onSwitch={onSwitchTokens}
       />
 
@@ -122,17 +124,39 @@ function Inputs({
   );
 }
 
-function TokenSwitcher({ canSwitch, onSwitch }: { canSwitch: boolean; onSwitch: () => void }) {
-  if (!canSwitch) return null;
+function TokenSwitcher({
+  canSwitch,
+  buyToken,
+  onSwitch,
+}: {
+  canSwitch: boolean;
+  buyToken: TokenMetadata;
+  onSwitch: () => void;
+}) {
+  const [rotation, setRotation] = useState(0);
+
+  const handleSwitch = useCallback(() => {
+    setRotation((prev) => prev + 180);
+    onSwitch();
+  }, [onSwitch]);
 
   return (
-    <button
-      type="button"
-      className="absolute right-0 top-1/2 -translate-y-1/2 h-12 w-12 flex items-center justify-center cursor-pointer"
-      onClick={onSwitch}
-    >
-      <ArrowsUpDown className="fill-tertiary" />
-    </button>
+    <Tooltip
+      trigger={
+        <Button
+          variant="secondary"
+          className="absolute px-2 py-4 border-0 right-0 top-1/2 -translate-y-1/2 h-16 w-16 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+          onClick={handleSwitch}
+          disabled={!canSwitch}
+        >
+          <ArrowsUpDown
+            className="fill-quaternary transition-transform duration-175 ease-in-out pointer-events-none"
+            style={{ transform: `rotate(${rotation}deg)` }}
+          />
+        </Button>
+      }
+      content={canSwitch ? "Switch tokens" : `Not enough ${buyToken.symbol}`}
+    />
   );
 }
 
