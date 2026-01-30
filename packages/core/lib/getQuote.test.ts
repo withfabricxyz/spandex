@@ -3,6 +3,7 @@ import type { PublicClient } from "viem";
 import { defaultSwapParams, MockAggregator, quoteSuccess } from "../test/utils.js";
 import type { Config } from "./createConfig.js";
 import { getQuote } from "./getQuote.js";
+import { prepareSimulatedQuotes } from "./prepareQuotes.js";
 import type {
   SimulationArgs,
   SimulationSuccess,
@@ -52,6 +53,8 @@ async function simulateSuccess({ quote }: SimulationArgs): Promise<SuccessfulSim
   };
 }
 
+const prep = prepareSimulatedQuotes;
+
 describe("getQuote", () => {
   beforeAll(() => {
     mock.module("./prepareQuotes.js", () => ({
@@ -60,7 +63,10 @@ describe("getQuote", () => {
   });
 
   afterAll(() => {
-    mock.restore();
+    // Hack: Resets don't work yet in Bun, and mocks are not test-scoped by default
+    mock.module("./prepareQuotes.js", () => ({
+      prepareSimulatedQuotes: prep,
+    }));
   });
 
   it("uses quoted price strategy", async () => {

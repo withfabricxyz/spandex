@@ -146,7 +146,7 @@ export function IntentCapture() {
   } = useQuotes({
     swap,
     query,
-    stream: true,
+    streamResults: true,
   });
 
   // TODO: useBestQuote?
