@@ -24,10 +24,6 @@ describe("performance", () => {
     expect(quotes).toBeDefined();
     expect(quotes.length).toBeGreaterThan(1);
 
-    for (const quote of quotes) {
-      console.log(quote.provider, quote.performance);
-    }
-
     expect(
       sortQuotesByPerformance({ quotes, metric: "latency", ascending: false })[0]?.provider,
     ).toBe("kyberswap");

@@ -133,7 +133,7 @@ export function IntentCapture() {
 
   const query = useMemo(
     () => ({
-      refetchInterval: 10000, // refetch to build quote history
+      refetchInterval: 10_000, // refetch to build quote history
       enabled: swap.inputAmount > 0n,
     }),
     [swap.inputAmount],
@@ -146,6 +146,7 @@ export function IntentCapture() {
   } = useQuotes({
     swap,
     query,
+    stream: true,
   });
 
   // TODO: useBestQuote?
@@ -154,11 +155,7 @@ export function IntentCapture() {
     metric: selectedMetric,
   });
 
-  const {
-    data: allowance,
-    // isLoading: allowanceLoading,
-    // error: allowanceError,
-  } = useAllowance({
+  const { data: allowance } = useAllowance({
     chainId,
     owner: address,
     token: sellToken.address,

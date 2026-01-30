@@ -16,6 +16,10 @@ describe("useQuotes", () => {
       getQuotes: mockFetchAllQuotes,
     }));
 
+    mock.module("@spandex/core", () => ({
+      prepareSimulatedQuotes: mockFetchAllQuotes,
+    }));
+
     mock.module("wagmi", () => ({
       useConnection: () => ({
         address: TEST_ADDRESSES.alice,
@@ -48,6 +52,7 @@ describe("useQuotes", () => {
           inputAmount: 500_000_000n,
           slippageBps: 100,
         },
+        streamResults: false,
       }),
     );
 
@@ -88,6 +93,7 @@ describe("useQuotes", () => {
           chainId: TEST_CHAINS.mainnet.id,
           swapperAccount: TEST_ADDRESSES.bob,
         },
+        streamResults: false,
       }),
     );
 
@@ -121,6 +127,7 @@ describe("useQuotes", () => {
           inputAmount: 500_000_000n,
           slippageBps: 100,
         },
+        streamResults: false,
       }),
     );
 
@@ -142,6 +149,7 @@ describe("useQuotes", () => {
         query: {
           enabled: false,
         },
+        streamResults: false,
       }),
     );
 
@@ -165,6 +173,33 @@ describe("useQuotes", () => {
             return x.map((quote) => quote.provider);
           },
         },
+        streamResults: false,
+      }),
+    );
+    expect(mockFetchAllQuotes).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.data).toBeDefined();
+      expect(result.current.data?.[0]).toEqual("fabric");
+    });
+  });
+
+  it("should stream results", async () => {
+    const { result } = renderHook(() =>
+      useQuotes({
+        swap: {
+          mode: "exactIn",
+          inputToken: TEST_ADDRESSES.usdc,
+          outputToken: TEST_ADDRESSES.weth,
+          inputAmount: 500_000_000n,
+          slippageBps: 100,
+        },
+        query: {
+          select: (x: Quote[]) => {
+            return x.map((quote) => quote.provider);
+          },
+        },
+        streamResults: true,
       }),
     );
     expect(mockFetchAllQuotes).toHaveBeenCalled();

@@ -264,7 +264,7 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
 
       // determine rank (where multiple can tie)
       let rank = 1;
-      let lastValue: bigint | number | undefined = sorted[0].performance[metric];
+      let lastValue: bigint | number | undefined = sorted[0]?.performance[metric];
       const ranks = sorted.map((quote) => {
         if (quote.performance[metric] !== lastValue) {
           rank += 1;
