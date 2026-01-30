@@ -1,31 +1,74 @@
-import { describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it, mock } from "bun:test";
 import type { PublicClient } from "viem";
 import { defaultSwapParams, MockAggregator, quoteSuccess } from "../test/utils.js";
 import type { Config } from "./createConfig.js";
 import { getQuote } from "./getQuote.js";
-import type { SimulationArgs, SimulationSuccess, SuccessfulSimulatedQuote } from "./types.js";
+import { prepareSimulatedQuotes } from "./prepareQuotes.js";
+import type {
+  SimulationArgs,
+  SimulationSuccess,
+  SuccessfulSimulatedQuote,
+  SwapParams,
+} from "./types.js";
+
+const mockPrepareSimulatedQuotes = mock(
+  ({ config, swap, client }: { config: Config; swap: SwapParams; client?: PublicClient }) => {
+    const resolvedClient = client ?? ({} as PublicClient);
+    return config.aggregators.map((aggregator) =>
+      aggregator
+        .fetchQuote(swap, config.options)
+        .then((quote) => simulateSuccess({ quote, swap, client: resolvedClient })),
+    );
+  },
+);
 
 const baseSimulation: Omit<SimulationSuccess, "outputAmount"> = {
   success: true,
-  callsResults: [] as SimulationSuccess["callsResults"],
+  swapResult: {} as SimulationSuccess["swapResult"],
   latency: 0,
   gasUsed: 0n,
   blockNumber: 0n,
-  transfers: [],
+  assetChanges: [] as SimulationSuccess["assetChanges"],
 };
 
 async function simulateSuccess({ quote }: SimulationArgs): Promise<SuccessfulSimulatedQuote> {
+  if (!quote.success) {
+    throw new Error("Cannot simulate failed quote");
+  }
+  const simulation: SimulationSuccess = {
+    ...baseSimulation,
+    outputAmount: quote.outputAmount,
+    gasUsed: quote.networkFee,
+  };
   return {
-    ...(quote as SuccessfulSimulatedQuote),
-    simulation: {
-      ...baseSimulation,
-      outputAmount: quote.success ? quote.outputAmount : 0n,
-      gasUsed: quote.success ? quote.networkFee : 0n,
+    ...quote,
+    simulation,
+    performance: {
+      latency: quote.latency,
+      gasUsed: simulation.gasUsed ?? 0n,
+      outputAmount: simulation.outputAmount,
+      priceDelta: 0,
+      accuracy: 0,
     },
   };
 }
 
+const prep = prepareSimulatedQuotes;
+
 describe("getQuote", () => {
+  beforeAll(() => {
+    mock.module("./prepareQuotes.js", () => ({
+      prepareSimulatedQuotes: mockPrepareSimulatedQuotes,
+    }));
+  });
+
+  afterAll(() => {
+    // Hack: Resets don't work yet in Bun, and mocks are not test-scoped by default
+    mock.module("./prepareQuotes.js", () => ({
+      prepareSimulatedQuotes: prep,
+    }));
+  });
+
   it("uses quoted price strategy", async () => {
     const config: Config = {
       aggregators: [
@@ -40,7 +83,6 @@ describe("getQuote", () => {
       config,
       swap: defaultSwapParams,
       strategy: "bestPrice",
-      simulate: simulateSuccess,
       client: {} as PublicClient,
     });
     expect(best).toBeDefined();
@@ -61,7 +103,6 @@ describe("getQuote", () => {
       config,
       swap: defaultSwapParams,
       strategy: "estimatedGas",
-      simulate: simulateSuccess,
       client: {} as PublicClient,
     });
     expect(best).toBeDefined();
@@ -70,7 +111,6 @@ describe("getQuote", () => {
       config,
       swap: defaultSwapParams,
       strategy: "bestPrice",
-      simulate: simulateSuccess,
       client: {} as PublicClient,
     });
     expect(best).toBeDefined();

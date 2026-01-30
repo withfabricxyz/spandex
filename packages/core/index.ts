@@ -26,7 +26,7 @@ export { getPricing } from "./lib/getPricing.js";
 export { getQuote } from "./lib/getQuote.js";
 export { getQuotes } from "./lib/getQuotes.js";
 export { getRawQuotes } from "./lib/getRawQuotes.js";
-export { prepareQuotes } from "./lib/prepareQuotes.js";
+export { prepareQuotes, prepareSimulatedQuotes } from "./lib/prepareQuotes.js";
 export { selectQuote } from "./lib/selectQuote.js";
 export { SimulationRevertError, simulateQuote, simulateQuotes } from "./lib/simulateQuote.js";
 export type * from "./lib/types.js";
