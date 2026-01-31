@@ -1,14 +1,25 @@
+import type { Address } from "viem";
+import { useConnection } from "wagmi";
+import { useBalance } from "@/hooks/useBalance";
 import type { TokenMetadata } from "../../services/tokens";
-import { formatAddress } from "../../utils/strings";
+import { formatAddress, formatTokenValue } from "../../utils/strings";
 import { TokenImage } from "../TokenImage";
 import styles from "./TokenItem.module.css";
 
 type TokenItemProps = {
   token: TokenMetadata;
+  owner?: Address;
   onClick: (token: TokenMetadata) => void;
 };
 
-export function TokenItem({ token, onClick }: TokenItemProps) {
+export function TokenItem({ token, owner, onClick }: TokenItemProps) {
+  const { chainId } = useConnection();
+  const { data: balance } = useBalance({
+    chainId,
+    owner,
+    token: token.address,
+  });
+
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: <>
     // biome-ignore lint/a11y/useKeyWithClickEvents: <>
@@ -25,7 +36,9 @@ export function TokenItem({ token, onClick }: TokenItemProps) {
         </div>
 
         <div className="flex justify-end">
-          <div className="tokenBalance text-primary">{(token.usdPriceCents / 100).toFixed(2)}</div>
+          <div className="tokenBalance text-primary">
+            {owner ? `${formatTokenValue(balance || 0n, token.decimals)} ${token.symbol}` : "N/A"}
+          </div>
         </div>
       </div>
     </div>

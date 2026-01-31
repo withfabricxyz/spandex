@@ -108,7 +108,7 @@ export const ThemePicker = () => {
     <ClientOnly>
       <section
         ref={containerRef}
-        className={`fixed top-1/2 right-10 -translate-y-1/2 ${isExpanded ? "h-78" : "overflow-hidden h-14"} transition-all duration-500 origin-center`}
+        className={`hidden lg:block fixed top-1/2 right-10 -translate-y-1/2 ${isExpanded ? "h-78" : "overflow-hidden h-14"} transition-all duration-500 origin-center`}
         aria-label="Theme picker"
       >
         <form className="flex flex-col gap-2">

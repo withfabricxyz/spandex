@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { TokenImage } from "@/components/TokenImage";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
-import type { StructuredError } from "@/utils/errors";
+import type { SwapErrorState } from "@/utils/errors";
 import { bigintToDecimalString, formatTokenValue } from "@/utils/strings";
 import { Button } from "../../Button";
 
@@ -14,7 +14,7 @@ type SellTokenProps = {
   isLoadingBalances: boolean;
   numTokens: string;
   onChange: (value: string) => void;
-  error?: StructuredError;
+  errors?: SwapErrorState;
 };
 
 export function SellToken({
@@ -23,7 +23,7 @@ export function SellToken({
   isLoadingBalances,
   numTokens,
   onChange,
-  error,
+  errors,
 }: SellTokenProps) {
   const { openDrawer } = useTokenSelect();
 
@@ -67,7 +67,7 @@ export function SellToken({
         ) : (
           <input
             type="text"
-            className={`w-full text-primary text-[56px] leading-1 h-22 outline-none ${error ? "text-red" : ""}`}
+            className={`w-full text-primary text-[56px] leading-1 h-22 outline-none ${errors?.input.length ? "text-red" : ""}`}
             style={{ maxWidth: "calc(100% - 176px)" }}
             value={numTokens}
             onChange={(e) => onChange(e.target.value)}
@@ -87,7 +87,9 @@ export function SellToken({
           </div>
         </Button>
       </div>
-      <span className={`text-quaternary monospace text-[12px] ${error ? "text-red" : ""}`}>
+      <span
+        className={`text-quaternary monospace text-[12px] ${errors?.input.some((e) => e.cause === "balance") ? "text-red" : ""}`}
+      >
         {isLoadingBalances ? "Loading..." : formatTokenValue(balance || 0n, token.decimals)}{" "}
         {token.symbol}
       </span>

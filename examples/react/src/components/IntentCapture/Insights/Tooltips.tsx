@@ -28,7 +28,7 @@ function TooltipTable<TData>({ data, columns }: { data: TData[]; columns: Column
         {headerGroups.map((headerGroup) => (
           <tr key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <th key={header.id} className="text-right first:text-left py-10">
+              <th key={header.id} className="text-right first:text-left py-10 font-normal">
                 {flexRender(header.column.columnDef.header, header.getContext())}
               </th>
             ))}

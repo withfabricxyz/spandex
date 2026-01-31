@@ -42,6 +42,7 @@ function QuoteDataView({
         quoteHistory={quoteHistory}
         selectedMetric={selectedMetric}
         setSelectedMetric={setSelectedMetric}
+        errors={errors}
       />
       <hr className="border-primary" />
       <LineItems

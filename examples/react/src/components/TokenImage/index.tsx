@@ -3,12 +3,13 @@ import type { TokenMetadata } from "@/services/tokens";
 
 export function TokenImage({ token, size = "md" }: { token: TokenMetadata; size?: "sm" | "md" }) {
   const { chainId } = useConnection();
+  const tokenImageSrc = token.logoURI || "/images/not-found@2x.png";
   const chainImage = chainId ? `/images/${chainId}@2x.png` : undefined;
 
   return (
     <div className={`${size === "sm" ? "h-12 w-12" : "h-16 w-16"} rounded-full relative`}>
       <img
-        src={token.logoURI}
+        src={tokenImageSrc}
         alt={token.symbol}
         className={`${size === "sm" ? "h-12 w-12" : "h-16 w-16"} rounded-full`}
       />

@@ -2,10 +2,7 @@
   display: flex;
   align-items: center;
   gap: .5rem;
-}
 
-.spark,
-.wordmark {
   path {
     fill: var(--color-primary);
   }

@@ -5,12 +5,15 @@ import {
   type SuccessfulSimulatedQuote,
   sortQuotesByPerformance,
 } from "@spandex/core";
-import { useCallback, useMemo } from "react";
+import { type JSX, useCallback, useMemo } from "react";
+import { Button } from "@/components/Button";
+import type { SwapErrorState } from "@/utils/errors";
 import type { Metric } from "@/utils/quoteHelpers";
 
 type BumpChartProps = {
   quoteHistory: SimulatedQuote[][];
   selectedMetric: Metric;
+  errors?: SwapErrorState;
   setSelectedMetric: (metric: Metric) => void;
 };
 
@@ -240,7 +243,12 @@ const metricMap: Record<Metric, keyof QuotePerformance> = {
   latency: "latency",
 };
 
-export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: BumpChartProps) {
+export function BumpChart({
+  quoteHistory,
+  errors,
+  selectedMetric,
+  setSelectedMetric,
+}: BumpChartProps) {
   const chartData = useMemo(() => {
     if (quoteHistory.length === 0) return [];
 
@@ -298,10 +306,80 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
   const verticalPadding = 0;
   const chartHeight = maxRank * rowHeight + verticalPadding * 2;
 
+  let chartContent: JSX.Element;
+  if (errors?.input.length || errors?.quote.length) {
+    chartContent = (
+      <div className="bg-surface-mid flex items-center justify-center h-40">
+        <span className="monospace text-[12px] text-primary animate-pulse">
+          Error fetching quotes
+        </span>
+      </div>
+    );
+  } else if (quoteHistory.length === 0) {
+    chartContent = (
+      <div className="bg-surface-mid flex items-center justify-center h-40">
+        <span className="monospace text-[12px] text-primary animate-pulse">Fetching quotes...</span>
+      </div>
+    );
+  } else if (quoteHistory.every((snapshot) => snapshot.every((quote) => !quote.success))) {
+    chartContent = (
+      <div className="bg-surface-mid flex items-center justify-center h-40">
+        <span className="monospace text-[12px] text-primary animate-pulse">
+          No successful quotes
+        </span>
+      </div>
+    );
+  } else {
+    chartContent = (
+      <div style={{ height: `${chartHeight}px` }}>
+        <ResponsiveBump
+          data={chartData}
+          colors={(serie) => serie.color}
+          lineWidth={2}
+          activeLineWidth={2}
+          inactiveLineWidth={2}
+          inactiveOpacity={0.15}
+          pointSize={0}
+          activePointSize={0}
+          inactivePointSize={0}
+          enableGridX={false}
+          enableGridY={false}
+          xPadding={0}
+          xOuterPadding={0}
+          lineTooltip={() => <></>}
+          margin={{ top: verticalPadding, right: 80, bottom: verticalPadding, left: 0 }}
+          layers={[CustomGridLayer, ShadowLinesLayer, "lines", EndPointsLayer, CustomLabelsLayer]}
+          axisTop={null}
+          axisBottom={null}
+          axisLeft={null}
+          axisRight={null}
+          theme={{
+            grid: {
+              line: {
+                stroke: COLORS.secondary,
+                strokeWidth: 1,
+              },
+            },
+            labels: {
+              text: {
+                fontFamily: "Sohne Mono",
+                fontSize: 12,
+                textTransform: "capitalize",
+              },
+            },
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-10 overflow-hidden relative">
       <a href="https://quote-bench-production.up.railway.app/">
-        <div className="h-12 w-12 absolute top-12 right-0 cursor-pointer hover:fill-primary">
+        <Button
+          variant="secondary"
+          className="absolute px-2 py-4 border-0 top-7 right-0 h-16 w-16 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="13"
@@ -315,59 +393,10 @@ export function BumpChart({ quoteHistory, selectedMetric, setSelectedMetric }: B
               fill="var(--color-quaternary)"
             />
           </svg>
-        </div>
+        </Button>
       </a>
       <MetricSelect selectedMetric={selectedMetric} setSelectedMetric={setSelectedMetric} />
-      {quoteHistory.length === 0 ? (
-        <div
-          className="bg-surface-mid flex items-center justify-center"
-          style={{ height: `${chartHeight}px` }}
-        >
-          <span className="monospace text-[12px] text-primary animate-pulse">
-            Fetching quotes...
-          </span>
-        </div>
-      ) : (
-        <div style={{ height: `${chartHeight}px` }}>
-          <ResponsiveBump
-            data={chartData}
-            colors={(serie) => serie.color}
-            lineWidth={2}
-            activeLineWidth={2}
-            inactiveLineWidth={2}
-            inactiveOpacity={0.15}
-            pointSize={0}
-            activePointSize={0}
-            inactivePointSize={0}
-            enableGridX={false}
-            enableGridY={false}
-            xPadding={0}
-            xOuterPadding={0}
-            lineTooltip={() => <></>}
-            margin={{ top: verticalPadding, right: 80, bottom: verticalPadding, left: 0 }}
-            layers={[CustomGridLayer, ShadowLinesLayer, "lines", EndPointsLayer, CustomLabelsLayer]}
-            axisTop={null}
-            axisBottom={null}
-            axisLeft={null}
-            axisRight={null}
-            theme={{
-              grid: {
-                line: {
-                  stroke: COLORS.secondary,
-                  strokeWidth: 1,
-                },
-              },
-              labels: {
-                text: {
-                  fontFamily: "Sohne Mono",
-                  fontSize: 12,
-                  textTransform: "capitalize",
-                },
-              },
-            }}
-          />
-        </div>
-      )}
+      {chartContent}
     </div>
   );
 }

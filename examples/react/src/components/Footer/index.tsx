@@ -14,14 +14,14 @@ export function Footer() {
       <div className="flex justify-between gap-20">
         <a
           href="https://docs.withfabric.xyz"
-          className="underline text-secondary"
+          className="text-[12px] underline text-secondary"
           style={{ textUnderlineOffset: "25%" }}
         >
           FAQ
         </a>
         <a
           href="https://docs.withfabric.xyz"
-          className="underline text-secondary"
+          className="text-[12px] underline text-secondary"
           style={{ textUnderlineOffset: "25%" }}
         >
           Docs

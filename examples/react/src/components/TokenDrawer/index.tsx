@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { erc20Abi } from "viem";
-import { useReadContracts } from "wagmi";
+import { useConnection, useReadContracts } from "wagmi";
 import { CloseAlt, Loading } from "@/components/icons";
 import { TokenItem } from "@/components/TokenItem";
 import { SUPPORTED_BASE_TOKENS } from "@/constants/tokens";
@@ -9,14 +9,30 @@ import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
 import styles from "./TokenDrawer.module.css";
 
+const MIN_LOOKUP_DURATION_MS = 400;
+
 function ContractAddressInput() {
   const { selectContext, setSellToken, setBuyToken, closeDrawer } = useTokenSelect();
   const [inputValue, setInputValue] = useState("");
+  const [minDelayLoading, setMinDelayLoading] = useState(false);
   const processedRef = useRef<string | null>(null);
+  const lookupStartTimeRef = useRef<number | null>(null);
 
-  const inputValid = useMemo(() => /^0x[a-fA-F0-9]{40}$/.test(inputValue), [inputValue]);
+  const inputValid = useMemo(() => {
+    const isValid = /^0x[a-fA-F0-9]{40}$/.test(inputValue);
+    if (isValid && lookupStartTimeRef.current === null) {
+      lookupStartTimeRef.current = Date.now();
+    } else if (!isValid) {
+      lookupStartTimeRef.current = null;
+    }
+    return isValid;
+  }, [inputValue]);
 
-  const { data, error, isLoading } = useReadContracts({
+  const {
+    data,
+    error,
+    isLoading: isTokenLoading,
+  } = useReadContracts({
     contracts: [
       {
         address: inputValue as `0x${string}`,
@@ -53,23 +69,43 @@ function ContractAddressInput() {
     // don't re-run the effect, we're ready to close the drawer and proceed. prevents a render loop
     processedRef.current = inputValue;
 
-    setInputValue("");
-    closeDrawer();
+    // the lookup can execute "too quickly" on good internet - introduce an artificial delay
+    // however, don't delay if the lookup takes longer than the minimum duration
+    const elapsedTime = lookupStartTimeRef.current ? Date.now() - lookupStartTimeRef.current : 0;
+    const remainingDelay = Math.max(0, MIN_LOOKUP_DURATION_MS - elapsedTime);
+
+    if (remainingDelay > 0) {
+      setMinDelayLoading(true);
+      setTimeout(() => {
+        setMinDelayLoading(false);
+        setInputValue("");
+        closeDrawer();
+        lookupStartTimeRef.current = null;
+      }, remainingDelay);
+    } else {
+      setInputValue("");
+      closeDrawer();
+      lookupStartTimeRef.current = null;
+    }
 
     return () => {
       // clear on unmount; refs persist
       processedRef.current = null;
+      lookupStartTimeRef.current = null;
     };
   }, [inputValue, inputValid, data, error, selectContext, setSellToken, setBuyToken, closeDrawer]);
 
+  const isLoading = isTokenLoading || minDelayLoading;
+
   return (
-    <div className={`${styles.tokenDrawerInput} px-20 mb-20 relative`}>
+    <div className="px-20 mb-20 relative">
       <input
         type="text"
-        className="h-20 w-full text-primary border border-primary rounded-xs p-4 focus:outline-0 active:outline-0 placeholder:text-primary"
+        className={styles.tokenDrawerInput}
         value={inputValue}
         onChange={({ target }) => setInputValue(target.value)}
         placeholder="Contract address"
+        disabled={isLoading}
       />
       <button
         type="button"
@@ -77,13 +113,14 @@ function ContractAddressInput() {
         onClick={closeDrawer}
         onKeyDown={closeDrawer}
       >
-        {isLoading ? <Loading title="loading" /> : <CloseAlt title="X" />}
+        {isLoading ? <Loading title="loading" className="fill-primary" /> : <CloseAlt title="X" />}
       </button>
     </div>
   );
 }
 
 export function TokenDrawer() {
+  const { address } = useConnection();
   const { selectContext, setSellToken, setBuyToken, isDrawerOpen, closeDrawer } = useTokenSelect();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -116,6 +153,7 @@ export function TokenDrawer() {
           {SUPPORTED_BASE_TOKENS.map((token) => (
             <TokenItem
               key={token.address}
+              owner={address}
               token={token}
               onClick={(token) => {
                 if (selectContext === "sell") {

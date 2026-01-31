@@ -1,4 +1,5 @@
 import { type Chain, decodeErrorResult, erc20Abi, type Hex } from "viem";
+import type { TokenMetadata } from "@/services/tokens";
 import { parseTokenValue } from "./strings";
 
 export type StructuredError = {
@@ -10,30 +11,41 @@ export type StructuredError = {
 
 export type SwapErrorCategory = "connection" | "input" | "quote" | "simulation" | "transaction";
 
-export type SwapErrorState = Partial<Record<SwapErrorCategory, StructuredError>>;
+export type SwapErrorState = Record<SwapErrorCategory, StructuredError[]>;
 
 export function validateSwapInput(
   amount: string,
   balance?: bigint,
-  decimals?: number,
-): StructuredError | null {
+  sellToken?: TokenMetadata,
+  buyToken?: TokenMetadata,
+): StructuredError[] | null {
+  const inputErrors: StructuredError[] = [];
+
+  if (!sellToken || !buyToken) {
+    inputErrors.push({ title: "Invalid token", cause: "invalid-token" });
+  }
+
+  if (sellToken?.address === buyToken?.address) {
+    inputErrors.push({ title: "Invalid token pair", cause: "invalid-token-pair" });
+  }
+
   if (!amount || amount.trim() === "") {
-    return { title: "Enter an amount", cause: "empty" };
+    inputErrors.push({ title: "Enter an amount", cause: "empty" });
   }
 
   const parsed = Number(amount);
   if (Number.isNaN(parsed) || parsed <= 0) {
-    return { title: "Invalid amount", cause: "invalid" };
+    inputErrors.push({ title: "Invalid amount", cause: "invalid" });
   }
 
-  if (balance !== undefined && decimals !== undefined) {
-    const inputAmount = parseTokenValue(amount, decimals);
+  if (balance !== undefined && sellToken?.decimals !== undefined) {
+    const inputAmount = parseTokenValue(amount, sellToken?.decimals);
     if (inputAmount > balance) {
-      return { title: "Insufficient balance", cause: "balance" };
+      inputErrors.push({ title: "Insufficient balance", cause: "balance" });
     }
   }
 
-  return null;
+  return inputErrors;
 }
 
 const abis = [/*executorAbi, swapIntentProtocolAbi, */ erc20Abi];
@@ -69,7 +81,9 @@ function structureViemError(error: any, chain?: Chain): StructuredError {
 
   if (error.shortMessage.match(/exceeds the balance/i)) {
     return {
-      title: `Insufficient funds ${chain?.name ? `on ${chain?.name}` : ""} to complete this transaction.`,
+      title: `Insufficient funds ${
+        chain?.name ? `on ${chain?.name}` : ""
+      } to complete this transaction.`,
       cause: error,
     };
   }
