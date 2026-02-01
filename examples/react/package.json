@@ -33,7 +33,7 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.0.6",
     "viem": "^2.21.54",
-    "vite-tsconfig-paths": "^5.1.4",
+    "vite-tsconfig-paths": "^6.0.5",
     "wagmi": "^3.1.0",
     "zod": "^4.3.6"
   },
