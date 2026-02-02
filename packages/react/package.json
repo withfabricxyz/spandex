@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "React hooks for SpanDEX",
   "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",

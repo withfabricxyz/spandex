@@ -10,7 +10,7 @@ import {
   type SwapParams,
   type TokenPricing,
 } from "../types.js";
-import { isNativeToken } from "../utils/helpers.js";
+import { isNativeToken } from "../util/helpers.js";
 import { Aggregator } from "./index.js";
 
 /**

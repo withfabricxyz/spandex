@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "Library for finding the best swap prices across all DEXs",
   "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",

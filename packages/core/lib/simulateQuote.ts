@@ -13,7 +13,7 @@ import type {
   SwapParams,
   TxData,
 } from "./types.js";
-import { isNativeToken } from "./utils/helpers.js";
+import { isNativeToken } from "./util/helpers.js";
 
 /**
  * Error thrown when one or more low level calls revert while simulating a quote.
