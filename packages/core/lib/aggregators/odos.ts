@@ -1,4 +1,3 @@
-import { zeroAddress } from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -11,6 +10,7 @@ import {
   type SwapParams,
   type TokenPricing,
 } from "../types.js";
+import { isNativeToken } from "../utils/helpers.js";
 import { Aggregator } from "./index.js";
 
 /**
@@ -90,13 +90,12 @@ export class OdosAggregator extends Aggregator<OdosConfig> {
       outputAmount,
       networkFee,
       txData,
-      approval:
-        request.inputToken !== zeroAddress
-          ? {
-              token: request.inputToken,
-              spender: txData.to,
-            }
-          : undefined,
+      approval: !isNativeToken(request.inputToken)
+        ? {
+            token: request.inputToken,
+            spender: txData.to,
+          }
+        : undefined,
       pricing,
       metrics,
     };

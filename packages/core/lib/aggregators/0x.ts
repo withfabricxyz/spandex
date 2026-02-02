@@ -12,6 +12,7 @@ import {
   type SwapParams,
   type TokenPricing,
 } from "../types.js";
+import { isNativeToken } from "../utils/helpers.js";
 import { Aggregator } from "./index.js";
 
 /**
@@ -60,6 +61,9 @@ export class ZeroXAggregator extends Aggregator<ZeroXConfig> {
     if (request.mode === "targetOut") {
       throw new QuoteError("0x aggregator does not support exact output quotes");
     }
+    if (isNativeToken(request.inputToken)) {
+      throw new QuoteError("0x aggregator does not support native input tokens");
+    }
 
     const response = await this.makeRequest(request as ExactInSwapParams, options);
     const pricing = zeroXPricing(request, response);
@@ -75,6 +79,7 @@ export class ZeroXAggregator extends Aggregator<ZeroXConfig> {
       txData: {
         to: response.transaction.to,
         data: response.transaction.data,
+        value: BigInt(response.transaction.value || "0"),
       },
       approval: response.allowanceTarget
         ? {

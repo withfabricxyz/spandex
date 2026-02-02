@@ -13,6 +13,7 @@ import {
   type SwapParams,
   type TokenPricing,
 } from "../types.js";
+import { isNativeToken } from "../utils/helpers.js";
 import { Aggregator } from "./index.js";
 
 const chainNameLookup: Record<number, string> = {
@@ -34,6 +35,8 @@ const chainNameLookup: Record<number, string> = {
   2020: "ronin", // Ronin Mainnet
   999: "hyperevm", // HyperEVM Mainnet
 };
+
+const KYBER_NATIVE_TOKEN = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 
 /**
  * Configuration options for the KyberSwap aggregator.
@@ -109,14 +112,14 @@ export class KyberAggregator extends Aggregator<KyberConfig> {
       txData: {
         to: response.routerAddress,
         data: response.encodedSwapData,
+        ...(isNativeToken(request.inputToken) ? { value: request.inputAmount } : {}),
       },
-      approval:
-        request.inputToken !== zeroAddress
-          ? {
-              token: request.inputToken,
-              spender: response.routerAddress,
-            }
-          : undefined,
+      approval: !isNativeToken(request.inputToken)
+        ? {
+            token: request.inputToken,
+            spender: response.routerAddress,
+          }
+        : undefined,
       route: kyberRouteGraph(response),
       pricing,
     };
@@ -164,8 +167,8 @@ function extractQueryParams(
   options: SwapOptions,
 ): Record<string, string> {
   const result: Record<string, string> = {
-    tokenOut: params.outputToken,
-    tokenIn: params.inputToken,
+    tokenOut: toKyberToken(params.outputToken),
+    tokenIn: toKyberToken(params.inputToken),
     amountIn: params.inputAmount.toString(),
     slippageTolerance: params.slippageBps.toString(),
     to: params.swapperAccount,
@@ -185,7 +188,7 @@ function extractQueryParams(
 
 export function kyberRouteGraph(response: KyberQuoteResponse): RouteGraph {
   const nodes = Object.entries(response.tokens).map(([address, detail]) => ({
-    address: address as Address,
+    address: fromKyberToken(address as Address),
     symbol: detail.symbol,
     decimals: detail.decimals,
   }));
@@ -194,8 +197,8 @@ export function kyberRouteGraph(response: KyberQuoteResponse): RouteGraph {
   for (const swap of response.swaps) {
     for (const leg of swap) {
       edges.push({
-        source: leg.tokenIn,
-        target: leg.tokenOut,
+        source: fromKyberToken(leg.tokenIn),
+        target: fromKyberToken(leg.tokenOut),
         address: leg.pool,
         key: leg.pool,
         value: Number(leg.swapAmount),
@@ -213,8 +216,8 @@ function buildKyberPricing(
   request: ExactInSwapParams,
   response: KyberQuoteResponse,
 ): { inputToken: TokenPricing; outputToken: TokenPricing } {
-  const inputTokenInfo = resolveTokenInfo(response.tokens, request.inputToken);
-  const outputTokenInfo = resolveTokenInfo(response.tokens, request.outputToken);
+  const inputTokenInfo = resolveTokenInfo(response.tokens, toKyberToken(request.inputToken));
+  const outputTokenInfo = resolveTokenInfo(response.tokens, toKyberToken(request.outputToken));
 
   return {
     inputToken: {
@@ -237,6 +240,14 @@ function resolveTokenInfo(tokens: KyberQuoteResponse["tokens"], address: Address
     tokens[address as Address] ||
     Object.values(tokens).find((token) => token.address.toLowerCase() === address.toLowerCase())
   );
+}
+
+function toKyberToken(address: Address): Address {
+  return isNativeToken(address) ? (KYBER_NATIVE_TOKEN as Address) : address;
+}
+
+function fromKyberToken(address: Address): Address {
+  return address.toLowerCase() === KYBER_NATIVE_TOKEN.toLowerCase() ? zeroAddress : address;
 }
 
 //////// Types /////////

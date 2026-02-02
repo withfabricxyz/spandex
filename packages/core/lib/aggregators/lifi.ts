@@ -1,4 +1,4 @@
-import { type Address, zeroAddress } from "viem";
+import type { Address } from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -13,6 +13,7 @@ import {
   type TokenPricing,
 } from "../types.js";
 import { computeUsdPriceFromValue } from "../util/pricing.js";
+import { isNativeToken } from "../utils/helpers.js";
 import { Aggregator } from "./index.js";
 
 const DEFAULT_BASE_URL = "https://li.quest/v1";
@@ -97,7 +98,7 @@ export class LifiAggregator extends Aggregator<LifiConfig> {
     }
 
     const approval =
-      request.inputToken !== zeroAddress && estimate.approvalAddress
+      !isNativeToken(request.inputToken) && estimate.approvalAddress
         ? {
             token: request.inputToken,
             spender: estimate.approvalAddress,

@@ -1,4 +1,4 @@
-import { type Address, zeroAddress } from "viem";
+import type { Address } from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -13,6 +13,7 @@ import {
   type TokenPricing,
 } from "../types.js";
 import { computeUsdPriceFromValue } from "../util/pricing.js";
+import { isNativeToken } from "../utils/helpers.js";
 import { Aggregator } from "./index.js";
 
 /**
@@ -95,13 +96,12 @@ export class RelayAggregator extends Aggregator<RelayConfig> {
       outputAmount,
       networkFee: body.fees?.gas ? BigInt(body.fees.gas.amount) : 0n,
       txData,
-      approval:
-        request.inputToken !== zeroAddress
-          ? {
-              token: request.inputToken,
-              spender: txData.to,
-            }
-          : undefined,
+      approval: !isNativeToken(request.inputToken)
+        ? {
+            token: request.inputToken,
+            spender: txData.to,
+          }
+        : undefined,
       pricing,
       fees,
       metrics,
