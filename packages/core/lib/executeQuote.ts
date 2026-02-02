@@ -1,7 +1,7 @@
 import type { Hash, PublicClient, WalletClient } from "viem";
 import { type BuiltCall, buildCalls } from "./buildCalls.js";
 import type { Config } from "./createConfig.js";
-import type { SimulatedQuote, SwapParams } from "./types.js";
+import type { SuccessfulSimulatedQuote, SwapParams } from "./types.js";
 
 /**
  * Error thrown when quote execution fails or cannot be attempted.
@@ -14,11 +14,18 @@ export class ExecutionError extends Error {
 }
 
 export type ExecuteQuoteParams = {
+  /** The parameters for the swap. */
   swap: SwapParams;
-  quote: SimulatedQuote;
+  /** The simulated quote to execute (must be successful). */
+  quote: SuccessfulSimulatedQuote;
+  /** The wallet client used to sign and send transactions. */
   walletClient: WalletClient;
+  /** Optional public client for reading chain data and receipts. */
   publicClient?: PublicClient;
+  /** The configuration (required for onchain calls). */
   config: Config;
+  /** Whether to use unlimited approval for the swap execution. Default is false (exact approval). */
+  allowanceMode?: "unlimited" | "exact";
 };
 
 export type ExecutedQuoteReturnType = {
@@ -46,6 +53,7 @@ export async function executeQuote({
   config,
   walletClient,
   publicClient,
+  allowanceMode = "exact",
 }: ExecuteQuoteParams): Promise<ExecutedQuoteReturnType> {
   if (swap.chainId !== walletClient.chain?.id) {
     throw new ExecutionError(
@@ -65,7 +73,7 @@ export async function executeQuote({
     swap,
     config,
     publicClient,
-    allowanceMode: isBatch ? "exact" : "unlimited",
+    allowanceMode: isBatch ? "exact" : allowanceMode,
   });
 
   let transactionHash: Hash | null = null;

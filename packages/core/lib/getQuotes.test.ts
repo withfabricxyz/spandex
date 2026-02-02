@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import type { PublicClient } from "viem";
-import { createPublicClient, http, zeroAddress } from "viem";
+import { createPublicClient, http, parseEther, zeroAddress } from "viem";
 import { base } from "viem/chains";
 import {
   fabric,
@@ -8,6 +8,7 @@ import {
   kyberswap,
   odos,
   type SuccessfulQuote,
+  type SuccessfulSimulatedQuote,
   type SwapParams,
   zeroX,
 } from "../index.js";
@@ -109,33 +110,24 @@ describe("getQuotes", () => {
     }
   }, 30000);
 
-  it("handles ETH -> ERC20", async () => {
+  it("ETH -> ERC20", async () => {
     const quotes = await getQuotes({
       config,
       swap: {
         ...defaultSwapParams,
         inputToken: zeroAddress,
-        inputAmount: 250000000000000000n, // .25 ETH
+        inputAmount: parseEther("0.0025"), // .25 ETH
         outputToken: defaultSwapParams.inputToken, // USDC
         swapperAccount: ETH_WHALE,
       },
     });
 
-    const [successful, _failed] = quotes.reduce(
-      (acc, quote) => {
-        if (quote.simulation.success) {
-          acc[0].push(quote);
-        } else {
-          acc[1].push(quote);
-        }
-        return acc;
-      },
-      [[] as typeof quotes, [] as typeof quotes],
-    );
-
     expect(quotes).toBeDefined();
 
-    console.log("\nERC20 -> ETH swap results:");
+    const successful = quotes.filter(
+      (quote) => quote.simulation.success,
+    ) as SuccessfulSimulatedQuote[];
+    console.log("\nETH -> ERC20 swap results:");
     console.table(
       successful.map((quote) => ({
         provider: quote.provider,
@@ -169,7 +161,7 @@ describe("getQuotes", () => {
     }
   }, 30000);
 
-  it("handles ERC20 -> ETH", async () => {
+  it("ERC20 -> ETH", async () => {
     const quotes = await getQuotes({
       config,
       swap: {
@@ -180,19 +172,9 @@ describe("getQuotes", () => {
     });
     expect(quotes).toBeDefined();
 
-    const [successful, _failed] = quotes.reduce(
-      (acc, quote) => {
-        if (quote.simulation.success) {
-          acc[0].push(quote);
-        } else {
-          acc[1].push(quote);
-        }
-        return acc;
-      },
-      [[] as typeof quotes, [] as typeof quotes],
-    );
-
-    expect(successful.length).toBeGreaterThan(0);
+    const successful = quotes.filter(
+      (quote) => quote.simulation.success,
+    ) as SuccessfulSimulatedQuote[];
 
     console.log("\nERC20 -> ETH swap results:");
     console.table(

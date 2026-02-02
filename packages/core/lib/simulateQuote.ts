@@ -1,5 +1,5 @@
 import type { Address, Block, PublicClient, SimulateCallsReturnType } from "viem";
-import { encodeFunctionData, erc20Abi, ethAddress, parseEther, zeroAddress } from "viem";
+import { encodeFunctionData, erc20Abi, ethAddress, parseEther } from "viem";
 import { simulateCalls } from "viem/actions";
 import type {
   Quote,
@@ -13,6 +13,7 @@ import type {
   SwapParams,
   TxData,
 } from "./types.js";
+import { isNativeToken } from "./utils/helpers.js";
 
 /**
  * Error thrown when one or more low level calls revert while simulating a quote.
@@ -111,8 +112,8 @@ async function performSimulation({
   }
 
   try {
-    const isERC20In = swap.inputToken !== zeroAddress;
-    const isERC20Out = swap.outputToken !== zeroAddress;
+    const isERC20In = !isNativeToken(swap.inputToken);
+    const isERC20Out = !isNativeToken(swap.outputToken);
 
     // Dynamically build calls array based on whether we need approve / balanceOf (this activates ERC20 handling in assetChanges)
     const approvalToken = quote.approval?.token ?? swap.inputToken;
@@ -189,7 +190,7 @@ function extractOutputAmount(
   assets: SimulateCallsReturnType["assetChanges"],
   outputToken: Address,
 ): bigint {
-  const comparator = outputToken === zeroAddress ? ethAddress : outputToken.toLowerCase();
+  const comparator = isNativeToken(outputToken) ? ethAddress : outputToken.toLowerCase();
   return assets.find((asset) => asset.token.address === comparator)?.value.diff ?? 0n;
 }
 
