@@ -80,7 +80,7 @@ function prepareCalls({
 }
 
 export function IntentCapture() {
-  const { sellToken, setSellToken, buyToken, setBuyToken } = useTokenSelect();
+  const { sellToken, setSellToken, buyToken, setBuyToken, onSuccessfulTx } = useTokenSelect();
   const { address, chainId, isConnected } = useConnection();
   const [prevSellToken, setPrevSellToken] = useState(sellToken);
   const [numSellTokens, setNumSellTokens] = useState<string>(sellToken.defaultInput);
@@ -276,8 +276,10 @@ export function IntentCapture() {
         inputAmount: swap.inputAmount,
         outputAmount: bestQuote.outputAmount || 0n,
       });
+
+      onSuccessfulTx();
     },
-    [chainId, bestQuote, swap.inputAmount],
+    [chainId, bestQuote, swap.inputAmount, onSuccessfulTx],
   );
 
   return (

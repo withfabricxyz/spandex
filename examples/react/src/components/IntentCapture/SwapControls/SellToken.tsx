@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { ChevronDown } from "@/components/icons";
 import { Skeleton } from "@/components/Skeleton";
 import { TokenImage } from "@/components/TokenImage";
+import type { BalancePercent } from "@/providers/TokenSelectProvider";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
 import type { SwapErrorState } from "@/utils/errors";
@@ -14,6 +15,8 @@ type SellTokenProps = {
   isLoadingBalances: boolean;
   numTokens: string;
   onChange: (value: string) => void;
+  activePercent: BalancePercent;
+  onPercentChange: (percent: BalancePercent) => void;
   errors?: SwapErrorState;
 };
 
@@ -23,13 +26,18 @@ export function SellToken({
   isLoadingBalances,
   numTokens,
   onChange,
+  activePercent,
+  onPercentChange,
   errors,
 }: SellTokenProps) {
-  const { openDrawer } = useTokenSelect();
+  const { openDrawer, setActivePercent } = useTokenSelect();
 
   const handlePercentClick = useCallback(
     (percent: string) => {
       if (!balance) return;
+
+      const normalizedPercent = percent.toLowerCase() as BalancePercent;
+      onPercentChange(normalizedPercent);
 
       let newValue = "0";
 
@@ -43,16 +51,24 @@ export function SellToken({
 
       onChange(newValue);
     },
-    [balance, token.decimals, onChange],
+    [balance, token.decimals, onChange, onPercentChange],
+  );
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setActivePercent("0%");
+      onChange(e.target.value);
+    },
+    [onChange, setActivePercent],
   );
 
   return (
     <div className="flex flex-col gap-10">
       <div className="flex items-center gap-10">
         <span className="text-secondary">Sell</span>
-        {["25%", "50%", "Max"].map((label) => (
+        {["25%", "50%", "max"].map((label) => (
           <button
-            className="text-quaternary hover:text-secondary cursor-pointer select-none"
+            className={`capitalize text-quaternary hover:text-secondary cursor-pointer select-none ${activePercent === label.toLowerCase() ? "text-secondary" : ""}`}
             type="button"
             key={label}
             onClick={() => handlePercentClick(label.toLowerCase())}
@@ -70,7 +86,7 @@ export function SellToken({
             className={`w-full text-primary text-[56px] leading-1 h-22 outline-none ${errors?.input.length ? "text-red" : ""}`}
             style={{ maxWidth: "calc(100% - 176px)" }}
             value={numTokens}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={handleChange}
           />
         )}
 
