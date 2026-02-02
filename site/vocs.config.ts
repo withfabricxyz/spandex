@@ -84,6 +84,10 @@ export default defineConfig({
           collapsed: true,
           items: [
             {
+              text: "netOutputs",
+              link: "/core/functions/netOutputs",
+            },
+            {
               text: "newQuoteStream",
               link: "/core/functions/newQuoteStream",
             },

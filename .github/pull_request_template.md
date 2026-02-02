@@ -1,10 +1,13 @@
-<!-- Please describe the problem you are solving and refence any outstanding issues the changes resolve -->
+## Changes
 
-<!--
-Before opening the PR, verify you did the following:
-1. Checked for any outstanding PRs which address the same issue(s)
-2. Updated relevant documentation
-3. Added test coverage for changes
+<!-- Describe the intent and solution -->
 
-We appreciate you
--->
+## Checklist
+
+- [ ] I have followed the steps in the [Contributing guide](https://github.com/withfabricxyz/spandex/blob/main/CONTRIBUTING.md).
+- [ ] I have tested this code locally with `bun test`.
+
+## Release Impact
+
+- [ ] This change impacts released packages, and I have created a [changeset](https://github.com/changesets/changesets/blob/main/docs/adding-a-changeset.md).
+- [ ] This change does not impact released packages (tests,docs,examples) (no release).

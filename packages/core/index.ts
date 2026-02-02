@@ -30,6 +30,7 @@ export { prepareQuotes, prepareSimulatedQuotes } from "./lib/prepareQuotes.js";
 export { selectQuote } from "./lib/selectQuote.js";
 export { SimulationRevertError, simulateQuote, simulateQuotes } from "./lib/simulateQuote.js";
 export type * from "./lib/types.js";
+export { netOutputs } from "./lib/util/netOutputs.js";
 export { sortQuotesByPerformance } from "./lib/util/performance.js";
 export { AggregatorProxy, proxy } from "./lib/wire/proxy.js";
 export { deserializeWithBigInt, serializeWithBigInt } from "./lib/wire/serde.js";

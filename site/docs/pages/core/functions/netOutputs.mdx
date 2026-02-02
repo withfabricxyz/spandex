@@ -1,0 +1,59 @@
+import { Callout } from 'vocs/components'
+
+# netOutputs
+
+<Callout type="warning">
+  **Experimental:** This utility is still considered experimental and may be inaccurate for complex swaps.
+</Callout>
+
+Computes net input/output token allocations per recipient based on Transfer logs. This is useful for
+spotting fee extractors (aggregator, app, relayer, etc.) by showing which accounts received how many
+tokens during a swap.
+
+Logs can come from a `TransactionReceipt` or `SuccessSimulationResult`.
+
+## Example
+
+```ts twoslash
+import { netOutputs, type SwapParams } from "@spandex/core";
+import type { TransactionReceipt } from "viem";
+
+const swap: SwapParams = {} as SwapParams; // ...
+const receipt: TransactionReceipt = {} as TransactionReceipt; // ...
+
+const allocations = netOutputs({
+  swap,
+  logs: receipt.logs,
+});
+
+for (const [account, amount] of allocations.outputToken) {
+  console.log("output recipient", account, amount.toString());
+}
+```
+
+## Params
+
+### swap
+`SwapParams`
+
+Swap parameters that identify the input/output tokens and swapper. This should match the swap that
+was used to build a quote, which was executed to produce logs.
+
+### logs
+`Log[]`
+
+Event logs from a transaction receipt or simulation output.
+
+## Returns
+
+`Allocations`
+
+```ts
+type Allocations = {
+  inputToken: Map<Address, bigint>;
+  outputToken: Map<Address, bigint>;
+};
+```
+
+Each map is keyed by recipient address and contains the net amount of that token received by that
+address (base units).
