@@ -11,7 +11,12 @@ type TokenSelectContextValues = {
   isDrawerOpen: boolean;
   openDrawer: (context: "sell" | "buy") => void;
   closeDrawer: () => void;
+  activePercent: BalancePercent;
+  setActivePercent: (percent: BalancePercent) => void;
+  onSuccessfulTx: () => void;
 };
+
+export type BalancePercent = "0%" | "25%" | "50%" | "max";
 
 const TokenSelectContext = createContext<TokenSelectContextValues>({} as TokenSelectContextValues);
 
@@ -29,6 +34,8 @@ export function TokenSelectProvider({ children }: React.PropsWithChildren) {
     SUPPORTED_BASE_TOKENS.find((t) => t.symbol === "WETH")!,
   );
 
+  const [activePercent, setActivePercent] = useState<BalancePercent>("25%");
+
   const [drawerState, setDrawerState] = useState<{
     isOpen: boolean;
     context: "sell" | "buy";
@@ -42,6 +49,10 @@ export function TokenSelectProvider({ children }: React.PropsWithChildren) {
     setDrawerState((prev) => ({ ...prev, isOpen: false }));
   }, []);
 
+  const onSuccessfulTx = useCallback(() => {
+    setActivePercent("25%");
+  }, []);
+
   const value = useMemo(
     () => ({
       selectContext: drawerState.context,
@@ -52,8 +63,20 @@ export function TokenSelectProvider({ children }: React.PropsWithChildren) {
       setSellToken,
       buyToken,
       setBuyToken,
+      activePercent,
+      setActivePercent,
+      onSuccessfulTx,
     }),
-    [drawerState.context, drawerState.isOpen, openDrawer, closeDrawer, sellToken, buyToken],
+    [
+      drawerState.context,
+      drawerState.isOpen,
+      openDrawer,
+      closeDrawer,
+      sellToken,
+      buyToken,
+      activePercent,
+      onSuccessfulTx,
+    ],
   );
 
   return <TokenSelectContext.Provider value={value}>{children}</TokenSelectContext.Provider>;

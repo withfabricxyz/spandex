@@ -1,6 +1,34 @@
-import type { SimulatedQuote } from "@spandex/core";
+import {
+  type QuotePerformance,
+  type SimulatedQuote,
+  type SuccessfulSimulatedQuote,
+  sortQuotesByPerformance,
+} from "@spandex/core";
 
 export type Metric = "price" | "accuracy" | "latency";
+
+const metricToPerformanceKey: Record<Metric, keyof QuotePerformance> = {
+  price: "outputAmount",
+  accuracy: "accuracy",
+  latency: "latency",
+};
+
+export function getMetricWinner(quotes: SimulatedQuote[], metric: Metric): string | undefined {
+  const successfulQuotes = quotes.filter(
+    (q) => q.success && q.simulation.success,
+  ) as SuccessfulSimulatedQuote[];
+
+  if (successfulQuotes.length === 0) return undefined;
+
+  const performanceKey = metricToPerformanceKey[metric];
+  const sorted = sortQuotesByPerformance({
+    quotes: successfulQuotes,
+    metric: performanceKey,
+    ascending: performanceKey !== "outputAmount",
+  });
+
+  return sorted[0]?.provider;
+}
 
 // TODO: how should we do this? re: generic quote details
 function isFabricQuote(

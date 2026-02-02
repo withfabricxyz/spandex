@@ -24,6 +24,7 @@ type LineItemsProps = {
   numSellTokens: string;
   slippageBps: number;
   setSlippageBps: (value: number) => void;
+  metricWinner?: string;
   errors?: SwapErrorState;
 };
 
@@ -35,6 +36,7 @@ export function LineItems({
   numSellTokens,
   slippageBps,
   setSlippageBps,
+  metricWinner,
   errors,
 }: LineItemsProps) {
   const successfulQuotes: SuccessfulQuote[] = quotes?.filter((q) => q.success) || [];
@@ -72,11 +74,11 @@ export function LineItems({
   }[] = [
     {
       label: "Winning Aggregator",
-      value: errors?.input.length || errors?.quote.length || !quote ? "N/A" : quote.provider,
+      value: errors?.input.length || errors?.quote.length || !metricWinner ? "N/A" : metricWinner,
       color:
-        errors?.input.length || errors?.quote.length || !quote
+        errors?.input.length || errors?.quote.length || !metricWinner
           ? undefined
-          : COLORS[quote.provider.toLowerCase()],
+          : COLORS[metricWinner.toLowerCase()],
     },
     {
       label: <LatencyTooltip successfulQuotes={successfulQuotes} />,

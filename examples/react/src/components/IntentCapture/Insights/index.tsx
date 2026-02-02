@@ -1,8 +1,8 @@
 import type { SimulatedQuote } from "@spandex/core";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { TokenMetadata } from "@/services/tokens";
 import type { SwapErrorState } from "@/utils/errors";
-import type { Metric } from "@/utils/quoteHelpers";
+import { getMetricWinner, type Metric } from "@/utils/quoteHelpers";
 import { BumpChart } from "./BumpChart";
 import { LineItems } from "./LineItems";
 
@@ -21,6 +21,7 @@ type InsightsProps = {
 
 type QuoteDataViewProps = InsightsProps & {
   quoteHistory: SimulatedQuote[][];
+  metricWinner: string | undefined;
 };
 
 function QuoteDataView({
@@ -34,6 +35,7 @@ function QuoteDataView({
   setSelectedMetric,
   slippageBps,
   setSlippageBps,
+  metricWinner,
   errors,
 }: QuoteDataViewProps) {
   return (
@@ -53,6 +55,7 @@ function QuoteDataView({
         numSellTokens={numSellTokens}
         slippageBps={slippageBps}
         setSlippageBps={setSlippageBps}
+        metricWinner={metricWinner}
         errors={errors}
       />
     </>
@@ -87,6 +90,13 @@ function QuoteHistoryWrapper({
     }
   }, [quotes]);
 
+  // compute the winner from the most recent quote snapshot
+  const metricWinner = useMemo(() => {
+    const latestSnapshot = quoteHistory[quoteHistory.length - 1];
+    if (!latestSnapshot) return undefined;
+    return getMetricWinner(latestSnapshot, selectedMetric);
+  }, [quoteHistory, selectedMetric]);
+
   return (
     <QuoteDataView
       quoteHistory={quoteHistory}
@@ -99,6 +109,7 @@ function QuoteHistoryWrapper({
       numSellTokens={numSellTokens}
       slippageBps={slippageBps}
       setSlippageBps={setSlippageBps}
+      metricWinner={metricWinner}
       errors={errors}
     />
   );

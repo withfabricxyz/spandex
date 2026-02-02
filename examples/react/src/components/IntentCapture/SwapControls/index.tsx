@@ -4,6 +4,7 @@ import { useConnection } from "wagmi";
 import { Button } from "@/components/Button";
 import { ArrowsUpDown } from "@/components/icons";
 import { Tooltip } from "@/components/Tooltip";
+import { type BalancePercent, useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { TokenMetadata } from "@/services/tokens";
 import type { SwapErrorState } from "@/utils/errors";
 import { bigintToDecimalString, formatTokenValue, parseTokenValue } from "@/utils/strings";
@@ -28,6 +29,8 @@ type SwapControlsProps = {
 
 type SwapControlsInputsProps = SwapControlsProps & {
   numBuyTokens: string;
+  activePercent: BalancePercent;
+  onPercentChange: (percent: BalancePercent) => void;
 };
 
 // SwapControls - renders token controls with hoisted balance from IntentCapture
@@ -44,6 +47,7 @@ function SwapControlsLoader({
   errors,
 }: SwapControlsProps) {
   const { isConnected } = useConnection();
+  const { activePercent, setActivePercent } = useTokenSelect();
 
   const numBuyTokens = useMemo(() => {
     // convert to <input /> value
@@ -61,11 +65,25 @@ function SwapControlsLoader({
     const defaultAmount = parseTokenValue(sellToken.defaultInput, sellToken.decimals);
     const sellBalance = balances.sellToken ?? 0n;
 
-    // use wallet balance if positive and less than default, otherwise use sellToken default
-    const amount = sellBalance > 0n && sellBalance < defaultAmount ? sellBalance : defaultAmount;
+    const percentMap: Record<BalancePercent, bigint> = {
+      "0%": 0n,
+      "25%": sellBalance / 4n,
+      "50%": sellBalance / 2n,
+      max: sellBalance,
+    };
+
+    const balancePreset = percentMap[activePercent];
+
+    // use wallet balance if exists, fallback to token default
+    const amount = sellBalance > 0n ? balancePreset : defaultAmount;
 
     setNumSellTokens(bigintToDecimalString(amount, sellToken.decimals));
-  }, [isConnected, balances.sellToken, sellToken, setNumSellTokens]);
+  }, [isConnected, balances.sellToken, sellToken, setNumSellTokens, activePercent]);
+
+  const handleSwitchTokens = useCallback(() => {
+    setActivePercent("25%");
+    onSwitchTokens();
+  }, [onSwitchTokens, setActivePercent]);
 
   return (
     <Inputs
@@ -78,7 +96,9 @@ function SwapControlsLoader({
       buyToken={buyToken}
       numBuyTokens={numBuyTokens}
       isLoadingQuotes={isLoadingQuotes}
-      onSwitchTokens={onSwitchTokens}
+      onSwitchTokens={handleSwitchTokens}
+      activePercent={activePercent}
+      onPercentChange={setActivePercent}
       errors={errors}
     />
   );
@@ -94,6 +114,8 @@ function Inputs({
   numBuyTokens,
   isLoadingQuotes,
   onSwitchTokens,
+  activePercent,
+  onPercentChange,
   errors,
 }: SwapControlsInputsProps) {
   return (
@@ -104,6 +126,8 @@ function Inputs({
         isLoadingBalances={isLoadingBalances}
         numTokens={numSellTokens}
         onChange={setNumSellTokens}
+        activePercent={activePercent}
+        onPercentChange={onPercentChange}
         errors={errors}
       />
 

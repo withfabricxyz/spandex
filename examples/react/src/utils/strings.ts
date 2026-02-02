@@ -28,10 +28,10 @@ function formatNumberFancy(value: number): string {
     return formatLargishValue(value);
   }
   if (value >= 10) {
-    return value.toFixed(0);
+    return value.toLocaleString("en", { style: "decimal", maximumFractionDigits: 2 });
   }
   if (value >= 1) {
-    return value.toFixed(2);
+    return value.toLocaleString("en", { style: "decimal", maximumFractionDigits: 2 });
   }
   if (value < 0.0000001) {
     return "<0.0000001";
@@ -40,7 +40,6 @@ function formatNumberFancy(value: number): string {
 }
 
 function formatLargishValue(num: number): string {
-  const digits = 1;
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
   const lookup = [
     { value: 1, symbol: "" },
@@ -52,7 +51,11 @@ function formatLargishValue(num: number): string {
     .slice()
     .reverse()
     .find((item) => num >= item.value);
-  return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
+  return item
+    ? (num / item.value)
+        .toLocaleString("en", { style: "decimal", maximumFractionDigits: 2 })
+        .replace(rx, "$1") + item.symbol
+    : "0";
 }
 
 export function formatTokenValue(
