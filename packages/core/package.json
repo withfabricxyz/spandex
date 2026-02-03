@@ -1,6 +1,6 @@
 {
   "name": "@spandex/core",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "SpanDEX Core: meta-aggregation for DEX swaps with quote fetching, simulation, and execution.",
   "homepage": "https://spandex.sh",
   "docs": "https://spandex.sh",
