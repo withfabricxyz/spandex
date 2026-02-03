@@ -32,7 +32,7 @@ export function Dialog(props: DialogProps) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [props.onClose]);
+  }, [props.onClose, props]);
 
   useEffect(() => {
     if (props.isOpen) {

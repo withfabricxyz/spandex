@@ -12,4 +12,4 @@ runs:
         node-version: 24
     - name: Install deps
       shell: bash
-      run: bun install
+      run: bun install --frozen-lockfile

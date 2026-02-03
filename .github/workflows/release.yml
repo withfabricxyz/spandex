@@ -7,8 +7,9 @@ on:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 permissions:
+  contents: write
   id-token: write  # Trusted publishers
-  contents: read
+  pull-requests: write # For creating release PRs
 
 jobs:
   release:
