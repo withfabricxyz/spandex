@@ -1,9 +1,16 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_light_.svg">
-  <img alt="SpanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_dark.svg" width="auto" height="50">
+  <img alt="SpanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_dark.svg" width="auto" height="40">
 </picture>
 
 <br/>
+
+<p>
+<a href="https://www.npmjs.com/package/@spandex/core">
+  <img alt="NPM Version" src="https://img.shields.io/npm/v/@spandex/core">
+</a>
+<img alt="GitHub branch status" src="https://img.shields.io/github/checks-status/withfabricxyz/spandex/main">
+</p>
 
 Open Source Meta-Aggregation Library
 
@@ -34,11 +41,11 @@ See the [contributor guidelines](https://github.com/withfabricxyz/spandex/blob/m
 
 <br/>
 <br/>
-<center>
+<p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/withfabricxyz/spandex/blob/main/.github/graph_light_.svg">
   <img alt="SpanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/graph_dark.svg" width="75%">
 </picture>
-</center>
+</p>
 <br/>
 <br/>
