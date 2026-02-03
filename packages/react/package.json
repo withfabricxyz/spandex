@@ -1,7 +1,33 @@
 {
   "name": "@spandex/react",
   "version": "0.2.0",
-  "description": "React hooks for SpanDEX",
+  "description": "SpanDEX React: hooks for meta-aggregated DEX swaps and quote execution.",
+  "homepage": "https://spandex.sh",
+  "docs": "https://spandex.sh",
+  "documentation": "https://spandex.sh",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withfabricxyz/spandex.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/withfabricxyz/spandex/discussions"
+  },
+  "license": "MIT",
+  "keywords": [
+    "spandex",
+    "react",
+    "dex",
+    "swap",
+    "aggregator",
+    "defi",
+    "web3",
+    "ethereum",
+    "quote",
+    "hooks",
+    "trading-bot",
+    "dapp"
+  ],
   "type": "module",
   "publishConfig": {
     "access": "public",
@@ -19,7 +45,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "bun ../../scripts/build-packages.ts wagmi",

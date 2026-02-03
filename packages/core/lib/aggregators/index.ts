@@ -10,6 +10,7 @@ import {
   type SwapOptions,
   type SwapParams,
 } from "../types.js";
+import { log } from "../util/logger.js";
 
 const MIN_RETRIES = 0;
 const MAX_RETRIES = 10;
@@ -124,6 +125,11 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
             latency: stop - start,
           };
         } catch (e) {
+          log("debug", "Quote attempt failed", {
+            provider: this.name(),
+            attempt: numAttempts + 1,
+            error: e,
+          });
           error = {
             success: false,
             provider: this.name(),
@@ -139,6 +145,11 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
           await new Promise((resolve) => setTimeout(resolve, delayMs * 2 ** (numAttempts - 1)));
         }
       }
+
+      log("info", "Quote failed after retries", {
+        provider: this.name(),
+        attempts: numAttempts,
+      });
 
       return error as Quote;
     };
@@ -159,6 +170,7 @@ export async function deadline({
   aggregator: ProviderKey;
 }): Promise<Quote> {
   await new Promise((resolve) => setTimeout(resolve, deadlineMs));
+  log("debug", "Quote deadline exceeded", { provider: aggregator, deadlineMs });
   return {
     success: false,
     provider: aggregator,

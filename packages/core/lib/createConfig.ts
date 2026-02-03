@@ -7,8 +7,10 @@ import type {
   AggregationOptions,
   ConfigParams,
   DirectConfigParams,
+  LoggingOptions,
   ProxyConfigParams,
 } from "./types.js";
+import { setLogger } from "./util/logger.js";
 import type { AggregatorProxy } from "./wire/proxy.js";
 
 /**
@@ -23,6 +25,8 @@ export type Config = {
   aggregators: Aggregator[];
   /** Proxy configuration or instance */
   proxy?: AggregatorProxy;
+  /** Optional logging configuration for the global logger. */
+  logging?: LoggingOptions;
 };
 
 /**
@@ -57,6 +61,7 @@ export function defaultProviders(params: { appId: string }): DirectConfigParams[
  * ```
  */
 export function createConfig(params: ConfigParams): Config {
+  setLogger(params.logging);
   if (Object.hasOwn(params, "proxy")) {
     return createProxyConfig(params as ProxyConfigParams);
   }
@@ -77,6 +82,7 @@ function createDirectConfig(params: DirectConfigParams): Config {
     options: params.options || {},
     clientLookup: createClientLookupFunction(params.clients),
     aggregators: aggregators,
+    logging: params.logging,
   };
 }
 
@@ -86,6 +92,7 @@ function createProxyConfig(params: ProxyConfigParams): Config {
     clientLookup: createClientLookupFunction(params.clients),
     aggregators: [],
     proxy: params.proxy,
+    logging: params.logging,
   };
 }
 

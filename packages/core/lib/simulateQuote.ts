@@ -14,6 +14,7 @@ import type {
   TxData,
 } from "./types.js";
 import { isNativeToken } from "./util/helpers.js";
+import { log } from "./util/logger.js";
 
 /**
  * Error thrown when one or more low level calls revert while simulating a quote.
@@ -179,6 +180,10 @@ async function performSimulation({
       assetChanges,
     };
   } catch (error) {
+    log("debug", "Quote simulation failed", {
+      provider: quote.success ? quote.provider : undefined,
+      error,
+    });
     return {
       success: false,
       error: error as Error,

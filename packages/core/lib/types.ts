@@ -379,6 +379,19 @@ export type QuoteMetrics = {
 };
 
 /**
+ * Logger levels used by the optional global logger.
+ */
+export type LogLevel = "info" | "debug" | "trace";
+
+/**
+ * Logger configuration used when creating a config.
+ */
+export type LoggingOptions = {
+  level: LogLevel;
+  fn?: (level: LogLevel, ...args: unknown[]) => void;
+};
+
+/**
  * Options controlling retry and timeout behavior for quote requests.
  */
 export type TimingOptions = {
@@ -450,6 +463,10 @@ export type DirectConfigParams = {
    */
   options?: AggregationOptions;
   /**
+   * Optional logging configuration for the global logger.
+   */
+  logging?: LoggingOptions;
+  /**
    * Cannot specify proxy when using direct providers.
    */
   proxy?: never;
@@ -475,6 +492,10 @@ export type ProxyConfigParams = {
    * Options are configured by the proxy, not at client-side config time.
    */
   options?: never;
+  /**
+   * Optional logging configuration for the global logger.
+   */
+  logging?: LoggingOptions;
 };
 
 /**

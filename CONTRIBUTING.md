@@ -58,13 +58,21 @@ bun dev
 3) If you touch docs in a PR, keep changes scoped and include any relevant updates
 to examples or API references.
 
+## Changesets
+
+This project uses [changesets](https://github.com/changesets/changesets) to rev versions and release packages. If your changes
+should increment the version (they impact api surface area), then run `bun changeset`
+and include release notes describing the change prior to opening a PR.
+
+
 ## PR Requirements
-- Scope is focused and justifiable.
-- Tests are updated or added where applicable.
-- Docs are updated where applicable.
-- No breaking API changes without prior discussion.
-- No dependency changes without prior discussion.
-- You can explain the change, reasoning, and alternatives in the PR description.
+- Scope is focused and justifiable
+- Tests are updated or added where applicable
+- Docs are updated where applicable
+- No breaking API changes without prior discussion
+- No dependency changes without prior discussion
+- You can explain the change, reasoning, and alternatives in the PR description
+- Included changeset file if the changes impact released artifacts
 
 If you cannot meet these requirements, please use Discussions instead of a PR.
 

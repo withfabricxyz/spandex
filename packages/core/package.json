@@ -1,7 +1,32 @@
 {
   "name": "@spandex/core",
   "version": "0.2.0",
-  "description": "Library for finding the best swap prices across all DEXs",
+  "description": "SpanDEX Core: meta-aggregation for DEX swaps with quote fetching, simulation, and execution.",
+  "homepage": "https://spandex.sh",
+  "docs": "https://spandex.sh",
+  "documentation": "https://spandex.sh",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withfabricxyz/spandex.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/withfabricxyz/spandex/discussions"
+  },
+  "license": "MIT",
+  "keywords": [
+    "spandex",
+    "dex",
+    "swap",
+    "aggregator",
+    "defi",
+    "web3",
+    "ethereum",
+    "quote",
+    "simulation",
+    "trading-bot",
+    "dapp"
+  ],
   "type": "module",
   "publishConfig": {
     "access": "public",
@@ -19,7 +44,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "bun ../../scripts/build-packages.ts core"
