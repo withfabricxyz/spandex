@@ -29,5 +29,7 @@ jobs:
         with:
           version: bun run ci:version
           publish: bun run ci:publish
+          title: "chore: rev and release"
+          commit: "chore: rev and release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

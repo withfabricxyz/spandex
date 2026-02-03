@@ -18,7 +18,7 @@
     "example:react:build": "cd examples/react && bun run build",
     "example:react:preview": "cd examples/react && bun run preview",
     "ci:version": "changeset version && bun update",
-    "ci:publish": "for dir in packages/*; do (cd \"$dir\" && bun publish || true); done && changeset tag"
+    "ci:publish": "for dir in packages/*; do (cd \"$dir\" && changeset publish || true); done && changeset tag"
   },
   "devDependencies": {
     "@types/bun": "^1.3.8",
