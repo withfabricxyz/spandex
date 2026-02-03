@@ -5,36 +5,40 @@
 
 <br/>
 
-Open Source Meta-Aggregation
+Open Source Meta-Aggregation Library
 
-Expands tokens, pools, and chains beyond any single aggregator. Fetch multiple quotes to find the best price or lowest latency quote. Built-in failover. Free and open source: Inspect, modify, and contribute. Remove the risk of vendor lock-in. The world is yours.
+Expand tokens, pools, and chains beyond any single aggregator. Fetch multiple quotes to find the best price or lowest latency quote. Built-in failover. Free and open source: Inspect, modify, and contribute. Remove the risk of vendor lock-in. The world is yours.
+
+## Features
+
+- Redundant quote fetching across multiple providers (failover by default).
+- Optimize for your use case: pick best price, fastest quote, or lowest estimated gas.
+- Built-in simulation to validate quotes before execution.
+- Minimal dependencies (core is lightweight and ESM-ready).
+- Multiple provider integrations (0x, KyberSwap, Odos, Relay, LiFi, Fabric).
+- Proxy support to defer quote fetching to a remote server (CORS-friendly).
+- React hooks for fast UI integration.
+- Metrics extraction (latency, gas, price impact, net outputs).
 
 
+## Documentation
 
-## Show me the Docs
-
-[Why SpanDEX?](https://smal-eight.vercel.app/react/getting-started)<br/>
-[Getting Started](https://smal-eight.vercel.app/react/getting-started)<br/>
-[Getting Started for React Apps](https://smal-eight.vercel.app/react/getting-started)<br/>
+[Why SpanDEX?](https://spandex.sh/react/getting-started)<br/>
+[Getting Started](https://spandex.sh/react/getting-started)<br/>
+[Getting Started for React Apps](https://spandex.sh/react/getting-started)<br/>
 
 
 ## Contributing
 
-See the contributor guidelines.
+See the [contributor guidelines](https://github.com/withfabricxyz/spandex/blob/main/CONTRIBUTING.md).
 
 <br/>
 <br/>
 <center>
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_light_.svg">
-  <img alt="SpanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_dark.svg" width="auto" height="50">
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/withfabricxyz/spandex/blob/main/.github/graph_light_.svg">
+  <img alt="SpanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/graph_dark.svg" width="75%">
 </picture>
 </center>
-
 <br/>
 <br/>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/withfabricxyz/spandex/blob/main/.github/graph_light_.svg">
-  <img alt="SpanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/graph_dark.svg" width="auto" width="100%">
-</picture>
-

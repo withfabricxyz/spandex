@@ -96,3 +96,41 @@ Surplus share for the integrator (in basis points). Only applicable if the provi
 `PublicClient[] | ((chainId: number) => PublicClient | undefined)`
 
 A list of viem/wagmi clients or a lookup function to get the client for a specific chain ID. This is used to fetch on-chain data for quote simulation and validation. If not provided, `getQuotes`, `getQuote`, and simulation utilities will fail. If you wish to only get quotes without validating onchain, use `getRawQuotes` instead. When using `SpandexProvider`, the wagmi clients from the provider will be used automatically.
+
+---
+
+### logging (optional)
+
+`{ level: "info" | "debug" | "trace"; fn?: (level, ...args) => void }`
+
+Enables the optional global logger used by the core library. This is helpful when you want to
+understand quote retries, deadlines, or simulation failures without wiring a full logging system.
+If `fn` is omitted, SpanDEX logs to `console.log` using the format `[level] - ...`.
+
+#### logging.level
+`"info" | "debug" | "trace"`
+
+Minimum level to emit. For example, `"info"` logs info only, `"debug"` logs info + debug, and
+`"trace"` logs everything.
+
+#### logging.fn (optional)
+`(level: "info" | "debug" | "trace", ...args: unknown[]) => void`
+
+Custom logging function. The first argument is the log level, followed by the structured log
+arguments from the library.
+
+Example:
+
+```ts
+import { createConfig, fabric } from "@spandex/core";
+
+const config = createConfig({
+  providers: [fabric({ appId: "YOUR_FABRIC_APP_ID" })],
+  logging: {
+    level: "debug",
+    fn: (level, ...args) => {
+      myLogger.log({ level, event: "spandex", args });
+    },
+  },
+});
+```

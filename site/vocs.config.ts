@@ -2,6 +2,7 @@ import { defineConfig } from "vocs";
 
 export default defineConfig({
   title: "SpanDEX",
+  description: "DEX meta-aggregator library for optimal token swaps",
   sidebar: [
     {
       text: "Overview",
@@ -24,7 +25,6 @@ export default defineConfig({
         },
       ],
     },
-
     {
       text: "Core",
       items: [
