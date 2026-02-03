@@ -1,5 +1,13 @@
 # @spandex/react
 
+## 0.3.3
+
+### Patch Changes
+
+- 9d3eb29: chore: working through automated publishing
+- Updated dependencies [9d3eb29]
+  - @spandex/core@0.3.3
+
 ## 0.3.2
 
 ### Patch Changes
