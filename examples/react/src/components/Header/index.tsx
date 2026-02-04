@@ -12,6 +12,7 @@ import { Logo } from "./Logo";
 function WalletOptions({ onConnected }: { onConnected: () => void }) {
   const connect = useConnect();
   const connectors = useConnectors();
+  const injectedEthereum = (window as Window & { ethereum?: unknown }).ethereum;
 
   const injectedConnectors = useMemo(() => {
     let injected = connectors.filter((c) => c.type === "injected");
@@ -23,22 +24,28 @@ function WalletOptions({ onConnected }: { onConnected: () => void }) {
     return injected;
   }, [connectors]);
 
-  return injectedConnectors.map((connector) => (
-    <button
-      key={connector.uid}
-      onClick={async () => {
-        await connect.mutateAsync({ connector });
-        onConnected();
-      }}
-      type="button"
-      className="cursor-pointer px-8 py-4 hover:bg-surface-low rounded-8"
-    >
-      <div className="flex items-center gap-8">
-        {connectorIcon(connector)}
-        <span>{connector.name}</span>
-      </div>
-    </button>
-  ));
+  if (typeof window === "undefined") {
+    return null;
+  } else if (!injectedEthereum) {
+    return <span className="text-center text-secondary">Must have an injected wallet</span>;
+  } else {
+    return injectedConnectors.map((connector) => (
+      <button
+        key={connector.uid}
+        onClick={async () => {
+          await connect.mutateAsync({ connector });
+          onConnected();
+        }}
+        type="button"
+        className="cursor-pointer px-8 py-4 hover:bg-surface-low rounded-8"
+      >
+        <div className="flex items-center gap-8">
+          {connectorIcon(connector)}
+          <span>{connector.name}</span>
+        </div>
+      </button>
+    ));
+  }
 }
 
 const icons: Record<string, string> = {

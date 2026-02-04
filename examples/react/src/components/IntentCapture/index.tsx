@@ -149,7 +149,6 @@ export function IntentCapture() {
     streamResults: true,
   });
 
-  // TODO: useBestQuote?
   const bestQuote = getBestQuoteByMetric({
     quotes,
     metric: selectedMetric,

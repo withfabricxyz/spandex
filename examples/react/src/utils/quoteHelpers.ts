@@ -43,24 +43,6 @@ function isOdosQuote(
   return quote.success && quote.provider === "odos";
 }
 
-function getBestQuoteByPrice(quotes: SimulatedQuote[]): SimulatedQuote | undefined {
-  const successfulQuotes = quotes.filter((quote) => quote.success);
-  if (successfulQuotes.length === 0) return undefined;
-
-  return successfulQuotes.reduce((best, current) => {
-    return BigInt(current.outputAmount) > BigInt(best.outputAmount) ? current : best;
-  });
-}
-
-function getBestQuoteByAccuracy(quotes: SimulatedQuote[]): SimulatedQuote | undefined {
-  return getBestQuoteByPrice(quotes); // TODO: temp
-}
-
-function getBestQuoteByLatency(quotes: SimulatedQuote[]): SimulatedQuote | undefined {
-  return getBestQuoteByPrice(quotes); // TODO: temp
-}
-
-// TODO: spandex
 export function getBestQuoteByMetric({
   quotes,
   metric,
@@ -70,13 +52,20 @@ export function getBestQuoteByMetric({
 }): SimulatedQuote | undefined {
   if (!quotes || quotes.length === 0) return undefined;
 
-  const bestQuoteByMetric = {
-    price: getBestQuoteByPrice,
-    accuracy: getBestQuoteByAccuracy,
-    latency: getBestQuoteByLatency,
-  };
+  const successfulQuotes = quotes.filter(
+    (q) => q.success && q.simulation.success,
+  ) as SuccessfulSimulatedQuote[];
 
-  return bestQuoteByMetric[metric](quotes);
+  if (successfulQuotes.length === 0) return undefined;
+
+  const performanceKey = metricToPerformanceKey[metric];
+  const sorted = sortQuotesByPerformance({
+    quotes: successfulQuotes,
+    metric: performanceKey,
+    ascending: performanceKey !== "outputAmount",
+  });
+
+  return sorted[0];
 }
 
 // TODO: which other aggregators surface fees?
