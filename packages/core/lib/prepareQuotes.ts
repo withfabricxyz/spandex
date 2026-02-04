@@ -1,13 +1,5 @@
-import type { PublicClient } from "viem";
-import { simulateQuote } from "../index.js";
 import type { Config } from "./createConfig.js";
-import type {
-  AggregationOptions,
-  AggregatorFeature,
-  Quote,
-  SimulatedQuote,
-  SwapParams,
-} from "./types.js";
+import type { AggregationOptions, AggregatorFeature, Quote, SwapParams } from "./types.js";
 
 /**
  * Generates quote promises for all configured aggregators.
@@ -31,57 +23,28 @@ export async function prepareQuotes<T>({
 
   const options = config.options;
 
-  // Get the required features for this request and filter aggregators accordingly
-  const features = [...queryFeatures(swap), ...configFeatures(options)];
+  // Required features for this request (hard filters)
+  const requiredFeatures = queryFeatures(swap);
+  // Requested fee/surplus features used to annotate quotes for preference sorting
+  const requestedFeeFeatures = feeFeatures(options);
   const candidates = config.aggregators.filter((aggregator) =>
-    aggregator.supportsAllFeatures(features),
+    aggregator.supportsAllFeatures(requiredFeatures),
   );
   if (candidates.length === 0) {
     throw new Error(
-      `No aggregators available that support all required features: ${features.join(", ")}. Consider adjusting your MetaAggregator configuration or request parameters.`,
+      `No aggregators available that support all required features: ${requiredFeatures.join(", ")}. Consider adjusting your MetaAggregator configuration or request parameters.`,
     );
   }
 
-  return candidates.map((aggregator) => aggregator.fetchQuote(swap, options).then(mapFn));
+  return candidates.map((aggregator) =>
+    aggregator
+      .fetchQuote(swap, options)
+      .then((quote) => attachActivatedFeatures(quote, aggregator, requestedFeeFeatures))
+      .then(mapFn),
+  );
 }
 
-/**
- * Prepares simulated quotes by fetching quotes from all configured aggregators then simulating them.
- *
- * @param params - Request parameters.
- * @param params.config - Meta-aggregator configuration.
- * @param params.swap - Swap request parameters.
- * @param params.client - Public client used to simulate quote transaction data.
- * @returns Quotes enriched with simulation metadata.
- */
-export async function prepareSimulatedQuotes({
-  config,
-  swap,
-  client,
-}: {
-  config: Config;
-  swap: SwapParams;
-  client?: PublicClient;
-}): Promise<Promise<SimulatedQuote>[]> {
-  const resolved = client ?? config.clientLookup(swap.chainId);
-  if (!resolved) {
-    throw new Error(
-      `No PublicClient provided or configured for chainId ${swap.chainId}. Please provide a client via options or constructor.`,
-    );
-  }
-
-  const mapFn = async (quote: Quote): Promise<SimulatedQuote> => {
-    return simulateQuote({
-      client: resolved as PublicClient,
-      swap,
-      quote,
-    });
-  };
-
-  return await prepareQuotes({ config, swap, mapFn });
-}
-
-function configFeatures(options?: AggregationOptions): AggregatorFeature[] {
+function feeFeatures(options?: AggregationOptions): AggregatorFeature[] {
   const features: AggregatorFeature[] = [];
   if ((options?.integratorSwapFeeBps || 0) > 0) {
     features.push("integratorFees");
@@ -100,4 +63,18 @@ function queryFeatures(params: SwapParams): AggregatorFeature[] {
     features.push("targetOut");
   }
   return features;
+}
+
+function attachActivatedFeatures(
+  quote: Quote,
+  aggregator: { supportsFeature: (feature: AggregatorFeature) => boolean },
+  requestedFeeFeatures: AggregatorFeature[],
+): Quote {
+  if (!quote.success || requestedFeeFeatures.length === 0) {
+    return quote;
+  }
+  const activatedFeatures = requestedFeeFeatures.filter((feature) =>
+    aggregator.supportsFeature(feature),
+  );
+  return { ...quote, activatedFeatures };
 }

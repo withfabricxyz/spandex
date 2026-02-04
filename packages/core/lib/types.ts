@@ -142,6 +142,10 @@ export type GenericQuote<P extends ProviderKey, T> = {
    * Optional metrics such as price impact.
    */
   metrics?: QuoteMetrics;
+  /**
+   * Features activated on this quote (intersection of requested fee/surplus with provider support).
+   */
+  activatedFeatures?: AggregatorFeature[];
 };
 
 /**

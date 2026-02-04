@@ -3,7 +3,7 @@ import type { PublicClient } from "viem";
 import { defaultSwapParams, MockAggregator, quoteSuccess } from "../test/utils.js";
 import type { Config } from "./createConfig.js";
 import { getQuote } from "./getQuote.js";
-import { prepareSimulatedQuotes } from "./prepareQuotes.js";
+import { prepareSimulatedQuotes } from "./prepareSimulatedQuotes.js";
 import type {
   SimulationArgs,
   SimulationSuccess,
@@ -57,14 +57,14 @@ const prep = prepareSimulatedQuotes;
 
 describe("getQuote", () => {
   beforeAll(() => {
-    mock.module("./prepareQuotes.js", () => ({
+    mock.module("./prepareSimulatedQuotes.js", () => ({
       prepareSimulatedQuotes: mockPrepareSimulatedQuotes,
     }));
   });
 
   afterAll(() => {
     // Hack: Resets don't work yet in Bun, and mocks are not test-scoped by default
-    mock.module("./prepareQuotes.js", () => ({
+    mock.module("./prepareSimulatedQuotes.js", () => ({
       prepareSimulatedQuotes: prep,
     }));
   });

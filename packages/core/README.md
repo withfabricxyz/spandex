@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_light_.svg">
-  <img alt="SpanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_dark.svg" width="auto" height="40">
+  <img alt="spanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_dark.svg" width="auto" height="40">
 </picture>
 
 <br/>
@@ -14,7 +14,7 @@
 
 ---
 
-SpanDEX Core is a meta-aggregation library for DEX swaps. It fetches quotes from multiple providers,
+spanDEX Core is a meta-aggregation library for DEX swaps. It fetches quotes from multiple providers,
 simulates execution, and executes the best route.
 
 If you're building swap functionality (trading bots, wallets, dapps, integrations), prefer this

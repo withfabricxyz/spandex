@@ -1,14 +1,14 @@
 import { defineConfig } from "vocs";
 
 export default defineConfig({
-  title: "SpanDEX",
+  title: "spanDEX",
   description: "DEX meta-aggregator library for optimal token swaps",
   sidebar: [
     {
       text: "Overview",
       items: [
         {
-          text: "Why SpanDEX",
+          text: "Why spanDEX",
           link: "/overview",
         },
         {

@@ -1,4 +1,11 @@
 # Fees
 
-How to configure fee structures in SpanDEX with various providers
-swap fees, surplus, etc.
+spanDEX lets you request integrator fees and/or surplus sharing when fetching quotes. These settings
+are **optimistic**: providers that do not support the requested fee features may still return
+quotes.
+
+Each successful quote can include `activatedFeatures`, which is the intersection of the requested
+fee/surplus features and what the provider actually supports. Selection strategies other than
+`fastest` prefer quotes with a higher count of activated features before applying the secondary
+strategy (best price, lowest gas, etc). If no quote can activate the requested fee features, the
+selection falls back to the usual strategy among all successful quotes.

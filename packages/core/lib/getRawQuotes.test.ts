@@ -87,7 +87,7 @@ describe("getRawQuotes", () => {
     expect(quotes.length).toBe(1);
   }, 1_000);
 
-  it("respects surplus taking filter", async () => {
+  it("annotates surplus support without filtering", async () => {
     const config: Config = {
       aggregators: [
         new MockAggregator(quoteSuccess, { features: ["exactIn", "integratorSurplus"] }),
@@ -102,6 +102,11 @@ describe("getRawQuotes", () => {
 
     const quotes = await getRawQuotes({ config, swap: defaultSwapParams });
     expect(quotes).toBeDefined();
-    expect(quotes.length).toBe(1);
+    expect(quotes.length).toBe(2);
+    const activatedCounts = quotes
+      .filter((quote) => quote.success)
+      .map((quote) => quote.activatedFeatures?.length ?? 0)
+      .sort((a, b) => a - b);
+    expect(activatedCounts).toEqual([0, 1]);
   }, 1_000);
 });

@@ -375,7 +375,7 @@ export function BumpChart({
 
   return (
     <div className="flex flex-col gap-10 overflow-hidden relative">
-      <a href="https://quote-bench-production.up.railway.app/">
+      <a href="https://benchmark.withfabric.xyz">
         <Button
           variant="secondary"
           className="absolute px-2 py-4 border-0 top-7 right-0 h-16 w-16 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"

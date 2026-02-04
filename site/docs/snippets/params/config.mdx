@@ -89,6 +89,10 @@ Swap fee for the integrator (in basis points). Only applicable if the provider s
 
 Surplus share for the integrator (in basis points). Only applicable if the provider supports surplus sharing.
 
+Fee and surplus settings are optimistic: providers that do not support the requested features may
+still return quotes, and selection will prefer quotes with more activated fee features before
+applying the secondary strategy (best price, lowest gas, etc).
+
 ---
 
 ### clients (optional)
@@ -105,7 +109,7 @@ A list of viem/wagmi clients or a lookup function to get the client for a specif
 
 Enables the optional global logger used by the core library. This is helpful when you want to
 understand quote retries, deadlines, or simulation failures without wiring a full logging system.
-If `fn` is omitted, SpanDEX logs to `console.log` using the format `[level] - ...`.
+If `fn` is omitted, spanDEX logs to `console.log` using the format `[level] - ...`.
 
 #### logging.level
 `"info" | "debug" | "trace"`
