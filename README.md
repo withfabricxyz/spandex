@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_light_.svg">
-  <img alt="SpanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_dark.svg" width="auto" height="40">
+  <img alt="spanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_dark.svg" width="auto" height="40">
 </picture>
 
 <br/>
@@ -30,7 +30,7 @@ Expand tokens, pools, and chains beyond any single aggregator. Fetch multiple qu
 
 ## Documentation
 
-[Why SpanDEX?](https://spandex.sh/react/getting-started)<br/>
+[Why spanDEX?](https://spandex.sh/react/getting-started)<br/>
 [Getting Started](https://spandex.sh/react/getting-started)<br/>
 [Getting Started for React Apps](https://spandex.sh/react/getting-started)<br/>
 
@@ -44,7 +44,7 @@ See the [contributor guidelines](https://github.com/withfabricxyz/spandex/blob/m
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/withfabricxyz/spandex/blob/main/.github/graph_light_.svg">
-  <img alt="SpanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/graph_dark.svg" width="75%">
+  <img alt="spanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/graph_dark.svg" width="75%">
 </picture>
 </p>
 <br/>

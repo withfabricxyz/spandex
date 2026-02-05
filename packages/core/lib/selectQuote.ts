@@ -29,6 +29,21 @@ const sortBySimulatedOutput: SimulatedQuoteSort = (a, b) => {
   return a.simulation.outputAmount > b.simulation.outputAmount ? -1 : 1;
 };
 
+function priorityScore(quote: SuccessfulSimulatedQuote): number {
+  return quote.activatedFeatures?.length ?? 0;
+}
+
+function withPriority(sort: SimulatedQuoteSort): SimulatedQuoteSort {
+  return (a, b) => {
+    const scoreA = priorityScore(a);
+    const scoreB = priorityScore(b);
+    if (scoreA !== scoreB) {
+      return scoreA > scoreB ? -1 : 1;
+    }
+    return sort(a, b);
+  };
+}
+
 const sortByGasUsed: SimulatedQuoteSort = (a, b) => {
   const gasA = gasCost(a);
   const gasB = gasCost(b);
@@ -45,7 +60,7 @@ const quotedPrice: QuoteSelectionFn = async (
 ): Promise<SuccessfulSimulatedQuote | null> => {
   const sorted = await resolveSuccessfulSimulatedQuotes({
     quotes,
-    sort: sortBySimulatedOutput,
+    sort: withPriority(sortBySimulatedOutput),
   });
   return sorted[0] ?? null;
 };
@@ -55,7 +70,7 @@ const quotedGas: QuoteSelectionFn = async (
 ): Promise<SuccessfulSimulatedQuote | null> => {
   const sorted = await resolveSuccessfulSimulatedQuotes({
     quotes,
-    sort: sortByGasUsed,
+    sort: withPriority(sortByGasUsed),
   });
   return sorted[0] ?? null;
 };
@@ -63,13 +78,11 @@ const quotedGas: QuoteSelectionFn = async (
 const priority: QuoteSelectionFn = async (
   quotes: Array<Promise<SimulatedQuote>>,
 ): Promise<SuccessfulSimulatedQuote | null> => {
-  for (const quotePromise of quotes) {
-    const quote = await quotePromise;
-    if (isSuccessfulSimulatedQuote(quote)) {
-      return quote;
-    }
-  }
-  return null;
+  const sorted = await resolveSuccessfulSimulatedQuotes({
+    quotes,
+    sort: withPriority(sortBySimulatedOutput),
+  });
+  return sorted[0] ?? null;
 };
 
 const fastest: QuoteSelectionFn = async (

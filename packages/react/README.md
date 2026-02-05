@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_light_.svg">
-  <img alt="SpanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_dark.svg" width="auto" height="40">
+  <img alt="spanDEX" src="https://github.com/withfabricxyz/spandex/blob/main/.github/logo_dark.svg" width="auto" height="40">
 </picture>
 
 <br/>
@@ -14,7 +14,7 @@
 
 ---
 
-SpanDEX React provides hooks for building token swap experiences on top of SpanDEX Core.
+spanDEX React provides hooks for building token swap experiences on top of spanDEX Core.
 
 If you're building swap functionality in a React app (dapp UI, dashboard, wallet), prefer this
 package for quote fetching, selection, and execution.

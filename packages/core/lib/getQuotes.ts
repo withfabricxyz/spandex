@@ -1,6 +1,6 @@
 import type { PublicClient } from "viem";
 import type { Config } from "./createConfig.js";
-import { prepareSimulatedQuotes } from "./prepareQuotes.js";
+import { prepareSimulatedQuotes } from "./prepareSimulatedQuotes.js";
 import type { SimulatedQuote, SwapParams } from "./types.js";
 
 /**

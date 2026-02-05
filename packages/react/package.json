@@ -1,7 +1,7 @@
 {
   "name": "@spandex/react",
   "version": "0.3.3",
-  "description": "SpanDEX React: hooks for meta-aggregated DEX swaps and quote execution.",
+  "description": "spanDEX React: hooks for meta-aggregated DEX swaps and quote execution.",
   "homepage": "https://spandex.sh",
   "docs": "https://spandex.sh",
   "documentation": "https://spandex.sh",

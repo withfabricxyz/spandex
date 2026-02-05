@@ -16,7 +16,7 @@ import {
 import { amountToNumber } from "../util/pricing.js";
 import { Aggregator } from "./index.js";
 
-const DEFAULT_URL = "https://booda.defi.withfabric.xyz";
+const DEFAULT_URL = "https://route.withfabric.xyz";
 
 export type FabricQuoteResponse = {
   blockNumber: number;

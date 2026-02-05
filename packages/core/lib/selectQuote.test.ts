@@ -1,7 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import type { FabricQuoteResponse } from "./aggregators/fabric.js";
 import { selectQuote } from "./selectQuote.js";
-import type { SimulatedQuote, SimulationSuccess, SuccessfulSimulatedQuote } from "./types.js";
+import type {
+  AggregatorFeature,
+  SimulatedQuote,
+  SimulationSuccess,
+  SuccessfulSimulatedQuote,
+} from "./types.js";
 
 const baseSimulation: SimulationSuccess = {
   success: true,
@@ -99,6 +104,28 @@ describe("selectQuote", () => {
     expect(output?.simulation.outputAmount).toBe(15n);
   }, 1_000);
 
+  it("price selection prefers higher priority even if output is worse", async () => {
+    const pending = [
+      Promise.resolve(
+        makeSuccessfulQuote({
+          outputAmount: 100n,
+          simulation: { ...quoteSuccess.simulation, outputAmount: 100n },
+          activatedFeatures: [],
+        }),
+      ),
+      Promise.resolve(
+        makeSuccessfulQuote({
+          outputAmount: 10n,
+          simulation: { ...quoteSuccess.simulation, outputAmount: 10n },
+          activatedFeatures: ["integratorFees"] as AggregatorFeature[],
+        }),
+      ),
+    ];
+    const output = await selectQuote({ strategy: "bestPrice", quotes: pending });
+    expect(output).toBeDefined();
+    expect(output?.simulation.outputAmount).toBe(10n);
+  }, 1_000);
+
   it("gas optimized - selects the cheapest in terms of gas", async () => {
     const pending = [
       Promise.resolve(simulationFailure),
@@ -120,19 +147,43 @@ describe("selectQuote", () => {
     expect(output?.simulation.gasUsed).toBe(1_300_000n);
   }, 1_000);
 
-  it("priority selection (used for failover)", async () => {
+  it("gas optimized prefers higher priority even if gas is worse", async () => {
+    const pending = [
+      Promise.resolve(
+        makeSuccessfulQuote({
+          networkFee: 900_000n,
+          simulation: { ...quoteSuccess.simulation, gasUsed: 900_000n },
+          activatedFeatures: [],
+        }),
+      ),
+      Promise.resolve(
+        makeSuccessfulQuote({
+          networkFee: 1_200_000n,
+          simulation: { ...quoteSuccess.simulation, gasUsed: 1_200_000n },
+          activatedFeatures: ["integratorSurplus"] as AggregatorFeature[],
+        }),
+      ),
+    ];
+    const output = await selectQuote({ strategy: "estimatedGas", quotes: pending });
+    expect(output).toBeDefined();
+    expect(output?.simulation.gasUsed).toBe(1_200_000n);
+  }, 1_000);
+
+  it("priority selection sorts by priority then best price", async () => {
     const pending = [
       Promise.resolve(simulationFailure),
       Promise.resolve(
         makeSuccessfulQuote({
           outputAmount: 15n,
           simulation: { ...quoteSuccess.simulation, outputAmount: 15n },
+          activatedFeatures: ["integratorFees", "integratorSurplus"] as AggregatorFeature[],
         }),
       ),
       Promise.resolve(
         makeSuccessfulQuote({
           outputAmount: 30n,
           simulation: { ...quoteSuccess.simulation, outputAmount: 30n },
+          activatedFeatures: ["integratorFees"] as AggregatorFeature[],
         }),
       ),
     ];
