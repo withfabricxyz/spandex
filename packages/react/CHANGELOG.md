@@ -1,5 +1,13 @@
 # @spandex/react
 
+## 0.3.4
+
+### Patch Changes
+
+- 74a8bc8: move prepareSimulatedQuotes to new file to eliminate circular refs
+- Updated dependencies [74a8bc8]
+  - @spandex/core@0.3.4
+
 ## 0.3.3
 
 ### Patch Changes
