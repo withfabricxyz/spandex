@@ -7,6 +7,7 @@ import {
 } from "@spandex/core";
 import { type JSX, useCallback, useMemo } from "react";
 import { Button } from "@/components/Button";
+import { Tooltip } from "@/components/Tooltip";
 import type { SwapErrorState } from "@/utils/errors";
 import type { Metric } from "@/utils/quoteHelpers";
 
@@ -22,7 +23,7 @@ export const COLORS: Record<string, string> = {
   "0x": "var(--color-fabric-red)",
   odos: "var(--color-fabric-pink)",
   kyberswap: "var(--color-fabric-green)",
-  fallback: "#999999",
+  fallback: "#ddd",
   secondary: "var(--color-border)",
   tertiary: "var(--color-outline)",
 };
@@ -376,24 +377,29 @@ export function BumpChart({
   return (
     <div className="flex flex-col gap-10 overflow-hidden relative">
       <a href="https://benchmark.withfabric.xyz">
-        <Button
-          variant="secondary"
-          className="absolute px-2 py-4 border-0 top-7 right-0 h-16 w-16 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="13"
-            height="13"
-            viewBox="0 0 13 13"
-            fill="none"
-          >
-            <title>Open Quote Bench</title>
-            <path
-              d="M1.4 13L0 11.6L9.6 2H1V0H13V12H11V3.4L1.4 13Z"
-              fill="var(--color-quaternary)"
-            />
-          </svg>
-        </Button>
+        <Tooltip
+          trigger={
+            <Button
+              variant="secondary"
+              className="absolute px-2 py-4 border-0 top-7 right-0 h-16 w-16 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 13 13"
+                fill="none"
+              >
+                <title>Open Quote Bench</title>
+                <path
+                  d="M1.4 13L0 11.6L9.6 2H1V0H13V12H11V3.4L1.4 13Z"
+                  fill="var(--color-quaternary)"
+                />
+              </svg>
+            </Button>
+          }
+          content="Open Quotebench"
+        />
       </a>
       <MetricSelect selectedMetric={selectedMetric} setSelectedMetric={setSelectedMetric} />
       {chartContent}

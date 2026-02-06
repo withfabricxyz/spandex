@@ -24,7 +24,7 @@ export function Tooltip({
         {trigger}
       </RadixTooltip.Trigger>
       <RadixTooltip.Portal>
-        <RadixTooltip.Content className="monospace z-layer-tooltip max-w-xs rounded-1 bg-primary p-5 text-[12px] text-surface-base leading-9">
+        <RadixTooltip.Content className="rounded-xs monospace z-layer-tooltip max-w-xs bg-surface-mid p-10 text-[12px] text-primary leading-9">
           {content}
         </RadixTooltip.Content>
       </RadixTooltip.Portal>

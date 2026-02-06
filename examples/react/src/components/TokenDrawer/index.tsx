@@ -109,7 +109,7 @@ function ContractAddressInput() {
       />
       <button
         type="button"
-        className="h-16 w-16 flex items-center absolute top-1/2 right-22 -translate-y-1/2 justify-center cursor-pointer"
+        className="h-12 w-12 rounded-xs flex items-center absolute top-1/2 right-26 -translate-y-1/2 justify-center cursor-pointer hover:bg-surface-low active:bg-surface-mid"
         onClick={closeDrawer}
         onKeyDown={closeDrawer}
       >
@@ -146,27 +146,32 @@ export function TokenDrawer() {
   }, [handleClickOutside]);
 
   return (
-    <div className={`${styles.tokenDrawer} ${isDrawerOpen ? styles.open : ""}`} ref={ref}>
-      <ContractAddressInput />
-      <div className={styles.tokenDrawerContent}>
-        <div className={styles.tokenDrawerList}>
-          {SUPPORTED_BASE_TOKENS.map((token) => (
-            <TokenItem
-              key={token.address}
-              owner={address}
-              token={token}
-              onClick={(token) => {
-                if (selectContext === "sell") {
-                  setSellToken(token);
-                } else {
-                  setBuyToken(token);
-                }
-                closeDrawer();
-              }}
-            />
-          ))}
+    <>
+      <div className={`${styles.tokenDrawer} ${isDrawerOpen ? styles.open : ""}`} ref={ref}>
+        <ContractAddressInput />
+        <div className={styles.tokenDrawerContent}>
+          <div className={styles.tokenDrawerList}>
+            {SUPPORTED_BASE_TOKENS.map((token) => (
+              <TokenItem
+                key={token.address}
+                owner={address}
+                token={token}
+                onClick={(token) => {
+                  if (selectContext === "sell") {
+                    setSellToken(token);
+                  } else {
+                    setBuyToken(token);
+                  }
+                  closeDrawer();
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+      <div
+        className={`fixed top-0 left-0 w-full h-full z-layer-dialog-scrim bg-surface-sub opacity-0 pointer-events-none backdrop-blur-xs ${isDrawerOpen ? "opacity-100 pointer-events-auto" : ""}`}
+      />
+    </>
   );
 }
