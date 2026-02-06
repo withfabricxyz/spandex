@@ -23,12 +23,12 @@ function TooltipTable<TData>({ data, columns }: { data: TData[]; columns: Column
   const rows = table.getRowModel().rows;
 
   return (
-    <table className="w-full monospace text-[12px] text-surface-base">
+    <table className="w-full monospace text-[12px]">
       <thead className="border-b border-surface-high">
         {headerGroups.map((headerGroup) => (
           <tr key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <th key={header.id} className="text-right first:text-left py-10 font-normal">
+              <th key={header.id} className="text-right first:text-left py-10 font-medium">
                 {flexRender(header.column.columnDef.header, header.getContext())}
               </th>
             ))}
@@ -116,7 +116,7 @@ export function LatencyTooltip({ successfulQuotes }: { successfulQuotes: Success
       }
       content={
         <>
-          <span className="text-surface-base font-[Sohne_Breit] text-[16px]">
+          <span className="font-[Sohne_Breit] text-[16px] font-medium text-exact-height">
             How long did it take to provide a quote?
           </span>
           <TooltipTable data={data} columns={columns as ColumnDef<LatencyRow>[]} />
@@ -189,12 +189,12 @@ export function InaccuracyTooltip({ successfulQuotes }: { successfulQuotes: Succ
         </span>
       }
       content={
-        <div className="flex flex-col gap-8">
-          <span className="text-surface-base font-[Sohne_Breit] text-[16px]">
+        <>
+          <span className="font-[Sohne_Breit] text-[16px] font-medium text-exact-height">
             How wide was the delta between quote and execution?
           </span>
           <TooltipTable data={data} columns={columns as ColumnDef<InaccuracyRow>[]} />
-        </div>
+        </>
       }
     />
   );
@@ -282,12 +282,12 @@ export function PriceTooltip({
         </span>
       }
       content={
-        <div className="flex flex-col gap-8">
-          <span className="text-surface-base font-[Sohne_Breit] text-[16px]">
+        <>
+          <span className="font-[Sohne_Breit] text-[16px] font-medium text-exact-height">
             How does the token output vs input compare to peers?
           </span>
           <TooltipTable data={data} columns={columns as ColumnDef<PriceRow>[]} />
-        </div>
+        </>
       }
     />
   );
@@ -306,8 +306,8 @@ export function GasTooltip() {
       }
       content={
         <div className="flex flex-col gap-8">
-          <span className="monospace text-surface-base text-[12px]">
-            The network fee required to process this transaction on-chain.
+          <span className="monospace text-[12px]">
+            The network fee required to process this transaction onchain.
           </span>
         </div>
       }
@@ -328,7 +328,7 @@ export function MaxSlippageTooltip() {
       }
       content={
         <div className="flex flex-col gap-8">
-          <span className="monospace text-surface-base text-[12px]">
+          <span className="monospace text-[12px]">
             How much the price is allowed to change before your trade reverts.
           </span>
         </div>
@@ -350,9 +350,7 @@ export function PriceImpactTooltip() {
       }
       content={
         <div className="flex flex-col gap-8">
-          <span className="monospace text-surface-base text-[12px]">
-            How much your trade moves the market price.
-          </span>
+          <span className="monospace text-[12px]">How much your trade moves the market price.</span>
         </div>
       }
     />

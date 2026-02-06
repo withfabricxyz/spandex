@@ -61,18 +61,18 @@ function SwapControlsLoader({
 
   useEffect(() => {
     if (!isConnected) return;
+    if (activePercent === "0%") return;
 
     const defaultAmount = parseTokenValue(sellToken.defaultInput, sellToken.decimals);
     const sellBalance = balances.sellToken ?? 0n;
 
-    const percentMap: Record<BalancePercent, bigint> = {
-      "0%": 0n,
+    const percentMap = {
       "25%": sellBalance / 4n,
       "50%": sellBalance / 2n,
       max: sellBalance,
     };
 
-    const balancePreset = percentMap[activePercent];
+    const balancePreset = percentMap[activePercent as keyof typeof percentMap];
 
     // use wallet balance if exists, fallback to token default
     const amount = sellBalance > 0n ? balancePreset : defaultAmount;
@@ -169,17 +169,17 @@ function TokenSwitcher({
       trigger={
         <Button
           variant="secondary"
-          className="absolute px-2 py-4 border-0 right-0 top-1/2 -translate-y-1/2 h-16 w-16 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+          className="group absolute px-2 py-4 border-0 right-0 top-1/2 -translate-y-1/2 h-16 w-16 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
           onClick={handleSwitch}
           disabled={!canSwitch}
         >
           <ArrowsUpDown
-            className="fill-quaternary transition-transform duration-175 ease-in-out pointer-events-none"
+            className="fill-quaternary group-hover:fill-secondary transition-transform duration-175 ease-in-out pointer-events-none"
             style={{ transform: `rotate(${rotation}deg)` }}
           />
         </Button>
       }
-      content={canSwitch ? "Switch tokens" : `Not enough ${buyToken.symbol}`}
+      content={canSwitch ? "Switch Input/Output tokens" : `Not enough ${buyToken.symbol}`}
     />
   );
 }

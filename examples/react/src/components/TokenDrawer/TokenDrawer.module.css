@@ -3,7 +3,7 @@
   top: 0;
   left: 50%;
   width: 100%;
-  max-width: 720px;
+  max-width: 730px;
   transform: translateX(-50%);
   transition: transform 0.225s var(--ease-in-out-ios);
   z-index: var(--z-index-layer-dialog);
@@ -37,11 +37,30 @@
   }
 }
 
+.tokenDrawerScrim {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-surface-sub);
+  backdrop-filter: blur(2px);
+  z-index: var(--z-index-layer-dialog-scrim);
+  opacity: 0;
+  pointer-events: none;
+
+  &.open {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: 0;
+  }
+}
+
 .tokenDrawerInput {
   height: 40px;
   width: 100%;
   padding: 8px;
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   border: 1px solid var(--color-primary);
   border-radius: 2px;
 
@@ -50,19 +69,16 @@
   }
 
   &:hover {
-    background-color: var(--color-surface-low);
-
     &::placeholder {
-      color: var(--color-primary);
+      color: var(--color-tertiary);
     }
   }
 
   &:active {
     outline: none;
-    background-color: var(--color-surface-low);
 
     &::placeholder {
-      color: var(--color-quaternary);
+      color: var(--color-secondary);
     }
   }
 
