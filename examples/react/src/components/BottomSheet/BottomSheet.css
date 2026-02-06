@@ -25,6 +25,15 @@
     transform: translateY(calc(100% + var(--safe-area-site-header)));
     pointer-events: none;
     box-shadow: 8px 0 16px 0 rgba(15, 15, 15, 0.06), -8px 0 16px 0 rgba(15, 15, 15, 0.06);
+
+    &::-webkit-scrollbar {
+      display: none;
+      width: 0;
+    }
+
+    @media (min-width: 768px) {
+      min-height: 320px;
+    }
   }
 
   .bottom-sheet--open {

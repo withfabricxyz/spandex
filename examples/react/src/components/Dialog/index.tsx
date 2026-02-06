@@ -57,7 +57,7 @@ export function Dialog(props: DialogProps) {
       >
         <div className="dialog__content">
           <div className="dialog__title">
-            <span>{props.title}</span>
+            <span className="text-[20px]">{props.title}</span>
             {/* <IconButton
               icon={<IconClose />}
               onClick={() => {

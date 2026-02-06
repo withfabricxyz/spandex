@@ -44,9 +44,9 @@ export function LineItems({
   const getInaccuracyValue = () => {
     const quoteInaccuracy = getQuoteInaccuracy(quote);
 
-    if (errors?.simulation)
-      return errors.simulation.find((e) => e.cause === "simulation")?.title || "Simulation failed";
     if (quoteInaccuracy !== null) return `${quoteInaccuracy / 100} bps`;
+    if (errors?.simulation?.length)
+      return errors.simulation.find((e) => e.cause === "simulation")?.title || "Simulation failed";
 
     return "N/A";
   };
