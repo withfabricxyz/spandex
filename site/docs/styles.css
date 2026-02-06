@@ -1,121 +1,27 @@
+/*@layer base, theme, utilities, components;*/
+
 @import "tailwindcss";
 
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 400;
-  font-display: auto;
-  src: url("/fonts/Sohne/Breit/soehne-breit-buch.woff2") format("woff2");
-}
+@import "./styles/theme.css";
+@import "./styles/fonts.css";
 
-@font-face {
-  font-family: "Sohne Breit";
-  font-weight: 500;
-  font-display: auto;
-  src: url("/fonts/Sohne/Breit/soehne-breit-kraftig.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Sohne";
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/Sohne/soehne-buch.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "ABC Diatype Variable";
-  font-weight: 100 1000;
-  font-display: auto;
-  src: url("/fonts/ABCDiatypeVariable.woff2") format("woff2-variations"),
-    url("/fonts/ABCDiatypeVariable.woff") format("woff-variations");
-}
-
-html {
-  --color-bg: #fafafa;
-  --color-text: #0f0f0f;
-  --color-text-muted: rgba(0, 0, 0, 0.6);
-  --color-letter-bg: #ffffff;
-  --color-letter-text: #000000;
-  --color-code-bg: #1f1f1f;
-  --color-cta-primary-bg: #000;
-  --color-cta-primary-text: var(--color-bg);
-  --color-cta-secondary-bg: rgba(0, 0, 0, 0.75);
-  --color-cta-secondary-text: var(--color-bg);
-  --color-cta-tertiary-bg: rgba(0, 0, 0, 0.50);
-  --color-cta-tertiary-text: var(--color-bg);
-  --color-cta-extrary-bg: rgba(0, 0, 0, 0.25);
-  --color-cta-extrary-text: var(--color-bg);
-  --font-title-size: 1.75rem;
-  --font-title-line-height: 1.25rem;
-  --font-subheadline-size: 1.25rem;
-  --font-subheadline-line-height: 0.875rem;
-  --color-border: rgba(0, 0, 0, 0.05);
-}
-
-html.dark {
-  --color-bg: #0f0f0f;
-  --color-text: #fafafa;
-  --color-text-muted: rgba(255, 255, 255, 0.85);
-  --color-letter-bg: #000000;
-  --color-letter-text: #ffffff;
-  --color-code-bg: #1f1f1f;
-  --color-cta-primary-bg: #ffffff;
-  --color-cta-primary-text: var(--color-bg);
-  --color-cta-secondary-bg: rgba(255, 255, 255, 0.75);
-  --color-cta-secondary-text: var(--color-bg);
-  --color-cta-tertiary-bg: rgba(255, 255, 255, 0.50);
-  --color-cta-tertiary-text: var(--color-bg);
-  --color-cta-extrary-bg: rgba(255, 255, 255, 0.25);
-  --color-cta-extrary-text: var(--color-bg);
-  --color-border: rgba(255, 255, 255, 0.05);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #0f0f0f;
-    --color-text: #fafafa;
-    --color-text-muted: rgba(255, 255, 255, 0.85);
-  }
-
-  body {
-    background: var(--color-bg);
-    color: var(--color-text);
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --color-bg: #fff;
-    --color-text: #0f0f0f;
-    --color-text-muted: rgba(0, 0, 0, 0.6);
-  }
-
-  body {
-    background: var(--color-bg);
-    color: var(--color-text);
-  }
-}
+/*.vocs_Content {
+  background-color: var(--color-surface-base);
+}*/
 
 .homepage {
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
-  padding: 2.5rem 0;
+  padding: 2.5rem 1rem;
   min-height: 100vh;
-  /* width: 60rem; */
-  max-width: 38.375rem;
+  max-width: 720px;
   margin: 0 auto;
 
-  @media (max-width: 60rem) {
-    /* width: auto; */
-    padding: 2.5rem 0;
-    margin: 0 0.5rem;
-    gap: 2.5rem;
-  }
-
-  --vocs-color_borderAccent: var(--color-text);
+  /*--vocs-color_borderAccent: var(--color-primary);*/
 
   hr {
-    border-color: var(--color-text);
+    border-color: var(--color-primary);
   }
 }
 
@@ -146,7 +52,7 @@ html.dark {
     font-style: normal;
     font-weight: 400;
     line-height: 1.75rem; /* 175% */
-    color: var(--color-text-muted);
+    color: var(--color-secondary);
   }
 }
 
@@ -265,11 +171,13 @@ html.dark {
   padding: 1rem 0;
   text-align: center;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
   text-decoration: none;
   transition: opacity 0.2s;
   letter-spacing: 0.05em;
+  font-family: "Sohne Breit", sans-serif;
+  color: var(--color-surface-base);
 }
 
 .cta__button:hover {
@@ -277,33 +185,29 @@ html.dark {
 }
 
 .cta__button--primary {
-  background: var(--color-cta-primary-bg);
-  color: var(--color-cta-primary-text);
+  background: var(--color-primary);
 }
 
 .cta__button--secondary {
-  background: var(--color-cta-secondary-bg);
-  color: var(--color-cta-secondary-text);
+  background: var(--color-secondary);
 }
 
 .cta__button--tertiary {
-  background: var(--color-cta-tertiary-bg);
-  color: var(--color-cta-tertiary-text);
+  background: var(--color-tertiary);
 }
 
-.cta__button--extrary {
-  background: var(--color-cta-extrary-bg);
-  color: var(--color-cta-extrary-text);
+.cta__button--quaternary {
+  background: var(--color-quaternary);
 }
 
 .footer-cta__link {
   font-family: "Sohne Breit", sans-serif;
-  font-weight: 400;
   font-size: 0.75rem;
   line-height: 1.2;
   text-decoration: none;
   transition: opacity 0.2s;
   letter-spacing: 0.05em;
-  color: var(--color-cta-secondary-bg);
+  color: var(--color-secondary);
   text-decoration-line: underline;
+  text-underline-offset: 25%;
 }

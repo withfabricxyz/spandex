@@ -35,10 +35,10 @@ import '../styles.css'
     <a href="/getting-started" className="cta__button cta__button--primary">Get Started</a>
     <a href="/overview" className="cta__button cta__button--secondary">Benefits</a>
     <a href="https://github.com/withfabricxyz/spandex" target="_blank" className="cta__button cta__button--tertiary">GitHub</a>
-    <a href="https://demo.spandex.sh" target="_blank" className="cta__button cta__button--extrary">Demo</a>
+    <a href="https://swap-demo.spandex.sh" target="_blank" className="cta__button cta__button--quaternary">Demo</a>
   </div>
 
-  <div className="flex flex-col gap-4">
+  <div className="flex flex-col gap-10">
     <span className="agg">Aggregators—</span>
     <ProviderMarquee />
   </div>
@@ -60,17 +60,16 @@ import '../styles.css'
   <hr />
 
   <div className="flex justify-between">
-    <div className="flex gap-10">
-      <a href="/getting-started" className="footer-cta__link">Get Started</a>
-      <a href="/overview" className="footer-cta__link">Benefits</a>
-      <a href="https://github.com/withfabricxyz/spandex" target="_blank" className="footer-cta__link">GitHub</a>
+    <div className="flex gap-10 flex-col sm:flex-row sm:flex-nowrap">
+      <a href="/getting-started" className="block footer-cta__link">Get Started</a>
+      <a href="/overview" className="block footer-cta__link">Benefits</a>
+      <a href="https://github.com/withfabricxyz/spandex" target="_blank" className="block footer-cta__link">GitHub</a>
     </div>
-    <div className="flex gap-10">
-      <a href="https://demo.spandex.sh" target="_blank" className="footer-cta__link">Demo</a>
-      <a href="https://benchmark.withfabric.xyz" target="_blank" className="footer-cta__link">Quotebench</a>
+    <div className="flex gap-10 flex-col sm:flex-row sm:flex-nowrap">
+      <a href="https://swap-demo.spandex.sh" target="_blank" className="block footer-cta__link">Demo</a>
+      <a href="https://quotebench.spandex.sh" target="_blank" className="block footer-cta__link">Quotebench</a>
     </div>
   </div>
 
 
 </div>
-
