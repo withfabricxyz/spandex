@@ -31,13 +31,16 @@ Expand tokens, pools, and chains beyond any single aggregator. Fetch multiple qu
 ## Documentation
 
 [Why spanDEX?](https://spandex.sh/react/getting-started)<br/>
-[Getting Started](https://spandex.sh/react/getting-started)<br/>
+[Getting Started](https://spandex.sh/core/getting-started)<br/>
 [Getting Started for React Apps](https://spandex.sh/react/getting-started)<br/>
+[Architecture](https://github.com/withfabricxyz/spandex/blob/main/ARCHITECTURE.md)<br/>
 
 
-## Contributing
+## Get Involved
 
-See the [contributor guidelines](https://github.com/withfabricxyz/spandex/blob/main/CONTRIBUTING.md).
+- We welcome pull requests.
+- We encourage [GitHub Discussions](https://github.com/withfabricxyz/spandex/discussions) for ideas, questions, and feedback.
+- See the [contribution guide](https://github.com/withfabricxyz/spandex/blob/main/CONTRIBUTING.md) for instructions and guidelines.
 
 <br/>
 <br/>

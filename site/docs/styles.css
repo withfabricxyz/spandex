@@ -210,9 +210,9 @@
   color: var(--color-secondary);
   text-decoration-line: underline;
   text-underline-offset: 25%;
-  text-decoration-thickness: 2px;
 
   &:hover {
     color: var(--color-primary);
+    text-decoration-thickness: 2px;
   }
 }
