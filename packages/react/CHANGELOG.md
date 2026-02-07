@@ -1,5 +1,16 @@
 # @spandex/react
 
+## 0.4.0
+
+### Minor Changes
+
+- c5a64aa: First public beta release
+
+### Patch Changes
+
+- Updated dependencies [c5a64aa]
+  - @spandex/core@0.4.0
+
 ## 0.3.4
 
 ### Patch Changes
