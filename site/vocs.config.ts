@@ -130,14 +130,6 @@ export default defineConfig({
               text: "useQuoteExecutor",
               link: "/react/hooks/useQuoteExecutor",
             },
-            {
-              text: "useRawQuotes",
-              link: "/react/hooks/useRawQuotes",
-            },
-            {
-              text: "useSpandexConfig",
-              link: "/react/hooks/useSpandexConfig",
-            },
           ],
         },
       ],

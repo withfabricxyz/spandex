@@ -101,6 +101,8 @@ applying the secondary strategy (best price, lowest gas, etc).
 
 A list of viem/wagmi clients or a lookup function to get the client for a specific chain ID. This is used to fetch on-chain data for quote simulation and validation. If not provided, `getQuotes`, `getQuote`, and simulation utilities will fail. If you wish to only get quotes without validating onchain, use `getRawQuotes` instead. When using `SpandexProvider`, the wagmi clients from the provider will be used automatically.
 
+Note: The public client is used to simulate quotes and validate them onchain. This requires an RPC provider which supports this, and many public providers do not. Please ensure your viem client is setup with a compatible RPC provider (e.g. Alchemy, Infura, etc). Additionally, you can setup RPC failover in your client configuration to improve reliability of quote fetching and simulation. See [viem documentation](https://viem.sh/docs/clients/transports/fallback) for more details.
+
 ---
 
 ### logging (optional)

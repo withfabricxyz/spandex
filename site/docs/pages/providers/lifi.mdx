@@ -1,1 +1,23 @@
-# Lifi
+import { Button } from 'vocs/components'
+
+# LiFi
+
+<div className="flex flex-row gap-4">
+  <Button href="https://li.fi">Homepage</Button>
+  <Button href="https://docs.li.fi/api-reference/get-a-quote-for-a-token-transfer">Docs</Button>
+</div>
+
+## Configuration
+
+```ts twoslash
+import { createConfig, lifi } from "@spandex/core";
+
+export const config = createConfig({
+  providers: [
+    lifi({
+      apiKey: undefined, // Optional. Use it if you got it
+    }),
+    // ...
+  ],
+});
+```
