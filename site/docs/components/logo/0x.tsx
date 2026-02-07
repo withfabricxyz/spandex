@@ -2,8 +2,8 @@ export function Logo0x() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="28"
-      height="17"
+      width="31.06"
+      height="19"
       viewBox="0 0 28 17"
       fill="currentColor"
       role="img"
