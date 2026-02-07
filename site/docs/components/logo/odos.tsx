@@ -2,8 +2,8 @@ export function OdosLogo() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="64"
-      height="23"
+      width="73.32"
+      height="26"
       viewBox="0 0 64 23"
       fill="currentColor"
       role="img"

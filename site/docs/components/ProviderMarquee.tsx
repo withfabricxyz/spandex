@@ -1,9 +1,9 @@
 import { Logo0x } from "../components/logo/0x";
-import { OneInchLogo } from "../components/logo/1inch";
 import { FabricLogo } from "../components/logo/fabric";
 import { KyberSwapLogo } from "../components/logo/kyberswap";
 import { LifiLogo } from "../components/logo/lifi";
 import { OdosLogo } from "../components/logo/odos";
+import { RelayLogo } from "./logo/relay";
 
 export function ProviderMarquee() {
   return (
@@ -32,7 +32,7 @@ function Logos({ ariaHidden = false }: { ariaHidden?: boolean }) {
         <KyberSwapLogo />
       </div>
       <div className="logos__item">
-        <OneInchLogo />
+        <RelayLogo />
       </div>
       <div className="logos__item">
         <OdosLogo />

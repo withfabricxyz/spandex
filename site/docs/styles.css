@@ -27,6 +27,10 @@
 
 .logo {
   width: 12.8rem;
+
+  svg {
+    fill: var(--color-primary);
+  }
 }
 
 .value-prop {
@@ -35,14 +39,12 @@
   gap: 2.5rem;
 
   h1 {
-      /* leading-trim: both;
-    text-edge: cap; */
     font-feature-settings: 'calt' off;
     font-family: "Sohne Breit", sans-serif;
     font-size: 2rem;
-    /* font-style: normal; */
     font-weight: 600;
-    line-height: 2rem; /* 100% */
+    line-height: 2rem;
+    color: var(--color-primary);
   }
 
   li {
@@ -53,6 +55,10 @@
     font-weight: 400;
     line-height: 1.75rem; /* 175% */
     color: var(--color-secondary);
+  }
+
+  ul {
+    margin-left: 0.5rem;
   }
 }
 
@@ -116,16 +122,10 @@
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  opacity: 0.7;
   transition: opacity 0.2s;
 
-  svg {
-    height: 1.2rem;
-    width: auto;
-  }
-
   path {
-    fill: var(--color-text);
+    fill: var(--color-primary);
   }
 }
 
@@ -210,4 +210,9 @@
   color: var(--color-secondary);
   text-decoration-line: underline;
   text-underline-offset: 25%;
+  text-decoration-thickness: 2px;
+
+  &:hover {
+    color: var(--color-primary);
+  }
 }
