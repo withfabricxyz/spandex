@@ -4,6 +4,7 @@ export default defineConfig({
   title: "spanDEX",
   titleTemplate: "%s - spanDEX",
   baseUrl: process.env.VERCEL_ENV === "production" ? "https://spandex.sh" : process.env.VERCEL_URL,
+  iconUrl: "/sd.svg",
   logoUrl: {
     light: "/logo-light.svg",
     dark: "/logo-dark.svg",
