@@ -4,9 +4,6 @@
       background-color: var(--color-surface-base);
     }
 
-    .bottom-sheet__scrim {
-      background-color: var(--color-surface-scrim);
-    }
   }
 }
 
@@ -43,21 +40,4 @@
     pointer-events: auto;
   }
 
-  .bottom-sheet__scrim {
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s var(--ease-in-out-ios);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .bottom-sheet__scrim--open {
-    pointer-events: auto;
-    opacity: 1;
-    filter: blur(.125rem);
-    backdrop-filter: blur(.1875rem);
-  }
 }

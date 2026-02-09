@@ -17,7 +17,7 @@ export function TokenImage({ token, size = "md" }: { token: TokenMetadata; size?
         <img
           src={chainImage}
           alt="chain"
-          className={`absolute bottom-0 right-0 ${size === "sm" ? "h-5 w-5" : "h-6 w-6"} rounded-xs border border-surface-base bg-surface-base`}
+          className={`absolute bottom-0 right-0 ${size === "sm" ? "h-5 w-5" : "h-6 w-6"} rounded-xs border border-surface-base bg-surface-base box-content`}
         />
       )}
     </div>

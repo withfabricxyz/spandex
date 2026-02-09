@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { erc20Abi } from "viem";
 import { useConnection, useReadContracts } from "wagmi";
 import { CloseAlt, Loading } from "@/components/icons";
+import { Scrim } from "@/components/Scrim";
 import { TokenItem } from "@/components/TokenItem";
 import { SUPPORTED_BASE_TOKENS } from "@/constants/tokens";
 import { useNoScroll } from "@/hooks/useNoScroll";
@@ -169,9 +170,7 @@ export function TokenDrawer() {
           </div>
         </div>
       </div>
-      <div
-        className={`fixed top-0 left-0 w-full h-full z-layer-dialog-scrim bg-surface-sub opacity-0 pointer-events-none backdrop-blur-xs ${isDrawerOpen ? "opacity-100 pointer-events-auto" : ""}`}
-      />
+      <Scrim isOpen={isDrawerOpen} />
     </>
   );
 }

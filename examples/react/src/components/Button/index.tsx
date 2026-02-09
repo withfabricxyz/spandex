@@ -22,7 +22,7 @@ const BigButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "size" | "vari
         type={type}
         disabled={disabled}
         onClick={onClick}
-        className="bg-primary py-10 px-5 flex justify-center items-center gap-5 text-surface-base text-[40px] uppercase leading-[0.825] h-34.5 rounded-xs cursor-pointer disabled:bg-surface-sub"
+        className="bg-primary py-10 px-5 flex justify-center items-center gap-5 text-surface-base text-[40px] uppercase leading-[0.825] h-34.5 rounded-xs cursor-pointer disabled:bg-surface-sub hover:text-quaternary active:bg-secondary"
         {...rest}
       >
         {children}
