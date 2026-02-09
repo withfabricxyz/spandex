@@ -28,6 +28,18 @@ export const COLORS: Record<string, string> = {
   tertiary: "var(--color-outline)",
 };
 
+type ProviderPoint = {
+  x: number;
+  y: number;
+  failed: boolean;
+};
+
+type ProviderSeries = {
+  id: string;
+  color: string;
+  data: ProviderPoint[];
+};
+
 function MetricSelect({
   selectedMetric,
   setSelectedMetric,
@@ -254,7 +266,7 @@ export function BumpChart({
     if (quoteHistory.length === 0) return [];
 
     const providers = new Set<string>(quoteHistory.flat().map((q) => q.provider));
-    const providerMap = new Map<string, Array<{ x: number; y: number; failed: boolean }>>();
+    const providerMap = new Map<string, ProviderPoint[]>();
     for (const provider of providers) {
       providerMap.set(provider, []);
     }
@@ -292,11 +304,24 @@ export function BumpChart({
       }
     });
 
-    return Array.from(providerMap.entries()).map(([provider, data]) => ({
+    const series = Array.from(providerMap.entries()).map(([provider, data]) => ({
       id: provider,
       color: data[data.length - 1].failed ? COLORS.fallback : COLORS[provider] || COLORS.fallback,
       data,
-    }));
+    })) as ProviderSeries[];
+
+    // Nivo paints series in array order; draw current leader(s) last so rank 1 stays on top.
+    return series.sort((a, b) => {
+      const aCurrent = a.data[a.data.length - 1];
+      const bCurrent = b.data[b.data.length - 1];
+
+      if (aCurrent.y !== bCurrent.y) return bCurrent.y - aCurrent.y;
+      if (aCurrent.failed !== bCurrent.failed) {
+        return Number(aCurrent.failed) - Number(bCurrent.failed);
+      }
+
+      return a.id.localeCompare(b.id);
+    });
   }, [quoteHistory, selectedMetric]);
 
   const maxRank = useMemo(() => {
