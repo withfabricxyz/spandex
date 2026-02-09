@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Close } from "@/components/icons";
+import { Tooltip } from "@/components/Tooltip";
 import type { TokenMetadata } from "@/services/tokens";
 import { formatTokenValue, parseTokenValue } from "@/utils/strings";
 
@@ -100,13 +101,19 @@ export function SlippageControls({
           </button>
         </form>
       ) : (
-        <button
-          type="button"
-          className="monospace text-[12px] text-primary cursor-pointer"
-          onClick={() => setIsEditing(true)}
-        >
-          {slippagePercent}% ({slippageTokenValue} {sellToken.symbol})
-        </button>
+        <Tooltip
+          trigger={
+            <button
+              type="button"
+              className="monospace text-[12px] text-primary cursor-pointer"
+              onClick={() => setIsEditing(true)}
+            >
+              {slippagePercent}% ({slippageTokenValue} {sellToken.symbol})
+            </button>
+          }
+          content="Adjust slippage tolerance"
+          dark
+        />
       )}
     </div>
   );

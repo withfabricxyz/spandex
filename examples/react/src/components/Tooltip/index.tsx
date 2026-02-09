@@ -5,9 +5,11 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 export function Tooltip({
   trigger,
   content,
+  dark,
 }: {
   trigger: React.ReactNode;
   content: React.ReactNode;
+  dark?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -24,7 +26,9 @@ export function Tooltip({
         {trigger}
       </RadixTooltip.Trigger>
       <RadixTooltip.Portal>
-        <RadixTooltip.Content className="rounded-xs monospace z-layer-tooltip max-w-xs bg-surface-mid p-10 text-[12px] text-primary leading-9">
+        <RadixTooltip.Content
+          className={`rounded-xs monospace z-layer-tooltip max-w-xs p-10 text-[12px] leading-9 ${dark ? "bg-primary text-surface-base" : "bg-surface-mid text-primary"}`}
+        >
           {content}
         </RadixTooltip.Content>
       </RadixTooltip.Portal>

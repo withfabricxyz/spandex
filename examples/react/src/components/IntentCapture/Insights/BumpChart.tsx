@@ -399,6 +399,7 @@ export function BumpChart({
             </Button>
           }
           content="Open Quotebench"
+          dark
         />
       </a>
       <MetricSelect selectedMetric={selectedMetric} setSelectedMetric={setSelectedMetric} />
