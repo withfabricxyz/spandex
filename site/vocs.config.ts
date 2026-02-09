@@ -2,7 +2,16 @@ import { defineConfig } from "vocs";
 
 export default defineConfig({
   title: "spanDEX",
+  titleTemplate: "%s - spanDEX",
+  baseUrl: process.env.VERCEL_ENV === "production" ? "https://spandex.sh" : process.env.VERCEL_URL,
+  logoUrl: {
+    light: "/logo-light.svg",
+    dark: "/logo-dark.svg",
+  },
   description: "DEX meta-aggregator library for optimal token swaps",
+  ogImageUrl: {
+    "/": "https://spandex.sh/og.jpg",
+  },
   sidebar: [
     {
       text: "Overview",
