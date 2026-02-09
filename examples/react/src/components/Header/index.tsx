@@ -113,6 +113,7 @@ export function Header() {
                   </div>
                 }
                 content="Base"
+                dark
               />
             ) : null}
             <Button

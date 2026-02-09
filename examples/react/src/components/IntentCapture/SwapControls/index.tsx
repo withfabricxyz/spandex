@@ -180,6 +180,7 @@ function TokenSwitcher({
         </Button>
       }
       content={canSwitch ? "Switch Input/Output tokens" : `Not enough ${buyToken.symbol}`}
+      dark
     />
   );
 }
