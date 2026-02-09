@@ -1,3 +1,4 @@
+import { Scrim } from "@/components/Scrim";
 import { useNoScroll } from "../../hooks/useNoScroll";
 import { useVisualViewportHeight } from "../../hooks/useVisualViewportHeight";
 import { getSafeAreaValue } from "../../utils/dom";
@@ -47,12 +48,7 @@ export function BottomSheet({
 
   return (
     <>
-      {/** biome-ignore lint/a11y/noStaticElementInteractions: <> */}
-      <div
-        className={`bottom-sheet__scrim ${isOpen ? "bottom-sheet__scrim--open" : ""}`}
-        onClick={onInteractOutside}
-        onKeyUp={onInteractOutside}
-      />
+      <Scrim isOpen={isOpen} zIndex="z-layer-bottom-sheet-scrim" onClick={onInteractOutside} />
       <div className={classNames} style={style}>
         {children}
       </div>

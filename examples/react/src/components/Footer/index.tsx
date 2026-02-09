@@ -9,13 +9,13 @@ export function Footer() {
             className="underline"
             style={{ textUnderlineOffset: "25%" }}
           >
-            FABRIC.
+            Fabric.
           </a>
         </span>
         <span className="text-[12px] text-exact-height">
           Powered by{" "}
           <a href="https://spandex.sh" className="underline" style={{ textUnderlineOffset: "25%" }}>
-            SPANDEX
+            spanDEX
           </a>
         </span>
       </div>

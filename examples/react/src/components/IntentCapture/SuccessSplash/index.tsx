@@ -1,6 +1,7 @@
 import { animate, createScope, type Scope } from "animejs";
 import { useEffect, useRef } from "react";
 import { MarketNetwork } from "@/components/icons/MarketNetwork";
+import { Scrim } from "@/components/Scrim";
 import { getExplorerUrl } from "@/config/onchain";
 import { useNoScroll } from "@/hooks/useNoScroll";
 import type { TokenMetadata } from "@/services/tokens";
@@ -143,14 +144,7 @@ export function SuccessSplash({ sellToken, buyToken, successfulTx, onClose }: Su
 
   return (
     <>
-      {/**
-        biome-ignore lint/a11y/useKeyWithClickEvents: <>
-        biome-ignore lint/a11y/noStaticElementInteractions: <>
-      */}
-      <div
-        className="fixed top-0 left-0 w-full h-full bg-primary z-layer-dialog"
-        onClick={onClose}
-      />
+      <Scrim isOpen={true} zIndex="z-layer-dialog" onClick={onClose} />
       <div
         style={{ backgroundImage: "url(/images/splash-success-bg@2px.png)" }}
         className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-360 text-primary z-layer-dialog p-20 bg-cover bg-center"
