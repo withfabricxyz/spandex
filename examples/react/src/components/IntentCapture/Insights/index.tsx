@@ -5,6 +5,7 @@ import type { SwapErrorState } from "@/utils/errors";
 import { getMetricWinner, type Metric } from "@/utils/quoteHelpers";
 import { BumpChart } from "./BumpChart";
 import { LineItems } from "./LineItems";
+import { QuoteRefreshCountdown } from "./QuoteRefreshCountdown";
 
 type InsightsProps = {
   bestQuote: SimulatedQuote | undefined;
@@ -17,6 +18,9 @@ type InsightsProps = {
   slippageBps: number;
   setSlippageBps: (value: number) => void;
   errors?: SwapErrorState;
+  isFetching: boolean;
+  dataUpdatedAt: number;
+  refreshIntervalMs: number;
 };
 
 type QuoteDataViewProps = InsightsProps & {
@@ -37,15 +41,27 @@ function QuoteDataView({
   setSlippageBps,
   metricWinner,
   errors,
+  isFetching,
+  dataUpdatedAt,
+  refreshIntervalMs,
 }: QuoteDataViewProps) {
   return (
     <>
-      <BumpChart
-        quoteHistory={quoteHistory}
-        selectedMetric={selectedMetric}
-        setSelectedMetric={setSelectedMetric}
-        errors={errors}
-      />
+      <div className="flex flex-col gap-2">
+        <BumpChart
+          quoteHistory={quoteHistory}
+          selectedMetric={selectedMetric}
+          setSelectedMetric={setSelectedMetric}
+          errors={errors}
+        />
+        <QuoteRefreshCountdown
+          enabled={true}
+          fetching={isFetching}
+          updatedAt={dataUpdatedAt}
+          durationMs={refreshIntervalMs}
+        />
+      </div>
+
       <hr className="border-primary" />
       <LineItems
         quote={bestQuote}
@@ -74,6 +90,9 @@ function QuoteHistoryWrapper({
   slippageBps,
   setSlippageBps,
   errors,
+  isFetching,
+  dataUpdatedAt,
+  refreshIntervalMs,
 }: InsightsProps) {
   const [quoteHistory, setQuoteHistory] = useState<SimulatedQuote[][]>([]);
 
@@ -111,6 +130,9 @@ function QuoteHistoryWrapper({
       setSlippageBps={setSlippageBps}
       metricWinner={metricWinner}
       errors={errors}
+      isFetching={isFetching}
+      dataUpdatedAt={dataUpdatedAt}
+      refreshIntervalMs={refreshIntervalMs}
     />
   );
 }

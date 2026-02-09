@@ -79,6 +79,8 @@ function prepareCalls({
   return calls;
 }
 
+const QUOTE_REFRESH_INTERVAL_MS = 10_000;
+
 export function IntentCapture() {
   const { sellToken, setSellToken, buyToken, setBuyToken, onSuccessfulTx } = useTokenSelect();
   const { address, chainId, isConnected } = useConnection();
@@ -133,7 +135,7 @@ export function IntentCapture() {
 
   const query = useMemo(
     () => ({
-      refetchInterval: 10_000, // refetch to build quote history
+      refetchInterval: QUOTE_REFRESH_INTERVAL_MS, // refetch to build quote history
       enabled: swap.inputAmount > 0n,
     }),
     [swap.inputAmount],
@@ -142,7 +144,9 @@ export function IntentCapture() {
   const {
     data: quotes,
     isLoading: isLoadingQuotes,
+    isFetching,
     error: quotesQueryError,
+    dataUpdatedAt,
   } = useQuotes({
     swap,
     query,
@@ -295,6 +299,7 @@ export function IntentCapture() {
         onSwitchTokens={onSwitchTokens}
         errors={errors}
       />
+
       <hr className="border-primary" />
       <Insights
         bestQuote={bestQuote}
@@ -307,6 +312,9 @@ export function IntentCapture() {
         slippageBps={slippageBps}
         setSlippageBps={setSlippageBps}
         errors={errors}
+        isFetching={isFetching}
+        dataUpdatedAt={dataUpdatedAt}
+        refreshIntervalMs={QUOTE_REFRESH_INTERVAL_MS}
       />
       <hr className="border-primary" />
       <TxBatchButton
