@@ -160,6 +160,7 @@ export function lifi(config?: LifiConfig): LifiAggregator {
 }
 
 function buildQueryParams(params: ExactInSwapParams, options: SwapOptions): Record<string, string> {
+  const recipientAccount = params.recipientAccount ?? params.swapperAccount;
   const result: Record<string, string> = {
     fromChain: params.chainId.toString(),
     toChain: params.chainId.toString(),
@@ -167,7 +168,7 @@ function buildQueryParams(params: ExactInSwapParams, options: SwapOptions): Reco
     toToken: params.outputToken,
     fromAmount: params.inputAmount.toString(),
     fromAddress: params.swapperAccount,
-    toAddress: params.swapperAccount,
+    toAddress: recipientAccount,
     slippage: (params.slippageBps / 10_000).toString(),
   };
 

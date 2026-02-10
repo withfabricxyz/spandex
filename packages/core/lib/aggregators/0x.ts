@@ -135,6 +135,7 @@ function extractQueryParams(
   params: ExactInSwapParams,
   options: SwapOptions,
 ): Record<string, string> {
+  const recipientAccount = params.recipientAccount ?? params.swapperAccount;
   const result: Record<string, string> = {
     chainId: params.chainId.toString(),
     buyToken: params.outputToken,
@@ -142,6 +143,7 @@ function extractQueryParams(
     sellAmount: params.inputAmount.toString(),
     slippageBps: params.slippageBps.toString(),
     taker: params.swapperAccount,
+    recipient: recipientAccount,
   };
 
   if (options.integratorFeeAddress) {

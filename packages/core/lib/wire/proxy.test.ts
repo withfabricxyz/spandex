@@ -1,7 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
-import { beforeEach } from "node:test";
+import { describe, expect, it } from "bun:test";
+import { afterEach, beforeEach } from "node:test";
 import { mockServer } from "packages/core/test/server.js";
 import { defaultSwapParams, recordedQuotes, testConfig } from "packages/core/test/utils.js";
+import type { Address } from "viem";
 import { fabric } from "../aggregators/fabric.js";
 import { createConfig } from "../createConfig.js";
 import { getRawQuotes } from "../getRawQuotes.js";
@@ -13,7 +14,6 @@ describe("proxy", async () => {
   let setup: {
     server: Bun.Server<undefined>;
     enqueue: (item: Response) => void;
-    reset: () => void;
     requests: Request[];
   };
 
@@ -27,18 +27,14 @@ describe("proxy", async () => {
     );
   }
 
-  beforeAll(async () => {
+  beforeEach(() => {
     setup = mockServer();
-  }, 5_000);
+  });
 
-  afterAll(async () => {
-    if (setup) {
+  afterEach(() => {
+    if (setup?.server) {
       setup.server.stop();
     }
-  }, 1_000);
-
-  beforeEach(() => {
-    setup.reset();
   });
 
   it("delegates quote fetching to a server", async () => {
@@ -55,5 +51,26 @@ describe("proxy", async () => {
     expect(quotes).toBeDefined();
     expect(quotes.length).toBe(1);
     expect(quotes?.[0]?.provider).toBe("fabric");
+  }, 10_000);
+
+  it("forwards recipientAccount to the proxy query", async () => {
+    const recipientAccount: Address = "0x0000000000000000000000000000000000000abc";
+    const swap = {
+      ...defaultSwapParams,
+      recipientAccount,
+    };
+    await enqueue(swap);
+
+    await getRawQuotes({
+      config: createConfig({
+        proxy: proxy({ pathOrUrl: `http://localhost:${setup.server.port}/quotes` }),
+      }),
+      swap,
+    });
+
+    const request = setup.requests[0];
+    expect(request).toBeDefined();
+    const url = new URL(request?.url || "");
+    expect(url.searchParams.get("recipientAccount")).toBe(recipientAccount);
   }, 10_000);
 });

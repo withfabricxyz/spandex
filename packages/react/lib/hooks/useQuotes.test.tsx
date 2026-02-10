@@ -92,6 +92,7 @@ describe("useQuotes", () => {
           // specify hook-level chain and address, overriding wagmi
           chainId: TEST_CHAINS.mainnet.id,
           swapperAccount: TEST_ADDRESSES.bob,
+          recipientAccount: TEST_ADDRESSES.alice,
         },
         streamResults: false,
       }),
@@ -104,6 +105,7 @@ describe("useQuotes", () => {
           swap: expect.objectContaining({
             chainId: TEST_CHAINS.mainnet.id,
             swapperAccount: TEST_ADDRESSES.bob,
+            recipientAccount: TEST_ADDRESSES.alice,
           }),
         }),
       );

@@ -35,7 +35,8 @@ function App() {
 
 ### swap
 
-The swap parameters, with optional `chainId` and `swapperAccount`, which are inferred from the current connection if not provided.
+The swap parameters, with optional `chainId` and `swapperAccount` (inferred from the current
+connection if omitted) and optional `recipientAccount` (defaults to `swapperAccount`).
 
 #### swap params
 
@@ -45,3 +46,4 @@ The swap parameters, with optional `chainId` and `swapperAccount`, which are inf
 - `inputAmount?: bigint` - The input amount (required if mode is "exactIn").
 - `outputAmount?: bigint` - The desired output amount (required if mode is "targetOut").
 - `slippageBps: number` - The slippage tolerance in basis points.
+- `recipientAccount?: string` - Optional output recipient address.

@@ -122,6 +122,7 @@ export function relay(config?: RelayConfig): RelayAggregator {
 function buildRequest(request: SwapParams, options: SwapOptions): RelayQuoteRequest {
   const tradeType = request.mode === "exactIn" ? "EXACT_INPUT" : "EXPECTED_OUTPUT";
   const amount = request.mode === "exactIn" ? request.inputAmount : request.outputAmount;
+  const recipientAccount = request.recipientAccount ?? request.swapperAccount;
 
   const appFees: RelayQuoteRequest["appFees"] = [];
   if (options.integratorFeeAddress !== undefined && options.integratorSwapFeeBps !== undefined) {
@@ -133,7 +134,7 @@ function buildRequest(request: SwapParams, options: SwapOptions): RelayQuoteRequ
 
   const payload: RelayQuoteRequest = {
     user: request.swapperAccount,
-    recipient: request.swapperAccount,
+    recipient: recipientAccount,
     originChainId: request.chainId,
     destinationChainId: request.chainId,
     originCurrency: request.inputToken,

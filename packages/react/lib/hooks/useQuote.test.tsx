@@ -87,6 +87,7 @@ describe("useQuote", () => {
           slippageBps: 100,
           chainId: TEST_CHAINS.mainnet.id,
           swapperAccount: TEST_ADDRESSES.bob,
+          recipientAccount: TEST_ADDRESSES.alice,
         },
         strategy: "bestPrice",
       }),
@@ -99,6 +100,7 @@ describe("useQuote", () => {
           swap: expect.objectContaining({
             chainId: TEST_CHAINS.mainnet.id,
             swapperAccount: TEST_ADDRESSES.bob,
+            recipientAccount: TEST_ADDRESSES.alice,
           }),
         }),
       );

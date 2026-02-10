@@ -268,12 +268,13 @@ function buildFabricMetrics(
 }
 
 function extractQueryParams(params: SwapParams, options: SwapOptions): Record<string, string> {
+  const recipientAccount = params.recipientAccount ?? params.swapperAccount;
   const result: Record<string, string> = {
     chainId: params.chainId.toString(),
     buyToken: params.outputToken,
     sellToken: params.inputToken,
     slippageBps: params.slippageBps.toString(),
-    receiver: params.swapperAccount,
+    receiver: recipientAccount,
   };
 
   if (params.mode === "exactIn") {

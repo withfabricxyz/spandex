@@ -53,6 +53,7 @@ export function useQuotes<TSelectData = SimulatedQuote[]>(
       outputToken: swap.outputToken,
       slippageBps: swap.slippageBps,
       swapperAccount: finalSwapperAccount,
+      recipientAccount: swap.recipientAccount,
     };
 
     if (swap.mode === "exactIn") {
@@ -83,6 +84,7 @@ export function useQuotes<TSelectData = SimulatedQuote[]>(
       fullParams?.outputToken,
       fullParams?.slippageBps,
       fullParams?.swapperAccount,
+      fullParams?.recipientAccount,
       fullParams?.mode === "exactIn"
         ? fullParams?.inputAmount.toString()
         : fullParams?.outputAmount.toString(),
