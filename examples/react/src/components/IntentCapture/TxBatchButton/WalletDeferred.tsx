@@ -8,6 +8,7 @@ export function WalletDeferredTxBatchButton({
   calls,
   blocked,
   errors,
+  isFetchingQuotes,
   onComplete,
   onError,
 }: TxBatchButtonProps) {
@@ -38,6 +39,7 @@ export function WalletDeferredTxBatchButton({
       disabled={blocked || state === "processing"}
       processing={state === "processing"}
       errors={errors}
+      isFetchingQuotes={isFetchingQuotes}
       onClick={executeStep}
     />
   );

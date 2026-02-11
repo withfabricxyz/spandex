@@ -8,6 +8,7 @@ import { WalletDeferredTxBatchButton } from "./WalletDeferred";
 export type TxBatchButtonProps = {
   blocked: boolean;
   calls: TxData[];
+  isFetchingQuotes: boolean;
   onComplete?: (hash: `0x${string}`) => void;
   onError?: (error: unknown) => void;
   errors?: SwapErrorState;

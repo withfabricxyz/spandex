@@ -25,8 +25,20 @@ type LineItemsProps = {
   slippageBps: number;
   setSlippageBps: (value: number) => void;
   metricWinner?: string;
+  isFetchingQuotes: boolean;
   errors?: SwapErrorState;
 };
+
+function FetchingFallback({
+  isFetchingQuotes,
+  value,
+}: {
+  isFetchingQuotes: boolean;
+  value?: JSX.Element | string | null;
+}) {
+  if (value) return value;
+  return isFetchingQuotes ? <Skeleton height={12} width={50} /> : "N/A";
+}
 
 export function LineItems({
   quote,
@@ -37,35 +49,16 @@ export function LineItems({
   slippageBps,
   setSlippageBps,
   metricWinner,
+  isFetchingQuotes,
   errors,
 }: LineItemsProps) {
   const successfulQuotes: SuccessfulQuote[] = quotes?.filter((q) => q.success) || [];
 
-  const getInaccuracyValue = () => {
-    const quoteInaccuracy = getQuoteInaccuracy(quote);
-
-    if (quoteInaccuracy !== null) return `${quoteInaccuracy / 100} bps`;
-    if (errors?.simulation?.length)
-      return errors.simulation.find((e) => e.cause === "simulation")?.title || "Simulation failed";
-
-    return "N/A";
-  };
-
-  const getPriceImpactValue = () => {
-    const priceImpact = getQuotePriceImpact(quote);
-
-    if (priceImpact !== null) return `${priceImpact.toFixed(2)}%`;
-
-    return "N/A";
-  };
-
-  const getFeesValue = () => {
-    const quoteFees = getQuoteFees(quote);
-
-    if (quoteFees !== null) return `$${(Number(quoteFees) / 1e18).toFixed(2)}`;
-
-    return "N/A";
-  };
+  const hasErrors = !!(errors?.input.length || errors?.quote.length);
+  const simulationError = errors?.simulation?.find((e) => e.cause === "simulation")?.title;
+  const quoteInaccuracy = getQuoteInaccuracy(quote);
+  const priceImpact = getQuotePriceImpact(quote);
+  const quoteFees = getQuoteFees(quote);
 
   const items: {
     label: JSX.Element | string;
@@ -74,19 +67,35 @@ export function LineItems({
   }[] = [
     {
       label: "Winning Aggregator",
-      value: errors?.input.length || errors?.quote.length || !metricWinner ? "N/A" : metricWinner,
-      color:
-        errors?.input.length || errors?.quote.length || !metricWinner
-          ? undefined
-          : COLORS[metricWinner.toLowerCase()],
+      value: (
+        <FetchingFallback
+          isFetchingQuotes={isFetchingQuotes}
+          value={!hasErrors && metricWinner ? metricWinner : null}
+        />
+      ),
+      color: !hasErrors && metricWinner ? COLORS[metricWinner.toLowerCase()] : undefined,
     },
     {
       label: <LatencyTooltip successfulQuotes={successfulQuotes} />,
-      value: quote?.success ? `${quote.latency.toFixed(1)}ms` : "N/A",
+      value: (
+        <FetchingFallback
+          isFetchingQuotes={isFetchingQuotes}
+          value={quote?.success ? `${quote.latency.toFixed(1)}ms` : null}
+        />
+      ),
     },
     {
       label: <InaccuracyTooltip successfulQuotes={successfulQuotes} />,
-      value: getInaccuracyValue(),
+      value: (
+        <FetchingFallback
+          isFetchingQuotes={isFetchingQuotes}
+          value={
+            quoteInaccuracy !== null
+              ? `${quoteInaccuracy / 100} bps`
+              : simulationError || (errors?.simulation?.length ? "Simulation failed" : null)
+          }
+        />
+      ),
     },
     {
       label: (
@@ -96,16 +105,28 @@ export function LineItems({
           buyToken={buyToken}
         />
       ),
-      value: quote?.success
-        ? `1 ${sellToken.symbol} = ${formatTokenValue(
-            (quote.outputAmount * BigInt(10 ** sellToken.decimals)) / quote.inputAmount,
-            buyToken.decimals,
-          )} ${buyToken.symbol}`
-        : "N/A",
+      value: (
+        <FetchingFallback
+          isFetchingQuotes={isFetchingQuotes}
+          value={
+            quote?.success
+              ? `1 ${sellToken.symbol} = ${formatTokenValue(
+                  (quote.outputAmount * BigInt(10 ** sellToken.decimals)) / quote.inputAmount,
+                  buyToken.decimals,
+                )} ${buyToken.symbol}`
+              : null
+          }
+        />
+      ),
     },
     {
       label: <GasTooltip />,
-      value: quote?.success ? `$${(Number(quote.networkFee) / 1e18).toFixed(2)}` : "N/A",
+      value: (
+        <FetchingFallback
+          isFetchingQuotes={isFetchingQuotes}
+          value={quote?.success ? `$${(Number(quote.networkFee) / 1e18).toFixed(2)}` : null}
+        />
+      ),
     },
     {
       label: <MaxSlippageTooltip />,
@@ -120,17 +141,34 @@ export function LineItems({
     },
     {
       label: <PriceImpactTooltip />,
-      value: getPriceImpactValue(),
+      value: (
+        <FetchingFallback
+          isFetchingQuotes={isFetchingQuotes}
+          value={priceImpact !== null ? `${priceImpact.toFixed(2)}%` : null}
+        />
+      ),
     },
     {
       label: "Fee",
-      value: getFeesValue(),
+      value: (
+        <FetchingFallback
+          isFetchingQuotes={isFetchingQuotes}
+          value={quoteFees !== null ? `$${(Number(quoteFees) / 1e18).toFixed(2)}` : null}
+        />
+      ),
     },
     {
       label: "Total",
-      value: quote?.success
-        ? `${formatTokenValue(BigInt(quote.outputAmount), buyToken.decimals)} ${buyToken.symbol}`
-        : "N/A",
+      value: (
+        <FetchingFallback
+          isFetchingQuotes={isFetchingQuotes}
+          value={
+            quote?.success
+              ? `${formatTokenValue(BigInt(quote.outputAmount), buyToken.decimals)} ${buyToken.symbol}`
+              : null
+          }
+        />
+      ),
     },
   ];
 
@@ -143,16 +181,12 @@ export function LineItems({
           className={`flex justify-between${i === items.length - 1 ? " font-bold" : ""}`}
         >
           <span className="text-primary monospace text-[12px] text-secondary-1">{item.label}</span>
-          {item.value ? (
-            item.color ? (
-              <span className="monospace text-[12px] capitalize" style={{ color: item.color }}>
-                {item.value}
-              </span>
-            ) : (
-              <span className="monospace text-[12px] text-primary">{item.value}</span>
-            )
+          {item.color ? (
+            <span className="monospace text-[12px] capitalize" style={{ color: item.color }}>
+              {item.value}
+            </span>
           ) : (
-            <Skeleton height={12} width={40} />
+            <span className="monospace text-[12px] text-primary">{item.value}</span>
           )}
         </div>
       ))}

@@ -13,6 +13,7 @@ export function SequencedWalletTxBatchButton({
   blocked,
   errors,
   onComplete,
+  isFetchingQuotes,
   onError,
 }: TxBatchButtonProps) {
   const [state, setState] = useState<"idle" | "processing">("idle");
@@ -62,6 +63,7 @@ export function SequencedWalletTxBatchButton({
     <TriggerWalletButton
       disabled={blocked || state === "processing"}
       processing={state === "processing"}
+      isFetchingQuotes={isFetchingQuotes}
       errors={errors}
       onClick={executeStep}
     />
