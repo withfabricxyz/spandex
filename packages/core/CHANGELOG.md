@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.4.1
+
+### Patch Changes
+
+- f4af4b1: add optional recipientAccount option for configuring a different token output address than the caller
+
 ## 0.4.0
 
 ### Minor Changes
