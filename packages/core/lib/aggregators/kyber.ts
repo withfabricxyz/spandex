@@ -166,12 +166,13 @@ function extractQueryParams(
   params: ExactInSwapParams,
   options: SwapOptions,
 ): Record<string, string> {
+  const recipientAccount = params.recipientAccount ?? params.swapperAccount;
   const result: Record<string, string> = {
     tokenOut: toKyberToken(params.outputToken),
     tokenIn: toKyberToken(params.inputToken),
     amountIn: params.inputAmount.toString(),
     slippageTolerance: params.slippageBps.toString(),
-    to: params.swapperAccount,
+    to: recipientAccount,
   };
 
   if (options.integratorFeeAddress) {

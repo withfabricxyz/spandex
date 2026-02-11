@@ -35,6 +35,7 @@ const baseSchema = z.object({
   outputToken: addressSchema,
   slippageBps: z.coerce.number().int().nonnegative().max(10000),
   swapperAccount: addressSchema,
+  recipientAccount: addressSchema.optional(),
 });
 
 const querySchema = z.discriminatedUnion("mode", [

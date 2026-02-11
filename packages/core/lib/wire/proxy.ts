@@ -35,6 +35,9 @@ export class AggregatorProxy {
     query.append("outputToken", params.outputToken);
     query.append("slippageBps", params.slippageBps.toString());
     query.append("swapperAccount", params.swapperAccount);
+    if (params.recipientAccount) {
+      query.append("recipientAccount", params.recipientAccount);
+    }
     query.append("mode", params.mode);
     if (params.mode === "exactIn") {
       query.append("inputAmount", params.inputAmount.toString());

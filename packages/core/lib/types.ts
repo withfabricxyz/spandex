@@ -221,6 +221,11 @@ type SwapBase = {
    * Account that will submit the swap transaction.
    */
   swapperAccount: Address;
+  /**
+   * Optional account that should receive output tokens.
+   * Defaults to `swapperAccount` when omitted.
+   */
+  recipientAccount?: Address;
 };
 
 /**
@@ -557,15 +562,6 @@ export type SimulationSuccess = {
   latency: number;
   /** Block number tied to the simulation response, if the client returned one. */
   blockNumber: bigint | null;
-  /** Asset changes observed on the swapper account during simulation. */
-  assetChanges: readonly {
-    token: {
-      address: Address;
-      decimals?: number | undefined;
-      symbol?: string | undefined;
-    };
-    value: { pre: bigint; post: bigint; diff: bigint };
-  }[];
 };
 
 /** Result of a failed quote simulation.

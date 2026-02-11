@@ -1,10 +1,10 @@
 export function mockServer() {
-  let queue = [] as Response[];
-  let requests = [] as Request[];
+  const queue = [] as Response[];
+  const requests = [] as Request[];
   const server = Bun.serve({
     port: 0,
     fetch(req: Request): Response {
-      requests.push(req);
+      requests.push(req.clone() as Request);
       const output = queue.shift();
       return output || new Response(null, { status: 404 });
     },
@@ -15,10 +15,6 @@ export function mockServer() {
     requests,
     enqueue: (item: Response) => {
       queue.push(item);
-    },
-    reset: () => {
-      queue = [];
-      requests = [];
     },
   };
 }

@@ -38,5 +38,11 @@ Allowed slippage for the swap, expressed in basis points (bps). For example, a v
 ## swapperAccount
 `Address`
 
-Address of the account that will submit the swap transaction onchain. Some providers require this for exclusive liquidity. Additionally, this can be used as a destination account for the output tokens.
+Address of the account that will submit the swap transaction onchain. Some providers require this
+for exclusive liquidity.
 
+## recipientAccount
+`Address | undefined`
+
+Optional address that should receive output tokens. When omitted, output defaults to
+`swapperAccount`.

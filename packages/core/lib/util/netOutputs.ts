@@ -7,7 +7,7 @@ export type Allocations = {
 };
 
 /**
- * Extracts net input and output token allocations from a list of transfers. Used to determine fee taking and final swap amount for the swapper.
+ * Extracts net input and output token allocations from a list of transfers. Used to determine fee taking and final swap amount for the swapper or explicit recipient.
  *
  * @note this function is currently considered experimental and may result in inaccurate calculations for complex swaps.
  *
@@ -18,7 +18,8 @@ export type Allocations = {
  * @returns Allocations - A mapping of input and output token allocations per address
  */
 export function netOutputs({ swap, logs }: { swap: SwapParams; logs: Log[] }): Allocations {
-  const transfers = extractSimpleTransfers(logs, swap.swapperAccount);
+  const recipientAccount = swap.recipientAccount ?? swap.swapperAccount;
+  const transfers = extractSimpleTransfers(logs, recipientAccount);
   const outputs = outputTransfers({
     transfers,
     swapper: swap.swapperAccount,

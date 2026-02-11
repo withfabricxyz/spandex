@@ -37,7 +37,8 @@ for (const [account, amount] of allocations.outputToken) {
 `SwapParams`
 
 Swap parameters that identify the input/output tokens and swapper. This should match the swap that
-was used to build a quote, which was executed to produce logs.
+was used to build a quote, which was executed to produce logs. If `recipientAccount` is set on the
+swap, output attribution is evaluated against that recipient.
 
 ### logs
 `Log[]`

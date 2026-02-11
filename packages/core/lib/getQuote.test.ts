@@ -28,7 +28,6 @@ const baseSimulation: Omit<SimulationSuccess, "outputAmount"> = {
   latency: 0,
   gasUsed: 0n,
   blockNumber: 0n,
-  assetChanges: [] as SimulationSuccess["assetChanges"],
 };
 
 async function simulateSuccess({ quote }: SimulationArgs): Promise<SuccessfulSimulatedQuote> {
