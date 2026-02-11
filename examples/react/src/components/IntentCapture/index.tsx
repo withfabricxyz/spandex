@@ -6,6 +6,7 @@ import { useConnection } from "wagmi";
 import { getExplorerLink } from "@/config/onchain";
 import { useAllowance } from "@/hooks/useAllowance";
 import { useBalance } from "@/hooks/useBalance";
+import { useSupportedChain } from "@/hooks/useSupportedChain";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import {
   type StructuredError,
@@ -84,6 +85,7 @@ const QUOTE_REFRESH_INTERVAL_MS = 10_000;
 export function IntentCapture() {
   const { sellToken, setSellToken, buyToken, setBuyToken, onSuccessfulTx } = useTokenSelect();
   const { address, chainId, isConnected } = useConnection();
+  const { isWrongChain } = useSupportedChain();
   const [prevSellToken, setPrevSellToken] = useState(sellToken);
   const [numSellTokens, setNumSellTokens] = useState<string>(sellToken.defaultInput);
   const [selectedMetric, setSelectedMetric] = useState<Metric>("price");
@@ -120,8 +122,9 @@ export function IntentCapture() {
 
   const swap = useMemo(
     () => ({
-      // allow quotes to be fetched without connected wallet
-      chainId: chainId || 8453,
+      // always use the sell token's chain for quotes, even if disconnected or on wrong chain
+      // we block the tx button if wrong chain; this allows the UI to remain unblocked in default state
+      chainId: sellToken.chainId,
       swapperAccount: address || sellToken.whaleAddress,
 
       inputToken: sellToken.address,
@@ -130,7 +133,7 @@ export function IntentCapture() {
       mode: "exactIn" as const,
       inputAmount: parseTokenValue(numSellTokens, sellToken.decimals),
     }),
-    [sellToken, buyToken, numSellTokens, chainId, slippageBps, address],
+    [sellToken, buyToken, numSellTokens, slippageBps, address],
   );
 
   const query = useMemo(
@@ -191,6 +194,13 @@ export function IntentCapture() {
       });
     }
 
+    if (isWrongChain) {
+      state.connection.push({
+        title: "Unsupported chain",
+        cause: "unsupported",
+      });
+    }
+
     const inputErrors = validateSwapInput(numSellTokens, sellTokenBalance, sellToken, buyToken);
     if (inputErrors) {
       state.input.push(...inputErrors);
@@ -230,6 +240,7 @@ export function IntentCapture() {
     return state;
   }, [
     isConnected,
+    isWrongChain,
     numSellTokens,
     sellTokenBalance,
     sellToken,

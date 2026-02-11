@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { type JSX, useCallback, useEffect, useMemo, useState } from "react";
 import { type Connector, useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
-import { formatAddress } from "../../utils/strings";
+import { useSupportedChain } from "@/hooks/useSupportedChain";
+import { formatAddress } from "@/utils/strings";
 import { Button } from "../Button";
 import { Dialog } from "../Dialog";
 import { ThemePicker } from "../ThemePicker";
@@ -70,7 +71,8 @@ function connectorIcon(connector: Connector) {
 }
 
 function ConnectButton({ onClickConnect }: { onClickConnect: () => void }) {
-  const { address, isConnected, chainId } = useConnection();
+  const { address, isConnected } = useConnection();
+  const { isWrongChain, ensureChain } = useSupportedChain();
   const disconnect = useDisconnect();
   const [mounted, setMounted] = useState(false);
 
@@ -102,13 +104,17 @@ function ConnectButton({ onClickConnect }: { onClickConnect: () => void }) {
       <>
         <Tooltip
           trigger={
-            <div className="rounded-[2px_0px_0px_2px] h-20 w-20 relative border border-primary border-r-0">
+            <button
+              type="button"
+              onClick={isWrongChain ? () => ensureChain() : undefined}
+              className={`rounded-[2px_0px_0px_2px] h-20 w-20 relative border border-primary border-r-0 ${isWrongChain ? "grayscale cursor-pointer hover:grayscale-0" : ""} transition-grayscale duration-425`}
+            >
               <div className="h-10 w-10 absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
-                <img src={`/images/${chainId}@2x.png`} alt={`Chain ${chainId}`} />
+                <img src={`/images/8453@2x.png`} alt="Base" />
               </div>
-            </div>
+            </button>
           }
-          content="Base"
+          content={isWrongChain ? "Click to switch to Base" : "Base"}
           dark
         />
 

@@ -1,10 +1,8 @@
-import { useConnection } from "wagmi";
 import type { TokenMetadata } from "@/services/tokens";
 
 export function TokenImage({ token, size = "md" }: { token: TokenMetadata; size?: "sm" | "md" }) {
-  const { chainId } = useConnection();
   const tokenImageSrc = token.logoURI || "/images/not-found@2x.png";
-  const chainImage = chainId ? `/images/${chainId}@2x.png` : undefined;
+  const chainImage = `/images/${token.chainId}@2x.png`;
 
   return (
     <div className={`${size === "sm" ? "h-12 w-12" : "h-16 w-16"} rounded-full relative`}>
