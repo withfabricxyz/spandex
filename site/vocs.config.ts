@@ -179,6 +179,10 @@ export default defineConfig({
               text: "Relay",
               link: "/providers/relay",
             },
+            {
+              text: "Velora",
+              link: "/providers/velora",
+            },
           ],
         },
       ],

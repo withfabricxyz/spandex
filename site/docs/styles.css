@@ -87,6 +87,10 @@
   line-height: 1;
   list-style-type: disc;
   list-style-position: inside;
+
+  @media (max-width: 640px) {
+    list-style-position: outside;
+  }
 }
 
 .logos {
