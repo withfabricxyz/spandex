@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 
 export function QuoteRefreshCountdown({
-  fetching,
+  isFetchingQuotes,
   updatedAt,
   durationMs,
   enabled,
 }: {
-  fetching: boolean;
+  isFetchingQuotes: boolean;
   updatedAt: number;
   durationMs: number;
   enabled: boolean;
@@ -25,17 +25,17 @@ export function QuoteRefreshCountdown({
 
   const statusText = useMemo(() => {
     if (!enabled) return null;
-    if (fetching) return "refreshing quotes";
+    if (isFetchingQuotes) return "refreshing quotes";
     if (!updatedAt) return `refreshing quotes in ${Math.ceil(durationMs / 1_000)}s`;
 
     const elapsedMs = now - updatedAt;
     const remainingMs = Math.max(0, durationMs - elapsedMs);
     return `refreshing quotes in ${Math.ceil(remainingMs / 1_000)}s`;
-  }, [enabled, fetching, updatedAt, durationMs, now]);
+  }, [enabled, isFetchingQuotes, updatedAt, durationMs, now]);
 
   if (!statusText) return null;
 
-  if (fetching) {
+  if (isFetchingQuotes) {
     return (
       <span className="flex items-center gap-4 monospace text-[11px] text-quaternary">
         <span>{statusText}</span>

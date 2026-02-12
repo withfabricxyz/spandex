@@ -22,7 +22,6 @@ type SwapControlsProps = {
   numSellTokens: string;
   setNumSellTokens: (value: string) => void;
   buyToken: TokenMetadata;
-  isLoadingQuotes: boolean;
   onSwitchTokens: () => void;
   errors?: SwapErrorState;
 };
@@ -42,7 +41,6 @@ function SwapControlsLoader({
   numSellTokens,
   setNumSellTokens,
   buyToken,
-  isLoadingQuotes,
   onSwitchTokens,
   errors,
 }: SwapControlsProps) {
@@ -95,7 +93,6 @@ function SwapControlsLoader({
       setNumSellTokens={setNumSellTokens}
       buyToken={buyToken}
       numBuyTokens={numBuyTokens}
-      isLoadingQuotes={isLoadingQuotes}
       onSwitchTokens={handleSwitchTokens}
       activePercent={activePercent}
       onPercentChange={setActivePercent}
@@ -112,7 +109,6 @@ function Inputs({
   setNumSellTokens,
   buyToken,
   numBuyTokens,
-  isLoadingQuotes,
   onSwitchTokens,
   activePercent,
   onPercentChange,
@@ -140,7 +136,6 @@ function Inputs({
       <BuyToken
         token={buyToken}
         balance={formatTokenValue(BigInt(balances.buyToken || 0n), buyToken.decimals)}
-        isLoadingQuotes={isLoadingQuotes}
         numTokens={numBuyTokens}
         isLoadingBalances={isLoadingBalances}
       />

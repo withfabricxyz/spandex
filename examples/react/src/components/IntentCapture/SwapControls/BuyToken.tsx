@@ -8,25 +8,19 @@ import { Skeleton } from "../../Skeleton";
 type BuyTokenProps = {
   token: TokenMetadata;
   balance?: string;
-  isLoadingQuotes: boolean;
   isLoadingBalances: boolean;
   numTokens: string;
 };
 
-export function BuyToken({
-  token,
-  balance,
-  isLoadingQuotes,
-  isLoadingBalances,
-  numTokens,
-}: BuyTokenProps) {
+export function BuyToken({ token, balance, isLoadingBalances, numTokens }: BuyTokenProps) {
   const { openDrawer } = useTokenSelect();
+  const noQuote = Number(numTokens) === 0;
 
   return (
     <div className="flex flex-col gap-10">
       <span className="text-secondary">Buy</span>
       <div className="flex justify-between items-center">
-        {isLoadingQuotes ? (
+        {noQuote ? (
           <Skeleton height={44} width="calc(100% - 176px)" />
         ) : (
           <input

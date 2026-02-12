@@ -18,7 +18,7 @@ type InsightsProps = {
   slippageBps: number;
   setSlippageBps: (value: number) => void;
   errors?: SwapErrorState;
-  isFetching: boolean;
+  isFetchingQuotes: boolean;
   dataUpdatedAt: number;
   refreshIntervalMs: number;
 };
@@ -41,7 +41,7 @@ function QuoteDataView({
   setSlippageBps,
   metricWinner,
   errors,
-  isFetching,
+  isFetchingQuotes,
   dataUpdatedAt,
   refreshIntervalMs,
 }: QuoteDataViewProps) {
@@ -56,7 +56,7 @@ function QuoteDataView({
         />
         <QuoteRefreshCountdown
           enabled={true}
-          fetching={isFetching}
+          isFetchingQuotes={isFetchingQuotes}
           updatedAt={dataUpdatedAt}
           durationMs={refreshIntervalMs}
         />
@@ -72,6 +72,7 @@ function QuoteDataView({
         slippageBps={slippageBps}
         setSlippageBps={setSlippageBps}
         metricWinner={metricWinner}
+        isFetchingQuotes={isFetchingQuotes}
         errors={errors}
       />
     </>
@@ -90,7 +91,7 @@ function QuoteHistoryWrapper({
   slippageBps,
   setSlippageBps,
   errors,
-  isFetching,
+  isFetchingQuotes,
   dataUpdatedAt,
   refreshIntervalMs,
 }: InsightsProps) {
@@ -130,7 +131,7 @@ function QuoteHistoryWrapper({
       setSlippageBps={setSlippageBps}
       metricWinner={metricWinner}
       errors={errors}
-      isFetching={isFetching}
+      isFetchingQuotes={isFetchingQuotes}
       dataUpdatedAt={dataUpdatedAt}
       refreshIntervalMs={refreshIntervalMs}
     />

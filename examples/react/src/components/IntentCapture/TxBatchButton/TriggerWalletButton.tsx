@@ -9,11 +9,13 @@ export function TriggerWalletButton({
   processing,
   disabled,
   errors,
+  isFetchingQuotes,
   onClick,
 }: {
   disabled: boolean;
   processing: boolean;
   errors?: SwapErrorState;
+  isFetchingQuotes: boolean;
   onClick: () => void;
 }) {
   const { sellToken } = useTokenSelect();
@@ -39,6 +41,12 @@ export function TriggerWalletButton({
       {button}
       {processing ? (
         <span className="text-[12px] text-secondary text-center">Processing...</span>
+      ) : null}
+      {isFetchingQuotes && !processing ? (
+        <span className="flex items-center gap-4 text-[12px] text-quaternary justify-center">
+          <span>refreshing quotes...</span>
+          <span className="h-5 w-5 shrink-0 animate-spin rounded-full border border-current border-t-transparent" />
+        </span>
       ) : null}
       {Object.entries(errors || {}).length > 0 ? (
         <div className="flex flex-col gap-4">

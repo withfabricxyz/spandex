@@ -146,8 +146,7 @@ export function IntentCapture() {
 
   const {
     data: quotes,
-    isLoading: isLoadingQuotes,
-    isFetching,
+    isFetching: isFetchingQuotes,
     error: quotesQueryError,
     dataUpdatedAt,
   } = useQuotes({
@@ -306,7 +305,6 @@ export function IntentCapture() {
         numSellTokens={numSellTokens}
         setNumSellTokens={setNumSellTokens}
         buyToken={buyToken}
-        isLoadingQuotes={isLoadingQuotes}
         onSwitchTokens={onSwitchTokens}
         errors={errors}
       />
@@ -323,13 +321,14 @@ export function IntentCapture() {
         slippageBps={slippageBps}
         setSlippageBps={setSlippageBps}
         errors={errors}
-        isFetching={isFetching}
+        isFetchingQuotes={isFetchingQuotes}
         dataUpdatedAt={dataUpdatedAt}
         refreshIntervalMs={QUOTE_REFRESH_INTERVAL_MS}
       />
       <hr className="border-primary" />
       <TxBatchButton
         blocked={calls.length === 0 || hasBlockingError}
+        isFetchingQuotes={isFetchingQuotes}
         calls={calls}
         onComplete={onComplete}
         onError={onTxError}
