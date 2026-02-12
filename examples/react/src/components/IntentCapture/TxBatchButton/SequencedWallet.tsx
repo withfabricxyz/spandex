@@ -30,16 +30,10 @@ export function SequencedWalletTxBatchButton({
         // Simulate the call before sending the transaction
         await wagmiCall(config, {
           account: address,
-          data: call.data,
-          to: call.to,
+          ...call,
         });
 
-        const hash = await sendTransaction.mutateAsync({
-          data: call.data,
-          to: call.to,
-          value: call.value,
-          chainId: call.chainId,
-        });
+        const hash = await sendTransaction.mutateAsync(call);
 
         toast("Tx submitted", {
           link: getExplorerLink(call.chainId, "tx", hash),
