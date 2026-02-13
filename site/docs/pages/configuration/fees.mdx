@@ -2,17 +2,19 @@ import { Callout } from "vocs/components";
 
 # Fees
 
-There are several different fee layers to consider in spanDEX, even though spanDEX itself imposed no fees:
+There are several fee layers to consider in spanDEX, even though spanDEX itself does not impose fees:
 
-- **Provider fees**: costs imposed the upstream provider and included in the quote.
+- **Provider fees**: costs imposed by the upstream provider and included in the quote.
 - **Integrator fee capture**: fee/surplus you choose to request because your product is
   sourcing order flow. This is activated by the provider on your behalf and included in the quote.
-- **LP fees**: Fees paid to market makers (AMM, RFQ, etc) and are included in the quote.
-- **Network fees**: Gas costs, which scale with the complexity of the route. Not included in the quote, but estimated during simulation.
+- **LP fees**: fees paid to market makers (AMM, RFQ, etc) and included in the quote.
+- **Network fees**: gas costs, which scale with route complexity. They are not included in the
+  quote output amount, but are estimated during simulation.
 
 ## Provider Fees
 
-These fees are represent the default settings for any given provider (new account, or anonymous) and are subject to negitation.
+These values represent default settings for each provider (new account or anonymous access) and are
+subject to negotiation.
 
 | Provider | Swap Fee | Surplus | More |
 | --- | --- | --- | --- |
@@ -24,11 +26,12 @@ These fees are represent the default settings for any given provider (new accoun
 | Relay | 25% of Integrator Fee | 100% | [Details](https://docs.relay.link/references/api/api_core_concepts/fees) |
 | Velora | 15% of Integrator Fee | 100% (1% Cap) | [Details](https://docs.velora.xyz/intro-to-velora/velora-overview/protocol-revenue) |
 
-Additionally each swap has network fees, which are not included in `outputTokens`. However, the gas usage can be factored in when selecting quotes.
+Additionally, each swap has network fees, which are not included in `outputTokens`. Gas estimates
+can still be factored in when selecting quotes.
 
 ## Integrator Fee Capture (Optional)
 
-spanDEX supports two integrator capture for applications which source order flow from end users:
+spanDEX supports two integrator fee-capture controls for applications that source order flow from end users:
 
 - Fixed swap fee (`integratorSwapFeeBps`)
 - Surplus share (`integratorSurplusBps`)
@@ -105,5 +108,6 @@ with `integratorSurplusBps`.
   the secondary criterion (best price, lowest gas, etc).
 
 <Callout type="info">
-  If you have negotiated features like surplus for a given provider, you can activate that feature for any provider using the `negotiatedFeatures` option.
+  If you have negotiated features like surplus for a given provider, you can activate that feature
+  for any provider using the `negotiatedFeatures` option.
 </Callout>
