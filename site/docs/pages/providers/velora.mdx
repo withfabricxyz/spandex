@@ -24,6 +24,9 @@ export const config = createConfig({
       baseUrl: undefined,
       // Optional, partner slug for attribution
       partner: undefined,
+      // Optional, forwarded as `isDirectFeeTransfer` when fee/surplus capture is enabled
+      // Default: true
+      isDirectFeeTransfer: true,
     }),
     // ...
   ],
@@ -35,3 +38,5 @@ When using global aggregation options:
 - `integratorSurplusBps` enables Velora's `takeSurplus`
 - Velora uses a single partner recipient (`partnerAddress`) for both flows. If both fee and surplus
   are requested with different addresses, spanDEX prioritizes the fee recipient.
+- `isDirectFeeTransfer` is configured on `velora({...})` setup and is only sent when
+  `partnerAddress` is present.
