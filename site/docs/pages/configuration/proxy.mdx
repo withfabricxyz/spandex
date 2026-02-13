@@ -31,11 +31,11 @@ With `proxy` configured, the client delegates quote fetching to your service end
 ## How It Works
 
 1. Client calls quote APIs/hooks (`getQuotes`, `useQuotes`, etc).
-1. `AggregatorProxy` serializes swap params into a query string and performs a GET to your endpoint.
-1. Service fetches provider quotes and streams them immediately as each one resolves via
+2. `AggregatorProxy` serializes swap params into a query string and performs a GET to your endpoint.
+3. Service fetches provider quotes and streams them immediately as each one resolves via
    `newQuoteStream(...)`.
-1. Client decodes the stream with `decodeQuoteStream(...)` into quote promises.
-1. Those promises resolve incrementally, so UI/state can update as results arrive.
+4. Client decodes the stream with `decodeQuoteStream(...)` into quote promises.
+5. Those promises resolve incrementally, so UI/state can update as results arrive.
 
 Related APIs:
 
