@@ -149,41 +149,54 @@ export default defineConfig({
       text: "Configuration",
       items: [
         {
-          text: "Options",
+          text: "Overview",
           link: "/configuration",
         },
         {
           text: "Providers",
-          items: [
-            {
-              text: "Fabric",
-              link: "/providers/fabric",
-            },
-            {
-              text: "0x",
-              link: "/providers/0x",
-            },
-            {
-              text: "KyberSwap",
-              link: "/providers/kyberswap",
-            },
-            {
-              text: "Odos",
-              link: "/providers/odos",
-            },
-            {
-              text: "LiFi",
-              link: "/providers/lifi",
-            },
-            {
-              text: "Relay",
-              link: "/providers/relay",
-            },
-            {
-              text: "Velora",
-              link: "/providers/velora",
-            },
-          ],
+          link: "/configuration/providers",
+        },
+        {
+          text: "Fees",
+          link: "/configuration/fees",
+        },
+        {
+          text: "Proxy Mode",
+          link: "/configuration/proxy",
+        },
+      ],
+    },
+    {
+      text: "Providers",
+      collapsed: true,
+      items: [
+        {
+          text: "Fabric",
+          link: "/providers/fabric",
+        },
+        {
+          text: "0x",
+          link: "/providers/0x",
+        },
+        {
+          text: "KyberSwap",
+          link: "/providers/kyberswap",
+        },
+        {
+          text: "Odos",
+          link: "/providers/odos",
+        },
+        {
+          text: "LiFi",
+          link: "/providers/lifi",
+        },
+        {
+          text: "Relay",
+          link: "/providers/relay",
+        },
+        {
+          text: "Velora",
+          link: "/providers/velora",
         },
       ],
     },

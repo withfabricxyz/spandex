@@ -1,0 +1,87 @@
+import { Callout } from "vocs/components";
+
+# Proxy Mode
+
+Use proxy mode when your meta-aggregation layer runs as a service and clients fetch quotes from
+that service, instead of calling provider APIs directly from the client.
+
+## When to Use It
+
+- You want provider API keys and provider-selection logic on the server.
+- You want a single policy point for rate limits, allowlists, and request validation.
+- You run multi-region services and want region-aware provider configuration.
+
+## Client Configuration
+
+```ts
+import { proxy } from "@spandex/core";
+import { SpandexProvider } from "@spandex/react";
+
+<SpandexProvider
+  config={{
+    proxy: proxy({ pathOrUrl: "/api/quotes" }),
+  }}
+>
+  {children}
+</SpandexProvider>;
+```
+
+With `proxy` configured, the client delegates quote fetching to your service endpoint.
+
+## How It Works
+
+1. Client calls quote APIs/hooks (`getQuotes`, `useQuotes`, etc).
+1. `AggregatorProxy` serializes swap params into a query string and performs a GET to your endpoint.
+1. Service fetches provider quotes and streams them immediately as each one resolves via
+   `newQuoteStream(...)`.
+1. Client decodes the stream with `decodeQuoteStream(...)` into quote promises.
+1. Those promises resolve incrementally, so UI/state can update as results arrive.
+
+Related APIs:
+
+- [`newQuoteStream`](/core/functions/newQuoteStream)
+- [`decodeQuoteStream`](/core/functions/decodeQuoteStream)
+
+## Hono Service Example
+
+This pattern is implemented in `examples/hono/src/index.ts`.
+
+```ts
+import { Hono } from "hono";
+import { stream } from "hono/streaming";
+import { zValidator } from "@hono/zod-validator";
+import { newQuoteStream, prepareQuotes, type Quote, type SwapParams } from "@spandex/core";
+
+const app = new Hono();
+
+app.get("/quotes/stream", zValidator("query", querySchema), async (c) => {
+  const swap = c.req.valid("query") satisfies SwapParams;
+  return stream(c, async (streamWriter) => {
+    const prepared = await prepareQuotes<Quote>({
+      swap,
+      config,
+      mapFn: (quote: Quote) => Promise.resolve(quote),
+    });
+    await streamWriter.pipe(newQuoteStream(prepared));
+  });
+});
+```
+
+## React Streaming and AsyncIterators
+
+`useQuotes` defaults to streamed results (`streamResults: true`) and uses TanStack
+`streamedQuery`. Internally, quote/simulation promises are exposed as an `AsyncIterable` so each
+result can be yielded as soon as it is ready.
+
+This is what enables progressive quote rendering instead of waiting for all providers to finish.
+
+## Simulation Placement Today
+
+Today, with the built-in proxy path, quote fetching is server-side but simulation still runs on the
+client (using the configured `PublicClient`).
+
+<Callout type="info">
+  You can move simulation to the service layer with a custom endpoint/contract if you want full
+  server-side execution, but the default proxy flow is quote streaming first, client simulation
+  second.
+</Callout>

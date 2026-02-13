@@ -1,0 +1,96 @@
+import { Callout } from "vocs/components";
+import { Logo0x } from "../../components/logo/0x";
+import { FabricLogo } from "../../components/logo/fabric";
+import { KyberSwapLogo } from "../../components/logo/kyberswap";
+import { LifiLogo } from "../../components/logo/lifi";
+import { OdosLogo } from "../../components/logo/odos";
+import { RelayLogo } from "../../components/logo/relay";
+import { VeloraLogo } from "../../components/logo/velora";
+
+# Providers
+
+Your provider set is the most important configuration decision in spanDEX. Think in terms of a
+portfolio: you want enough provider diversity to improve route quality, resilience, and throughput
+under real load. No single aggregator wins every trade or run with 100% uptime.
+
+## Supported Providers
+
+<div className="provider-grid">
+  <a className="provider-card" href="/providers/fabric">
+    <span className="provider-card__logo"><FabricLogo /></span>
+    <span className="provider-card__name">Fabric</span>
+  </a>
+  <a className="provider-card" href="/providers/0x">
+    <span className="provider-card__logo"><Logo0x /></span>
+    <span className="provider-card__name">0x</span>
+  </a>
+  <a className="provider-card" href="/providers/kyberswap">
+    <span className="provider-card__logo"><KyberSwapLogo /></span>
+    <span className="provider-card__name">KyberSwap</span>
+  </a>
+  <a className="provider-card" href="/providers/odos">
+    <span className="provider-card__logo"><OdosLogo /></span>
+    <span className="provider-card__name">Odos</span>
+  </a>
+  <a className="provider-card" href="/providers/lifi">
+    <span className="provider-card__logo"><LifiLogo /></span>
+    <span className="provider-card__name">LI.FI</span>
+  </a>
+  <a className="provider-card" href="/providers/relay">
+    <span className="provider-card__logo"><RelayLogo /></span>
+    <span className="provider-card__name">Relay</span>
+  </a>
+  <a className="provider-card" href="/providers/velora">
+    <span className="provider-card__logo"><VeloraLogo /></span>
+    <span className="provider-card__name">Velora</span>
+  </a>
+</div>
+
+<Callout type="info">
+If you would like to include your aggregator in spanDEX: [Submit a PR](https://github.com/withfabricxyz/spandex/blob/main/CONTRIBUTING.md).
+</Callout>
+
+## Why Use Multiple Providers
+
+- Better fill quality: different routers are stronger on different chains, pools, and token pairs.
+- Better uptime: provider outages, brownouts, or temporary API issues do not fully block quoting.
+- Better fee opportunities: providers differ in integrator fee/surplus support and commercial terms.
+- Better latency under load: requests can race in parallel and still respect a global deadline.
+
+## What Differs Across Providers
+
+When choosing providers, compare these dimensions:
+
+- Functionality (`exactIn` only vs `exactIn` + `targetOut`)
+- Provider-imposed fees (suplus taking or swap fees)
+- Integrator fee and surplus support ([see fees page](/configuration/fees))
+- Base API requirements (keys, partner IDs, referral codes)
+- Rate limits and plan capacity
+- Chain and token coverage
+
+## Production Planning
+
+In production with real volume, configure multiple providers and choose provider plans that match
+your expected quote throughput. A single free-tier or low-rate plan is usually a bottleneck.
+
+## Multi-Region and Edge Deployment
+
+If you run spanDEX as an edge service, you can use dynamic provider configuration by
+region to keep quote latency lower and improve reliability. If you have any regional latency
+data for providers, please contribute.
+
+```ts
+import { createConfig, fabric, relay, velora } from "@spandex/core";
+
+export function configForRegion(region: string) {
+  if (region.startsWith("eu")) {
+    return createConfig({
+      providers: [fabric({ appId: "..." }), relay({})],
+    });
+  }
+
+  return createConfig({
+    providers: [fabric({ appId: "..." }), velora({})],
+  });
+}
+```
