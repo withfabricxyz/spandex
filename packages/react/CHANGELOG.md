@@ -1,5 +1,13 @@
 # @spandex/react
 
+## 0.4.3
+
+### Patch Changes
+
+- 924e61a: Fix(velora): prevent edge case of direct fee setting when partner key is set without capture addresses
+- Updated dependencies [924e61a]
+  - @spandex/core@0.4.3
+
 ## 0.4.2
 
 ### Patch Changes
