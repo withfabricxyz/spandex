@@ -36,6 +36,10 @@ export type VeloraConfig = ProviderConfig & {
    * This maps to the `partner` query param on Velora's `/swap` endpoint.
    */
   partner?: string;
+  /**
+   * Toggle direct fee capture when fee capture is enabled
+   */
+  isDirectFeeTransfer?: boolean;
 };
 
 /**
@@ -137,7 +141,6 @@ export class VeloraAggregator extends Aggregator<VeloraConfig> {
       userAddress: request.swapperAccount,
       slippage: request.slippageBps.toString(),
       version: LATEST_VERSION,
-      isDirectFeeTransfer: "true",
     });
 
     if (request.recipientAccount) {
@@ -148,6 +151,7 @@ export class VeloraAggregator extends Aggregator<VeloraConfig> {
     }
     if (partnerAddress) {
       params.set("partnerAddress", partnerAddress);
+      params.set("isDirectFeeTransfer", `${this.config.isDirectFeeTransfer || true}`);
     }
     if (options.integratorSwapFeeBps !== undefined) {
       params.set("partnerFeeBps", options.integratorSwapFeeBps.toString());
