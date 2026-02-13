@@ -1,0 +1,44 @@
+# Configuration
+
+Use configuration to tune how your meta-aggregator behaves in production: which providers are active,
+how quote economics and optional integrator fee capture work, and what latency/retry behavior you
+want globally.
+
+## What You Can Configure
+
+### Provider Mix
+
+Choose one or more providers and define per-provider settings (keys, referral IDs, timeouts, negotiated
+features, and more).
+
+- [Provider strategy and comparison](/configuration/providers)
+- [Provider-specific setup docs](/providers/fabric)
+
+### Fees and Integrator Capture
+
+Understand provider-imposed quote fees and configure optional integrator fee capture (swap fee and
+surplus) for supported providers.
+
+- [Fees and integrator fee capture](/configuration/fees)
+
+### Runtime Controls
+
+Tune global aggregation behavior in `options`:
+
+- `deadlineMs`
+- `numRetries`
+- `initialRetryDelayMs`
+
+### Execution Environment
+
+Set clients, logging, or proxy mode depending on your app architecture:
+
+- `clients` for simulation/validation support
+- `logging` for info/debug/trace
+- `proxy` when quote fetching runs server-side
+- [Proxy mode architecture and streaming](/configuration/proxy)
+
+## API Reference
+
+- [ConfigParams reference](/reference/ConfigParams)
+- [createConfig function](/core/functions/createConfig)

@@ -1,0 +1,113 @@
+import { Callout } from "vocs/components";
+
+# Fees
+
+There are several fee layers to consider in spanDEX, even though spanDEX itself does not impose fees:
+
+- **Provider fees**: costs imposed by the upstream provider and included in the quote.
+- **Integrator fee capture**: fee/surplus you choose to request because your product is
+  sourcing order flow. This is activated by the provider on your behalf and included in the quote.
+- **LP fees**: fees paid to market makers (AMM, RFQ, etc) and included in the quote.
+- **Network fees**: gas costs, which scale with route complexity. They are not included in the
+  quote output amount, but are estimated during simulation.
+
+## Provider Fees
+
+These values represent default settings for each provider (new account or anonymous access) and are
+subject to negotiation.
+
+| Provider | Swap Fee | Surplus | More |
+| --- | --- | --- | --- |
+| Fabric | 0-0.1% | 0-100% | - |
+| 0x | 0.15% | 100% (1% Cap) | [Details](https://0x.org/pricing) |
+| KyberSwap | 0% | 100% | [Details](https://docs.kyberswap.com/kyberswap-solutions/fee-schedule) |
+| Odos | 0.03% | 100% | [Details](https://docs.odos.xyz/build/api_pricing) |
+| LI.FI | 0.25% | 100% | [Details](https://docs.li.fi/faqs/fees-monetization) |
+| Relay | 25% of Integrator Fee | 100% | [Details](https://docs.relay.link/references/api/api_core_concepts/fees) |
+| Velora | 15% of Integrator Fee | 100% (1% Cap) | [Details](https://docs.velora.xyz/intro-to-velora/velora-overview/protocol-revenue) |
+
+Additionally, each swap has network fees, which are not included in `outputTokens`. Gas estimates
+can still be factored in when selecting quotes.
+
+## Integrator Fee Capture (Optional)
+
+spanDEX supports two integrator fee-capture controls for applications that source order flow from end users:
+
+- Fixed swap fee (`integratorSwapFeeBps`)
+- Surplus share (`integratorSurplusBps`)
+
+These requests are passed optimistically to providers. Each quote reports `activatedFeatures` so
+selection can prefer quotes that actually activated requested features.
+
+<Callout type="info">
+  If you set `integratorSwapFeeBps` or `integratorSurplusBps`, you must also set
+  `integratorFeeAddress`.
+</Callout>
+
+## Fixed Rate Swap Fees
+
+Use a fixed bps fee when you want predictable revenue on eligible swaps.
+
+```ts
+import { createConfig, fabric, relay } from "@spandex/core";
+
+const config = createConfig({
+  providers: [fabric({ appId: "YOUR_FABRIC_APP_ID" }), relay({})],
+  options: {
+    integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",
+    integratorSwapFeeBps: 25, // 0.25%
+  },
+});
+```
+
+## Surplus Capture
+
+Surplus can be requested with `integratorSurplusBps` for providers that support it. If
+`integratorSurplusAddress` is omitted, the fallback is typically `integratorFeeAddress`.
+
+<Callout type="info">
+  This is not widely supported via API controls, but may be negotiated with providers.
+</Callout>
+
+```ts
+import { createConfig, fabric, velora } from "@spandex/core";
+
+const config = createConfig({
+  providers: [fabric({ appId: "YOUR_FABRIC_APP_ID" }), velora({})],
+  options: {
+    integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",
+    integratorSwapFeeBps: 20,
+    integratorSurplusBps: 1000, // 10%
+  },
+});
+```
+
+## Integrator Fee Support by Provider
+
+This table summarizes what a developer can control in the API today. Commercial enablement can
+still depend on provider plans/terms.
+
+| Provider | Swap Fee Control | Surplus Control | Negotiability |
+| --- | --- | --- | --- |
+| Fabric | ✓ | ✓ | ✓ |
+| 0x | ✓ | x | ✓ |
+| KyberSwap | ✓ | x | ✓ |
+| Odos | x | x | ✓ |
+| LI.FI | ✓ | x | ✓ |
+| Relay | ✓ | x | ✓ |
+| Velora | ✓ | ✓ | ✓ |
+
+Swap fee requests are configured with `integratorSwapFeeBps`, and surplus requests are configured
+with `integratorSurplusBps`.
+
+## How Selection Uses Integrator Fee Requests
+
+- Requested fees are optimistic; providers without support can still return valid quotes.
+- `activatedFeatures` indicates which requested features were actually active.
+- Selection strategies (other than `fastest`) prioritize higher feature activation count before
+  the secondary criterion (best price, lowest gas, etc).
+
+<Callout type="info">
+  If you have negotiated features like surplus for a given provider, you can activate that feature
+  for any provider using the `negotiatedFeatures` option.
+</Callout>

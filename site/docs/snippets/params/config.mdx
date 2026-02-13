@@ -10,13 +10,13 @@ provider to test alternate configurations.
 
 | Factory | API Key Required? | Config Docs |
 |----------|-----------|----------|
-| `zeroX` | yes | [View](/providers/0x.mdx) |
-| `fabric` | no | [View](/providers/fabric.mdx) |
-| `kyberswap` | no | [View](/providers/kyberswap.mdx) |
-| `odos` | no | [View](/providers/odos.mdx) |
-| `lifi` | no | [View](/providers/lifi.mdx) |
-| `relay` | no | [View](/providers/relay.mdx) |
-| `velora` | no | [View](/providers/velora.mdx) |
+| `zeroX` | yes | [View](/providers/0x) |
+| `fabric` | no | [View](/providers/fabric) |
+| `kyberswap` | no | [View](/providers/kyberswap) |
+| `odos` | no | [View](/providers/odos) |
+| `lifi` | no | [View](/providers/lifi) |
+| `relay` | no | [View](/providers/relay) |
+| `velora` | no | [View](/providers/velora) |
 
 Example:
 
@@ -43,6 +43,8 @@ const providers = [
 
 Proxy instance used to delegate quote fetching to a server endpoint. When `proxy` is set, you cannot
 set `providers` or `options` in the same config.
+
+See [Proxy Mode guide](/configuration/proxy) for service architecture and streaming details.
 
 Example:
 
