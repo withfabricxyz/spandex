@@ -1,5 +1,13 @@
 # @spandex/react
 
+## 0.4.2
+
+### Patch Changes
+
+- 64c1bc1: Add Velora aggregator
+- Updated dependencies [64c1bc1]
+  - @spandex/core@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.4.2
+
+### Patch Changes
+
+- 64c1bc1: Add Velora aggregator
+
 ## 0.4.1
 
 ### Patch Changes
