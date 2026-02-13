@@ -32,6 +32,7 @@ export type TxData = {
   to: Address;
   value?: bigint;
   chainId: number;
+  gas?: bigint;
 };
 
 function prepareCalls({
@@ -68,13 +69,23 @@ function prepareCalls({
       });
     }
 
-    calls.push({
+    const swapCall: TxData = {
       to: bestQuote.txData.to,
       name: "SELL",
       data: bestQuote.txData.data,
       chainId,
       value: BigInt(bestQuote.txData.value || 0),
-    });
+    };
+
+    // specify gasLimit with 50% buffer using the simulated `gasUsed`.
+    // if the `gasUsed` is indeed undefined, we can fall back to the wallet's gas estimation.
+    if (bestQuote.simulation.success) {
+      const { gasUsed } = bestQuote.simulation;
+      const gasLimit = gasUsed ? (gasUsed * 150n) / 100n : undefined;
+      swapCall.gas = gasLimit;
+    }
+
+    calls.push(swapCall);
   }
 
   return calls;
