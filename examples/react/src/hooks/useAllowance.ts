@@ -8,18 +8,20 @@ export function useAllowance({
   token,
   spender,
   owner,
+  enabled = true,
 }: {
   chainId?: number;
   owner?: Address;
   token?: Address;
   spender?: Address;
+  enabled?: boolean;
 }): UseQueryResult<bigint> {
   if (token === zeroAddress || token === ethAddress) {
     return useBalance({
       chainId: chainId,
       address: owner,
       query: {
-        enabled: !!owner && !!chainId,
+        enabled: enabled && !!owner && !!chainId,
         select: (data) => data.value,
       },
     }) as UseQueryResult<bigint>;
@@ -32,7 +34,7 @@ export function useAllowance({
     functionName: "allowance",
     args: [owner as Address, spender as Address],
     query: {
-      enabled: !!owner && !!spender && !!token && !!chainId,
+      enabled: enabled && !!owner && !!spender && !!token && !!chainId,
     },
   }) as UseQueryResult<bigint>;
 }

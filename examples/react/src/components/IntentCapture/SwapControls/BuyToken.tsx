@@ -10,9 +10,16 @@ type BuyTokenProps = {
   balance?: string;
   isLoadingBalances: boolean;
   numTokens: string;
+  isInvalidPair?: boolean;
 };
 
-export function BuyToken({ token, balance, isLoadingBalances, numTokens }: BuyTokenProps) {
+export function BuyToken({
+  token,
+  balance,
+  isLoadingBalances,
+  numTokens,
+  isInvalidPair,
+}: BuyTokenProps) {
   const { openDrawer } = useTokenSelect();
   const noQuote = Number(numTokens) === 0;
 
@@ -20,7 +27,7 @@ export function BuyToken({ token, balance, isLoadingBalances, numTokens }: BuyTo
     <div className="flex flex-col gap-10">
       <span className="text-secondary">Buy</span>
       <div className="flex justify-between items-center">
-        {noQuote ? (
+        {noQuote && !isInvalidPair ? (
           <Skeleton height={44} width="calc(100% - 176px)" />
         ) : (
           <input
@@ -31,7 +38,11 @@ export function BuyToken({ token, balance, isLoadingBalances, numTokens }: BuyTo
             readOnly
           />
         )}
-        <Button onClick={() => openDrawer("buy")} variant="secondary">
+        <Button
+          onClick={() => openDrawer("buy")}
+          variant="secondary"
+          className={isInvalidPair ? "border-red text-red" : ""}
+        >
           <div className="flex items-center gap-4">
             <TokenImage token={token} size="sm" />
             <span className="text-[20px]">{token.symbol}</span>

@@ -114,6 +114,8 @@ function Inputs({
   onPercentChange,
   errors,
 }: SwapControlsInputsProps) {
+  const isInvalidPair = errors?.input.some((e) => e.cause === "invalid-token-pair");
+
   return (
     <div className="relative flex flex-col gap-20">
       <SellToken
@@ -125,6 +127,7 @@ function Inputs({
         activePercent={activePercent}
         onPercentChange={onPercentChange}
         errors={errors}
+        isInvalidPair={isInvalidPair}
       />
 
       <TokenSwitcher
@@ -138,6 +141,7 @@ function Inputs({
         balance={formatTokenValue(BigInt(balances.buyToken || 0n), buyToken.decimals)}
         numTokens={numBuyTokens}
         isLoadingBalances={isLoadingBalances}
+        isInvalidPair={isInvalidPair}
       />
     </div>
   );

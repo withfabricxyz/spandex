@@ -18,6 +18,7 @@ type SellTokenProps = {
   activePercent: BalancePercent;
   onPercentChange: (percent: BalancePercent) => void;
   errors?: SwapErrorState;
+  isInvalidPair?: boolean;
 };
 
 export function SellToken({
@@ -31,6 +32,7 @@ export function SellToken({
   errors,
 }: SellTokenProps) {
   const { openDrawer, setActivePercent } = useTokenSelect();
+  const isInvalidPair = errors?.input.some((e) => e.cause === "invalid-token-pair");
 
   const handlePercentClick = useCallback(
     (percent: string) => {
@@ -83,14 +85,18 @@ export function SellToken({
         ) : (
           <input
             type="text"
-            className={`w-full text-primary text-[56px] leading-1 h-22 outline-none ${errors?.input.length ? "text-red" : ""}`}
+            className={`w-full text-primary text-[56px] leading-1 h-22 outline-none ${errors?.input.length && !isInvalidPair ? "text-red" : ""}`}
             style={{ maxWidth: "calc(100% - 176px)" }}
             value={numTokens}
             onChange={handleChange}
           />
         )}
 
-        <Button onClick={() => openDrawer("sell")} variant="secondary">
+        <Button
+          onClick={() => openDrawer("sell")}
+          variant="secondary"
+          className={isInvalidPair ? "border-red text-red" : ""}
+        >
           <div className="flex items-center gap-4">
             <TokenImage token={token} size="sm" />
             <span className="text-[20px]">{token.symbol}</span>

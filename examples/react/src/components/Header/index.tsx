@@ -1,85 +1,24 @@
 import { Link } from "@tanstack/react-router";
-import { type JSX, useCallback, useEffect, useMemo, useState } from "react";
-import { type Connector, useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
+import { type JSX, useCallback, useEffect, useState } from "react";
+import { useConnection, useDisconnect } from "wagmi";
 import { useSupportedChain } from "@/hooks/useSupportedChain";
+import { useConnectWallet } from "@/providers/ConnectWalletProvider";
 import { formatAddress } from "@/utils/strings";
 import { Button } from "../Button";
-import { Dialog } from "../Dialog";
 import { ThemePicker } from "../ThemePicker";
 import { TokenDrawer } from "../TokenDrawer";
 import { Tooltip } from "../Tooltip";
 import { Logo } from "./Logo";
 
-function WalletOptions({ onConnected }: { onConnected: () => void }) {
-  const connect = useConnect();
-  const connectors = useConnectors();
-  const injectedEthereum = (window as Window & { ethereum?: unknown }).ethereum;
-
-  const injectedConnectors = useMemo(() => {
-    let injected = connectors.filter((c) => c.type === "injected");
-    if (injected.length > 1) {
-      // Remove generic injected if we have MetaMask
-      injected = injected.filter((c) => c.id !== "injected");
-    }
-
-    return injected;
-  }, [connectors]);
-
-  if (typeof window === "undefined") {
-    return null;
-  } else if (!injectedEthereum) {
-    return <span className="text-center text-secondary">Must have an injected wallet</span>;
-  } else {
-    return injectedConnectors.map((connector) => (
-      <button
-        key={connector.uid}
-        onClick={async () => {
-          await connect.mutateAsync({ connector });
-          onConnected();
-        }}
-        type="button"
-        className="cursor-pointer px-8 py-4 hover:bg-surface-low rounded-8"
-      >
-        <div className="flex items-center gap-8">
-          {connectorIcon(connector)}
-          <span>{connector.name}</span>
-        </div>
-      </button>
-    ));
-  }
-}
-
-const icons: Record<string, string> = {
-  coinbaseWalletSDK: "https://www.coinbase.com/assets/sw-cache/a_DVA0h2KN.png",
-  walletConnect:
-    "https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/refs/heads/master/Icon/White/Icon.svg",
-  safe: "https://logosandtypes.com/wp-content/uploads/2024/02/safe.svg",
-};
-
-function connectorIcon(connector: Connector) {
-  let url = "/icons/question_mark.svg";
-
-  if (icons[connector.id] !== undefined) {
-    url = icons[connector.id];
-  }
-
-  if (connector.icon) {
-    url = connector.icon;
-  }
-
-  return <img src={url} alt={connector.name} className="h-24 w-24" />;
-}
-
-function ConnectButton({ onClickConnect }: { onClickConnect: () => void }) {
+function ConnectButton() {
   const { address, isConnected } = useConnection();
-  const { isWrongChain, ensureChain } = useSupportedChain();
+  const { isSupportedChain, ensureChain } = useSupportedChain();
+  const { openConnectDialog } = useConnectWallet();
   const disconnect = useDisconnect();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // quiet the hydration warning; address not available on first render
     setMounted(true);
-
     return () => {
       setMounted(false);
     };
@@ -95,7 +34,7 @@ function ConnectButton({ onClickConnect }: { onClickConnect: () => void }) {
 
   if (!isConnected) {
     content = (
-      <Button variant="primary" onClick={onClickConnect}>
+      <Button variant="primary" onClick={openConnectDialog}>
         Connect Wallet
       </Button>
     );
@@ -106,15 +45,15 @@ function ConnectButton({ onClickConnect }: { onClickConnect: () => void }) {
           trigger={
             <button
               type="button"
-              onClick={isWrongChain ? () => ensureChain() : undefined}
-              className={`rounded-[2px_0px_0px_2px] h-20 w-20 relative border border-primary border-r-0 ${isWrongChain ? "grayscale cursor-pointer hover:grayscale-0" : ""} transition-grayscale duration-425`}
+              onClick={!isSupportedChain ? () => ensureChain() : undefined}
+              className={`rounded-[2px_0px_0px_2px] h-20 w-20 relative border border-primary border-r-0 ${!isSupportedChain ? "grayscale cursor-pointer hover:grayscale-0" : ""} transition-grayscale duration-425`}
             >
               <div className="h-10 w-10 absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2">
                 <img src={`/images/8453@2x.png`} alt="Base" />
               </div>
             </button>
           }
-          content={isWrongChain ? "Click to switch to Base" : "Base"}
+          content={!isSupportedChain ? "Click to switch to Base" : "Base"}
           dark
         />
 
@@ -156,8 +95,6 @@ function ConnectButton({ onClickConnect }: { onClickConnect: () => void }) {
 }
 
 export function Header() {
-  const { isConnected } = useConnection();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -179,27 +116,11 @@ export function Header() {
           <Link to="/" aria-label="Home">
             <Logo />
           </Link>
-          <ConnectButton onClickConnect={() => setIsModalOpen(true)} />
+          <ConnectButton />
         </div>
 
         <TokenDrawer />
       </div>
-
-      <Dialog
-        title="Connect Your Wallet"
-        isOpen={isModalOpen && !isConnected}
-        onClose={() => {
-          setIsModalOpen(false);
-        }}
-      >
-        <div className="flex flex-col gap-12">
-          <WalletOptions
-            onConnected={() => {
-              setIsModalOpen(false);
-            }}
-          />
-        </div>
-      </Dialog>
 
       <ThemePicker />
     </nav>
