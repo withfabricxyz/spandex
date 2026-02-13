@@ -4,6 +4,7 @@ import { KyberAggregator, kyberswap } from "./lib/aggregators/kyber.js";
 import { LifiAggregator, lifi } from "./lib/aggregators/lifi.js";
 import { OdosAggregator, odos } from "./lib/aggregators/odos.js";
 import { RelayAggregator, relay } from "./lib/aggregators/relay.js";
+import { VeloraAggregator, velora } from "./lib/aggregators/velora.js";
 
 export {
   FabricAggregator,
@@ -12,12 +13,14 @@ export {
   LifiAggregator,
   OdosAggregator,
   RelayAggregator,
+  VeloraAggregator,
   fabric,
   zeroX,
   kyberswap,
   lifi,
   odos,
   relay,
+  velora,
 };
 export { Aggregator } from "./lib/aggregators/index.js";
 export { type Config, createConfig, defaultProviders } from "./lib/createConfig.js";

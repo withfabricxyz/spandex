@@ -163,10 +163,27 @@ export function recordedSimulation(
   return recordOutput<SuccessfulSimulatedQuote>(realizedName, async () => {
     const quote = await getQuote({ config, swap, strategy: "fastest" });
 
-    if (!quote) {
+    if (!quote?.simulation?.success) {
       throw new Error("Simulation failed");
     }
 
+    return quote;
+  }).then((res) => res.result);
+}
+
+export async function recordDefaultSimulation(
+  provider: Aggregator,
+): Promise<SuccessfulSimulatedQuote> {
+  const swap: SwapParams = {
+    ...defaultSwapParams,
+    swapperAccount: USDC_WHALE,
+  };
+  const config = testConfig([provider]);
+  return recordOutput(`default_sims/${provider.name()}`, async () => {
+    const quote = await getQuote({ config, swap, strategy: "fastest" });
+    if (!quote?.simulation?.success) {
+      throw new Error("Quote or Simulation failed");
+    }
     return quote;
   }).then((res) => res.result);
 }

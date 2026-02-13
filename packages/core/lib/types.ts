@@ -6,6 +6,7 @@ import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
 import type { LifiConfig, LifiQuoteResponse } from "./aggregators/lifi.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
 import type { RelayConfig, RelayQuoteResponse } from "./aggregators/relay.js";
+import type { VeloraConfig, VeloraQuoteResponse } from "./aggregators/velora.js";
 import type { AggregatorProxy } from "./wire/proxy.js";
 
 /**
@@ -35,6 +36,10 @@ export type ProviderDefinitions = {
   relay: {
     config: RelayConfig;
     quote: RelayQuoteResponse;
+  };
+  velora: {
+    config: VeloraConfig;
+    quote: VeloraQuoteResponse;
   };
 };
 

@@ -10,7 +10,6 @@ import type {
   SimulationSuccess,
   SuccessfulQuote,
   SuccessfulSimulatedQuote,
-  SwapParams,
   TxData,
 } from "./types.js";
 import { isNativeToken } from "./util/helpers.js";
@@ -110,11 +109,7 @@ async function performSimulation({
   client,
   swap,
   quote,
-}: {
-  client: PublicClient;
-  swap: SwapParams;
-  quote: Quote;
-}): Promise<SimulationResult> {
+}: SimulationArgs): Promise<SimulationResult> {
   if (!quote.success) {
     return {
       success: false,

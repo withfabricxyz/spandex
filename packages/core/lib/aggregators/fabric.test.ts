@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils.js";
-import { FabricAggregator, type FabricQuoteResponse, fabricRouteGraph } from "./fabric.js";
+import { defaultSwapParams, recordDefaultSimulation } from "../../test/utils.js";
+import { FabricAggregator, type FabricQuoteResponse, fabric, fabricRouteGraph } from "./fabric.js";
 
 describe("Fabric Router API test", () => {
   it("provides metadata", () => {
@@ -72,4 +72,13 @@ describe("Fabric Router API test", () => {
     expect(dag.nodes.length).toBeGreaterThan(0);
     expect(dag.edges.length).toBeGreaterThan(0);
   }, 500);
+
+  it("simulates a swap - recorded", async () => {
+    const quote = await recordDefaultSimulation(fabric({ appId: "test" }));
+    expect(quote).toBeDefined();
+    expect(quote.simulation.outputAmount).toBeGreaterThan(0n);
+    expect(quote.simulation.gasUsed).toBeGreaterThan(0);
+    expect(quote.simulation.latency).toBeGreaterThan(0);
+    expect(quote.performance.accuracy).toBe(0);
+  }, 30_000);
 });

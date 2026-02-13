@@ -4,6 +4,7 @@ import { KyberSwapLogo } from "../components/logo/kyberswap";
 import { LifiLogo } from "../components/logo/lifi";
 import { OdosLogo } from "../components/logo/odos";
 import { RelayLogo } from "./logo/relay";
+import { VeloraLogo } from "./logo/velora";
 
 export function ProviderMarquee() {
   return (
@@ -36,6 +37,9 @@ function Logos({ ariaHidden = false }: { ariaHidden?: boolean }) {
       </div>
       <div className="logos__item">
         <OdosLogo />
+      </div>
+      <div className="logos__item">
+        <VeloraLogo />
       </div>
     </div>
   );

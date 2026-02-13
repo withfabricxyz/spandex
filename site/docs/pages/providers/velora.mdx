@@ -1,0 +1,37 @@
+import { Button } from 'vocs/components'
+import { Callout } from 'vocs/components'
+
+# Velora
+
+<div className="flex flex-row gap-4">
+  <Button href="https://velora.xyz">Homepage</Button>
+  <Button href="https://developers.velora.xyz/api/velora-api/velora-market-api/get-rate-for-a-token-pair-1">Docs</Button>
+</div>
+
+## Configuration
+
+<Callout type="info">
+  Velora supports both `exactIn` and `targetOut` quotes, plus integrator fee and surplus options.
+</Callout>
+
+```ts twoslash
+import { createConfig, velora } from "@spandex/core";
+
+export const config = createConfig({
+  providers: [
+    velora({
+      // Optional, override the API base URL
+      baseUrl: undefined,
+      // Optional, partner slug for attribution
+      partner: undefined,
+    }),
+    // ...
+  ],
+});
+```
+
+When using global aggregation options:
+- `integratorSwapFeeBps` maps to Velora's `partnerFeeBps`
+- `integratorSurplusBps` enables Velora's `takeSurplus`
+- Velora uses a single partner recipient (`partnerAddress`) for both flows. If both fee and surplus
+  are requested with different addresses, spanDEX prioritizes the fee recipient.

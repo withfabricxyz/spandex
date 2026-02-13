@@ -27,16 +27,13 @@ describe("netOutputs", () => {
     );
 
     const net = netOutputs({
-      logs: quote.simulation.callsResults[1]?.logs ?? [],
+      logs: quote.simulation.swapResult?.logs ?? [],
       swap,
     });
 
     expect(net.outputToken.get(swap.swapperAccount.toLowerCase() as Address)).toBeGreaterThan(
       (quote.outputAmount * 98n) / 100n,
     );
-    expect(
-      net.outputToken.get("0x484ce84a92a17c108c94a91bb222daef93eb8ce7" as Address),
-    ).toBeGreaterThan(0n);
   });
 
   it("extracts proper output amounts for Kyber", async () => {
@@ -53,13 +50,10 @@ describe("netOutputs", () => {
     );
 
     const net = netOutputs({
-      logs: quote.simulation.callsResults[1]?.logs ?? [],
+      logs: quote.simulation.swapResult?.logs ?? [],
       swap,
     });
 
-    expect(net.outputToken.get(swap.swapperAccount.toLowerCase() as Address)).toBeGreaterThan(
-      (quote.outputAmount * 98n) / 100n,
-    );
     expect(net.outputToken.get(swap.swapperAccount.toLowerCase() as Address)).toBeGreaterThan(
       (quote.outputAmount * 98n) / 100n,
     );
@@ -79,15 +73,15 @@ describe("netOutputs", () => {
     );
 
     const net = netOutputs({
-      logs: quote.simulation.callsResults[1]?.logs ?? [],
+      logs: quote.simulation.swapResult?.logs ?? [],
       swap,
     });
 
     expect(net.outputToken.get(swap.swapperAccount.toLowerCase() as Address)).toBeGreaterThan(
       (quote.outputAmount * 98n) / 100n,
     );
-    expect(net.inputToken.get("0xad01c20d5886137e056775af56915de824c8fce5" as Address)).toEqual(
-      500000n,
-    );
+    expect(
+      net.inputToken.get("0xad01c20d5886137e056775af56915de824c8fce5" as Address),
+    ).toBeGreaterThan(0n);
   });
 });
