@@ -1,6 +1,6 @@
 import type { Address } from "viem";
-import { useConnection } from "wagmi";
 import { useBalance } from "@/hooks/useBalance";
+import { useSupportedChain } from "@/hooks/useSupportedChain";
 import type { TokenMetadata } from "../../services/tokens";
 import { formatAddress, formatTokenValue } from "../../utils/strings";
 import { TokenImage } from "../TokenImage";
@@ -13,11 +13,12 @@ type TokenItemProps = {
 };
 
 export function TokenItem({ token, owner, onClick }: TokenItemProps) {
-  const { chainId } = useConnection();
+  const { isSupportedChain } = useSupportedChain();
   const { data: balance } = useBalance({
-    chainId,
+    chainId: token.chainId,
     owner,
     token: token.address,
+    enabled: isSupportedChain,
   });
 
   return (

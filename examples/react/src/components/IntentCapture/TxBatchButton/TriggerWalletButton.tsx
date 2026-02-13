@@ -1,7 +1,9 @@
 import type { JSX } from "react/jsx-runtime";
+import { useConnection } from "wagmi";
 import { Button } from "@/components/Button";
 import { Loading } from "@/components/icons";
 import { useSupportedChain } from "@/hooks/useSupportedChain";
+import { useConnectWallet } from "@/providers/ConnectWalletProvider";
 import { useTokenSelect } from "@/providers/TokenSelectProvider";
 import type { SwapErrorState } from "@/utils/errors";
 
@@ -18,11 +20,19 @@ export function TriggerWalletButton({
   isFetchingQuotes: boolean;
   onClick: () => void;
 }) {
+  const { isConnected } = useConnection();
   const { sellToken } = useTokenSelect();
-  const { isWrongChain, ensureChain } = useSupportedChain();
+  const { isSupportedChain, ensureChain } = useSupportedChain();
+  const { openConnectDialog } = useConnectWallet();
 
   let button: JSX.Element | null = null;
-  if (isWrongChain) {
+  if (!isConnected) {
+    button = (
+      <Button onClick={openConnectDialog} size="lg">
+        Connect Wallet
+      </Button>
+    );
+  } else if (!isSupportedChain) {
     button = (
       <Button onClick={() => ensureChain(sellToken.chainId)} size="lg">
         Switch chain

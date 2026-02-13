@@ -7,17 +7,19 @@ export function useBalance({
   chainId,
   token,
   owner,
+  enabled = true,
 }: {
   chainId?: number;
   owner?: Address;
   token?: Address;
+  enabled?: boolean;
 }): UseQueryResult<bigint> {
   if (token === zeroAddress || token === ethAddress) {
     return useEthBalance({
       chainId: chainId,
       address: owner,
       query: {
-        enabled: !!owner && !!chainId,
+        enabled: enabled && !!owner && !!chainId,
         select: (data) => data.value,
       },
     }) as UseQueryResult<bigint>;
@@ -30,7 +32,7 @@ export function useBalance({
     functionName: "balanceOf",
     args: [owner as Address],
     query: {
-      enabled: !!owner && !!token && !!chainId,
+      enabled: enabled && !!owner && !!token && !!chainId,
     },
   }) as UseQueryResult<bigint>;
 }

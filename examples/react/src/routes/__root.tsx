@@ -12,6 +12,7 @@ import { DialogPortal } from "@/components/Dialog";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { ToastPortal } from "@/components/Toast";
+import { ConnectWalletProvider } from "@/providers/ConnectWalletProvider";
 import { TokenSelectProvider } from "@/providers/TokenSelectProvider";
 import { Web3Provider } from "@/providers/Web3Provider";
 import appCss from "../styles.css?url";
@@ -79,12 +80,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               }}
             >
               <Tooltip.Provider>
-                <TokenSelectProvider>
-                  <Header />
-                  <div className="pt-80 pb-20 max-w-360 mx-auto">{children}</div>
-                  <Footer />
-                  <DialogPortal />
-                </TokenSelectProvider>
+                <ConnectWalletProvider>
+                  <TokenSelectProvider>
+                    <Header />
+                    <div className="pt-80 pb-20 max-w-360 mx-auto">{children}</div>
+                    <Footer />
+                    <DialogPortal />
+                  </TokenSelectProvider>
+                </ConnectWalletProvider>
               </Tooltip.Provider>
               <ToastPortal />
             </SpandexProvider>
