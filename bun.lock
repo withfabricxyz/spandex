@@ -7,7 +7,7 @@
         "@changesets/cli": "^2.29.8",
       },
       "devDependencies": {
-        "@biomejs/biome": "^2.3.15",
+        "@biomejs/biome": "2.3.15",
         "@types/bun": "^1.3.9",
         "@types/node": "^25.2.3",
         "typescript": "^5.9.3",
@@ -54,7 +54,7 @@
         "zod": "^4.3.6",
       },
       "devDependencies": {
-        "@tanstack/devtools-vite": "^0.4.1",
+        "@tanstack/devtools-vite": "^0.5.1",
         "@types/node": "^22.10.2",
         "@types/react": "^19.2.0",
         "@types/react-dom": "^19.2.0",
@@ -638,11 +638,11 @@
 
     "@tanstack/devtools-client": ["@tanstack/devtools-client@0.0.5", "", { "dependencies": { "@tanstack/devtools-event-client": "^0.4.0" } }, "sha512-hsNDE3iu4frt9cC2ppn1mNRnLKo2uc1/1hXAyY9z4UYb+o40M2clFAhiFoo4HngjfGJDV3x18KVVIq7W4Un+zA=="],
 
-    "@tanstack/devtools-event-bus": ["@tanstack/devtools-event-bus@0.4.0", "", { "dependencies": { "ws": "^8.18.3" } }, "sha512-1t+/csFuDzi+miDxAOh6Xv7VDE80gJEItkTcAZLjV5MRulbO/W8ocjHLI2Do/p2r2/FBU0eKCRTpdqvXaYoHpQ=="],
+    "@tanstack/devtools-event-bus": ["@tanstack/devtools-event-bus@0.4.1", "", { "dependencies": { "ws": "^8.18.3" } }, "sha512-cNnJ89Q021Zf883rlbBTfsaxTfi2r73/qejGtyTa7ksErF3hyDyAq1aTbo5crK9dAL7zSHh9viKY1BtMls1QOA=="],
 
     "@tanstack/devtools-event-client": ["@tanstack/devtools-event-client@0.4.0", "", {}, "sha512-RPfGuk2bDZgcu9bAJodvO2lnZeHuz4/71HjZ0bGb/SPg8+lyTA+RLSKQvo7fSmPSi8/vcH3aKQ8EM9ywf1olaw=="],
 
-    "@tanstack/devtools-vite": ["@tanstack/devtools-vite@0.4.1", "", { "dependencies": { "@babel/core": "^7.28.4", "@babel/generator": "^7.28.3", "@babel/parser": "^7.28.4", "@babel/traverse": "^7.28.4", "@babel/types": "^7.28.4", "@tanstack/devtools-client": "0.0.5", "@tanstack/devtools-event-bus": "0.4.0", "chalk": "^5.6.2", "launch-editor": "^2.11.1", "picomatch": "^4.0.3" }, "peerDependencies": { "vite": "^6.0.0 || ^7.0.0" } }, "sha512-PkMOomcWnl/pUkCqIjqL/csjPHtkMVBirDpJVOZR7XJZDxo5CuD7B+3KsujFCF4Dsn6QYlae97gCZvxi/CB76Q=="],
+    "@tanstack/devtools-vite": ["@tanstack/devtools-vite@0.5.1", "", { "dependencies": { "@babel/core": "^7.28.4", "@babel/generator": "^7.28.3", "@babel/parser": "^7.28.4", "@babel/traverse": "^7.28.4", "@babel/types": "^7.28.4", "@tanstack/devtools-client": "0.0.5", "@tanstack/devtools-event-bus": "0.4.1", "chalk": "^5.6.2", "launch-editor": "^2.11.1", "picomatch": "^4.0.3" }, "peerDependencies": { "vite": "^6.0.0 || ^7.0.0" } }, "sha512-5dXxMznSxx8NNpO9IbDC011sIdvTVvsoLaLAxm69dgDAX0+2OB8gdXrQp8dnzeNMvszKCgRxI2cgr/pjPgmnNw=="],
 
     "@tanstack/history": ["@tanstack/history@1.154.14", "", {}, "sha512-xyIfof8eHBuub1CkBnbKNKQXeRZC4dClhmzePHVOEel4G7lk/dW+TQ16da7CFdeNLv6u6Owf5VoBQxoo6DFTSA=="],
 

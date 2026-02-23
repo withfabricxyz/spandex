@@ -23,6 +23,7 @@ export {
   velora,
 };
 export { Aggregator } from "./lib/aggregators/index.js";
+export { type BuildCallsParams, type BuiltCall, buildCalls } from "./lib/buildCalls.js";
 export { type Config, createConfig, defaultProviders } from "./lib/createConfig.js";
 export { ExecutionError, executeQuote } from "./lib/executeQuote.js";
 export { getPricing } from "./lib/getPricing.js";
