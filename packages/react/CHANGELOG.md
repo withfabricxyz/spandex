@@ -1,5 +1,13 @@
 # @spandex/react
 
+## 0.4.4
+
+### Patch Changes
+
+- 4edb272: Export buildCalls from entrypoint
+- Updated dependencies [4edb272]
+  - @spandex/core@0.4.4
+
 ## 0.4.3
 
 ### Patch Changes
