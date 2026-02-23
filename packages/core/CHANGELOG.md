@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.4.4
+
+### Patch Changes
+
+- 4edb272: Export buildCalls from entrypoint
+
 ## 0.4.3
 
 ### Patch Changes
