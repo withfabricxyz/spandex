@@ -37,6 +37,6 @@ export { SimulationRevertError, simulateQuote, simulateQuotes } from "./lib/simu
 export type * from "./lib/types.js";
 export { netOutputs } from "./lib/util/netOutputs.js";
 export { sortQuotesByPerformance } from "./lib/util/performance.js";
-export { AggregatorProxy, proxy } from "./lib/wire/proxy.js";
+export { AggregatorProxy, proxy, spandexCloud } from "./lib/wire/proxy.js";
 export { deserializeWithBigInt, serializeWithBigInt } from "./lib/wire/serde.js";
 export { decodeQuoteStream, newQuoteStream } from "./lib/wire/streams.js";

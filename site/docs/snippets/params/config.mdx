@@ -44,7 +44,9 @@ const providers = [
 Proxy instance used to delegate quote fetching to a server endpoint. When `proxy` is set, you cannot
 set `providers` or `options` in the same config.
 
-See [Proxy Mode guide](/configuration/proxy) for service architecture and streaming details.
+See [Proxy Mode guide](/configuration/proxy) for service architecture and streaming details, including
+`delegatedActions` (`getQuotes`/`getQuote`) to control which top-level APIs are delegated to proxy.
+For the managed deployment helper, see [Cloud Mode (beta)](/configuration/cloud).
 
 Example:
 

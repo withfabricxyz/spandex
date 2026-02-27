@@ -32,6 +32,7 @@ export const config = createConfig({
 
 Use a proxy when fetching quotes from a server (for example, to avoid browser CORS issues).
 For a full architecture walkthrough, see [Configuration > Proxy Mode](/configuration/proxy).
+If you want a managed proxy deployment, see [Configuration > Cloud Proxy](/configuration/cloud).
 
 ```ts
 import { createConfig, proxy } from "@spandex/core";
@@ -46,6 +47,16 @@ const client = createPublicClient({
 export const config = createConfig({
   proxy: proxy({ pathOrUrl: "https://example.com/api/quotes" }),
   clients: [client] as PublicClient[],
+});
+```
+
+Or use the managed spanDEX cloud proxy:
+
+```ts
+import { createConfig, spandexCloud } from "@spandex/core";
+
+export const cloudConfig = createConfig({
+  proxy: spandexCloud({ apiKey: process.env.SPANDEX_CLOUD_KEY || 'demo' }),
 });
 ```
 
