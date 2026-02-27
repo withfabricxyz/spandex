@@ -26,16 +26,60 @@ import { SpandexProvider } from "@spandex/react";
 </SpandexProvider>;
 ```
 
-With `proxy` configured, the client delegates quote fetching to your service endpoint.
+With `proxy` configured, quote fetching is delegated to your service endpoint.
+
+## Delegated Actions
+
+`delegatedActions` controls which top-level quote APIs are delegated to your proxy service.
+
+```ts
+import { createConfig, proxy } from "@spandex/core";
+
+const config = createConfig({
+  proxy: proxy({
+    pathOrUrl: "https://example.com/api/v1",
+    delegatedActions: [], // only prepareQuotes is delegated
+  }),
+});
+```
+
+By default, no extra actions are delegated:
+
+```ts
+proxy({
+  pathOrUrl: "https://example.com/api/v1",
+  // delegatedActions defaults to []
+});
+```
+
+When `getQuote` or `getQuotes` is delegated, simulation runs on the server. This lets your backend
+own provider and RPC configuration (plus retries, limits, and policy controls) in one place.
+
+If you set `delegatedActions: []`, only `prepareQuotes` is delegated.
+
+## Choosing a Delegation Strategy
+
+| `delegatedActions` | What gets delegated to proxy |
+| --- | --- |
+| `[]` (default) | `prepareQuotes` only |
+| `["getQuotes"]` | `prepareQuotes`, `getQuotes` |
+| `["getQuote"]` | `prepareQuotes`, `getQuote` |
+| `["getQuotes", "getQuote"]` | `prepareQuotes`, `getQuotes`, `getQuote` |
+
+<Callout type="info">
+  Delegated <code>getQuote</code> only supports built-in strategy names on the server side. Custom
+  strategy functions require <code>getQuote</code> to remain non-delegated.
+</Callout>
 
 ## How It Works
 
-1. Client calls quote APIs/hooks (`getQuotes`, `useQuotes`, etc).
-2. `AggregatorProxy` serializes swap params into a query string and performs a GET to your endpoint.
-3. Service fetches provider quotes and streams them immediately as each one resolves via
-   `newQuoteStream(...)`.
-4. Client decodes the stream with `decodeQuoteStream(...)` into quote promises.
-5. Those promises resolve incrementally, so UI/state can update as results arrive.
+1. Client calls quote APIs/hooks (`getQuotes`, `getQuote`, `getRawQuotes`, `useQuotes`, etc).
+2. `AggregatorProxy` serializes swap params into query params and calls your endpoint.
+3. `prepareQuotes` uses a streaming response (`newQuoteStream(...)`) so quotes arrive progressively.
+4. `delegatedActions` decides whether `getQuotes`/`getQuote` are also handled entirely on the
+   service.
+5. For streamed flows, client decodes with `decodeQuoteStream(...)` and resolves each quote
+   incrementally.
 
 Related APIs:
 
@@ -67,21 +111,12 @@ app.get("/quotes/stream", zValidator("query", querySchema), async (c) => {
 });
 ```
 
-## React Streaming and AsyncIterators
+Add `/get_quotes` and `/get_quote` routes if you delegate those actions.
+
+## React Streaming and Async Iterators
 
 `useQuotes` defaults to streamed results (`streamResults: true`) and uses TanStack
 `streamedQuery`. Internally, quote/simulation promises are exposed as an `AsyncIterable` so each
 result can be yielded as soon as it is ready.
 
 This is what enables progressive quote rendering instead of waiting for all providers to finish.
-
-## Simulation Placement Today
-
-Today, with the built-in proxy path, quote fetching is server-side but simulation still runs on the
-client (using the configured `PublicClient`).
-
-<Callout type="info">
-  You can move simulation to the service layer with a custom endpoint/contract if you want full
-  server-side execution, but the default proxy flow is quote streaming first, client simulation
-  second.
-</Callout>

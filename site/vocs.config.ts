@@ -164,6 +164,10 @@ export default defineConfig({
           text: "Proxy Mode",
           link: "/configuration/proxy",
         },
+        {
+          text: "Cloud Proxy",
+          link: "/configuration/cloud",
+        },
       ],
     },
     {

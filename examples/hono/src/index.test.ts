@@ -14,14 +14,14 @@ describe("API tests", async () => {
   });
 
   it("fetches a quote (may be flaky depending on upstream)", async () => {
-    const res = await app.request(`/quotes/select?${defaultParams.toString()}`, {
+    const res = await app.request(`/api/v1/get_quote?${defaultParams.toString()}`, {
       method: "GET",
     });
     expect(res.status).toBe(200);
   }, 30_000);
 
   it("stream raw quotes via stream", async () => {
-    const res = await app.request(`/quotes/stream?${defaultParams.toString()}`, {
+    const res = await app.request(`/api/v1/prepare_quotes?${defaultParams.toString()}`, {
       method: "GET",
     });
 

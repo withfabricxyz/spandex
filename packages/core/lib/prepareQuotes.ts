@@ -18,7 +18,7 @@ export async function prepareQuotes<T>({
 }): Promise<Array<Promise<T>>> {
   // Delegate the quote fetching to a remote server if a proxy is configured
   if (config.proxy !== undefined) {
-    return (await config.proxy.prepareQuotes(swap, config.options)).map((a) => a.then(mapFn));
+    return (await config.proxy.prepareQuotes(swap)).map((a) => a.then(mapFn));
   }
 
   const options = config.options;

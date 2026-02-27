@@ -1,0 +1,41 @@
+import { Callout } from "vocs/components";
+
+# spanDEX Cloud
+
+spanDEX cloud is a managed service which adheres to the same principles as proxy mode, but is hosted and maintained by the spanDEX team.
+It is intended for simple setup, testing, agents, and small deployments. It can easily be switched to and from proxy mode, so it's a great way to get started with spanDEX without needing to set up your own infrastructure.
+
+<Callout type="info">
+  Cloud mode is currently experimental. If a chain you need isn't supported, or if you have any issues, please reach out to us on GitHub.
+</Callout>
+
+## Setup
+
+```ts
+import { createConfig, spandexCloud } from "@spandex/core";
+
+export const config = createConfig({
+  proxy: spandexCloud({
+    apiKey: process.env.SPANDEX_CLOUD_API_KEY || 'demo',
+  }),
+});
+```
+
+Note: The `demo` API key is a fake key, but still works. It is intended for testing and development. If you wish to use spanDEX cloud in production, let us know so we can set you up with a configured key.
+
+In React:
+
+```tsx
+import { SpandexProvider } from "@spandex/react";
+
+<SpandexProvider config={config}>{children}</SpandexProvider>;
+```
+
+## How It Relates to Proxy Mode
+
+- Uses the same `AggregatorProxy` and wire protocol as [Proxy Mode](/configuration/proxy).
+- Runs on a managed deployment (`https://edge.spandex.sh/api/v1`) with API key auth.
+- Uses proxy defaults, so only `prepareQuotes` is delegated.
+
+If you need fully custom endpoints, custom infra, or custom delegation behavior, use
+`proxy({ pathOrUrl, delegatedActions })` instead.
