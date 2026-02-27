@@ -21,5 +21,10 @@ export async function getQuotes({
   swap: SwapParams;
   client?: PublicClient;
 }): Promise<SimulatedQuote[]> {
+  if (config.proxy?.isDeferredAction("getQuotes")) {
+    // If the proxy is configured to handle getQuotes, delegate the entire process to the proxy server
+    return await config.proxy.getQuotes(swap);
+  }
+
   return Promise.all(await prepareSimulatedQuotes({ config, swap, client }));
 }

@@ -6,6 +6,7 @@ import {
   type Quote,
   type SwapParams,
   serializeWithBigInt,
+  getQuotes,
 } from "@spandex/core";
 import { Hono } from "hono";
 import { stream } from "hono/streaming";
@@ -40,22 +41,41 @@ const querySchema = z.discriminatedUnion("mode", [
   }),
 ]);
 
+const quoteSelectionStrategySchema = z.enum(["bestPrice", "fastest"]);
+const getQuoteSchema = z.intersection(
+	querySchema,
+	z.object({
+		strategy: quoteSelectionStrategySchema.default("bestPrice").optional(),
+	}),
+);
+
 ////////////// Routes //////////////
 
-app.get("/quotes/select", zValidator("query", querySchema), async (c) => {
-  const swap = c.req.valid("query") satisfies SwapParams;
+app.get("/api/v1/get_quote", zValidator("query", getQuoteSchema), async (c) => {
+  const swap = c.req.valid("query") satisfies SwapParams & { strategy?: "bestPrice" | "fastest" };
   const quote = await getQuote({
     swap,
     config,
-    strategy: "fastest",
+    strategy: swap.strategy || "bestPrice",
   });
   // Quite a few bigint values in the quote response, so we use our custom serializer
   c.header("Content-Type", "application/json");
   return c.body(serializeWithBigInt(quote));
 });
 
+app.get("/api/v1/get_quotes", zValidator("query", querySchema), async (c) => {
+  const swap = c.req.valid("query") satisfies SwapParams;
+  const quotes = await getQuotes({
+    swap,
+    config,
+  });
+  // Quite a few bigint values in the quote response, so we use our custom serializer
+  c.header("Content-Type", "application/json");
+  return c.body(serializeWithBigInt(quotes));
+});
+
 // Stream raw quotes as they are fetched
-app.get("/quotes/stream", zValidator("query", querySchema), async (c) => {
+app.get("/api/v1/prepare_quotes", zValidator("query", querySchema), async (c) => {
   const swap = c.req.valid("query") satisfies SwapParams;
   return stream(c, async (stream) => {
     const prepared = await prepareQuotes<Quote>({

@@ -73,4 +73,22 @@ describe("proxy", async () => {
     const url = new URL(request?.url || "");
     expect(url.searchParams.get("recipientAccount")).toBe(recipientAccount);
   }, 10_000);
+
+  it("adds optional headers to the proxy request", async () => {
+    await enqueue(defaultSwapParams);
+
+    await getRawQuotes({
+      config: createConfig({
+        proxy: proxy({
+          pathOrUrl: `http://localhost:${setup.server.port}/quotes`,
+          headers: { "X-Custom-Header": "CustomValue" },
+        }),
+      }),
+      swap: defaultSwapParams,
+    });
+
+    const request = setup.requests[0];
+    expect(request).toBeDefined();
+    expect(request?.headers.get("X-Custom-Header")).toBe("CustomValue");
+  }, 10_000);
 });

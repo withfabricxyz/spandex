@@ -25,6 +25,11 @@ export async function getQuote({
   strategy: QuoteSelectionStrategy;
   client?: PublicClient;
 }): Promise<SuccessfulSimulatedQuote | null> {
+  if (config.proxy?.isDeferredAction("getQuote")) {
+    // If the proxy is configured to handle getQuote, delegate the entire process to the proxy server
+    return await config.proxy.getQuote(swap, strategy);
+  }
+
   const quotes = await prepareSimulatedQuotes({
     config,
     swap,
