@@ -76,7 +76,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Web3Provider>
             <SpandexProvider
               config={{
-                proxy: proxy({ pathOrUrl: "/api/quotes" }),
+                proxy: proxy({
+                  pathOrUrl: "/api",
+                  delegatedActions: ["prepareSimulatedQuotes"],
+                }),
               }}
             >
               <Tooltip.Provider>

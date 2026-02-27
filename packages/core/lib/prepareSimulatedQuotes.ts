@@ -22,6 +22,16 @@ export async function prepareSimulatedQuotes({
   swap: SwapParams;
   client?: PublicClient;
 }): Promise<Promise<SimulatedQuote>[]> {
+  if (config.proxy?.isDelegatedAction("prepareSimulatedQuotes")) {
+    return config.proxy.prepareSimulatedQuotes(swap);
+  }
+
+  if (config.proxy && config.aggregators.length === 0) {
+    throw new Error(
+      "prepareSimulatedQuotes is not delegated on this proxy config. Add `prepareSimulatedQuotes` to delegatedActions or configure local providers.",
+    );
+  }
+
   const resolved = client ?? config.clientLookup(swap.chainId);
   if (!resolved) {
     throw new Error(

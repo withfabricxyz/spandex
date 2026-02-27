@@ -1,4 +1,4 @@
-import { type ProviderKey, type Quote, QuoteError } from "../types.js";
+import { type ProviderKey, type Quote, QuoteError, type SimulatedQuote } from "../types.js";
 import { deserializeWithBigInt, serializeWithBigInt } from "./serde.js";
 
 // Magic header bits to identify the stream format
@@ -6,14 +6,31 @@ const STREAM_MAGIC = 0xdec5feed;
 // Currently no flags are defined (reserved for future use)
 const STREAM_FLAGS = 0;
 
+type CancellablePromiseArray<T> = Array<Promise<T>> & {
+  cancel?: (reason?: unknown) => void;
+};
+
+type DecodeStreamOptions = {
+  onCancel?: (reason?: unknown) => void;
+};
+
+export type StreamErrorHandler<T> = (error: unknown) => T;
+
 /**
- * Produces a ReadableStream that emits serialized Quote objects as they resolve.
- * Used when quotes are fetched on the server and streamed to the client incrementally.
+ * Produces a ReadableStream that emits serialized values as they resolve.
  *
- * @param promises - Quote promises to resolve and write to the stream.
- * @returns ReadableStream that streams serialized Quote objects.
+ * @param promises - Value promises to resolve and write to the stream.
+ * @param onRejected - Handler used to normalize rejected promises into streamable values.
+ * @returns ReadableStream that streams serialized values.
  */
-export function newQuoteStream(promises: Array<Promise<Quote>>): ReadableStream<Uint8Array> {
+export function newStream<T>(
+  promises: Array<Promise<T>>,
+  onRejected: StreamErrorHandler<T>,
+): ReadableStream<Uint8Array> {
+  return newSerializedStream(promises, onRejected);
+}
+
+function newSerializedStream<T>(promises: Array<Promise<T>>, onRejected: StreamErrorHandler<T>) {
   if (promises.length > 0xff) {
     throw new Error("Cannot create quote stream: number of quotes exceeds 255.");
   }
@@ -44,11 +61,11 @@ export function newQuoteStream(promises: Array<Promise<Quote>>): ReadableStream<
       // Enqueue each quote as it resolves, and call finish when done
       for (const promise of promises) {
         promise
-          .then((quote) => quote)
-          .catch((error) => toFailedQuote(error))
-          .then((quote) => {
+          .then((value) => value)
+          .catch((error) => onRejected(error))
+          .then((value) => {
             try {
-              controller.enqueue(encodeQuoteFrame(quote));
+              controller.enqueue(encodeValueFrame(value));
             } catch {
               // Controller may be closed if stream was cancelled
             }
@@ -60,14 +77,23 @@ export function newQuoteStream(promises: Array<Promise<Quote>>): ReadableStream<
 }
 
 /**
- * Decodes a ReadableStream of serialized Quote objects into an array of quote promises.
+ * Decodes a ReadableStream of serialized values into an array of promises.
  *
- * @param stream - A ReadableStream produced by `newQuoteStream`.
- * @returns An array of promises that resolve to each Quote as it is streamed.
+ * @param stream - A ReadableStream produced by `newStream`.
+ * @returns An array of promises that resolve as each value is streamed.
  */
-export async function decodeQuoteStream(
+export async function decodeStream<T>(
   stream: ReadableStream<Uint8Array>,
-): Promise<Array<Promise<Quote>>> {
+  options?: DecodeStreamOptions,
+): Promise<CancellablePromiseArray<T>> {
+  return decodeSerializedStream(stream, decodeValueFrame<T>, options);
+}
+
+async function decodeSerializedStream<T>(
+  stream: ReadableStream<Uint8Array>,
+  decodeFrame: (frame: Uint8Array) => T | undefined,
+  options?: DecodeStreamOptions,
+): Promise<CancellablePromiseArray<T>> {
   const reader = stream.getReader();
   let buffer: Uint8Array = new Uint8Array(0);
 
@@ -81,14 +107,31 @@ export async function decodeQuoteStream(
   }
 
   const { count } = decodeHeaderFrame(buffer.subarray(0, 6));
-  const deferred = Array.from({ length: count }, () => createDeferred<Quote>());
+  const deferred = Array.from({ length: count }, () => createDeferred<T>());
+  const promises = deferred.map(({ promise }) => promise) as CancellablePromiseArray<T>;
   buffer = buffer.slice(6);
+  let cancelled = false;
+
+  const cancel = (reason?: unknown) => {
+    if (cancelled) {
+      return;
+    }
+    cancelled = true;
+    const error = normalizeCancelReason(reason);
+    options?.onCancel?.(error);
+    for (const item of deferred) {
+      item.rejectIfPending(error);
+    }
+    void reader.cancel(error).catch(() => {});
+  };
+
+  promises.cancel = cancel;
 
   void (async () => {
     let index = 0;
 
     try {
-      while (index < count) {
+      while (index < count && !cancelled) {
         while (true) {
           if (buffer.length < 4) {
             break;
@@ -102,16 +145,16 @@ export async function decodeQuoteStream(
             break;
           }
           const frame = buffer.subarray(0, frameLength);
-          const quote = decodeQuoteFrame(frame);
-          if (!quote) {
+          const value = decodeFrame(frame);
+          if (!value) {
             break;
           }
-          deferred[index]?.resolve(quote);
+          deferred[index]?.resolve(value);
           index += 1;
           buffer = buffer.slice(frameLength);
         }
 
-        if (index >= count) {
+        if (index >= count || cancelled) {
           break;
         }
 
@@ -122,27 +165,29 @@ export async function decodeQuoteStream(
         buffer = appendBuffer(buffer, value);
       }
 
-      if (index < count) {
+      if (!cancelled && index < count) {
         const error = new Error("Quote stream ended before all quotes were received.");
         for (let i = index; i < count; i += 1) {
-          deferred[i]?.reject(error);
+          deferred[i]?.rejectIfPending(error);
         }
       }
     } catch (error) {
-      for (let i = index; i < count; i += 1) {
-        deferred[i]?.reject(error);
+      if (!cancelled) {
+        for (let i = index; i < count; i += 1) {
+          deferred[i]?.rejectIfPending(error);
+        }
       }
     } finally {
       reader.releaseLock();
     }
   })();
 
-  return deferred.map(({ promise }) => promise);
+  return promises;
 }
 
 /// Helper Functions ///
 
-function toFailedQuote(error: unknown): Quote {
+export function quoteStreamErrorHandler(error: unknown): Quote {
   if (error && typeof error === "object") {
     if ("success" in error) {
       return error as Quote;
@@ -165,14 +210,56 @@ function toFailedQuote(error: unknown): Quote {
   };
 }
 
+export function simulatedQuoteStreamErrorHandler(error: unknown): SimulatedQuote {
+  if (
+    error &&
+    typeof error === "object" &&
+    "simulation" in error &&
+    error.simulation &&
+    typeof error.simulation === "object" &&
+    "success" in error.simulation
+  ) {
+    return error as SimulatedQuote;
+  }
+
+  return {
+    ...quoteStreamErrorHandler(error),
+    simulation: {
+      success: false,
+      error:
+        error instanceof Error
+          ? error
+          : new Error("Simulated quote promise rejected", { cause: error }),
+    },
+  };
+}
+
 function createDeferred<T>() {
   let resolve!: (value: T) => void;
   let reject!: (error: unknown) => void;
+  let settled = false;
   const promise = new Promise<T>((innerResolve, innerReject) => {
-    resolve = innerResolve;
-    reject = innerReject;
+    resolve = (value) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      innerResolve(value);
+    };
+    reject = (error) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      innerReject(error);
+    };
   });
-  return { promise, resolve, reject };
+  return {
+    promise,
+    resolve,
+    reject,
+    rejectIfPending: reject,
+  };
 }
 
 // Note: The added flags byte here is reserved for future use (in case we want to add features to the stream format without breaking compatibility)
@@ -209,9 +296,9 @@ function appendBuffer(buffer: Uint8Array, chunk?: Uint8Array): Uint8Array {
   return next;
 }
 
-function encodeQuoteFrame(quote: Quote): Uint8Array {
+function encodeValueFrame<T>(value: T): Uint8Array {
   const encoder = new TextEncoder();
-  const payload = encoder.encode(serializeWithBigInt(quote));
+  const payload = encoder.encode(serializeWithBigInt(value));
   const frame = new Uint8Array(4 + payload.length);
   const view = new DataView(frame.buffer);
   view.setUint32(0, payload.length, false);
@@ -219,7 +306,7 @@ function encodeQuoteFrame(quote: Quote): Uint8Array {
   return frame;
 }
 
-function decodeQuoteFrame(frame: Uint8Array): Quote | undefined {
+function decodeValueFrame<T>(frame: Uint8Array): T | undefined {
   const view = new DataView(frame.buffer, frame.byteOffset, frame.byteLength);
   const payloadLength = view.getUint32(0, false);
   if (frame.byteLength - 4 < payloadLength) {
@@ -227,5 +314,12 @@ function decodeQuoteFrame(frame: Uint8Array): Quote | undefined {
   }
   const payload = frame.subarray(4, 4 + payloadLength);
   const decoder = new TextDecoder();
-  return deserializeWithBigInt<Quote>(decoder.decode(payload));
+  return deserializeWithBigInt<T>(decoder.decode(payload));
+}
+
+function normalizeCancelReason(reason?: unknown): Error {
+  if (reason instanceof Error) {
+    return reason;
+  }
+  return new Error("Quote stream cancelled");
 }

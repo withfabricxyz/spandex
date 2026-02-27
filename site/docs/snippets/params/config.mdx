@@ -44,7 +44,10 @@ const providers = [
 Proxy instance used to delegate quote fetching to a server endpoint. When `proxy` is set, you cannot
 set `providers` or `options` in the same config.
 
-See [Proxy Mode guide](/configuration/proxy) for service architecture and streaming details.
+See [Proxy Mode guide](/configuration/proxy) for service architecture and streaming details. In
+proxy mode, you must provide at least one `delegatedActions` entry. Those names match both the
+delegated function names and the route suffixes on the service. `getQuotes` and `getQuote` compose
+locally on the client. For the managed deployment helper, see [Cloud Mode (beta)](/configuration/cloud).
 
 Example:
 
@@ -52,7 +55,10 @@ Example:
 import { createConfig, proxy } from "@spandex/core";
 
 const config = createConfig({
-  proxy: proxy({ pathOrUrl: "https://example.com/api/quotes" }),
+  proxy: proxy({
+    pathOrUrl: "https://example.com/api",
+    delegatedActions: ["prepareSimulatedQuotes"],
+  }),
 });
 ```
 
@@ -103,6 +109,10 @@ applying the secondary strategy (best price, lowest gas, etc).
 `PublicClient[] | ((chainId: number) => PublicClient | undefined)`
 
 A list of viem/wagmi clients or a lookup function to get the client for a specific chain ID. This is used to fetch on-chain data for quote simulation and validation. If not provided, `getQuotes`, `getQuote`, and simulation utilities will fail. If you wish to only get quotes without validating onchain, use `getRawQuotes` instead. When using `SpandexProvider`, the wagmi clients from the provider will be used automatically.
+
+When using proxy mode, server-streamed simulated quotes do not require a local client for
+`getQuotes`/`getQuote`. Local clients are still useful if you call lower-level simulation utilities
+directly.
 
 Note: The public client is used to simulate quotes and validate them onchain. This requires an RPC provider which supports this, and many public providers do not. Please ensure your viem client is setup with a compatible RPC provider (e.g. Alchemy, Infura, etc). Additionally, you can setup RPC failover in your client configuration to improve reliability of quote fetching and simulation. See [viem documentation](https://viem.sh/docs/clients/transports/fallback) for more details.
 

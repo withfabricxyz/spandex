@@ -83,6 +83,25 @@ describe("selectQuote", () => {
     expect(output?.simulation.outputAmount).toBe(7_457n);
   }, 1_000);
 
+  it("cancels remaining work after fastest succeeds", async () => {
+    let cancelled = false;
+    const pending = Object.assign(
+      [
+        withDelay(makeSuccessfulQuote({ outputAmount: 10n }), 20),
+        withDelay(makeSuccessfulQuote({ outputAmount: 9n }), 200),
+      ],
+      {
+        cancel: () => {
+          cancelled = true;
+        },
+      },
+    );
+
+    const output = await selectQuote({ strategy: "fastest", quotes: pending });
+    expect(output?.simulation.outputAmount).toBe(10n);
+    expect(cancelled).toBe(true);
+  }, 1_000);
+
   it("price selection - best simulated output relative to input is chosen", async () => {
     const pending = [
       Promise.resolve(simulationFailure),
