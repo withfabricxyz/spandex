@@ -1,0 +1,68 @@
+{
+  "success": true,
+  "provider": "odos",
+  "details": {
+    "inTokens": [
+      "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    ],
+    "outTokens": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "inAmounts": [
+      "500000000"
+    ],
+    "outAmounts": [
+      "244672177485117632"
+    ],
+    "gasEstimate": 278348,
+    "dataGasEstimate": 297,
+    "gweiPerGas": 0.008130581,
+    "gasEstimateValue": 0.004630872234910509,
+    "inValues": [
+      500.37904576687333
+    ],
+    "outValues": [
+      499.9295981992271
+    ],
+    "netOutValue": 499.9249673269922,
+    "priceImpact": 0,
+    "percentDiff": -0.03984134134135786,
+    "permit2Message": null,
+    "permit2Hash": null,
+    "pathId": "2e66113662a71fbb478ff9cce0bb4e4a",
+    "pathViz": null,
+    "blockNumber": 42846034
+  },
+  "latency": 4636.904584,
+  "inputAmount": {
+    "__bigint__": "500000000"
+  },
+  "outputAmount": {
+    "__bigint__": "244672177485117632"
+  },
+  "networkFee": {
+    "__bigint__": "2263130960188"
+  },
+  "txData": {
+    "to": "0x0D05a7D3448512B78fa8A9e46c4872C88C4a0D05",
+    "data": "0x83bd37f90001833589fcd6edb6e08f4c7c32d4f71b54bda029130000041dcd6500080365400c916bf8c0028f5c0001bF44De8fc9EEEED8615b0b3bc095CB0ddef35e0900000001Ee7aE85f2Fe2239E27D9c1E23fFFe168D63b40550000000000000000000301020300080100010200020400000001ff00000000000000000000000000000072ab388e2e2f6facef59e3c3fa2c4e29011c2d38833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000000000000000000000000000",
+    "value": {
+      "__bigint__": "0"
+    }
+  },
+  "approval": {
+    "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "spender": "0x0D05a7D3448512B78fa8A9e46c4872C88C4a0D05"
+  },
+  "pricing": {
+    "inputToken": {
+      "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    },
+    "outputToken": {
+      "address": "0x0000000000000000000000000000000000000000"
+    }
+  },
+  "metrics": {
+    "priceImpactBps": 0
+  }
+}

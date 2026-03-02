@@ -12,8 +12,9 @@ import {
   type SwapParams,
   type TokenPricing,
 } from "../types.js";
-import { isNativeToken } from "../util/helpers.js";
 import { Aggregator } from "./index.js";
+
+const ZEROX_NATIVE_TOKEN = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 
 /**
  * Configuration options for the 0x aggregator.
@@ -47,6 +48,10 @@ export class ZeroXAggregator extends Aggregator<ZeroXConfig> {
     return "0x";
   }
 
+  override nativeTokenAddress(): Address {
+    return ZEROX_NATIVE_TOKEN as Address;
+  }
+
   override features(): AggregatorFeature[] {
     return ["exactIn", "integratorFees"];
   }
@@ -60,9 +65,6 @@ export class ZeroXAggregator extends Aggregator<ZeroXConfig> {
   ): Promise<SuccessfulQuote> {
     if (request.mode === "targetOut") {
       throw new QuoteError("0x aggregator does not support exact output quotes");
-    }
-    if (isNativeToken(request.inputToken)) {
-      throw new QuoteError("0x aggregator does not support native input tokens");
     }
 
     const response = await this.makeRequest(request as ExactInSwapParams, options);

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams, recordDefaultSimulation, recordOutput } from "../../test/utils.js";
+import {
+  defaultSwapParams,
+  nativeInputSwap,
+  nativeOutputSwap,
+  recordDefaultSimulation,
+  recordOutput,
+} from "../../test/utils.js";
 import { VeloraAggregator, velora } from "./velora.js";
 
 describe("Velora", () => {
@@ -43,5 +49,25 @@ describe("Velora", () => {
     }
     expect(quote.details.priceRoute.partnerFee).toBe(0.1);
     expect(quote.details.priceRoute.partner).toBe("friend");
+  }, 30_000);
+
+  it("supports native in", async () => {
+    const quote = await recordOutput("velora/native-input", async () => {
+      return velora().fetchQuote(nativeInputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "velora") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
+  }, 30_000);
+
+  it("supports native out", async () => {
+    const quote = await recordOutput("velora/native-output", async () => {
+      return velora().fetchQuote(nativeOutputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "velora") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
   }, 30_000);
 });

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils.js";
-import { LifiAggregator } from "./lifi.js";
+import {
+  defaultSwapParams,
+  nativeInputSwap,
+  nativeOutputSwap,
+  recordOutput,
+} from "../../test/utils.js";
+import { LifiAggregator, lifi } from "./lifi.js";
 
 describe("LiFi API test", () => {
   it("provides metadata", () => {
@@ -27,5 +32,25 @@ describe("LiFi API test", () => {
       expect(quote.txData.data).toBeDefined();
       expect(quote.txData.to).toBeDefined();
     }
+  }, 30_000);
+
+  it("supports native in", async () => {
+    const quote = await recordOutput("lifi/native-input", async () => {
+      return lifi().fetchQuote(nativeInputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "lifi") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
+  }, 30_000);
+
+  it("supports native out", async () => {
+    const quote = await recordOutput("lifi/native-output", async () => {
+      return lifi().fetchQuote(nativeOutputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "lifi") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
   }, 30_000);
 });

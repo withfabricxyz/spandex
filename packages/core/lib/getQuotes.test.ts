@@ -12,6 +12,7 @@ import {
   type SwapParams,
   zeroX,
 } from "../index.js";
+import { nativeOutputSwap } from "../test/utils.js";
 import { createConfig } from "./createConfig.js";
 
 const defaultSwapParams: SwapParams = {
@@ -165,9 +166,8 @@ describe("getQuotes", () => {
     const quotes = await getQuotes({
       config,
       swap: {
-        ...defaultSwapParams,
-        outputToken: zeroAddress,
-        swapperAccount: USDC_WHALE,
+        ...nativeOutputSwap,
+        recipientAccount: "0xF1f8CAC358a4c86979AFF1bD380498206E8224B6",
       },
     });
     expect(quotes).toBeDefined();

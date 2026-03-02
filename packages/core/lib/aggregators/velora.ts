@@ -64,6 +64,10 @@ export class VeloraAggregator extends Aggregator<VeloraConfig> {
     return "velora";
   }
 
+  override nativeTokenAddress(): Address {
+    return VELORA_NATIVE_TOKEN;
+  }
+
   override features(): AggregatorFeature[] {
     return ["exactIn", "targetOut", "integratorFees", "integratorSurplus"];
   }

@@ -79,6 +79,10 @@ export class KyberAggregator extends Aggregator<KyberConfig> {
     return "kyberswap";
   }
 
+  override nativeTokenAddress(): Address {
+    return KYBER_NATIVE_TOKEN as Address;
+  }
+
   /**
    * @inheritdoc
    */
