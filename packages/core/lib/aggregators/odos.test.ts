@@ -1,6 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils.js";
-import { OdosAggregator } from "./odos.js";
+import {
+  defaultSwapParams,
+  nativeInputSwap,
+  nativeOutputSwap,
+  recordOutput,
+} from "../../test/utils.js";
+import { OdosAggregator, odos } from "./odos.js";
 
 describe("Odos", () => {
   it("provides metadata", () => {
@@ -26,5 +31,25 @@ describe("Odos", () => {
       expect(quote.txData.to).toBeDefined();
       expect(quote.txData.data).toBeDefined();
     }
+  }, 30_000);
+
+  it("supports native in", async () => {
+    const quote = await recordOutput("odos/native-input", async () => {
+      return odos().fetchQuote(nativeInputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "odos") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
+  }, 30_000);
+
+  it("supports native out", async () => {
+    const quote = await recordOutput("odos/native-output", async () => {
+      return odos().fetchQuote(nativeOutputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "odos") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
   }, 30_000);
 });

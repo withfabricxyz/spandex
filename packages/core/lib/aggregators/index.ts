@@ -1,3 +1,4 @@
+import type { Address } from "viem";
 import {
   type AggregationOptions,
   type AggregatorFeature,
@@ -10,6 +11,7 @@ import {
   type SwapOptions,
   type SwapParams,
 } from "../types.js";
+import { isNativeToken } from "../util/helpers.js";
 import { log } from "../util/logger.js";
 
 const MIN_RETRIES = 0;
@@ -73,6 +75,21 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
   abstract features(): AggregatorFeature[];
 
   /**
+   * Address used by this aggregator to represent the native token (differs from provider to provider)
+   *
+   * @returns Native token address
+   */
+  abstract nativeTokenAddress(): Address;
+
+  // Helper to resolve native token addresses to provider native token address
+  protected resolveTokenAddress(token: Address): Address {
+    if (isNativeToken(token)) {
+      return this.nativeTokenAddress();
+    }
+    return token;
+  }
+
+  /**
    * Determines if this aggregator supports a specific feature.
    *
    * @param feature - Feature to check.
@@ -105,6 +122,12 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
    * @returns Successful or failed quote result.
    */
   async fetchQuote(params: SwapParams, options?: AggregationOptions): Promise<Quote> {
+    const resolvedParams: SwapParams = {
+      ...params,
+      inputToken: this.resolveTokenAddress(params.inputToken),
+      outputToken: this.resolveTokenAddress(params.outputToken),
+    };
+
     const effectiveOptions =
       this.config.timeoutMs === undefined
         ? options
@@ -118,7 +141,7 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
       while (numAttempts <= numRetries) {
         try {
           const start = performance.now();
-          const quote = await this.tryFetchQuote(params, effectiveOptions || {});
+          const quote = await this.tryFetchQuote(resolvedParams, effectiveOptions || {});
           const stop = performance.now();
           return {
             ...quote,

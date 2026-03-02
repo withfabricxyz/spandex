@@ -1,4 +1,4 @@
-import { createPublicClient, http, type PublicClient } from "viem";
+import { createPublicClient, http, type PublicClient, parseEther, zeroAddress } from "viem";
 import { base } from "viem/chains";
 import { type Config, createConfig, getQuote, getRawQuotes } from "../index.js";
 import type { FabricQuoteResponse } from "../lib/aggregators/fabric.js";
@@ -30,6 +30,18 @@ export const defaultSwapParams: SwapParams = {
 export const usdcBalanceSwap: SwapParams = {
   ...defaultSwapParams,
   swapperAccount: USDC_WHALE,
+};
+
+export const nativeInputSwap: SwapParams = {
+  ...defaultSwapParams,
+  inputToken: zeroAddress,
+  inputAmount: parseEther("1"),
+  outputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+};
+
+export const nativeOutputSwap: SwapParams = {
+  ...usdcBalanceSwap,
+  outputToken: zeroAddress,
 };
 
 export const quoteSuccess: SuccessfulQuote = {
@@ -76,6 +88,10 @@ export class MockAggregator extends Aggregator {
 
   name(): ProviderKey {
     return this.quote.provider;
+  }
+
+  override nativeTokenAddress() {
+    return zeroAddress;
   }
 
   override features(): AggregatorFeature[] {

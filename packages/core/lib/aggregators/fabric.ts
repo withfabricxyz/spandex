@@ -1,4 +1,4 @@
-import type { Address, Hex } from "viem";
+import { type Address, type Hex, zeroAddress } from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -103,6 +103,10 @@ export class FabricAggregator extends Aggregator<FabricConfig> {
    */
   override name(): ProviderKey {
     return "fabric";
+  }
+
+  override nativeTokenAddress(): Address {
+    return zeroAddress;
   }
 
   /**

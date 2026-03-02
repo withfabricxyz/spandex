@@ -1,6 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils.js";
-import { KyberAggregator, kyberRouteGraph } from "./kyber.js";
+import {
+  defaultSwapParams,
+  nativeInputSwap,
+  nativeOutputSwap,
+  recordOutput,
+} from "../../test/utils.js";
+import { KyberAggregator, kyberRouteGraph, kyberswap } from "./kyber.js";
 
 describe("Kyberwap", () => {
   it("provides metadata", () => {
@@ -38,4 +43,24 @@ describe("Kyberwap", () => {
     expect(dag.nodes.length).toBeGreaterThan(0);
     expect(dag.edges.length).toBeGreaterThan(0);
   }, 500);
+
+  it("supports native in", async () => {
+    const quote = await recordOutput("kyberswap/native-input", async () => {
+      return kyberswap().fetchQuote(nativeInputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "kyberswap") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
+  }, 30_000);
+
+  it("supports native out", async () => {
+    const quote = await recordOutput("kyberswap/native-output", async () => {
+      return kyberswap().fetchQuote(nativeOutputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "kyberswap") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
+  }, 30_000);
 });

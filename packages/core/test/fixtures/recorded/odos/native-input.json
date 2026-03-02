@@ -1,0 +1,64 @@
+{
+  "success": true,
+  "provider": "odos",
+  "details": {
+    "inTokens": [
+      "0x0000000000000000000000000000000000000000"
+    ],
+    "outTokens": [
+      "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    ],
+    "inAmounts": [
+      "1000000000000000000"
+    ],
+    "outAmounts": [
+      "2041630567"
+    ],
+    "gasEstimate": 608088,
+    "dataGasEstimate": 389,
+    "gweiPerGas": 0.008152934,
+    "gasEstimateValue": 0.01013848914948786,
+    "inValues": [
+      2043.2618297352026
+    ],
+    "outValues": [
+      2043.1795447985292
+    ],
+    "netOutValue": 2043.1694063093794,
+    "priceImpact": 0.2037408074318688,
+    "percentDiff": 0.04599586173735304,
+    "permit2Message": null,
+    "permit2Hash": null,
+    "pathId": "67e2eb93927bc0e3a01b0ca9efe2b90c",
+    "pathViz": null,
+    "blockNumber": 42846030
+  },
+  "latency": 1855.8240420000002,
+  "inputAmount": {
+    "__bigint__": "1000000000000000000"
+  },
+  "outputAmount": {
+    "__bigint__": "2041630567"
+  },
+  "networkFee": {
+    "__bigint__": "4957701330192"
+  },
+  "txData": {
+    "to": "0x0D05a7D3448512B78fa8A9e46c4872C88C4a0D05",
+    "data": "0x83bd37f900000001833589fcd6edb6e08f4c7c32d4f71b54bda02913080de0b6b3a76400000479b0cf67028f5c0001bF44De8fc9EEEED8615b0b3bc095CB0ddef35e0900000001dead00000000000000000000000000000000beef00000000000000000006020307000401010391f5401f0000020802000102010408010103040001d6719a3208010105020100080101060201ff000000000000000000000000000000000070acdf2ad0bf2402c957154f944c19ef4e1cbae14200000000000000000000000000000000000006b94b22332abf5f89877a14cc88f2abc48c34b3dfcbb7c0000ab88b473b1f5afd9ef808440eed33bf72ab388e2e2f6facef59e3c3fa2c4e29011c2d38dbc6998296caa1652a810dc8d3baf4a8294330f10000000000000000",
+    "value": {
+      "__bigint__": "1000000000000000000"
+    }
+  },
+  "pricing": {
+    "inputToken": {
+      "address": "0x0000000000000000000000000000000000000000"
+    },
+    "outputToken": {
+      "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    }
+  },
+  "metrics": {
+    "priceImpactBps": 20
+  }
+}

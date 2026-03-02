@@ -1,3 +1,4 @@
+import { type Address, zeroAddress } from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -51,6 +52,10 @@ export class OdosAggregator extends Aggregator<OdosConfig> {
    */
   override name(): ProviderKey {
     return "odos";
+  }
+
+  override nativeTokenAddress(): Address {
+    return zeroAddress;
   }
 
   /**

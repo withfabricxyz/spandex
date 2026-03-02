@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import { type Address, zeroAddress } from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -41,6 +41,10 @@ export class RelayAggregator extends Aggregator<RelayConfig> {
 
   override name(): ProviderKey {
     return "relay";
+  }
+
+  override nativeTokenAddress(): Address {
+    return zeroAddress;
   }
 
   override features(): AggregatorFeature[] {

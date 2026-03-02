@@ -1,5 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams, recordDefaultSimulation } from "../../test/utils.js";
+import {
+  defaultSwapParams,
+  nativeInputSwap,
+  nativeOutputSwap,
+  recordDefaultSimulation,
+  recordOutput,
+} from "../../test/utils.js";
 import { FabricAggregator, type FabricQuoteResponse, fabric, fabricRouteGraph } from "./fabric.js";
 
 describe("Fabric Router API test", () => {
@@ -80,5 +86,25 @@ describe("Fabric Router API test", () => {
     expect(quote.simulation.gasUsed).toBeGreaterThan(0);
     expect(quote.simulation.latency).toBeGreaterThan(0);
     expect(quote.performance.accuracy).toBe(0);
+  }, 30_000);
+
+  it("supports native in", async () => {
+    const quote = await recordOutput("fabric/native-input", async () => {
+      return fabric({ appId: "test" }).fetchQuote(nativeInputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "fabric") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
+  }, 30_000);
+
+  it("supports native out", async () => {
+    const quote = await recordOutput("fabric/native-output", async () => {
+      return fabric({ appId: "test" }).fetchQuote(nativeOutputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "fabric") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
   }, 30_000);
 });

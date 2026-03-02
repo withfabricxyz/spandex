@@ -1,6 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams } from "../../test/utils.js";
-import { RelayAggregator } from "./relay.js";
+import {
+  defaultSwapParams,
+  nativeInputSwap,
+  nativeOutputSwap,
+  recordOutput,
+} from "../../test/utils.js";
+import { RelayAggregator, relay } from "./relay.js";
 
 describe("Relay", () => {
   it("generates a quote", async () => {
@@ -20,5 +25,25 @@ describe("Relay", () => {
       expect(quote.txData.to).toBeDefined();
       expect(quote.txData.data).toBeDefined();
     }
+  }, 30_000);
+
+  it("supports native in", async () => {
+    const quote = await recordOutput("relay/native-input", async () => {
+      return relay().fetchQuote(nativeInputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "relay") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
+  }, 30_000);
+
+  it("supports native out", async () => {
+    const quote = await recordOutput("relay/native-output", async () => {
+      return relay().fetchQuote(nativeOutputSwap);
+    }).then((r) => r.result);
+    if (!quote?.success || quote.provider !== "relay") {
+      throw new Error("Failed to fetch quote");
+    }
+    expect(quote.outputAmount).toBeGreaterThan(0n);
   }, 30_000);
 });

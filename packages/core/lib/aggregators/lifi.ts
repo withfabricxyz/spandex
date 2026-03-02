@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import { type Address, zeroAddress } from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -53,6 +53,10 @@ export class LifiAggregator extends Aggregator<LifiConfig> {
    */
   override name(): ProviderKey {
     return "lifi";
+  }
+
+  override nativeTokenAddress(): Address {
+    return zeroAddress;
   }
 
   /**

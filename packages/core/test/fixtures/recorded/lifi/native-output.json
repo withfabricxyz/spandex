@@ -1,0 +1,337 @@
+{
+  "success": true,
+  "provider": "lifi",
+  "details": {
+    "type": "lifi",
+    "id": "8e4c594c-7fd7-46f2-87ce-5abf4510c595:0",
+    "tool": "okx",
+    "toolDetails": {
+      "key": "okx",
+      "name": "OKX Dex Aggregator",
+      "logoURI": "https://raw.githubusercontent.com/lifinance/types/main/src/assets/icons/exchanges/okx.svg"
+    },
+    "action": {
+      "fromToken": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "chainId": 8453,
+        "symbol": "USDC",
+        "decimals": 6,
+        "name": "USD Coin",
+        "coinKey": "USDC",
+        "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        "priceUSD": "0.999903",
+        "tags": [
+          "stablecoin"
+        ]
+      },
+      "fromAmount": "500000000",
+      "toToken": {
+        "address": "0x0000000000000000000000000000000000000000",
+        "chainId": 8453,
+        "symbol": "ETH",
+        "decimals": 18,
+        "name": "ETH",
+        "coinKey": "ETH",
+        "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+        "priceUSD": "2033.27",
+        "tags": []
+      },
+      "fromChainId": 8453,
+      "toChainId": 8453,
+      "slippage": 0.01,
+      "fromAddress": "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055",
+      "toAddress": "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055"
+    },
+    "estimate": {
+      "tool": "okx",
+      "approvalAddress": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE",
+      "toAmountMin": "241868172359390984",
+      "toAmount": "244311285211506044",
+      "fromAmount": "500000000",
+      "feeCosts": [
+        {
+          "name": "LIFI Fixed Fee",
+          "description": "Fixed LIFI fee, independent of any other fee",
+          "token": {
+            "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            "chainId": 8453,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999903",
+            "tags": [
+              "stablecoin"
+            ]
+          },
+          "amount": "1250000",
+          "amountUSD": "1.2499",
+          "percentage": "0.0025",
+          "included": true,
+          "feeSplit": {
+            "integratorFee": "0",
+            "lifiFee": "1250000"
+          }
+        }
+      ],
+      "gasCosts": [
+        {
+          "type": "SEND",
+          "price": "7944200",
+          "estimate": "1241000",
+          "limit": "2013300",
+          "amount": "9858752200000",
+          "amountUSD": "0.0200",
+          "token": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "chainId": 8453,
+            "symbol": "ETH",
+            "decimals": 18,
+            "name": "ETH",
+            "coinKey": "ETH",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+            "priceUSD": "2033.27",
+            "tags": []
+          }
+        }
+      ],
+      "executionDuration": 0,
+      "fromAmountUSD": "499.9515",
+      "toAmountUSD": "496.7508"
+    },
+    "includedSteps": [
+      {
+        "id": "a7ea0ed5-b64b-485a-bd81-9c6f67685e58",
+        "type": "protocol",
+        "action": {
+          "fromChainId": 8453,
+          "fromAmount": "500000000",
+          "fromToken": {
+            "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            "chainId": 8453,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999903",
+            "tags": [
+              "stablecoin"
+            ]
+          },
+          "toChainId": 8453,
+          "toToken": {
+            "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            "chainId": 8453,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999903",
+            "tags": [
+              "stablecoin"
+            ]
+          },
+          "slippage": 0.01,
+          "fromAddress": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE",
+          "toAddress": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE",
+          "jitoBundle": false
+        },
+        "estimate": {
+          "fromAmount": "500000000",
+          "toAmount": "498750000",
+          "toAmountMin": "498750000",
+          "tool": "feeCollection",
+          "approvalAddress": "0x0A6d96E7f4D7b96CFE42185DF61E64d255c12DFf",
+          "gasCosts": [
+            {
+              "type": "SEND",
+              "price": "7944200",
+              "estimate": "130000",
+              "limit": "569000",
+              "amount": "1032746000000",
+              "amountUSD": "0.0021",
+              "token": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "chainId": 8453,
+                "symbol": "ETH",
+                "decimals": 18,
+                "name": "ETH",
+                "coinKey": "ETH",
+                "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+                "priceUSD": "2033.27",
+                "tags": []
+              }
+            }
+          ],
+          "feeCosts": [
+            {
+              "name": "LIFI Fixed Fee",
+              "description": "Fixed LIFI fee, independent of any other fee",
+              "token": {
+                "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "chainId": 8453,
+                "symbol": "USDC",
+                "decimals": 6,
+                "name": "USD Coin",
+                "coinKey": "USDC",
+                "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+                "priceUSD": "0.999903",
+                "tags": [
+                  "stablecoin"
+                ]
+              },
+              "amount": "1250000",
+              "amountUSD": "1.2499",
+              "percentage": "0.0025",
+              "included": true,
+              "feeSplit": {
+                "integratorFee": "0",
+                "lifiFee": "1250000"
+              }
+            }
+          ],
+          "executionDuration": 0
+        },
+        "tool": "feeCollection",
+        "toolDetails": {
+          "key": "feeCollection",
+          "name": "Integrator Fee",
+          "logoURI": "https://raw.githubusercontent.com/lifinance/types/main/src/assets/icons/protocols/feeCollection.svg"
+        }
+      },
+      {
+        "id": "c935eec0-3a7f-4a88-8013-40b4f9c878e6",
+        "type": "swap",
+        "action": {
+          "fromChainId": 8453,
+          "fromAmount": "498750000",
+          "fromToken": {
+            "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            "chainId": 8453,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999903",
+            "tags": [
+              "stablecoin"
+            ]
+          },
+          "toChainId": 8453,
+          "toToken": {
+            "address": "0x0000000000000000000000000000000000000000",
+            "chainId": 8453,
+            "symbol": "ETH",
+            "decimals": 18,
+            "name": "ETH",
+            "coinKey": "ETH",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+            "priceUSD": "2033.27",
+            "tags": []
+          },
+          "slippage": 0.01,
+          "fromAddress": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE",
+          "toAddress": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE",
+          "jitoBundle": false
+        },
+        "estimate": {
+          "tool": "okx",
+          "fromAmount": "498750000",
+          "toAmount": "244311285211506044",
+          "toAmountMin": "241868172359390984",
+          "approvalAddress": "0x57df6092665eb6058DE53939612413ff4B09114E",
+          "executionDuration": 0,
+          "feeCosts": [],
+          "gasCosts": [
+            {
+              "type": "SEND",
+              "price": "7944200",
+              "estimate": "768000",
+              "limit": "1398400",
+              "amount": "6101145600000",
+              "amountUSD": "0.0124",
+              "token": {
+                "address": "0x0000000000000000000000000000000000000000",
+                "chainId": 8453,
+                "symbol": "ETH",
+                "decimals": 18,
+                "name": "ETH",
+                "coinKey": "ETH",
+                "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+                "priceUSD": "2033.27",
+                "tags": []
+              }
+            }
+          ]
+        },
+        "tool": "okx",
+        "toolDetails": {
+          "key": "okx",
+          "name": "OKX Dex Aggregator",
+          "logoURI": "https://raw.githubusercontent.com/lifinance/types/main/src/assets/icons/exchanges/okx.svg"
+        }
+      }
+    ],
+    "integrator": "lifi-api",
+    "transactionRequest": {
+      "value": "0x0",
+      "to": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE",
+      "data": "0x2c57e8848a7251edd246f852d2c937a49e8090a8cb65081dd596b216dcb87843a73b650f00000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000ee7ae85f2fe2239e27d9c1e23fffe168d63b4055000000000000000000000000000000000000000000000000035b49d23ff45708000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000000086c6966692d617069000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002a307830303030303030303030303030303030303030303030303030303030303030303030303030303030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001e00000000000000000000000000a6d96e7f4d7b96cfe42185df61e64d255c12dff0000000000000000000000000a6d96e7f4d7b96cfe42185df61e64d255c12dff000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000000000000000000000000000000000001dcd650000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000084eedd56e1000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001312d0000000000000000000000000b9c0de368bece5e76b52545a8e377a4c118f597b000000000000000000000000000000000000000000000000000000000000000000000000000000004409921ae43a39a11d90f7b7f96cfd0b8093d9fc00000000000000000000000057df6092665eb6058de53939612413ff4b09114e000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001dba523000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003440c307f760000000000000000000000000000000000000000000000000000000000019e120000000000000000000000001231deb6f5749ef6ce6943a275a1d3e7486f4eae000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee000000000000000000000000000000000000000000000000000000001dba5230000000000000000000000000000000000000000000000000035b49d23ff457070000000000000000000000000000000000000000000000000000000069a5f9d700000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000160000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000000000000000000000000000000000000000000001000000000000000000000000dea1ccaf997ec68fe2e9839a581e493d0e984a060000000000000000000000000000000000000000000000000000000000000001000000000000000000000000dea1ccaf997ec68fe2e9839a581e493d0e984a060000000000000000000000000000000000000000000000000000000000000001800000000000000000012710f524c1bc1c64a2c99bc7eccf19ede9a1d89d5a7c000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000040000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000420000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000",
+      "chainId": 8453,
+      "gasPrice": "0x793808",
+      "gasLimit": "0x1eb874",
+      "from": "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055"
+    },
+    "transactionId": "0x8a7251edd246f852d2c937a49e8090a8cb65081dd596b216dcb87843a73b650f"
+  },
+  "latency": 965.834042,
+  "inputAmount": {
+    "__bigint__": "500000000"
+  },
+  "outputAmount": {
+    "__bigint__": "244311285211506044"
+  },
+  "networkFee": {
+    "__bigint__": "9858752200000"
+  },
+  "txData": {
+    "to": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE",
+    "data": "0x2c57e8848a7251edd246f852d2c937a49e8090a8cb65081dd596b216dcb87843a73b650f00000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000ee7ae85f2fe2239e27d9c1e23fffe168d63b4055000000000000000000000000000000000000000000000000035b49d23ff45708000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000000086c6966692d617069000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002a307830303030303030303030303030303030303030303030303030303030303030303030303030303030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001e00000000000000000000000000a6d96e7f4d7b96cfe42185df61e64d255c12dff0000000000000000000000000a6d96e7f4d7b96cfe42185df61e64d255c12dff000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000000000000000000000000000000000001dcd650000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000084eedd56e1000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001312d0000000000000000000000000b9c0de368bece5e76b52545a8e377a4c118f597b000000000000000000000000000000000000000000000000000000000000000000000000000000004409921ae43a39a11d90f7b7f96cfd0b8093d9fc00000000000000000000000057df6092665eb6058de53939612413ff4b09114e000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001dba523000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003440c307f760000000000000000000000000000000000000000000000000000000000019e120000000000000000000000001231deb6f5749ef6ce6943a275a1d3e7486f4eae000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee000000000000000000000000000000000000000000000000000000001dba5230000000000000000000000000000000000000000000000000035b49d23ff457070000000000000000000000000000000000000000000000000000000069a5f9d700000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000160000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000000000000000000000000000000000000000000001000000000000000000000000dea1ccaf997ec68fe2e9839a581e493d0e984a060000000000000000000000000000000000000000000000000000000000000001000000000000000000000000dea1ccaf997ec68fe2e9839a581e493d0e984a060000000000000000000000000000000000000000000000000000000000000001800000000000000000012710f524c1bc1c64a2c99bc7eccf19ede9a1d89d5a7c000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000040000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000420000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000",
+    "value": {
+      "__bigint__": "0"
+    }
+  },
+  "approval": {
+    "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "spender": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE"
+  },
+  "pricing": {
+    "inputToken": {
+      "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "symbol": "USDC",
+      "decimals": 6,
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+      "usdPrice": 0.999903
+    },
+    "outputToken": {
+      "address": "0x0000000000000000000000000000000000000000",
+      "symbol": "ETH",
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+      "usdPrice": 2033.2699718310234
+    }
+  },
+  "fees": [
+    {
+      "type": "other",
+      "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "amount": {
+        "__bigint__": "1250000"
+      }
+    }
+  ]
+}
