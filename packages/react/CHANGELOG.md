@@ -1,5 +1,13 @@
 # @spandex/react
 
+## 0.4.5
+
+### Patch Changes
+
+- ba0b624: Align native token values with providers expected native token value. Fix bug with 0x implementation throwing when native input tokens were requested.
+- Updated dependencies [ba0b624]
+  - @spandex/core@0.4.5
+
 ## 0.4.4
 
 ### Patch Changes
