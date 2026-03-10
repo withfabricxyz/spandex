@@ -16,9 +16,14 @@ export async function prepareQuotes<T>({
   swap: SwapParams;
   mapFn: (quote: Quote) => Promise<T>;
 }): Promise<Array<Promise<T>>> {
-  // Delegate the quote fetching to a remote server if a proxy is configured
-  if (config.proxy !== undefined) {
-    return (await config.proxy.prepareQuotes(swap, config.options)).map((a) => a.then(mapFn));
+  if (config.proxy?.isDelegatedAction("prepareQuotes")) {
+    return (await config.proxy.prepareQuotes(swap)).map((a) => a.then(mapFn));
+  }
+
+  if (config.proxy && config.aggregators.length === 0) {
+    throw new Error(
+      "prepareQuotes is not delegated on this proxy config. Add `prepareQuotes` to delegatedActions or configure local providers.",
+    );
   }
 
   const options = config.options;

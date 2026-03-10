@@ -1,19 +1,7 @@
-import {
-  createConfig,
-  fabric,
-  kyberswap,
-  newQuoteStream,
-  odos,
-  prepareQuotes,
-  type Quote,
-  type SwapParams,
-  zeroX,
-} from "@spandex/core";
-import { createFileRoute } from "@tanstack/react-router";
+import { createConfig, fabric, kyberswap, odos, type SwapParams, zeroX } from "@spandex/core";
 import { z } from "zod";
 
-// Server side config for fetching quotes
-const config = createConfig({
+export const proxyConfig = createConfig({
   providers: [
     odos({}),
     kyberswap({ clientId: "spandex_ui" }),
@@ -38,7 +26,7 @@ const baseSchema = z.object({
   recipientAccount: addressSchema.optional(),
 });
 
-const querySchema = z.discriminatedUnion("mode", [
+export const quoteQuerySchema = z.discriminatedUnion("mode", [
   baseSchema.extend({
     mode: z.literal("exactIn"),
     inputAmount: z.coerce.bigint().positive(),
@@ -49,21 +37,8 @@ const querySchema = z.discriminatedUnion("mode", [
   }),
 ]);
 
-export const Route = createFileRoute("/api/quotes")({
-  validateSearch: (search) => querySchema.parse(search),
-  server: {
-    handlers: {
-      GET: async ({ request }) => {
-        const swap = querySchema.parse(
-          Object.fromEntries(new URL(request.url).searchParams),
-        ) satisfies SwapParams;
-        const promises = await prepareQuotes<Quote>({
-          swap,
-          config,
-          mapFn: (quote: Quote) => Promise.resolve(quote),
-        });
-        return new Response(newQuoteStream(promises));
-      },
-    },
-  },
-});
+export function parseSwapFromRequest(request: Request): SwapParams {
+  return quoteQuerySchema.parse(
+    Object.fromEntries(new URL(request.url).searchParams),
+  ) satisfies SwapParams;
+}

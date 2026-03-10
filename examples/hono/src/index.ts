@@ -1,11 +1,12 @@
 import { zValidator } from "@hono/zod-validator";
 import {
-  getQuote,
-  newQuoteStream,
+  newStream,
   prepareQuotes,
+  prepareSimulatedQuotes,
+  quoteStreamErrorHandler,
+  simulatedQuoteStreamErrorHandler,
   type Quote,
   type SwapParams,
-  serializeWithBigInt,
 } from "@spandex/core";
 import { Hono } from "hono";
 import { stream } from "hono/streaming";
@@ -42,20 +43,8 @@ const querySchema = z.discriminatedUnion("mode", [
 
 ////////////// Routes //////////////
 
-app.get("/quotes/select", zValidator("query", querySchema), async (c) => {
-  const swap = c.req.valid("query") satisfies SwapParams;
-  const quote = await getQuote({
-    swap,
-    config,
-    strategy: "fastest",
-  });
-  // Quite a few bigint values in the quote response, so we use our custom serializer
-  c.header("Content-Type", "application/json");
-  return c.body(serializeWithBigInt(quote));
-});
-
 // Stream raw quotes as they are fetched
-app.get("/quotes/stream", zValidator("query", querySchema), async (c) => {
+app.get("/api/v1/prepareQuotes", zValidator("query", querySchema), async (c) => {
   const swap = c.req.valid("query") satisfies SwapParams;
   return stream(c, async (stream) => {
     const prepared = await prepareQuotes<Quote>({
@@ -63,7 +52,19 @@ app.get("/quotes/stream", zValidator("query", querySchema), async (c) => {
       config,
       mapFn: (quote: Quote) => Promise.resolve(quote), // No-op mapper to get raw quotes
     });
-    await stream.pipe(newQuoteStream(prepared));
+    await stream.pipe(newStream(prepared, quoteStreamErrorHandler));
+  });
+});
+
+// Stream simulated quotes as they are fetched and simulated
+app.get("/api/v1/prepareSimulatedQuotes", zValidator("query", querySchema), async (c) => {
+  const swap = c.req.valid("query") satisfies SwapParams;
+  return stream(c, async (stream) => {
+    const prepared = await prepareSimulatedQuotes({
+      swap,
+      config,
+    });
+    await stream.pipe(newStream(prepared, simulatedQuoteStreamErrorHandler));
   });
 });
 

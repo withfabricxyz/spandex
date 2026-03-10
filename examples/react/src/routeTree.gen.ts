@@ -10,43 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiQuotesRouteImport } from './routes/api/quotes'
+import { Route as ApiPrepareQuotesRouteImport } from './routes/api/prepareQuotes'
+import { Route as ApiPrepareSimulatedQuotesRouteImport } from './routes/api/prepareSimulatedQuotes'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiQuotesRoute = ApiQuotesRouteImport.update({
-  id: '/api/quotes',
-  path: '/api/quotes',
+const ApiPrepareQuotesRoute = ApiPrepareQuotesRouteImport.update({
+  id: '/api/prepareQuotes',
+  path: '/api/prepareQuotes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPrepareSimulatedQuotesRoute = ApiPrepareSimulatedQuotesRouteImport.update({
+  id: '/api/prepareSimulatedQuotes',
+  path: '/api/prepareSimulatedQuotes',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api/quotes': typeof ApiQuotesRoute
+  '/api/prepareQuotes': typeof ApiPrepareQuotesRoute
+  '/api/prepareSimulatedQuotes': typeof ApiPrepareSimulatedQuotesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/quotes': typeof ApiQuotesRoute
+  '/api/prepareQuotes': typeof ApiPrepareQuotesRoute
+  '/api/prepareSimulatedQuotes': typeof ApiPrepareSimulatedQuotesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api/quotes': typeof ApiQuotesRoute
+  '/api/prepareQuotes': typeof ApiPrepareQuotesRoute
+  '/api/prepareSimulatedQuotes': typeof ApiPrepareSimulatedQuotesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/quotes'
+  fullPaths: '/' | '/api/prepareQuotes' | '/api/prepareSimulatedQuotes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/quotes'
-  id: '__root__' | '/' | '/api/quotes'
+  to: '/' | '/api/prepareQuotes' | '/api/prepareSimulatedQuotes'
+  id: '__root__' | '/' | '/api/prepareQuotes' | '/api/prepareSimulatedQuotes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiQuotesRoute: typeof ApiQuotesRoute
+  ApiPrepareQuotesRoute: typeof ApiPrepareQuotesRoute
+  ApiPrepareSimulatedQuotesRoute: typeof ApiPrepareSimulatedQuotesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,11 +68,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/quotes': {
-      id: '/api/quotes'
-      path: '/api/quotes'
-      fullPath: '/api/quotes'
-      preLoaderRoute: typeof ApiQuotesRouteImport
+    '/api/prepareQuotes': {
+      id: '/api/prepareQuotes'
+      path: '/api/prepareQuotes'
+      fullPath: '/api/prepareQuotes'
+      preLoaderRoute: typeof ApiPrepareQuotesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/prepareSimulatedQuotes': {
+      id: '/api/prepareSimulatedQuotes'
+      path: '/api/prepareSimulatedQuotes'
+      fullPath: '/api/prepareSimulatedQuotes'
+      preLoaderRoute: typeof ApiPrepareSimulatedQuotesRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -70,7 +87,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiQuotesRoute: ApiQuotesRoute,
+  ApiPrepareQuotesRoute: ApiPrepareQuotesRoute,
+  ApiPrepareSimulatedQuotesRoute: ApiPrepareSimulatedQuotesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

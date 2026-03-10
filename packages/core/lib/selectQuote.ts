@@ -55,6 +55,13 @@ function gasCost(quote: SuccessfulSimulatedQuote): bigint {
   return quote.simulation.gasUsed ?? 0n;
 }
 
+function cancelPendingQuotes(quotes: Array<Promise<SimulatedQuote>>, reason: string): void {
+  const collection = quotes as Array<Promise<SimulatedQuote>> & {
+    cancel?: (reason?: unknown) => void;
+  };
+  collection.cancel?.(new Error(reason));
+}
+
 const quotedPrice: QuoteSelectionFn = async (
   quotes: Array<Promise<SimulatedQuote>>,
 ): Promise<SuccessfulSimulatedQuote | null> => {
@@ -92,6 +99,7 @@ const fastest: QuoteSelectionFn = async (
     quotes.map(async (q) => {
       const resolved = await q;
       if (isSuccessfulSimulatedQuote(resolved)) {
+        cancelPendingQuotes(quotes, "Fastest quote selected");
         return resolved;
       }
       return Promise.reject("Failed quote simulation");

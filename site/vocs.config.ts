@@ -98,12 +98,12 @@ export default defineConfig({
               link: "/core/functions/netOutputs",
             },
             {
-              text: "newQuoteStream",
-              link: "/core/functions/newQuoteStream",
+              text: "newStream",
+              link: "/core/functions/newStream",
             },
             {
-              text: "decodeQuoteStream",
-              link: "/core/functions/decodeQuoteStream",
+              text: "decodeStream",
+              link: "/core/functions/decodeStream",
             },
             {
               text: "sortQuotesByPerformance",
@@ -163,6 +163,10 @@ export default defineConfig({
         {
           text: "Proxy Mode",
           link: "/configuration/proxy",
+        },
+        {
+          text: "Cloud Proxy",
+          link: "/configuration/cloud",
         },
       ],
     },

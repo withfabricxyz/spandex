@@ -1,0 +1,45 @@
+# newStream
+
+Create a `ReadableStream` that emits serialized values as each promise resolves.
+
+## Example
+
+```ts
+import {
+  newStream,
+  prepareSimulatedQuotes,
+  simulatedQuoteStreamErrorHandler,
+} from "@spandex/core";
+
+export async function GET() {
+  const promises = await prepareSimulatedQuotes({
+    config,
+    swap,
+  });
+
+  return new Response(newStream(promises, simulatedQuoteStreamErrorHandler), {
+    headers: {
+      "Content-Type": "application/octet-stream",
+    },
+  });
+}
+```
+
+## Params
+
+### promises
+`Array<Promise<T>>`
+
+Promises to resolve and stream.
+
+### onRejected
+`(error: unknown) => T`
+
+Handler used to normalize rejected promises into serializable values.
+
+## Returns
+
+`ReadableStream<Uint8Array>`
+
+A stream of encoded value frames suitable for decoding with
+[`decodeStream`](./decodeStream.mdx).

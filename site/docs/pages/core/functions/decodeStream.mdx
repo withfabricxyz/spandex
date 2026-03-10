@@ -1,0 +1,33 @@
+# decodeStream
+
+Decode a stream produced by `newStream` into an array of promises.
+
+## Example
+
+```ts
+import type { SimulatedQuote } from "@spandex/core";
+import { decodeStream } from "@spandex/core";
+
+const response = await fetch("/api/prepareSimulatedQuotes");
+if (!response.body) {
+  throw new Error("No response body");
+}
+
+const quotePromises = await decodeStream<SimulatedQuote>(response.body);
+const quotes = await Promise.all(quotePromises);
+
+console.log(quotes.length);
+```
+
+## Params
+
+### stream
+`ReadableStream<Uint8Array>`
+
+Stream of serialized values produced by `newStream`.
+
+## Returns
+
+`Promise<Array<Promise<T>>>`
+
+Promises that resolve to streamed values.
