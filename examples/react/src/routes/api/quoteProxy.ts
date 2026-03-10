@@ -1,5 +1,7 @@
 import { createConfig, fabric, kyberswap, odos, type SwapParams, zeroX } from "@spandex/core";
+import { createPublicClient } from "viem";
 import { z } from "zod";
+import { configuredChains } from "@/config/onchain";
 
 export const proxyConfig = createConfig({
   providers: [
@@ -11,6 +13,7 @@ export const proxyConfig = createConfig({
   options: {
     deadlineMs: 5_000,
   },
+  clients: configuredChains.map((c) => createPublicClient(c)),
 });
 
 const addressSchema = z.custom<`0x${string}`>((val) => {
