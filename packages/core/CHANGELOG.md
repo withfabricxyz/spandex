@@ -1,5 +1,13 @@
 # @spandex/core
 
+## 0.5.0
+
+### Minor Changes
+
+- 83dfc4c: Enable delegated prepareSimulatedQuotes action via proxy for server side simulation. Added helper method for using spanDEX edge as a proxy.
+
+  Breaking change: Users depending on newQuoteStream or decodeQuoteStream for proxy mode should replace with generic newStream<Quote> and decodeStream<Quote>.
+
 ## 0.4.5
 
 ### Patch Changes
