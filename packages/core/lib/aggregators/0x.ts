@@ -75,6 +75,9 @@ export class ZeroXAggregator extends Aggregator<ZeroXConfig> {
       provider: "0x",
       details: response,
       latency: 0, // Filled in by MetaAggregator
+      inputChainId: request.chainId,
+      outputChainId: request.chainId,
+      execution: "atomic",
       inputAmount: BigInt(response.sellAmount),
       outputAmount: BigInt(response.buyAmount),
       networkFee: BigInt(response.totalNetworkFee || "0"),

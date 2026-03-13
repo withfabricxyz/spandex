@@ -1,0 +1,108 @@
+import { Callout } from "vocs/components";
+
+# Cross-Chain Swaps
+
+<Callout type="warning">
+  **Experimental:** Cross-chain swaps are currently experimental. You must include relay in your provider list to yield cross-chain quotes.
+</Callout>
+
+Set `outputChainId` on `SwapParams` to request a cross-chain quote. spanDEX will only select
+providers that support cross-chain swaps.
+
+## Example
+
+:::code-group
+
+```ts [quote.ts]
+import { buildCalls, getQuote, type QuoteCheck } from "@spandex/core";
+import { config, submitCalls } from "./config.js";
+
+const swap = {
+  chainId: 8453,
+  outputChainId: 10,
+  inputToken: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+  outputToken: "0x4200000000000000000000000000000000000006",
+  mode: "exactIn",
+  inputAmount: 1_000_000_000_000_000_000n, // 1 WETH
+  slippageBps: 50,
+  swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
+};
+
+const quote = await getQuote({
+  config,
+  swap,
+  strategy: "fastest",
+});
+
+if (!quote) {
+  throw new Error("No cross-chain quote was returned");
+}
+
+const calls = await buildCalls({
+  config,
+  swap,
+  quote,
+});
+
+await submitCalls(calls);
+
+if (quote.execution === "async") {
+  await pollCrossChainCheck(quote.check);
+}
+
+async function pollCrossChainCheck(check: QuoteCheck) {
+  while (true) {
+    const response = await fetch(check.endpoint, {
+      method: check.method,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Status check failed with ${response.status}`);
+    }
+
+    const payload = (await response.json()) as { status?: string };
+
+    if (payload.status === "success") {
+      return payload;
+    }
+
+    if (payload.status === "failure") {
+      throw new Error("Cross-chain swap failed");
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 3_000));
+  }
+}
+```
+
+```ts [config.ts]
+import { type BuiltCall, createConfig, relay } from "@spandex/core";
+import { createPublicClient, http, type PublicClient } from "viem";
+import { base } from "viem/chains";
+
+const baseClient = createPublicClient({
+  chain: base,
+  transport: http("https://base.drpc.org"),
+});
+
+export const config = createConfig({
+  providers: [relay({})],
+  clients: [baseClient] as PublicClient[],
+});
+
+export async function submitCalls(calls: BuiltCall[]) {
+  // Replace this with your wallet or backend execution flow.
+  // For example: submit approval first if present, then submit the swap call.
+  console.log("Submit calls:", calls);
+}
+```
+
+:::
+
+## Notes
+
+- `outputChainId` is the switch that enables cross-chain routing.
+- `buildCalls` and transaction submission happen on the origin chain.
+- For async cross-chain quotes, spanDEX currently simulates only the origin-side approval and swap
+  calls, then trusts the quoted output amount for price comparison.
+- Continue polling `quote.check` until your provider reports a terminal status.

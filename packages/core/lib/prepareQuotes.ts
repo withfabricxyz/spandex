@@ -1,5 +1,6 @@
 import type { Config } from "./createConfig.js";
 import type { AggregationOptions, AggregatorFeature, Quote, SwapParams } from "./types.js";
+import { isCrossChain } from "./util/helpers.js";
 
 /**
  * Generates quote promises for all configured aggregators.
@@ -66,6 +67,9 @@ function queryFeatures(params: SwapParams): AggregatorFeature[] {
     features.push("exactIn");
   } else if (params.mode === "targetOut") {
     features.push("targetOut");
+  }
+  if (isCrossChain(params)) {
+    features.push("crossChain");
   }
   return features;
 }

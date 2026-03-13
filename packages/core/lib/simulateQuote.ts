@@ -12,7 +12,7 @@ import type {
   SuccessfulSimulatedQuote,
   TxData,
 } from "./types.js";
-import { isNativeToken } from "./util/helpers.js";
+import { isCrossChain, isNativeToken } from "./util/helpers.js";
 import { log } from "./util/logger.js";
 
 const multicall3Abi = [
@@ -94,7 +94,10 @@ export async function simulateQuotes(
  * @returns Quote data merged with its simulation result.
  */
 export async function simulateQuote(args: SimulationArgs): Promise<SimulatedQuote> {
-  const simulation = await performSimulation(args);
+  const simulation = isCrossChain(args.swap)
+    ? await performCrossChainSimulation(args)
+    : await performSimulation(args);
+
   if (!simulation.success) {
     return { ...args.quote, simulation };
   }
@@ -189,6 +192,72 @@ async function performSimulation({
     };
   }
 }
+
+/**
+ * Simulate that the origin chain txn functions, but that is all we can do
+ */
+async function performCrossChainSimulation({
+  client,
+  swap,
+  quote,
+}: SimulationArgs): Promise<SimulationResult> {
+  if (!quote.success) {
+    return {
+      success: false,
+      error: new Error("Cannot simulate failed quote"),
+    };
+  }
+
+  try {
+    const approvalToken = quote.approval?.token ?? swap.inputToken;
+    const approvalSpender = quote.approval?.spender ?? quote.txData.to;
+    const calls: TxData[] = [];
+
+    if (!isNativeToken(swap.inputToken)) {
+      calls.push({
+        to: approvalToken,
+        data: encodeFunctionData({
+          abi: erc20Abi,
+          functionName: "approve",
+          args: [approvalSpender, quote.inputAmount],
+        }),
+      });
+    }
+    calls.push(quote.txData);
+    const time = performance.now();
+    const { results, block } = await simulateCalls(client, {
+      account: swap.swapperAccount,
+      calls,
+      stateOverrides: [
+        {
+          address: swap.swapperAccount,
+          balance: parseEther("10000"), // large amount to cover gas costs + swap value
+        },
+      ],
+    });
+    const latency = performance.now() - time;
+    const swapResult = results[results.length - 1];
+    return {
+      success: true,
+      outputAmount: quote.outputAmount,
+      swapResult: swapResult as SimulateCallsReturnType["results"][0],
+      latency,
+      gasUsed: swapResult?.gasUsed,
+      blockNumber: block.number,
+    };
+  } catch (error) {
+    log("debug", "Quote simulation failed", {
+      provider: quote.success ? quote.provider : undefined,
+      error,
+    });
+    return {
+      success: false,
+      error: error as Error,
+    };
+  }
+}
+
+/// Utils ///
 
 function buildBalanceCall({
   client,

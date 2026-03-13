@@ -12,7 +12,7 @@ import {
   type SwapParams,
   type TokenPricing,
 } from "../types.js";
-import { isNativeToken } from "../util/helpers.js";
+import { isCrossChain, isNativeToken } from "../util/helpers.js";
 import { computeUsdPriceFromValue } from "../util/pricing.js";
 import { Aggregator } from "./index.js";
 
@@ -48,7 +48,7 @@ export class RelayAggregator extends Aggregator<RelayConfig> {
   }
 
   override features(): AggregatorFeature[] {
-    return ["exactIn", "targetOut", "integratorFees"];
+    return ["exactIn", "targetOut", "integratorFees", "crossChain"];
   }
 
   protected override async tryFetchQuote(
@@ -72,6 +72,13 @@ export class RelayAggregator extends Aggregator<RelayConfig> {
       throw new QuoteError("Relay API response missing transaction data", body);
     }
 
+    const check = isCrossChain(request)
+      ? extractCheck(body, this.config.url || "https://api.relay.link")
+      : undefined;
+    if (isCrossChain(request) && !check) {
+      throw new QuoteError("Relay API response missing async status check data", body);
+    }
+
     const inputAmount =
       parseAmount(body.details?.currencyIn?.amount) ||
       (request.mode === "exactIn" ? request.inputAmount : 0n);
@@ -91,11 +98,22 @@ export class RelayAggregator extends Aggregator<RelayConfig> {
     const fees = buildRelayFees(body);
     const metrics = buildRelayMetrics(body);
 
+    const mode = check
+      ? {
+          check,
+          execution: "async" as const,
+        }
+      : {
+          execution: "atomic" as const,
+        };
+
     return {
-      success: true,
-      provider: "relay",
+      success: true as const,
+      provider: "relay" as const,
       details: body,
       latency: 0,
+      inputChainId: request.chainId,
+      outputChainId: request.outputChainId || request.chainId,
       inputAmount,
       outputAmount,
       networkFee: body.fees?.gas ? BigInt(body.fees.gas.amount) : 0n,
@@ -109,6 +127,7 @@ export class RelayAggregator extends Aggregator<RelayConfig> {
       pricing,
       fees,
       metrics,
+      ...mode,
     };
   }
 }
@@ -140,7 +159,7 @@ function buildRequest(request: SwapParams, options: SwapOptions): RelayQuoteRequ
     user: request.swapperAccount,
     recipient: recipientAccount,
     originChainId: request.chainId,
-    destinationChainId: request.chainId,
+    destinationChainId: request.outputChainId ?? request.chainId,
     originCurrency: request.inputToken,
     destinationCurrency: request.outputToken,
     slippageTolerance: request.slippageBps.toString(),
@@ -158,7 +177,7 @@ function buildRequest(request: SwapParams, options: SwapOptions): RelayQuoteRequ
 
 // Note: this will need to be adjusted for multi-step / cross-chain swaps in the future.
 function extractTransaction(response: RelayQuoteResponse): RelayTransaction | null {
-  const step = (response.steps || []).find((step) => step.id === "swap");
+  const step = (response.steps || []).find((step) => step.id === "swap" || step.id === "deposit");
   if (!step) {
     return null;
   }
@@ -171,6 +190,27 @@ function extractTransaction(response: RelayQuoteResponse): RelayTransaction | nu
   }
 
   return null;
+}
+
+function extractCheck(
+  response: RelayQuoteResponse,
+  baseUrl: string,
+): { type: "endpoint"; endpoint: string; method: "GET" | "POST" } | undefined {
+  const step = (response.steps || []).find((entry) => entry.id === "deposit");
+  if (!step) {
+    return undefined;
+  }
+
+  const check = step.items?.find((item) => item.check?.endpoint)?.check;
+  if (!check?.endpoint || !check.method) {
+    return undefined;
+  }
+
+  return {
+    type: "endpoint",
+    endpoint: new URL(check.endpoint, baseUrl).toString(),
+    method: check.method,
+  };
 }
 
 function parseAmount(value?: string | number | null): bigint | null {
@@ -329,6 +369,10 @@ type RelayStep = {
   items?: Array<{
     status?: string;
     data?: RelayTransaction;
+    check?: {
+      endpoint?: string;
+      method?: "GET" | "POST";
+    };
   }>;
 };
 

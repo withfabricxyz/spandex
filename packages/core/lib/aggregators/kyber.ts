@@ -110,6 +110,9 @@ export class KyberAggregator extends Aggregator<KyberConfig> {
       provider: "kyberswap",
       details: response,
       latency: 0, // Filled in by MetaAggregator
+      inputChainId: request.chainId,
+      outputChainId: request.chainId,
+      execution: "atomic",
       outputAmount: BigInt(response.outputAmount),
       inputAmount: BigInt(response.inputAmount),
       networkFee,

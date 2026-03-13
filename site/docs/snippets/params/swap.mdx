@@ -3,6 +3,14 @@
 
 Chain identifier (EIP-155) where the swap will be executed.
 
+## outputChainId
+`number | undefined`
+
+Optional destination chain identifier (EIP-155) for cross-chain swaps. When omitted, output
+defaults to `chainId`. Set this to a different chain to request a cross-chain quote.
+
+Cross-chain support is currently experimental and only Relay is supported.
+
 ## inputToken
 `Address`
 

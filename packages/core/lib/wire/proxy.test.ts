@@ -16,6 +16,9 @@ function makeSimulatedQuote(outputAmount: bigint): SimulatedQuote {
     provider: "fabric",
     details: {},
     latency: 0,
+    inputChainId: 8453,
+    outputChainId: 8453,
+    execution: "atomic",
     inputAmount: 1_000_000n,
     outputAmount,
     networkFee: 1n,
@@ -127,6 +130,48 @@ describe("proxy", () => {
     expect(request).toBeDefined();
     const url = new URL(request?.url || "");
     expect(url.searchParams.get("recipientAccount")).toBe(recipientAccount);
+  }, 10_000);
+
+  it("forwards outputChainId to the proxy query", async () => {
+    const swap = {
+      ...defaultSwapParams,
+      outputChainId: 10,
+    };
+    const stream = newStream<Quote>(
+      [
+        Promise.resolve({
+          success: true,
+          provider: "fabric",
+          details: {},
+          latency: 0,
+          inputChainId: 8453,
+          outputChainId: 10,
+          execution: "atomic",
+          inputAmount: 1_000_000n,
+          outputAmount: 10n,
+          networkFee: 1n,
+          txData: { to: "0x0000000000000000000000000000000000000001", data: "0x" },
+        } as Quote),
+      ],
+      quoteStreamErrorHandler,
+    );
+    responses.push(
+      new Response(stream, {
+        headers: { "Content-Type": "application/octet-stream" },
+      }),
+    );
+
+    await getRawQuotes({
+      config: createConfig({
+        proxy: proxy({ pathOrUrl: baseUrl, delegatedActions }),
+      }),
+      swap,
+    });
+
+    const request = requests[0];
+    expect(request).toBeDefined();
+    const url = new URL(request?.url || "");
+    expect(url.searchParams.get("outputChainId")).toBe("10");
   }, 10_000);
 
   it("adds optional headers to the proxy request", async () => {
