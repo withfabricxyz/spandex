@@ -1,5 +1,16 @@
 # @spandex/react
 
+## 0.6.0
+
+### Minor Changes
+
+- 3d88d86: Add cross-chain swaps via relay
+
+### Patch Changes
+
+- Updated dependencies [3d88d86]
+  - @spandex/core@0.6.0
+
 ## 0.5.0
 
 ### Minor Changes
