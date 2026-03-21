@@ -117,6 +117,9 @@ export class LifiAggregator extends Aggregator<LifiConfig> {
       provider: "lifi",
       details: response,
       latency: 0, // Filled in by MetaAggregator
+      inputChainId: request.chainId,
+      outputChainId: request.chainId,
+      execution: "atomic",
       inputAmount,
       outputAmount,
       networkFee: buildLifiNetworkFee(response),

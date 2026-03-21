@@ -66,7 +66,12 @@ export type ProviderConfig = {
 /**
  * Features that an aggregator may support. Used for capability detection and filtering.
  */
-export type AggregatorFeature = "exactIn" | "targetOut" | "integratorFees" | "integratorSurplus";
+export type AggregatorFeature =
+  | "exactIn"
+  | "targetOut"
+  | "integratorFees"
+  | "integratorSurplus"
+  | "crossChain";
 
 /**
  * Features that can be enabled via negotiated terms.
@@ -82,6 +87,22 @@ export type AggregatorMetadata = {
   docsUrl: string;
   logoUrl?: string;
 };
+
+export type StatusCheck = {
+  type: "endpoint";
+  endpoint: string;
+  method: "GET" | "POST";
+};
+
+type QuoteExecution =
+  | {
+      execution: "atomic";
+      check?: never;
+    }
+  | {
+      execution: "async";
+      check: StatusCheck;
+    };
 
 /**
  * Successful quote shape returned by an individual provider.
@@ -106,6 +127,14 @@ export type GenericQuote<P extends ProviderKey, T> = {
    * Round-trip latency in milliseconds.
    */
   latency: number;
+  /**
+   * Origin chain for the input leg.
+   */
+  inputChainId: number;
+  /**
+   * Destination chain for the output leg.
+   */
+  outputChainId: number;
   /**
    * Amount of output token received or bought (denominated in base units).
    */
@@ -151,7 +180,7 @@ export type GenericQuote<P extends ProviderKey, T> = {
    * Features activated on this quote (intersection of requested fee/surplus with provider support).
    */
   activatedFeatures?: AggregatorFeature[];
-};
+} & QuoteExecution;
 
 /**
  * Union of successful quote shapes for every supported provider.
@@ -210,6 +239,11 @@ type SwapBase = {
    * Chain identifier (EIP-155).
    */
   chainId: number;
+  /**
+   * Optional destination chain identifier (EIP-155) for cross-chain swaps.
+   * Defaults to `chainId` when omitted.
+   */
+  outputChainId?: number;
   /**
    * Address of the token being sold.
    */
@@ -557,7 +591,7 @@ export type TransferData = {
 export type SimulationSuccess = {
   /** Indicates the simulation completed without errors. */
   success: true;
-  /** Final output token amount derived from asset changes. */
+  /** Final or quoted output token amount used for comparison and selection. */
   outputAmount: bigint;
   /** Raw `simulateCall` results for swap call. */
   swapResult: SimulateCallsReturnType["results"][0];

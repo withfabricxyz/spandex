@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { MockAggregator, quoteSuccess } from "../test/utils.js";
 import { zeroX } from "./aggregators/0x.js";
 import { fabric } from "./aggregators/fabric.js";
 import { type Config, createConfig } from "./createConfig.js";
@@ -52,5 +53,35 @@ describe("prepareQuotes", () => {
         mapFn: async (quote: Quote) => quote,
       });
     }).toThrow();
+  });
+
+  it("filters to cross-chain enabled providers when outputChainId is set", async () => {
+    const config: Config = createConfig({
+      providers: [
+        new MockAggregator(quoteSuccess, { features: ["exactIn"] }),
+        new MockAggregator({ ...quoteSuccess, provider: "relay" } as Quote, {
+          features: ["exactIn", "crossChain"],
+        }),
+      ],
+    });
+
+    const prepared = await prepareQuotes({
+      config,
+      swap: {
+        chainId: 8453,
+        outputChainId: 10,
+        inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        outputToken: "0x4200000000000000000000000000000000000006",
+        inputAmount: 500_000_000n,
+        slippageBps: 100,
+        swapperAccount: "0xdead00000000000000000000000000000000beef",
+        mode: "exactIn",
+      },
+      mapFn: async (quote: Quote) => quote,
+    });
+
+    const quotes = await Promise.all(prepared);
+    expect(quotes).toHaveLength(1);
+    expect(quotes[0]?.provider).toBe("relay");
   });
 });

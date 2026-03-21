@@ -11,11 +11,9 @@ import type {
 const baseSimulation: SimulationSuccess = {
   success: true,
   outputAmount: 900_000n,
-  callsResults: [] as SimulationSuccess["callsResults"],
   latency: 0,
   gasUsed: 5_000n,
   blockNumber: 0n,
-  transfers: [],
 };
 
 const quoteSuccess: SuccessfulSimulatedQuote = {
@@ -23,6 +21,9 @@ const quoteSuccess: SuccessfulSimulatedQuote = {
   provider: "fabric",
   details: {} as FabricQuoteResponse,
   latency: 100,
+  inputChainId: 8453,
+  outputChainId: 8453,
+  execution: "atomic",
   inputAmount: 1_000_000n,
   outputAmount: 900_000n,
   networkFee: 5_000n,

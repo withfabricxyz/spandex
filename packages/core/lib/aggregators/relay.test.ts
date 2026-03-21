@@ -4,7 +4,10 @@ import {
   nativeInputSwap,
   nativeOutputSwap,
   recordOutput,
+  testConfig,
+  usdcBalanceSwap,
 } from "../../test/utils.js";
+import { getQuotes } from "../getQuotes.js";
 import { RelayAggregator, relay } from "./relay.js";
 
 describe("Relay", () => {
@@ -46,4 +49,42 @@ describe("Relay", () => {
     }
     expect(quote.outputAmount).toBeGreaterThan(0n);
   }, 30_000);
+
+  it("supports cross-chain quotes", async () => {
+    const quote = await relay().fetchQuote({
+      ...defaultSwapParams,
+      outputChainId: 10,
+    });
+
+    if (!quote.success || quote.provider !== "relay") {
+      throw new Error("Failed to fetch quote");
+    }
+
+    expect(quote.execution).toBe("async");
+    expect(quote.inputChainId).toBe(8453);
+    expect(quote.outputChainId).toBe(10);
+    expect(quote.check?.endpoint).toStartWith("https://api.relay.link/intents/status?requestId=0x");
+    expect(quote.check?.method).toBe("GET");
+    expect(quote.check?.type).toBe("endpoint");
+  });
+
+  it("partially simulates cross-chain quotes", async () => {
+    const quote = (
+      await getQuotes({
+        config: testConfig([relay()]),
+        swap: {
+          ...usdcBalanceSwap,
+          outputChainId: 10,
+        },
+      })
+    )[0];
+
+    if (!quote?.success || quote?.provider !== "relay") {
+      throw new Error("Failed to fetch quote");
+    }
+
+    expect(quote.execution).toBe("async");
+    expect(quote.simulation).toBeDefined();
+    expect(quote.simulation?.success).toBe(true);
+  });
 });

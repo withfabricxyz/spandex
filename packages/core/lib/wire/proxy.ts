@@ -111,6 +111,9 @@ export class AggregatorProxy {
 function quoteQueryParams(params: SwapParams): URLSearchParams {
   const query = new URLSearchParams();
   query.append("chainId", params.chainId.toString());
+  if (params.outputChainId !== undefined) {
+    query.append("outputChainId", params.outputChainId.toString());
+  }
   query.append("inputToken", params.inputToken);
   query.append("outputToken", params.outputToken);
   query.append("slippageBps", params.slippageBps.toString());

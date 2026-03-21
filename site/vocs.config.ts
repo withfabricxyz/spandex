@@ -115,6 +115,10 @@ export default defineConfig({
             },
           ],
         },
+        {
+          text: "Cross-Chain",
+          link: "/core/cross-chain",
+        },
       ],
     },
 

@@ -35,6 +35,7 @@ export { prepareSimulatedQuotes } from "./lib/prepareSimulatedQuotes.js";
 export { selectQuote } from "./lib/selectQuote.js";
 export { SimulationRevertError, simulateQuote, simulateQuotes } from "./lib/simulateQuote.js";
 export type * from "./lib/types.js";
+export { isCrossChain, isNativeToken } from "./lib/util/helpers.js";
 export { netOutputs } from "./lib/util/netOutputs.js";
 export { sortQuotesByPerformance } from "./lib/util/performance.js";
 export { AggregatorProxy, proxy, spandexCloud } from "./lib/wire/proxy.js";
