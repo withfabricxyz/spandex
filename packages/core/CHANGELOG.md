@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.6.0
+
+### Minor Changes
+
+- 3d88d86: Add cross-chain swaps via relay
+
 ## 0.5.0
 
 ### Minor Changes
