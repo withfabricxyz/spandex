@@ -65,7 +65,7 @@
     },
     "packages/core": {
       "name": "@spandex/core",
-      "version": "0.6.0",
+      "version": "0.6.1",
       "dependencies": {
         "viem": "^2.40",
       },
@@ -82,7 +82,7 @@
     },
     "packages/react": {
       "name": "@spandex/react",
-      "version": "0.6.0",
+      "version": "0.6.1",
       "dependencies": {
         "@spandex/core": "workspace:*",
         "@tanstack/react-query": "^5.90.17",

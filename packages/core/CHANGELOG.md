@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.6.1
+
+### Patch Changes
+
+- 77289d2: Fix slippage calculation for relay. If a user requested 1% slippage cap, the value sent to relay represented 1 basis point.
+
 ## 0.6.0
 
 ### Minor Changes
