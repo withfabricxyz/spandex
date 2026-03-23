@@ -169,9 +169,6 @@ function buildRequest(request: SwapParams, options: SwapOptions): RelayQuoteRequ
     appFees,
   };
 
-  // Relay expects slippage values as percentage strings (e.g. "0.5" for 50 bps).
-  payload.slippageTolerance = (request.slippageBps / 100).toString();
-
   return payload;
 }
 
