@@ -1,9 +1,15 @@
 {
-  "extends": "../../tsconfig.build.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
-    "rootDir": "./",
+    "noEmit": true,
+    "paths": {
+      "@spandex/core": ["../core/index.ts"]
+    },
+    "rootDir": "..",
+    "types": ["node", "bun"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.test.tsx", "test*"]
+  "exclude": ["dist", "node_modules"]
 }

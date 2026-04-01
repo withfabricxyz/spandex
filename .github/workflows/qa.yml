@@ -32,6 +32,8 @@ jobs:
         uses: ./.github/actions/setup
       - name: Setup foundry
         uses: foundry-rs/foundry-toolchain@v1
+      - name: Typecheck packages and tests
+        run: bun run typecheck
       - name: Build packages
         run: bun run build
       - name: Run tests

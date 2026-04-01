@@ -12,6 +12,7 @@
     "lint": "biome check --formatter-enabled=true --linter-enabled=true",
     "lint:fix": "biome check --formatter-enabled=true --linter-enabled=true --write --unsafe ./",
     "build": "bun ./scripts/build-packages.ts",
+    "typecheck": "bun ./scripts/typecheck-packages.ts",
     "pack": "cd packages/core && bun pm pack && cd ../wagmi && bun pm pack",
     "example:react:install": "cd examples/react && bun i",
     "example:react:dev": "cd examples/react && bun run dev",

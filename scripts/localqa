@@ -7,6 +7,7 @@ cd $(dirname "$0")/..
 ./scripts/clean
 
 bun i
+bun run typecheck
 bun run lint:fix
 bun audit --audit-level=critical
 bun run build
