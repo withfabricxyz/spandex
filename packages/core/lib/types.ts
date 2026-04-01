@@ -325,7 +325,7 @@ export type TxData = {
   /**
    * Optional gas limit for the transaction. If not provided, the integrator should estimate an appropriate gas limit before submission.
    */
-  gasLimit?: bigint;
+  gas?: bigint;
 };
 
 /**

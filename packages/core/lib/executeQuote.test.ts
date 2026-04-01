@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { fail } from "node:assert";
 import { afterEach } from "node:test";
 import { Instance, Server } from "prool";
 import { createPublicClient, createWalletClient, erc20Abi, http, type PublicClient } from "viem";
@@ -94,6 +95,9 @@ describe("executeQuote", () => {
       walletClient: walletClient,
       publicClient: forkClient,
       config,
+    }).catch((error) => {
+      console.log(error);
+      fail("Execution failed");
     });
 
     const afterBalance = await await forkClient.readContract({

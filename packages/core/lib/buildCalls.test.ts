@@ -50,7 +50,7 @@ describe("buildCalls", () => {
 
     expect(calls).toHaveLength(1);
     expect(calls[0]?.type).toBe("swap");
-    expect(calls[0]?.txn).toEqual({ ...quote.txData, gasLimit: 28000n });
+    expect(calls[0]?.txn).toEqual({ ...quote.txData, gas: 28000n });
   });
 
   it("builds with approval call when input token is not eth", async () => {
@@ -67,11 +67,11 @@ describe("buildCalls", () => {
     expect(calls[0]?.txn).toEqual(
       expect.objectContaining({
         to: approval.token,
-        gasLimit: 20000n,
+        gas: 20000n,
       }),
     );
     expect(calls[1]?.type).toBe("swap");
-    expect(calls[1]?.txn).toEqual(expect.objectContaining({ gasLimit: 28000n }));
+    expect(calls[1]?.txn).toEqual(expect.objectContaining({ gas: 28000n }));
   });
 
   it("builds with approval call with exact amount", async () => {

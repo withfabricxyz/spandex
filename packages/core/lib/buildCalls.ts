@@ -48,7 +48,7 @@ export async function buildCalls(params: BuildCallsParams): Promise<BuiltCall[]>
     type: "swap",
     txn: {
       ...params.quote.txData,
-      gasLimit: gasWithSafetyBuffer(params.quote.simulation.gasUsed),
+      gas: gasWithSafetyBuffer(params.quote.simulation.gasUsed),
     },
   });
 
@@ -82,7 +82,7 @@ async function getApprovalCall({
   const result = {
     to: quote.approval.token,
     data,
-    gasLimit: gasWithSafetyBuffer(quote.simulation.approvalGasUsed),
+    gas: gasWithSafetyBuffer(quote.simulation.approvalGasUsed),
   };
 
   if (force) {
