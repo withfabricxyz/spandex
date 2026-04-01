@@ -61,6 +61,10 @@ export type ProviderConfig = {
    * Only integrator fee/surplus capabilities are supported here.
    */
   negotiatedFeatures?: NegotiatedFeature[];
+  /**
+   * Application specific attributes. These are returned with quotes for logging and analytics purposes
+   */
+  attributes?: Record<string, unknown>;
 };
 
 /**
@@ -180,6 +184,10 @@ export type GenericQuote<P extends ProviderKey, T> = {
    * Features activated on this quote (intersection of requested fee/surplus with provider support).
    */
   activatedFeatures?: AggregatorFeature[];
+  /**
+   * Provider attributes set by the integrator for logging and analytics purposes.
+   */
+  providerAttributes?: Record<string, unknown>;
 } & QuoteExecution;
 
 /**
@@ -227,6 +235,10 @@ export type FailedQuote = {
    * Provider that failed to produce a quote.
    */
   provider: ProviderKey;
+  /**
+   * Provider attributes set by the integrator for logging and analytics purposes.
+   */
+  providerAttributes?: Record<string, unknown>;
 };
 
 /**
@@ -310,6 +322,10 @@ export type TxData = {
    * Optional ETH amount (wei) to send with the transaction.
    */
   value?: bigint;
+  /**
+   * Optional gas limit for the transaction. If not provided, the integrator should estimate an appropriate gas limit before submission.
+   */
+  gas?: bigint;
 };
 
 /**
@@ -492,7 +508,10 @@ export type SwapOptions = FeeOptions;
  */
 export type AggregationOptions = TimingOptions & FeeOptions;
 
-type ClientLookup = PublicClient[] | ((chainId: number) => PublicClient | undefined);
+/**
+ * Public client configuration lookup, either as a static array or a dynamic function.
+ */
+export type ClientLookup = PublicClient[] | ((chainId: number) => PublicClient | undefined);
 
 /**
  * Configuration for constructing a MetaAggregator instance with direct provider access.
@@ -597,6 +616,8 @@ export type SimulationSuccess = {
   swapResult: SimulateCallsReturnType["results"][0];
   /** Gas used for the swap call. */
   gasUsed?: bigint;
+  /** Gas used for the approval call, if applicable. */
+  approvalGasUsed?: bigint;
   /** Client-measured duration in milliseconds for the simulated call batch. */
   latency: number;
   /** Block number tied to the simulation response, if the client returned one. */

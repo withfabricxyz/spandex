@@ -1,4 +1,4 @@
-import type { Hash, PublicClient, WalletClient } from "viem";
+import type { Hash, PublicClient, WalletCallReceipt, WalletClient } from "viem";
 import { type BuiltCall, buildCalls } from "./buildCalls.js";
 import type { Config } from "./createConfig.js";
 import type { SuccessfulSimulatedQuote, SwapParams } from "./types.js";
@@ -10,6 +10,20 @@ export class ExecutionError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "ExecutionError";
+  }
+}
+
+/**
+ * Error thrown when an atomic transaction execution fails.
+ * Contains the array of call receipts for debugging purposes.
+ */
+export class AtomicExecutionError extends Error {
+  constructor(
+    message: string,
+    public readonly detail: { receipts?: WalletCallReceipt<bigint, "success" | "reverted">[] },
+  ) {
+    super(message);
+    this.name = "AtomicExecutionError";
   }
 }
 
@@ -89,7 +103,6 @@ export async function executeQuote({
       calls,
       swap,
       walletClient,
-      publicClient: client,
     });
   }
 
@@ -116,16 +129,16 @@ async function executeAtomic({
   swap: SwapParams;
   walletClient: WalletClient;
 }): Promise<Hash> {
-  const { id } = await walletClient.sendCalls({
+  const { receipts, status } = await walletClient.sendCallsSync({
     chain: walletClient.chain,
     account: swap.swapperAccount,
     calls: calls.map((call) => call.txn),
+    throwOnFailure: true,
   });
-  const { receipts, status } = await walletClient.waitForCallsStatus({ id });
 
   const receipt = receipts?.[receipts.length - 1];
   if (receipt === undefined || status !== "success") {
-    throw new ExecutionError("Transaction execution failed");
+    throw new AtomicExecutionError("Atomic transaction execution failed", { receipts });
   }
 
   return receipt.transactionHash;
@@ -135,26 +148,20 @@ async function executeSequential({
   calls,
   swap,
   walletClient,
-  publicClient,
 }: {
   calls: BuiltCall[];
   swap: SwapParams;
   walletClient: WalletClient;
-  publicClient: PublicClient;
 }): Promise<Hash> {
   let lastHash: Hash | null = null;
 
   for (const call of calls) {
-    const hash = await walletClient.sendTransaction({
+    const receipt = await walletClient.sendTransactionSync({
       chain: walletClient.chain,
       account: swap.swapperAccount,
       ...call.txn,
+      throwOnReceiptRevert: true,
     });
-
-    const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    if (receipt.status !== "success") {
-      throw new ExecutionError("Transaction execution failed");
-    }
 
     lastHash = receipt.transactionHash;
   }

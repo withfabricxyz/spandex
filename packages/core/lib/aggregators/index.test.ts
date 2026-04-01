@@ -8,6 +8,7 @@ describe("aggregator", () => {
     const mock = new MockAggregator(quoteFailure);
     expect(mock.name()).toBe("fabric");
     expect(mock.features()).toEqual(["exactIn"]);
+    expect(mock.attributes?.mock).toBe(true);
   }, 1000);
 
   it("triggers a deadline", async () => {
@@ -28,6 +29,7 @@ describe("aggregator", () => {
     expect(quote).toBeDefined();
     expect(mock.count).toBe(4); // 1 initial try + 3 retries
     expect(end - start).toBeGreaterThanOrEqual(5 + 10 + 20); // 5 + 10 ms delays
+    expect(quote.providerAttributes?.mock).toBe(true);
   }, 10_000);
 
   it("respects the deadline", async () => {

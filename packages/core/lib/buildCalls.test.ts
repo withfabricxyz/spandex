@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { type Address, encodeFunctionData, erc20Abi, type PublicClient, zeroAddress } from "viem";
 import { buildCalls } from "./buildCalls.js";
 import type { Config } from "./createConfig.js";
-import type { SuccessfulQuote, SwapParams } from "./types.js";
+import type { SuccessfulSimulatedQuote, SwapParams } from "./types.js";
 
 const baseSwap: SwapParams = {
   chainId: 1,
@@ -20,7 +20,7 @@ const config: Config = {
   aggregators: [],
 };
 
-const baseQuote: SuccessfulQuote = {
+const baseQuote: SuccessfulSimulatedQuote = {
   success: true,
   provider: "fabric",
   details: {} as never,
@@ -32,18 +32,25 @@ const baseQuote: SuccessfulQuote = {
     to: "0x00000000000000000000000000000000000000aa",
     data: "0xdeadbeef",
   },
-} as unknown as SuccessfulQuote;
+  simulation: {
+    success: true,
+    outputAmount: 2000n,
+    gasUsed: 21000n,
+    approvalGasUsed: 15000n,
+    latency: 1,
+  },
+} as unknown as SuccessfulSimulatedQuote;
 
 describe("buildCalls", () => {
   it("builds a single call when eth is the input token", async () => {
     const swap: SwapParams = { ...baseSwap, inputToken: zeroAddress };
-    const quote: SuccessfulQuote = { ...baseQuote, approval: undefined };
+    const quote: SuccessfulSimulatedQuote = { ...baseQuote, approval: undefined };
 
     const calls = await buildCalls({ quote, swap, config });
 
     expect(calls).toHaveLength(1);
     expect(calls[0]?.type).toBe("swap");
-    expect(calls[0]?.txn).toEqual(quote.txData);
+    expect(calls[0]?.txn).toEqual({ ...quote.txData, gas: 28000n });
   });
 
   it("builds with approval call when input token is not eth", async () => {
@@ -51,14 +58,20 @@ describe("buildCalls", () => {
       token: "0x00000000000000000000000000000000000000bb" as Address,
       spender: "0x00000000000000000000000000000000000000cc" as Address,
     };
-    const quote: SuccessfulQuote = { ...baseQuote, approval };
+    const quote: SuccessfulSimulatedQuote = { ...baseQuote, approval };
 
     const calls = await buildCalls({ quote, swap: baseSwap, config, force: true });
 
     expect(calls).toHaveLength(2);
     expect(calls[0]?.type).toBe("approval");
-    expect(calls[0]?.txn?.to).toBe(approval.token);
+    expect(calls[0]?.txn).toEqual(
+      expect.objectContaining({
+        to: approval.token,
+        gas: 20000n,
+      }),
+    );
     expect(calls[1]?.type).toBe("swap");
+    expect(calls[1]?.txn).toEqual(expect.objectContaining({ gas: 28000n }));
   });
 
   it("builds with approval call with exact amount", async () => {
@@ -66,7 +79,7 @@ describe("buildCalls", () => {
       token: "0x00000000000000000000000000000000000000dd" as Address,
       spender: "0x00000000000000000000000000000000000000ee" as Address,
     };
-    const quote: SuccessfulQuote = { ...baseQuote, approval, inputAmount: 1234n };
+    const quote: SuccessfulSimulatedQuote = { ...baseQuote, approval, inputAmount: 1234n };
 
     const calls = await buildCalls({
       quote,
@@ -91,7 +104,7 @@ describe("buildCalls", () => {
       token: "0x00000000000000000000000000000000000000ff" as Address,
       spender: "0x0000000000000000000000000000000000000011" as Address,
     };
-    const quote: SuccessfulQuote = { ...baseQuote, approval };
+    const quote: SuccessfulSimulatedQuote = { ...baseQuote, approval };
 
     const calls = await buildCalls({
       quote,
@@ -119,10 +132,10 @@ describe("buildCalls", () => {
       token: "0x00000000000000000000000000000000000000ab" as Address,
       spender: "0x00000000000000000000000000000000000000cd" as Address,
     };
-    const quote: SuccessfulQuote = { ...baseQuote, approval, inputAmount: 1234n };
+    const quote: SuccessfulSimulatedQuote = { ...baseQuote, approval, inputAmount: 1234n };
     const publicClient = {
       readContract: async () => 0n,
-    } as PublicClient;
+    } as unknown as PublicClient;
 
     const calls = await buildCalls({
       quote,

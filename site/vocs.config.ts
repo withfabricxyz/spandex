@@ -54,6 +54,10 @@ export default defineConfig({
               link: "/core/functions/getQuote",
             },
             {
+              text: "buildCalls",
+              link: "/core/functions/buildCalls",
+            },
+            {
               text: "executeQuote",
               link: "/core/functions/executeQuote",
             },

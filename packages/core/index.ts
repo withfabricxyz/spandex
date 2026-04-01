@@ -6,22 +6,6 @@ import { OdosAggregator, odos } from "./lib/aggregators/odos.js";
 import { RelayAggregator, relay } from "./lib/aggregators/relay.js";
 import { VeloraAggregator, velora } from "./lib/aggregators/velora.js";
 
-export {
-  FabricAggregator,
-  ZeroXAggregator,
-  KyberAggregator,
-  LifiAggregator,
-  OdosAggregator,
-  RelayAggregator,
-  VeloraAggregator,
-  fabric,
-  zeroX,
-  kyberswap,
-  lifi,
-  odos,
-  relay,
-  velora,
-};
 export { Aggregator } from "./lib/aggregators/index.js";
 export { type BuildCallsParams, type BuiltCall, buildCalls } from "./lib/buildCalls.js";
 export { type Config, createConfig, defaultProviders } from "./lib/createConfig.js";
@@ -46,3 +30,19 @@ export {
   quoteStreamErrorHandler,
   simulatedQuoteStreamErrorHandler,
 } from "./lib/wire/streams.js";
+export {
+  FabricAggregator,
+  fabric,
+  KyberAggregator,
+  kyberswap,
+  LifiAggregator,
+  lifi,
+  OdosAggregator,
+  odos,
+  RelayAggregator,
+  relay,
+  VeloraAggregator,
+  velora,
+  ZeroXAggregator,
+  zeroX,
+};

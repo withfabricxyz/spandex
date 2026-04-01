@@ -52,6 +52,7 @@ describe("simulateQuote", () => {
       if (quote.simulation.success) {
         expect(quote.simulation.outputAmount).toBeGreaterThan(0n);
         expect(quote.simulation.gasUsed).toBeGreaterThan(0);
+        expect(quote.simulation.approvalGasUsed).toBeGreaterThan(0);
         expect(quote.simulation.latency).toBeGreaterThan(0);
       }
     }
