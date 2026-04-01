@@ -1,12 +1,20 @@
 import { describe, expect, it } from "bun:test";
+import type { FabricQuoteResponse } from "./aggregators/fabric.js";
+import type { KyberQuoteResponse } from "./aggregators/kyber.js";
 import { getPricing } from "./getPricing.js";
 import type { SuccessfulQuote } from "./types.js";
 
-const baseQuote: SuccessfulQuote = {
+type FabricSuccessfulQuote = Extract<SuccessfulQuote, { provider: "fabric" }>;
+type KyberSuccessfulQuote = Extract<SuccessfulQuote, { provider: "kyberswap" }>;
+
+const baseQuote: FabricSuccessfulQuote = {
   success: true,
   provider: "fabric",
-  details: {} as never,
+  details: {} as FabricQuoteResponse,
   latency: 1,
+  inputChainId: 8453,
+  outputChainId: 8453,
+  execution: "atomic",
   inputAmount: 1_000_000n,
   outputAmount: 2_000_000_000_000_000_000n,
   networkFee: 0n,
@@ -18,7 +26,7 @@ const baseQuote: SuccessfulQuote = {
 
 describe("getPricing", () => {
   it("averages usd prices across quotes", () => {
-    const quoteA: SuccessfulQuote = {
+    const quoteA: FabricSuccessfulQuote = {
       ...baseQuote,
       provider: "fabric",
       pricing: {
@@ -35,9 +43,10 @@ describe("getPricing", () => {
       },
     };
 
-    const quoteB: SuccessfulQuote = {
+    const quoteB: KyberSuccessfulQuote = {
       ...baseQuote,
       provider: "kyberswap",
+      details: {} as KyberQuoteResponse,
       pricing: {
         inputToken: {
           address: "0x00000000000000000000000000000000000000aa",

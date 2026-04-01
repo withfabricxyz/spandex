@@ -58,7 +58,7 @@ export function render(
   options?: RenderOptions & {
     spandexConfig?: SpandexProviderProps["config"];
   },
-) {
+): ReturnType<typeof tlRender> {
   const { spandexConfig, ...renderOptions } = options || {};
 
   return tlRender(ui, {

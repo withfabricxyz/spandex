@@ -11,6 +11,7 @@ import type {
 const baseSimulation: SimulationSuccess = {
   success: true,
   outputAmount: 900_000n,
+  swapResult: {} as SimulationSuccess["swapResult"],
   latency: 0,
   gasUsed: 5_000n,
   blockNumber: 0n,
@@ -29,6 +30,13 @@ const quoteSuccess: SuccessfulSimulatedQuote = {
   networkFee: 5_000n,
   txData: { to: "0x0", data: "0x0" },
   simulation: baseSimulation,
+  performance: {
+    latency: 100,
+    gasUsed: 5_000n,
+    outputAmount: 900_000n,
+    priceDelta: 0,
+    accuracy: 0,
+  },
 };
 
 const quoteFailure: SimulatedQuote = {

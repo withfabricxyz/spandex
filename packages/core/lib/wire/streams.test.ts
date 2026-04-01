@@ -1,9 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { defaultSwapParams, testConfig } from "../../test/utils.js";
+import type { FabricQuoteResponse } from "../aggregators/fabric.js";
 import { fabric } from "../aggregators/fabric.js";
 import { relay } from "../aggregators/relay.js";
 import { prepareQuotes } from "../prepareQuotes.js";
-import type { Quote, SimulatedQuote } from "../types.js";
+import type { Quote, SimulatedQuote, SimulationSuccess } from "../types.js";
 import {
   decodeStream,
   newStream,
@@ -11,11 +12,14 @@ import {
   simulatedQuoteStreamErrorHandler,
 } from "./streams.js";
 
-const simulatedQuote: SimulatedQuote = {
+const simulatedQuote: Extract<SimulatedQuote, { provider: "fabric"; success: true }> = {
   success: true,
   provider: "fabric",
-  details: {},
+  details: {} as FabricQuoteResponse,
   latency: 0,
+  inputChainId: 8453,
+  outputChainId: 8453,
+  execution: "atomic",
   inputAmount: 1_000_000n,
   outputAmount: 900_000n,
   networkFee: 1n,
@@ -23,7 +27,7 @@ const simulatedQuote: SimulatedQuote = {
   simulation: {
     success: true,
     outputAmount: 900_000n,
-    swapResult: { status: "success" },
+    swapResult: {} as SimulationSuccess["swapResult"],
     latency: 0,
     gasUsed: 1n,
     blockNumber: 1n,
@@ -35,7 +39,7 @@ const simulatedQuote: SimulatedQuote = {
     priceDelta: 0,
     accuracy: 0,
   },
-} as SimulatedQuote;
+};
 
 describe("streaming", () => {
   it("properly streams serialized quotes", async () => {
@@ -49,7 +53,7 @@ describe("streaming", () => {
 
     const stream = newStream<Quote>(quotes, quoteStreamErrorHandler);
     const decodedPromises = await decodeStream<Quote>(stream);
-    const decoded = await Promise.all(decodedPromises);
+    const decoded = await Promise.all([...decodedPromises]);
     expect(decoded.length).toBe(quotes.length);
     expect(decoded.find((q) => q.provider === "fabric")).toBeDefined();
     expect(decoded.find((q) => q.provider === "relay")).toBeDefined();
@@ -62,7 +66,7 @@ describe("streaming", () => {
       simulatedQuoteStreamErrorHandler,
     );
     const decodedPromises = await decodeStream<SimulatedQuote>(stream);
-    const decoded = await Promise.all(decodedPromises);
+    const decoded = await Promise.all([...decodedPromises]);
     expect(decoded).toHaveLength(1);
     expect(decoded[0]?.simulation.success).toBe(true);
   });
@@ -73,7 +77,7 @@ describe("streaming", () => {
       simulatedQuoteStreamErrorHandler,
     );
     const decodedPromises = await decodeStream<SimulatedQuote>(stream);
-    const decoded = await Promise.all(decodedPromises);
+    const decoded = await Promise.all([...decodedPromises]);
     expect(decoded).toHaveLength(1);
     expect(decoded[0]?.provider).toBe("fabric");
   });

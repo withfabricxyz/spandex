@@ -1,20 +1,23 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import type { Address } from "viem";
 import { defaultSwapParams, recordedQuotes, testConfig } from "../../test/utils.js";
+import type { FabricQuoteResponse } from "../aggregators/fabric.js";
 import { fabric } from "../aggregators/fabric.js";
 import { createConfig } from "../createConfig.js";
 import { getQuote } from "../getQuote.js";
 import { getQuotes } from "../getQuotes.js";
 import { getRawQuotes } from "../getRawQuotes.js";
-import type { Quote, SimulatedQuote, SwapParams } from "../types.js";
+import type { Quote, SimulatedQuote, SimulationSuccess, SwapParams } from "../types.js";
 import { proxy } from "./proxy.js";
 import { newStream, quoteStreamErrorHandler, simulatedQuoteStreamErrorHandler } from "./streams.js";
 
-function makeSimulatedQuote(outputAmount: bigint): SimulatedQuote {
+function makeSimulatedQuote(
+  outputAmount: bigint,
+): Extract<SimulatedQuote, { provider: "fabric"; success: true }> {
   return {
     success: true,
     provider: "fabric",
-    details: {},
+    details: {} as FabricQuoteResponse,
     latency: 0,
     inputChainId: 8453,
     outputChainId: 8453,
@@ -26,7 +29,7 @@ function makeSimulatedQuote(outputAmount: bigint): SimulatedQuote {
     simulation: {
       success: true,
       outputAmount,
-      swapResult: { status: "success" },
+      swapResult: {} as SimulationSuccess["swapResult"],
       latency: 0,
       gasUsed: 1n,
       blockNumber: 1n,
@@ -38,7 +41,7 @@ function makeSimulatedQuote(outputAmount: bigint): SimulatedQuote {
       priceDelta: 0,
       accuracy: 0,
     },
-  } as SimulatedQuote;
+  };
 }
 
 function withDelay<T>(value: T, delayMs: number): Promise<T> {
@@ -52,7 +55,7 @@ describe("proxy", () => {
     "prepareSimulatedQuotes",
   ];
   let originalFetch: typeof fetch;
-  let requests: Request[];
+  let requests: Array<{ url: string; headers: Headers }>;
   let responses: Response[];
 
   async function enqueue(swap: SwapParams) {
@@ -84,9 +87,15 @@ describe("proxy", () => {
     originalFetch = globalThis.fetch;
     requests = [];
     responses = [];
-    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-      const request = new Request(input, init);
-      requests.push(request.clone());
+    globalThis.fetch = (async (
+      input: Parameters<typeof fetch>[0],
+      init?: Parameters<typeof fetch>[1],
+    ) => {
+      const request = new Request(
+        input instanceof Request ? input.url : input instanceof URL ? input.toString() : input,
+        init,
+      );
+      requests.push({ url: request.url, headers: new Headers(request.headers) });
       return responses.shift() ?? new Response(null, { status: 404 });
     }) as typeof fetch;
   });
@@ -142,7 +151,7 @@ describe("proxy", () => {
         Promise.resolve({
           success: true,
           provider: "fabric",
-          details: {},
+          details: {} as FabricQuoteResponse,
           latency: 0,
           inputChainId: 8453,
           outputChainId: 10,
@@ -151,7 +160,7 @@ describe("proxy", () => {
           outputAmount: 10n,
           networkFee: 1n,
           txData: { to: "0x0000000000000000000000000000000000000001", data: "0x" },
-        } as Quote),
+        } as Extract<Quote, { provider: "fabric" }>),
       ],
       quoteStreamErrorHandler,
     );
@@ -225,9 +234,15 @@ describe("proxy", () => {
 
   it("aborts the remote simulated stream when fastest resolves", async () => {
     let aborted = false;
-    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-      const request = new Request(input, init);
-      requests.push(request.clone());
+    globalThis.fetch = (async (
+      input: Parameters<typeof fetch>[0],
+      init?: Parameters<typeof fetch>[1],
+    ) => {
+      const request = new Request(
+        input instanceof Request ? input.url : input instanceof URL ? input.toString() : input,
+        init,
+      );
+      requests.push({ url: request.url, headers: new Headers(request.headers) });
       init?.signal?.addEventListener("abort", () => {
         aborted = true;
       });

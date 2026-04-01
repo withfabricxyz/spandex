@@ -1,5 +1,4 @@
 import { mock } from "bun:test";
-import type { MetaAggregator } from "@spandex/core";
 import { TEST_ADDRESSES, TEST_CHAINS } from "./constants.js";
 
 export function mockWagmiConnection(options?: {
@@ -18,19 +17,6 @@ export function mockWagmiConnection(options?: {
       address: connected ? address : undefined,
       chain: connected ? { id: chainId } : undefined,
     }),
-  }));
-}
-
-export function createMockMetaAggregator(overrides?: Partial<MetaAggregator>): MetaAggregator {
-  return {
-    fetchAllQuotes: mock(() => Promise.resolve([])),
-    ...overrides,
-  } as unknown as MetaAggregator;
-}
-
-export function mockBuildMetaAggregator(metaAggregator: MetaAggregator) {
-  return mock.module("@spandex/core", () => ({
-    buildMetaAggregator: () => metaAggregator,
   }));
 }
 

@@ -1,27 +1,30 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { usdcBalanceSwap } from "../../test/utils.js";
 import type { FabricQuoteResponse } from "../aggregators/fabric.js";
-import type { Quote, SimulatedQuote } from "../types.js";
+import type { Quote, SimulatedQuote, SimulationSuccess } from "../types.js";
 import { spandexCloud } from "./proxy.js";
 import { newStream, quoteStreamErrorHandler, simulatedQuoteStreamErrorHandler } from "./streams.js";
 
-const quote: Quote = {
+const quote: Extract<Quote, { provider: "fabric" }> = {
   success: true,
   provider: "fabric",
   details: {} as FabricQuoteResponse,
   latency: 0,
+  inputChainId: 8453,
+  outputChainId: 8453,
+  execution: "atomic",
   inputAmount: 1_000_000n,
   outputAmount: 900_000n,
   networkFee: 1n,
   txData: { to: "0x0000000000000000000000000000000000000001", data: "0x" },
-} as Quote;
+};
 
-const simulatedQuote: SimulatedQuote = {
+const simulatedQuote: Extract<SimulatedQuote, { provider: "fabric"; success: true }> = {
   ...quote,
   simulation: {
     success: true,
     outputAmount: 900_000n,
-    swapResult: { status: "success" },
+    swapResult: {} as SimulationSuccess["swapResult"],
     latency: 0,
     gasUsed: 1n,
     blockNumber: 1n,
@@ -33,7 +36,7 @@ const simulatedQuote: SimulatedQuote = {
     priceDelta: 0,
     accuracy: 0,
   },
-} as SimulatedQuote;
+};
 
 describe("spandexCloud", () => {
   const cloud = spandexCloud({ apiKey: "testing" });
