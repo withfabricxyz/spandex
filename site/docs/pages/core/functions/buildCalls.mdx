@@ -1,0 +1,108 @@
+# buildCalls
+
+Build the transactions needed to execute a simulated quote. The return value is an array of calls in execution order: an ERC-20 approval first when required, followed by the swap transaction.
+
+## Example
+
+```ts
+import { buildCalls, getQuote } from "@spandex/core";
+import { config } from "./config.js";
+
+const swap = {
+  chainId: 8453,
+  inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+  outputToken: "0x4200000000000000000000000000000000000006", // WETH
+  mode: "exactIn",
+  inputAmount: 500_000_000n,
+  slippageBps: 50,
+  swapperAccount: "0x1234567890abcdef1234567890abcdef12345678",
+};
+
+const quote = await getQuote({
+  config,
+  swap,
+  strategy: "bestPrice",
+});
+
+if (!quote) {
+  throw new Error("No providers returned a successful quote");
+}
+
+const calls = await buildCalls({
+  config,
+  swap,
+  quote,
+});
+
+for (const call of calls) {
+  console.log(call.type, call.txn);
+}
+```
+
+## What It Does
+
+- Builds the swap transaction from `quote.txData`.
+- If the quote includes ERC-20 approval metadata, it can also build an `approve` call for the token spender.
+- Unless `force` is set, it does an onchain allowance check before adding that approval call.
+- If the current allowance already covers `quote.inputAmount`, the approval call is omitted.
+- Native-token swaps do not need an ERC-20 approval, so only the swap call is returned.
+
+## Gas Limit
+
+When simulation gas metadata is available on the quote, `buildCalls` sets `txn.gasLimit` on the returned calls:
+
+- Swap calls use `quote.simulation.gasUsed`.
+- Approval calls use `quote.simulation.approvalGasUsed`.
+- Those estimates are padded by 33% before being written to `gasLimit`.
+- If that simulation metadata is missing, `gasLimit` is left undefined.
+
+The padding is there to reduce avoidable transaction failures from minor differences between simulation and live execution conditions.
+
+## Params
+
+### quote
+`SuccessfulSimulatedQuote`
+
+The simulated quote to convert into executable calls. This is typically the result of [`getQuote`](./getQuote.mdx) or one item from [`getQuotes`](./getQuotes.mdx).
+
+### swap
+`SwapParams`
+
+Swap parameters associated with the quote.
+
+### config
+`Config`
+
+Aggregator configuration created via [`createConfig`](./createConfig.mdx). Used to resolve a public client for allowance checks.
+
+### publicClient
+`PublicClient | undefined`
+
+Optional client used for the ERC-20 allowance read. If omitted, the configured client for the swap chain is used.
+
+### allowanceMode
+`"unlimited" | "exact" | undefined`
+
+Controls the approval amount when an approval call is needed:
+
+- `exact`: approve only `quote.inputAmount`
+- `unlimited`: approve the max `uint256`
+
+### force
+`boolean | undefined`
+
+If `true`, include the approval call whenever the quote exposes approval metadata, without checking current allowance first.
+
+## Returns
+
+`Promise<BuiltCall[]>`
+
+An ordered array of calls to execute:
+
+- `approval` if required
+- `swap`
+
+Each `BuiltCall` contains:
+
+- `type`: `"approval"` or `"swap"`
+- `txn`: the transaction payload to submit

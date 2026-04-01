@@ -164,6 +164,7 @@ async function performSimulation({
     // If any call failed, extract error
     validateSimulation(results, calls, block);
 
+    const approvalResult = results.length > 3 ? results[0] : undefined;
     const [beforeBalanceResult, swapResult, afterBalanceResult] = results.slice(-3);
 
     // Extract the output amount from the balance deltas and validate it
@@ -179,6 +180,7 @@ async function performSimulation({
       swapResult: swapResult as SimulateCallsReturnType["results"][0],
       latency,
       gasUsed: swapResult?.gasUsed,
+      approvalGasUsed: approvalResult?.gasUsed,
       blockNumber: block.number,
     };
   } catch (error) {
@@ -237,12 +239,14 @@ async function performCrossChainSimulation({
     });
     const latency = performance.now() - time;
     const swapResult = results[results.length - 1];
+    const approvalResult = results.length > 1 ? results[0] : undefined;
     return {
       success: true,
       outputAmount: quote.outputAmount,
       swapResult: swapResult as SimulateCallsReturnType["results"][0],
       latency,
       gasUsed: swapResult?.gasUsed,
+      approvalGasUsed: approvalResult?.gasUsed,
       blockNumber: block.number,
     };
   } catch (error) {

@@ -310,6 +310,10 @@ export type TxData = {
    * Optional ETH amount (wei) to send with the transaction.
    */
   value?: bigint;
+  /**
+   * Optional gas limit for the transaction. If not provided, the integrator should estimate an appropriate gas limit before submission.
+   */
+  gasLimit?: bigint;
 };
 
 /**
@@ -597,6 +601,8 @@ export type SimulationSuccess = {
   swapResult: SimulateCallsReturnType["results"][0];
   /** Gas used for the swap call. */
   gasUsed?: bigint;
+  /** Gas used for the approval call, if applicable. */
+  approvalGasUsed?: bigint;
   /** Client-measured duration in milliseconds for the simulated call batch. */
   latency: number;
   /** Block number tied to the simulation response, if the client returned one. */

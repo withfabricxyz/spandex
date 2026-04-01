@@ -1,6 +1,6 @@
 import { encodeFunctionData, erc20Abi, type PublicClient } from "viem";
 import type { Config } from "./createConfig.js";
-import type { SuccessfulQuote, SwapParams, TxData } from "./types.js";
+import type { SuccessfulSimulatedQuote, SwapParams, TxData } from "./types.js";
 
 /**
  * A built call, representing either an approval or a swap transaction.
@@ -14,7 +14,7 @@ export type BuiltCall = {
 
 export type BuildCallsParams = {
   /** The quote for the swap. */
-  quote: SuccessfulQuote;
+  quote: SuccessfulSimulatedQuote;
   /** The parameters for the swap. */
   swap: SwapParams;
   /** The configuration (required for onchain calls). */
@@ -46,7 +46,10 @@ export async function buildCalls(params: BuildCallsParams): Promise<BuiltCall[]>
 
   calls.push({
     type: "swap",
-    txn: params.quote.txData,
+    txn: {
+      ...params.quote.txData,
+      gasLimit: gasWithSafetyBuffer(params.quote.simulation.gasUsed),
+    },
   });
 
   return calls;
@@ -79,6 +82,7 @@ async function getApprovalCall({
   const result = {
     to: quote.approval.token,
     data,
+    gasLimit: gasWithSafetyBuffer(quote.simulation.approvalGasUsed),
   };
 
   if (force) {
@@ -103,4 +107,10 @@ async function getApprovalCall({
   }
 
   return null;
+}
+
+// Adds a 33% safety buffer to the provided gas estimate to account for variance in simulation vs actual execution
+function gasWithSafetyBuffer(gas?: bigint): bigint | undefined {
+  if (!gas) return undefined;
+  return gas + gas / 3n;
 }
