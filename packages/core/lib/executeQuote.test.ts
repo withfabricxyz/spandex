@@ -70,7 +70,7 @@ describe("executeQuote", () => {
 
     const quote = await recordedSimulation("executeQuote/fabricBaseSwap", swap, config);
 
-    if (!quote || !quote.success || !quote?.simulation.success)
+    if (!quote?.success || !quote?.simulation.success)
       throw new Error("Quote or simulation failed");
 
     await createFork(BigInt((quote.details as FabricQuoteResponse).blockNumber));
