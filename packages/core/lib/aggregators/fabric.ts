@@ -172,11 +172,17 @@ export class FabricAggregator extends Aggregator<FabricConfig> {
   ): Promise<FabricQuoteResponse> {
     const query = new URLSearchParams(extractQueryParams(params, options));
 
+    const headers: Record<string, string> = {
+      accept: "application/json",
+      "x-app-id": this.config.appId,
+    };
+
+    if (this.config.apiKey) {
+      headers["x-api-key"] = this.config.apiKey;
+    }
+
     return await fetch(`${this.config.url || DEFAULT_URL}/v1/quote?${query.toString()}`, {
-      headers: {
-        accept: "application/json",
-        "X-App-Id": this.config.appId,
-      },
+      headers,
     }).then(async (response) => {
       const body = await response.json();
       if (!response.ok) {
