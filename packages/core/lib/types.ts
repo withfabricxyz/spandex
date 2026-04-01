@@ -508,7 +508,10 @@ export type SwapOptions = FeeOptions;
  */
 export type AggregationOptions = TimingOptions & FeeOptions;
 
-type ClientLookup = PublicClient[] | ((chainId: number) => PublicClient | undefined);
+/**
+ * Public client configuration lookup, either as a static array or a dynamic function.
+ */
+export type ClientLookup = PublicClient[] | ((chainId: number) => PublicClient | undefined);
 
 /**
  * Configuration for constructing a MetaAggregator instance with direct provider access.
