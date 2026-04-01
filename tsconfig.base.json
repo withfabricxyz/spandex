@@ -2,6 +2,7 @@
   "compilerOptions": {
     // Environment setup & latest features
     "lib": ["ES2022"],
+    "types": ["node"],
     "target": "ES2021",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

@@ -1,3 +1,4 @@
+import ts from "typescript";
 import { defineConfig } from "vocs";
 
 export default defineConfig({
@@ -12,6 +13,12 @@ export default defineConfig({
   description: "DEX meta-aggregator library for optimal token swaps",
   ogImageUrl: {
     "/": "https://spandex.sh/og.jpg",
+  },
+  twoslash: {
+    compilerOptions: {
+      ignoreDeprecations: "6.0",
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+    },
   },
   sidebar: [
     {

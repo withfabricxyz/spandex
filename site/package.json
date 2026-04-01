@@ -16,7 +16,6 @@
     "@types/react": "^19.2.0",
     "@spandex/core": "workspace:*",
     "@spandex/react": "workspace:*",
-    "tailwindcss": "^4.1.18",
-    "typescript": "latest"
+    "tailwindcss": "^4.1.18"
   }
 }

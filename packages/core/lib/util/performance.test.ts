@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { recordOutput, testConfig, usdcBalanceSwap } from "packages/core/test/utils.js";
+import { recordOutput, testConfig, usdcBalanceSwap } from "../../test/utils.js";
 import { fabric } from "../aggregators/fabric.js";
 import { kyberswap } from "../aggregators/kyber.js";
 import { odos } from "../aggregators/odos.js";

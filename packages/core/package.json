@@ -58,7 +58,7 @@
     "viem": "^2.40"
   },
   "peerDependencies": {
-    "typescript": ">=5.0.4"
+    "typescript": "^6.0.2 "
   },
   "peerDependenciesMeta": {
     "typescript": {
