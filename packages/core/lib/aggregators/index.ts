@@ -90,6 +90,13 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
   }
 
   /**
+   * Optional attributes provided by the integrator for logging and analytics purposes.
+   */
+  get attributes() {
+    return this.config.attributes;
+  }
+
+  /**
    * Determines if this aggregator supports a specific feature.
    *
    * @param feature - Feature to check.
@@ -146,6 +153,7 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
           return {
             ...quote,
             latency: stop - start,
+            providerAttributes: this.config.attributes,
           };
         } catch (e) {
           log("debug", "Quote attempt failed", {
@@ -157,6 +165,7 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
             success: false,
             provider: this.name(),
             error: e as QuoteError,
+            providerAttributes: this.config.attributes,
           };
 
           // Early terminate to prevent a sleep when we plan to bail
@@ -178,7 +187,10 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
     };
 
     if (deadlineMs > 0) {
-      return Promise.race([quoteCall(), deadline({ deadlineMs, aggregator: this.name() })]);
+      return Promise.race([
+        quoteCall(),
+        deadline({ deadlineMs, aggregator: this.name(), attributes: this.config.attributes }),
+      ]);
     }
 
     return quoteCall();
@@ -188,9 +200,11 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
 export async function deadline({
   deadlineMs,
   aggregator,
+  attributes,
 }: {
   deadlineMs: number;
   aggregator: ProviderKey;
+  attributes?: Record<string, unknown>;
 }): Promise<Quote> {
   await new Promise((resolve) => setTimeout(resolve, deadlineMs));
   log("debug", "Quote deadline exceeded", { provider: aggregator, deadlineMs });
@@ -198,5 +212,6 @@ export async function deadline({
     success: false,
     provider: aggregator,
     error: new QuoteError(`MetaAggregator deadline exceeded after ${deadlineMs}ms`, ""),
+    providerAttributes: attributes,
   };
 }

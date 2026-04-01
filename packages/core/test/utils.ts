@@ -82,7 +82,9 @@ export class MockAggregator extends Aggregator {
     private readonly quote: Quote,
     private readonly overrides: MockOverrides = {},
   ) {
-    super({});
+    super({
+      attributes: { mock: true },
+    });
   }
 
   get count() {

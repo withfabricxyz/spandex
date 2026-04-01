@@ -61,6 +61,10 @@ export type ProviderConfig = {
    * Only integrator fee/surplus capabilities are supported here.
    */
   negotiatedFeatures?: NegotiatedFeature[];
+  /**
+   * Application specific attributes. These are returned with quotes for logging and analytics purposes
+   */
+  attributes?: Record<string, unknown>;
 };
 
 /**
@@ -180,6 +184,10 @@ export type GenericQuote<P extends ProviderKey, T> = {
    * Features activated on this quote (intersection of requested fee/surplus with provider support).
    */
   activatedFeatures?: AggregatorFeature[];
+  /**
+   * Provider attributes set by the integrator for logging and analytics purposes.
+   */
+  providerAttributes?: Record<string, unknown>;
 } & QuoteExecution;
 
 /**
@@ -227,6 +235,10 @@ export type FailedQuote = {
    * Provider that failed to produce a quote.
    */
   provider: ProviderKey;
+  /**
+   * Provider attributes set by the integrator for logging and analytics purposes.
+   */
+  providerAttributes?: Record<string, unknown>;
 };
 
 /**
