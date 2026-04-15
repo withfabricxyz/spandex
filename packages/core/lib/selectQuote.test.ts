@@ -29,6 +29,13 @@ const quoteSuccess: SuccessfulSimulatedQuote = {
   networkFee: 5_000n,
   txData: { to: "0x0", data: "0x0" },
   simulation: baseSimulation,
+  performance: {
+    latency: 100,
+    gasUsed: 5_000n,
+    outputAmount: 900_000n,
+    priceDelta: 0,
+    accuracy: 0,
+  },
 };
 
 const quoteFailure: SimulatedQuote = {
@@ -63,6 +70,11 @@ function makeSuccessfulQuote(
       ...quoteSuccess.simulation,
       outputAmount: simulationOutput,
       ...simulationOverride,
+    },
+    performance: {
+      ...quoteSuccess.performance,
+      outputAmount: simulationOutput,
+      ...(overrides.performance ?? {}),
     },
   } as SuccessfulSimulatedQuote;
 }
@@ -102,6 +114,128 @@ describe("selectQuote", () => {
     expect(output?.simulation.outputAmount).toBe(10n);
     expect(cancelled).toBe(true);
   }, 1_000);
+
+  it("custom selection composes firstN with bestPrice", async () => {
+    const pending = [
+      withDelay(makeSuccessfulQuote({ outputAmount: 12n }), 60),
+      withDelay(simulationFailure, 10),
+      withDelay(makeSuccessfulQuote({ outputAmount: 18n }), 30),
+      withDelay(makeSuccessfulQuote({ outputAmount: 99n }), 120),
+    ];
+
+    const output = await selectQuote({
+      strategy: {
+        collect: { type: "firstN", count: 2 },
+        rank: "bestPrice",
+      },
+      quotes: pending,
+    });
+
+    expect(output).toBeDefined();
+    expect(output?.simulation.outputAmount).toBe(18n);
+  }, 1_000);
+
+  it("waits for the requested number of successful quotes", async () => {
+    const pending = [
+      withDelay(quoteFailure, 5),
+      withDelay(makeSuccessfulQuote({ outputAmount: 9n }), 50),
+      withDelay(simulationFailure, 10),
+      withDelay(makeSuccessfulQuote({ outputAmount: 11n }), 40),
+    ];
+
+    const output = await selectQuote({
+      strategy: {
+        collect: { type: "firstN", count: 2 },
+        rank: "bestPrice",
+      },
+      quotes: pending,
+    });
+
+    expect(output).toBeDefined();
+    expect(output?.simulation.outputAmount).toBe(11n);
+  }, 1_000);
+
+  it("custom selection composes benchmark with bestPrice", async () => {
+    const pending = [
+      withDelay(makeSuccessfulQuote({ provider: "odos", outputAmount: 14n }), 20),
+      withDelay(makeSuccessfulQuote({ provider: "fabric", outputAmount: 11n }), 50),
+      withDelay(makeSuccessfulQuote({ provider: "relay", outputAmount: 30n }), 200),
+    ];
+
+    const output = await selectQuote({
+      strategy: {
+        collect: {
+          type: "benchmark",
+          provider: "fabric",
+          minQuotes: 2,
+        },
+        rank: "bestPrice",
+      },
+      quotes: pending,
+    });
+
+    expect(output).toBeDefined();
+    expect(output?.provider).toBe("odos");
+    expect(output?.simulation.outputAmount).toBe(14n);
+  }, 1_000);
+
+  it("supports a custom collect function inside a strategy plan", async () => {
+    const pending = [
+      withDelay(makeSuccessfulQuote({ provider: "odos", outputAmount: 12n }), 20),
+      withDelay(makeSuccessfulQuote({ provider: "fabric", outputAmount: 18n }), 40),
+      withDelay(makeSuccessfulQuote({ provider: "relay", outputAmount: 30n }), 200),
+    ];
+
+    const output = await selectQuote({
+      strategy: {
+        collect: async (quotes) => {
+          const resolved = await Promise.all(quotes);
+          return resolved
+            .filter(
+              (quote): quote is SuccessfulSimulatedQuote =>
+                quote.success && quote.simulation.success && quote.provider !== "relay",
+            )
+            .slice(0, 2);
+        },
+        rank: "bestPrice",
+      },
+      quotes: pending,
+    });
+
+    expect(output).toBeDefined();
+    expect(output?.provider).toBe("fabric");
+    expect(output?.simulation.outputAmount).toBe(18n);
+  }, 1_000);
+
+  it("supports a custom rank function inside a strategy plan", async () => {
+    const pending = [
+      Promise.resolve(
+        makeSuccessfulQuote({
+          provider: "fabric",
+          outputAmount: 1_000n,
+          simulation: { ...quoteSuccess.simulation, outputAmount: 1_000n },
+        }),
+      ),
+      Promise.resolve(
+        makeSuccessfulQuote({
+          provider: "odos",
+          outputAmount: 900n,
+          simulation: { ...quoteSuccess.simulation, outputAmount: 900n },
+        }),
+      ),
+    ];
+
+    const output = await selectQuote({
+      strategy: {
+        collect: { type: "all" },
+        rank: (quotes) => quotes[Math.floor(Math.random() * quotes.length)] ?? null,
+      },
+      quotes: pending,
+    });
+
+    expect(output).toBeDefined();
+    expect(["fabric", "odos"]).toContain(output?.provider);
+  });
 
   it("price selection - best simulated output relative to input is chosen", async () => {
     const pending = [
@@ -238,7 +372,74 @@ describe("selectQuote", () => {
     expect(output).toBeNull();
   });
 
+  it("returns null if firstN cannot collect enough successful quotes", async () => {
+    const pending = [Promise.resolve(quoteFailure), Promise.resolve(makeSuccessfulQuote({}))];
+    const output = await selectQuote({
+      strategy: {
+        collect: { type: "firstN", count: 2 },
+        rank: "bestPrice",
+      },
+      quotes: pending,
+    });
+    expect(output).toBeNull();
+  });
+
+  it("returns null if benchmark criteria are not met", async () => {
+    const pending = [
+      Promise.resolve(makeSuccessfulQuote({ provider: "odos", outputAmount: 20n })),
+      Promise.resolve(quoteFailure),
+    ];
+    const output = await selectQuote({
+      strategy: {
+        collect: {
+          type: "benchmark",
+          provider: "fabric",
+          minQuotes: 2,
+        },
+        rank: "bestPrice",
+      },
+      quotes: pending,
+    });
+    expect(output).toBeNull();
+  });
+
   it("throws if args are bad", async () => {
     await expect(selectQuote({ strategy: "bestPrice", quotes: [] })).rejects.toThrow();
+    await expect(
+      selectQuote({
+        strategy: {
+          collect: { type: "firstN", count: 0 },
+          rank: "bestPrice",
+        },
+        quotes: [Promise.resolve(quoteSuccess)],
+      }),
+    ).rejects.toThrow("Collector firstN count must be a positive integer");
+    await expect(
+      selectQuote({
+        strategy: {
+          collect: { type: "firstN", count: 2 },
+          rank: "bestPrice",
+        },
+        quotes: [Promise.resolve(quoteSuccess)],
+      }),
+    ).rejects.toThrow("Collector firstN count cannot exceed the number of providers");
+    await expect(
+      selectQuote({
+        strategy: {
+          collect: { type: "benchmark", provider: "fabric", minQuotes: 0 },
+          rank: "bestPrice",
+        },
+        quotes: [Promise.resolve(quoteSuccess)],
+      }),
+    ).rejects.toThrow("Collector benchmark minQuotes must be a positive integer");
+    await expect(
+      selectQuote({
+        strategy: {
+          collect: { type: "all" },
+          rank: "first",
+        },
+        quotes: [Promise.resolve(quoteSuccess)],
+      }),
+    ).resolves.toBeDefined();
   });
 });

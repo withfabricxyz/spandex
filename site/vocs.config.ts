@@ -43,6 +43,10 @@ export default defineConfig({
           link: "/core/getting-started",
         },
         {
+          text: "Strategies",
+          link: "/core/strategies",
+        },
+        {
           text: "Functions",
           items: [
             {

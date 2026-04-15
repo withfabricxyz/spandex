@@ -64,15 +64,17 @@ Parameters defining the swap operation. See [SwapParams reference](/reference/Sw
 ### strategy
 `QuoteSelectionStrategy`
 
-Selection strategy used to pick a winning quote. Built-in strategy names:
+Selection strategy used to pick a winning quote.
 
 | Strategy | Waits for All | Selection Criteria | Best For |
 |----------|---------------|-------------------|----------|
 | `bestPrice` | ✓ | Highest simulated output | Price optimization |
 | `estimatedGas` | ✓ | Lowest simulated gas used | Gas efficiency |
 | `fastest` | ✗ | First success | Lowest latency |
-| `priority` | ✗ | Provider order | Failover chains |
+| `priority` | ✓ | Feature priority, then best price | Integrator-controlled preference |
 | Custom | Depends | Your logic | Special requirements |
+
+For tradeoffs and collector/ranker composition examples, see [Strategies](/core/strategies).
 
 Custom function signature:
 

@@ -696,6 +696,86 @@ export type SimulatedQuoteSort = (
 ) => number;
 
 /**
+ * Collector that waits for all simulated quotes to settle before ranking them.
+ */
+export type QuoteSelectionAllCollector = {
+  type: "all";
+};
+
+/**
+ * Collector that waits for the first `count` successful simulated quotes.
+ */
+export type QuoteSelectionFirstNCollector = {
+  type: "firstN";
+  count: number;
+};
+
+/**
+ * Collector that waits for a successful quote from a benchmark provider and at least
+ * `minQuotes` successful quotes overall.
+ */
+export type QuoteSelectionBenchmarkCollector = {
+  type: "benchmark";
+  provider: ProviderKey;
+  minQuotes?: number;
+};
+
+/**
+ * Built-in collector definitions used by composed selection plans.
+ */
+export type QuoteSelectionCollectorSpec =
+  | QuoteSelectionAllCollector
+  | QuoteSelectionFirstNCollector
+  | QuoteSelectionBenchmarkCollector;
+
+/**
+ * Collector function that chooses when enough successful quotes have been gathered.
+ *
+ * Returning `null` indicates that collection criteria were not met.
+ */
+export type QuoteSelectionCollectorFn = (
+  quotes: Array<Promise<SimulatedQuote>>,
+) => Promise<SuccessfulSimulatedQuote[] | null>;
+
+/**
+ * Built-in ranking modes that choose a winner from an already collected subset.
+ */
+export type QuoteSelectionRankerSpec = "first" | "bestPrice" | "estimatedGas" | "priority";
+
+/**
+ * Ranker function that picks a winner from an already collected subset of successful quotes.
+ */
+export type QuoteSelectionRankerFn = (
+  quotes: SuccessfulSimulatedQuote[],
+) => SuccessfulSimulatedQuote | null;
+
+/**
+ * Collector phase in a composed selection plan.
+ *
+ * This may be a built-in serializable collector spec or a custom collector function.
+ */
+export type QuoteSelectionCollector = QuoteSelectionCollectorSpec | QuoteSelectionCollectorFn;
+
+/**
+ * Ranking phase in a composed selection plan.
+ *
+ * This may be a built-in serializable ranking spec or a custom ranker function.
+ */
+export type QuoteSelectionRanker = QuoteSelectionRankerSpec | QuoteSelectionRankerFn;
+
+/**
+ * Strategy definition composed from a collection phase and a ranking phase.
+ *
+ * Each phase may use a built-in serializable spec or a custom function.
+ */
+export type QuoteSelectionPlan = {
+  /** Collection phase that decides when enough successful quotes are available. */
+  collect: QuoteSelectionCollector;
+  /** Ranking phase that chooses a winner from the collected subset. */
+  rank: QuoteSelectionRanker;
+};
+
+/**
  * Custom strategy function used to pick a winning quote.
  */
 export type QuoteSelectionFn = (
@@ -708,9 +788,9 @@ export type QuoteSelectionFn = (
 export type QuoteSelectionName = "fastest" | "bestPrice" | "estimatedGas" | "priority";
 
 /**
- * Strategy reference, either by name or via custom function.
+ * Strategy reference, either by name, serializable collector/ranker plan, or custom function.
  */
-export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionFn;
+export type QuoteSelectionStrategy = QuoteSelectionName | QuoteSelectionPlan | QuoteSelectionFn;
 
 /**
  * Aggregated pricing summary derived from multiple quotes.
