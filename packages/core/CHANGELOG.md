@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.7.0
+
+### Minor Changes
+
+- 5476217: Give users more control around selection without having to write custom functions, which can result in better UX.
+
 ## 0.6.2
 
 ### Patch Changes
