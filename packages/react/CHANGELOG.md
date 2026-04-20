@@ -1,5 +1,16 @@
 # @spandex/react
 
+## 0.7.0
+
+### Minor Changes
+
+- 5476217: Give users more control around selection without having to write custom functions, which can result in better UX.
+
+### Patch Changes
+
+- Updated dependencies [5476217]
+  - @spandex/core@0.7.0
+
 ## 0.6.2
 
 ### Patch Changes
