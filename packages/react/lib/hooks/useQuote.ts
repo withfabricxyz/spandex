@@ -1,6 +1,8 @@
 import {
   type ExactInSwapParams,
   getQuote,
+  type QuoteSelectionFn,
+  type QuoteSelectionPlan,
   type QuoteSelectionStrategy,
   type SuccessfulSimulatedQuote,
   type SwapParams,
@@ -18,6 +20,38 @@ type UseSwapParams = (
   chainId?: number;
   swapperAccount?: `0x${string}`;
 };
+
+const strategyIds = new WeakMap<QuoteSelectionFn, number>();
+const strategyPlanIds = new WeakMap<QuoteSelectionPlan, number>();
+let nextStrategyId = 1;
+
+function getStrategyKey(strategy: QuoteSelectionStrategy): QuoteSelectionStrategy | string {
+  if (typeof strategy === "string") {
+    return strategy;
+  }
+
+  if (typeof strategy === "object") {
+    if (typeof strategy.collect !== "function" && typeof strategy.rank !== "function") {
+      return strategy;
+    }
+
+    let id = strategyPlanIds.get(strategy);
+    if (!id) {
+      id = nextStrategyId++;
+      strategyPlanIds.set(strategy, id);
+    }
+
+    return `plan:${id}`;
+  }
+
+  let id = strategyIds.get(strategy);
+  if (!id) {
+    id = nextStrategyId++;
+    strategyIds.set(strategy, id);
+  }
+
+  return `custom:${id}`;
+}
 
 export type UseQuoteParams<TSelectData = SuccessfulSimulatedQuote | null> = {
   swap: UseSwapParams;
@@ -72,7 +106,7 @@ export function useQuote<TSelectData = SuccessfulSimulatedQuote | null>(
     staleTime: 10_000,
   } as UseQueryOptions<SuccessfulSimulatedQuote | null, Error, TSelectData>;
 
-  const strategyKey = typeof strategy === "string" ? strategy : "custom";
+  const strategyKey = getStrategyKey(strategy);
 
   const requirements = {
     queryKey: [

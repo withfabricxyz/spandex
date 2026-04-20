@@ -1,5 +1,10 @@
 import type {
+  QuoteSelectionCollector,
+  QuoteSelectionCollectorSpec,
   QuoteSelectionFn,
+  QuoteSelectionPlan,
+  QuoteSelectionRanker,
+  QuoteSelectionRankerSpec,
   QuoteSelectionStrategy,
   SimulatedQuote,
   SimulatedQuoteSort,
@@ -62,50 +67,150 @@ function cancelPendingQuotes(quotes: Array<Promise<SimulatedQuote>>, reason: str
   collection.cancel?.(new Error(reason));
 }
 
-const quotedPrice: QuoteSelectionFn = async (
-  quotes: Array<Promise<SimulatedQuote>>,
-): Promise<SuccessfulSimulatedQuote | null> => {
-  const sorted = await resolveSuccessfulSimulatedQuotes({
-    quotes,
-    sort: withPriority(sortBySimulatedOutput),
-  });
-  return sorted[0] ?? null;
-};
+function assertPositiveInteger(value: number, label: string): void {
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new Error(`${label} must be a positive integer`);
+  }
+}
 
-const quotedGas: QuoteSelectionFn = async (
-  quotes: Array<Promise<SimulatedQuote>>,
-): Promise<SuccessfulSimulatedQuote | null> => {
-  const sorted = await resolveSuccessfulSimulatedQuotes({
-    quotes,
-    sort: withPriority(sortByGasUsed),
-  });
-  return sorted[0] ?? null;
-};
+function assertWithinProviderCount(value: number, max: number, label: string): void {
+  if (value > max) {
+    throw new Error(`${label} cannot exceed the number of providers`);
+  }
+}
 
-const priority: QuoteSelectionFn = async (
-  quotes: Array<Promise<SimulatedQuote>>,
-): Promise<SuccessfulSimulatedQuote | null> => {
-  const sorted = await resolveSuccessfulSimulatedQuotes({
-    quotes,
-    sort: withPriority(sortBySimulatedOutput),
-  });
-  return sorted[0] ?? null;
-};
-
-const fastest: QuoteSelectionFn = async (
-  quotes: Array<Promise<SimulatedQuote>>,
-): Promise<SuccessfulSimulatedQuote | null> => {
-  return Promise.any(
-    quotes.map(async (q) => {
-      const resolved = await q;
-      if (isSuccessfulSimulatedQuote(resolved)) {
-        cancelPendingQuotes(quotes, "Fastest quote selected");
-        return resolved;
+async function collectSuccessfulSimulatedQuotesUntil({
+  quotes,
+  shouldStop,
+  stopReason,
+}: {
+  quotes: Array<Promise<SimulatedQuote>>;
+  shouldStop: (quotes: SuccessfulSimulatedQuote[]) => boolean;
+  stopReason: string;
+}): Promise<SuccessfulSimulatedQuote[] | null> {
+  const pending = new Set(
+    quotes.map(async (quote) => {
+      try {
+        return await quote;
+      } catch {
+        return null;
       }
-      return Promise.reject("Failed quote simulation");
     }),
-  ).catch(() => null);
-};
+  );
+  const successfulQuotes: SuccessfulSimulatedQuote[] = [];
+
+  while (pending.size > 0) {
+    const next = await Promise.race(
+      [...pending].map(async (quote) => ({
+        promise: quote,
+        resolved: await quote,
+      })),
+    );
+    pending.delete(next.promise);
+
+    if (next.resolved && isSuccessfulSimulatedQuote(next.resolved)) {
+      successfulQuotes.push(next.resolved);
+
+      if (shouldStop(successfulQuotes)) {
+        cancelPendingQuotes(quotes, stopReason);
+        return successfulQuotes;
+      }
+    }
+  }
+
+  return null;
+}
+
+function rankQuotes(
+  quotes: SuccessfulSimulatedQuote[],
+  sort: SimulatedQuoteSort,
+): SuccessfulSimulatedQuote | null {
+  return [...quotes].sort(sort)[0] ?? null;
+}
+
+async function collectQuotes(
+  quotes: Array<Promise<SimulatedQuote>>,
+  collector: QuoteSelectionCollectorSpec,
+): Promise<SuccessfulSimulatedQuote[] | null> {
+  switch (collector.type) {
+    case "all":
+      return resolveSuccessfulSimulatedQuotes({ quotes });
+    case "firstN": {
+      assertPositiveInteger(collector.count, "Collector firstN count");
+      assertWithinProviderCount(collector.count, quotes.length, "Collector firstN count");
+      return collectSuccessfulSimulatedQuotesUntil({
+        quotes,
+        shouldStop: (successfulQuotes) => successfulQuotes.length >= collector.count,
+        stopReason: `Collected first ${collector.count} successful quote(s)`,
+      });
+    }
+    case "benchmark": {
+      const minQuotes = collector.minQuotes ?? 2;
+      assertPositiveInteger(minQuotes, "Collector benchmark minQuotes");
+      assertWithinProviderCount(minQuotes, quotes.length, "Collector benchmark minQuotes");
+      return collectSuccessfulSimulatedQuotesUntil({
+        quotes,
+        shouldStop: (successfulQuotes) =>
+          successfulQuotes.length >= minQuotes &&
+          successfulQuotes.some((quote) => quote.provider === collector.provider),
+        stopReason: `Collected benchmark provider ${collector.provider}`,
+      });
+    }
+  }
+}
+
+function rankCollectedQuotes(
+  quotes: SuccessfulSimulatedQuote[],
+  ranker: QuoteSelectionRankerSpec,
+): SuccessfulSimulatedQuote | null {
+  switch (ranker) {
+    case "first":
+      return quotes[0] ?? null;
+    case "bestPrice":
+      return rankQuotes(quotes, withPriority(sortBySimulatedOutput));
+    case "estimatedGas":
+      return rankQuotes(quotes, withPriority(sortByGasUsed));
+    case "priority":
+      return rankQuotes(quotes, withPriority(sortBySimulatedOutput));
+  }
+}
+
+function isCollectorSpec(
+  collector: QuoteSelectionCollector,
+): collector is QuoteSelectionCollectorSpec {
+  return typeof collector !== "function";
+}
+
+function isRankerSpec(ranker: QuoteSelectionRanker): ranker is QuoteSelectionRankerSpec {
+  return typeof ranker !== "function";
+}
+
+function toSelectionFn(strategy: QuoteSelectionStrategy): QuoteSelectionFn {
+  if (typeof strategy === "function") {
+    return strategy;
+  }
+
+  const plan: QuoteSelectionPlan =
+    typeof strategy === "string"
+      ? strategy === "fastest"
+        ? { collect: { type: "firstN", count: 1 }, rank: "first" }
+        : { collect: { type: "all" }, rank: strategy }
+      : strategy;
+
+  return async (
+    quotes: Array<Promise<SimulatedQuote>>,
+  ): Promise<SuccessfulSimulatedQuote | null> => {
+    const successfulQuotes = isCollectorSpec(plan.collect)
+      ? await collectQuotes(quotes, plan.collect)
+      : await plan.collect(quotes);
+    if (!successfulQuotes?.length) {
+      return null;
+    }
+    return isRankerSpec(plan.rank)
+      ? rankCollectedQuotes(successfulQuotes, plan.rank)
+      : plan.rank(successfulQuotes);
+  };
+}
 
 /**
  * Selects a winning quote from a set of simulated quote promises.
@@ -126,18 +231,5 @@ export async function selectQuote({
     throw new Error("No quotes provided to selectQuote");
   }
 
-  if (typeof strategy === "function") {
-    return strategy(quotes);
-  }
-
-  switch (strategy) {
-    case "fastest":
-      return fastest(quotes);
-    case "bestPrice":
-      return quotedPrice(quotes);
-    case "estimatedGas":
-      return quotedGas(quotes);
-    case "priority":
-      return priority(quotes);
-  }
+  return toSelectionFn(strategy)(quotes);
 }

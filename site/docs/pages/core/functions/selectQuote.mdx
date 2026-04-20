@@ -41,8 +41,10 @@ Strategy used to pick a winning quote.
 | `bestPrice` | ✓ | Highest simulated output | Price optimization |
 | `estimatedGas` | ✓ | Lowest simulated gas used | Gas efficiency |
 | `fastest` | ✗ | First success | Speed/latency |
-| `priority` | ✗ | Provider order | Fallback chains |
+| `priority` | ✓ | Feature priority, then best price | Integrator-controlled preference |
 | Custom | Depends | Your logic | Special requirements |
+
+For tradeoffs and collector/ranker composition examples, see [Strategies](/core/strategies).
 
 **Custom**
 ```ts

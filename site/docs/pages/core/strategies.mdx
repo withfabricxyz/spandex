@@ -1,0 +1,216 @@
+# Strategies
+
+Selection strategies decide when spanDEX stops waiting for quotes and how it picks a winner.
+
+## Built-In Strategies
+
+| Strategy | Waits for All | Selection Criteria | Best For |
+|----------|---------------|-------------------|----------|
+| `fastest` | ✗ | First successful quote | Lowest latency |
+| `bestPrice` | ✓ | Highest simulated output | Price optimization |
+| `estimatedGas` | ✓ | Lowest simulated gas used | Gas efficiency |
+| `priority` | ✓ | Feature priority, then best price | Integrator-controlled preference |
+
+## fastest
+
+Returns the first successful simulated quote.
+
+Pros:
+- Lowest latency.
+- Good default when execution speed matters more than quote quality.
+
+Cons:
+- Most exposed to adverse selection.
+- Ignores potentially better quotes that arrive slightly later.
+
+## bestPrice
+
+Waits for every provider to finish, then picks the highest simulated output.
+
+Pros:
+- Best price discovery across the full provider set.
+- Most direct choice when output amount is the primary objective.
+
+Cons:
+- Highest latency.
+- A slow provider delays selection.
+
+## estimatedGas
+
+Waits for every provider to finish, then picks the successful quote with the lowest simulated gas.
+
+Pros:
+- Useful when gas dominates the decision.
+- Avoids paying extra for marginal output improvements.
+
+Cons:
+- Can sacrifice output amount.
+- Same latency tradeoff as `bestPrice`.
+
+## priority
+
+Waits for every provider to finish, then prefers quotes with more activated features before using
+best price as the tie-breaker.
+
+Pros:
+- Useful when integrator features must be respected.
+- Lets configuration influence selection without fully overriding quality.
+
+Cons:
+- Can intentionally choose a worse price.
+- Requires understanding feature-priority tradeoffs.
+
+## Composing Collectors and Rankers
+
+For composed strategies, spanDEX supports a serializable plan object with two parts:
+
+- `collect` decides when enough successful quotes have arrived
+- `rank` decides how to choose a winner from the collected subset
+
+This keeps "when do we stop waiting?" separate from "how do we choose the winner?" while
+preserving the original custom function API.
+
+Each phase can use either a built-in spec or a custom function.
+
+### Collector Types
+
+```ts
+type QuoteSelectionCollector =
+  | { type: "all" }
+  | { type: "firstN"; count: number }
+  | { type: "benchmark"; provider: ProviderKey; minQuotes?: number }
+  | ((quotes: Array<Promise<SimulatedQuote>>) => Promise<SuccessfulSimulatedQuote[] | null>)
+```
+
+- `all` waits for all providers
+- `firstN` waits for the first `count` successful quotes
+- `benchmark` waits for a successful quote from a required provider and at least `minQuotes`
+  successful quotes total
+
+### Rankers
+
+```ts
+type QuoteSelectionRanker =
+  | "first"
+  | "bestPrice"
+  | "estimatedGas"
+  | "priority"
+  | ((quotes: SuccessfulSimulatedQuote[]) => SuccessfulSimulatedQuote | null);
+```
+
+The built-in `"fastest"` strategy is equivalent to:
+
+```ts
+{
+  collect: { type: "firstN", count: 1 },
+  rank: "first",
+}
+```
+
+### Strategy Plan
+
+```ts
+type QuoteSelectionPlan = {
+  collect: QuoteSelectionCollector;
+  rank: QuoteSelectionRanker;
+}
+```
+
+### Example: firstN + bestPrice
+
+This is the simplest example of a partial-collection strategy.
+
+```ts
+import { getQuote } from "@spandex/core";
+
+const quote = await getQuote({
+  config,
+  swap,
+  strategy: {
+    collect: { type: "firstN", count: 2 },
+    rank: "bestPrice",
+  },
+});
+```
+
+Pros:
+- Balances speed with some price discovery.
+- Can mitigate adverse selection compared with `fastest`.
+- Adapts naturally to other rankers like `estimatedGas`.
+
+Cons:
+- More likely to return no winner than `fastest`.
+- Still does not wait for the full provider set.
+
+Example:
+- With 3 providers and `firstN + bestPrice`, spanDEX can wait for the first 2 successful quotes,
+  then pick the better price between those 2.
+- If only 1 provider succeeds, no winner is selected and `getQuote` returns `null`.
+- If `count < 1` or `count` exceeds the number of providers, collection throws.
+
+### Example: benchmark + bestPrice
+
+```ts
+const quote = await getQuote({
+  config,
+  swap,
+  strategy: {
+    collect: {
+      type: "benchmark",
+      provider: "fabric",
+      minQuotes: 2,
+    },
+    rank: "bestPrice",
+  },
+});
+```
+
+This means:
+
+- wait for a successful `fabric` quote
+- also wait for at least 2 successful quotes total
+- then choose the best-priced quote among that collected subset
+
+If the benchmark provider never succeeds, no winner is selected and `getQuote` returns `null`.
+
+### Example: custom rank function
+
+This ranker stays purely price-first, then uses `performance.accuracy` as the tie-breaker. That
+gives the integrator "best price, but if two quotes are tied, prefer the one that was more
+accurate."
+
+```ts
+const quote = await getQuote({
+  config,
+  swap,
+  strategy: {
+    collect: { type: "all" },
+    rank: (quotes) => {
+      return [...quotes].sort((a, b) => {
+        if (a.simulation.outputAmount !== b.simulation.outputAmount) {
+          return a.simulation.outputAmount > b.simulation.outputAmount ? -1 : 1;
+        }
+
+        const accuracyA = a.performance.accuracy ?? Number.POSITIVE_INFINITY;
+        const accuracyB = b.performance.accuracy ?? Number.POSITIVE_INFINITY;
+        if (accuracyA === accuracyB) return 0;
+        return accuracyA < accuracyB ? -1 : 1;
+      })[0] ?? null;
+    },
+  },
+});
+```
+
+## Custom Selectors
+
+You can supply any custom selector function that matches the selection signature.
+
+```ts
+type QuoteSelectionFn = (
+  quotes: Array<Promise<SimulatedQuote>>
+) => Promise<SuccessfulSimulatedQuote | null>
+```
+
+In React, memoize function strategies so the query key stays stable across renders.
+
+Use this when the built-in strategies do not match your routing policy.

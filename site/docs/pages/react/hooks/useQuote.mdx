@@ -51,7 +51,13 @@ connection if omitted) and optional `recipientAccount` (defaults to `swapperAcco
 
 ### strategy
 
-Defines how to choose the winning quote. Built-in strategies are `"fastest"`, `"bestPrice"`, `"estimatedGas"`, and `"priority"`. You can also supply a custom selection function.
+Defines how to choose the winning quote. Built-in strategies are `"fastest"`, `"bestPrice"`,
+`"estimatedGas"`, and `"priority"`. You can also supply a serializable strategy plan or a custom
+selection function.
+
+For strategy tradeoffs and collector/ranker composition examples, see [Strategies](/core/strategies).
+When using function strategies, or strategy plans that contain custom `collect` or `rank`
+functions, memoize them so the query key stays stable across renders.
 
 ### query
 

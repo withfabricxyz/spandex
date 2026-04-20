@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import type { QuoteSelectionFn } from "@spandex/core";
+import { act } from "@testing-library/react";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 import { TEST_ADDRESSES, TEST_CHAINS } from "../../test/constants.js";
@@ -177,6 +179,105 @@ describe("useQuote", () => {
       expect(result.current.isLoading).toBe(false);
       expect(result.current.data).toBeDefined();
       expect(result.current.data).toEqual("fabric");
+    });
+  });
+
+  it("should refetch when a custom strategy function reference changes", async () => {
+    const strategyTwo = (() => Promise.resolve(null)) as QuoteSelectionFn;
+    const strategyThree = (() => Promise.resolve(null)) as QuoteSelectionFn;
+
+    const { rerender } = renderHook(
+      ({ strategy }: { strategy: QuoteSelectionFn }) =>
+        useQuote({
+          swap: {
+            mode: "exactIn",
+            inputToken: TEST_ADDRESSES.usdc,
+            outputToken: TEST_ADDRESSES.weth,
+            inputAmount: 500_000_000n,
+            slippageBps: 100,
+          },
+          strategy,
+        }),
+      {
+        initialProps: {
+          strategy: strategyTwo,
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(mockFetchQuote).toHaveBeenCalledTimes(1);
+      expect(mockFetchQuote.mock.calls[0]?.[0]?.strategy).toBe(strategyTwo);
+    });
+
+    await act(async () => {
+      rerender({ strategy: strategyTwo });
+    });
+
+    await waitFor(() => {
+      expect(mockFetchQuote).toHaveBeenCalledTimes(1);
+      expect(mockFetchQuote.mock.calls[0]?.[0]?.strategy).toBe(strategyTwo);
+    });
+
+    await act(async () => {
+      rerender({ strategy: strategyThree });
+    });
+
+    await waitFor(() => {
+      expect(mockFetchQuote).toHaveBeenCalledTimes(2);
+      expect(mockFetchQuote.mock.calls[1]?.[0]?.strategy).toBe(strategyThree);
+    });
+  });
+
+  it("should not refetch when a strategy plan is structurally unchanged", async () => {
+    const { rerender } = renderHook(
+      ({ count }: { count: number }) =>
+        useQuote({
+          swap: {
+            mode: "exactIn",
+            inputToken: TEST_ADDRESSES.usdc,
+            outputToken: TEST_ADDRESSES.weth,
+            inputAmount: 500_000_000n,
+            slippageBps: 100,
+          },
+          strategy: {
+            collect: { type: "firstN", count },
+            rank: "bestPrice",
+          },
+        }),
+      {
+        initialProps: {
+          count: 2,
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(mockFetchQuote).toHaveBeenCalledTimes(1);
+      expect(mockFetchQuote.mock.calls[0]?.[0]?.strategy).toEqual({
+        collect: { type: "firstN", count: 2 },
+        rank: "bestPrice",
+      });
+    });
+
+    await act(async () => {
+      rerender({ count: 2 });
+    });
+
+    await waitFor(() => {
+      expect(mockFetchQuote).toHaveBeenCalledTimes(1);
+    });
+
+    await act(async () => {
+      rerender({ count: 3 });
+    });
+
+    await waitFor(() => {
+      expect(mockFetchQuote).toHaveBeenCalledTimes(2);
+      expect(mockFetchQuote.mock.calls[1]?.[0]?.strategy).toEqual({
+        collect: { type: "firstN", count: 3 },
+        rank: "bestPrice",
+      });
     });
   });
 });
