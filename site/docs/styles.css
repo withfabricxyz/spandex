@@ -25,6 +25,10 @@
   }
 }
 
+.hide-overflow {
+  overflow: hidden;
+}
+
 .logo {
   width: 12.8rem;
 
