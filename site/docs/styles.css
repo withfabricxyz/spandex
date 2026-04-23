@@ -17,6 +17,7 @@
   min-height: 100vh;
   max-width: 720px;
   margin: 0 auto;
+  overflow-x: hidden;
 
   /*--vocs-color_borderAccent: var(--color-primary);*/
 

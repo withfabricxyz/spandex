@@ -18,5 +18,8 @@
     "@spandex/react": "workspace:*",
     "tailwindcss": "^4.1.18",
     "typescript": "latest"
+  },
+  "dependencies": {
+    "motion": "^12.38.0"
   }
 }
