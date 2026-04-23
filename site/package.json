@@ -17,7 +17,7 @@
     "@spandex/core": "workspace:*",
     "@spandex/react": "workspace:*",
     "tailwindcss": "^4.1.18",
-    "typescript": "latest"
+    "typescript": "5.9.3"
   },
   "dependencies": {
     "motion": "^12.38.0"
