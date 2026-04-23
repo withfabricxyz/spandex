@@ -3,7 +3,6 @@ import { ArbitrumLogo } from "./logo/arbitrum";
 import { AutoLogo } from "./logo/auto";
 import { AvalancheLogo } from "./logo/avalanche";
 import { BaseLogo } from "./logo/base";
-import { BitcoinLogo } from "./logo/bitcoin";
 import { BlastLogo } from "./logo/blast";
 import { BnbChainLogo } from "./logo/bnbchain";
 import { ClankerLogo } from "./logo/clanker";
@@ -17,7 +16,6 @@ import { KyberSwapLogo } from "./logo/kyberswap";
 import { LifiLogo } from "./logo/lifi";
 import { LiskLogo } from "./logo/lisk";
 import { ModeLogo } from "./logo/mode";
-import { NearLogo } from "./logo/near";
 import { OdosLogo } from "./logo/odos";
 import { OkuLogo } from "./logo/oku";
 import { OptimismLogo } from "./logo/optimism";
@@ -26,9 +24,7 @@ import { RelayLogo } from "./logo/relay";
 import { RiftLogo } from "./logo/rift";
 import { RoninLogo } from "./logo/ronin";
 import { ScrollLogo } from "./logo/scroll";
-import { SolanaLogo } from "./logo/solana";
 import { SonicLogo } from "./logo/sonic";
-import { SuiLogo } from "./logo/sui";
 import { TempoLogo } from "./logo/tempo";
 import { UnichainLogo } from "./logo/unichain";
 import { VeloraLogo } from "./logo/velora";
@@ -49,12 +45,8 @@ const chainLogos = [
   { name: "Unichain", href: "https://www.unichain.org", Logo: UnichainLogo },
   { name: "Plasma", href: "https://www.plasma.to/chain", Logo: PlasmaLogo },
   { name: "Tempo", href: "https://tempo.xyz", Logo: TempoLogo },
-  { name: "Solana", href: "https://solana.com", Logo: SolanaLogo },
-  { name: "Sui", href: "https://sui.io", Logo: SuiLogo },
-  { name: "Bitcoin", href: "https://bitcoin.org", Logo: BitcoinLogo },
   { name: "Avalanche", href: "https://www.avax.network", Logo: AvalancheLogo },
   { name: "BNB Chain", href: "https://www.bnbchain.org", Logo: BnbChainLogo },
-  { name: "Near", href: "https://near.org", Logo: NearLogo },
   { name: "Gnosis", href: "https://www.gnosis.io/chain", Logo: GnosisLogo },
   { name: "Ronin", href: "https://roninchain.com", Logo: RoninLogo },
   { name: "Lisk", href: "https://lisk.com/chain", Logo: LiskLogo },
