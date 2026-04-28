@@ -1,0 +1,88 @@
+{
+  "success": true,
+  "provider": "nordstern",
+  "details": {
+    "toAmount": "218199488736120147",
+    "swaps": [
+      {
+        "gasUnits": 149015,
+        "amountIn": "500000000",
+        "amountOut": "218199035069611136",
+        "route": [
+          {
+            "amountOut": "218199035069611136",
+            "pool": "0xc1b13606fC7227000000000006F71b54BDa02913",
+            "tokenIn": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            "tokenOut": "0x4200000000000000000000000000000000000006",
+            "type": "elfomofi",
+            "direction": "1_0",
+            "amountIn": "500000000"
+          }
+        ],
+        "hops": 1
+      }
+    ],
+    "gasEstimate": "226624",
+    "simulationBlock": 45306253,
+    "tx": {
+      "to": "0xC87De04e2EC1F4282dFF2933A2D58199f688fC3d",
+      "value": "0",
+      "data": "0x3f0bde25be9f6d691fb41ca5f030422251bcb19944bd8d8cb0940000000000000000000000001dcd6500000000000000000002ff72c422201a9f076d691fb41ca5f030422251bcb19944bd8d8cb094ee7ae85f2fe2239e27d9c1e23fffe168d63b4055833589fcd6edb6e08f4c7c32d4f71b54bda02913eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef0f0f0f0fb0d738452efd03a28e8be14c76d5f7342000000000000000000000000000000000000062bfd1fc5e25a8f55c2e849492ad7966ea8a0dd9e710204ed0205008d052ac1cd0600026169058a01ff",
+      "from": "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055"
+    },
+    "src": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "dst": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    "fromAmount": "500000000"
+  },
+  "latency": 425.4901,
+  "inputChainId": 8453,
+  "outputChainId": 8453,
+  "execution": "atomic",
+  "inputAmount": {
+    "__bigint__": "500000000"
+  },
+  "outputAmount": {
+    "__bigint__": "218199488736120147"
+  },
+  "networkFee": {
+    "__bigint__": "0"
+  },
+  "txData": {
+    "to": "0xC87De04e2EC1F4282dFF2933A2D58199f688fC3d",
+    "data": "0x3f0bde25be9f6d691fb41ca5f030422251bcb19944bd8d8cb0940000000000000000000000001dcd6500000000000000000002ff72c422201a9f076d691fb41ca5f030422251bcb19944bd8d8cb094ee7ae85f2fe2239e27d9c1e23fffe168d63b4055833589fcd6edb6e08f4c7c32d4f71b54bda02913eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef0f0f0f0fb0d738452efd03a28e8be14c76d5f7342000000000000000000000000000000000000062bfd1fc5e25a8f55c2e849492ad7966ea8a0dd9e710204ed0205008d052ac1cd0600026169058a01ff"
+  },
+  "approval": {
+    "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "spender": "0xC87De04e2EC1F4282dFF2933A2D58199f688fC3d"
+  },
+  "route": {
+    "nodes": [
+      {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      },
+      {
+        "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+      },
+      {
+        "address": "0x4200000000000000000000000000000000000006"
+      }
+    ],
+    "edges": [
+      {
+        "source": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "target": "0x4200000000000000000000000000000000000006",
+        "address": "0xc1b13606fC7227000000000006F71b54BDa02913",
+        "key": "0xc1b13606fC7227000000000006F71b54BDa02913-0-0",
+        "value": 500000000
+      }
+    ]
+  },
+  "pricing": {
+    "inputToken": {
+      "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    },
+    "outputToken": {
+      "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+    }
+  }
+}

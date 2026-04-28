@@ -1,9 +1,10 @@
-import { createConfig, fabric, getQuote, kyberswap, odos } from "@spandex/core";
+import { createConfig, fabric, getQuote, kyberswap, nordstern, odos } from "@spandex/core";
 
 export const config = createConfig({
   providers: [
     fabric({ appId: "spandex" }),
     kyberswap({ clientId: "spandex" }),
+    nordstern({}),
     odos({ referralCode: 1234 }),
   ],
   options: {

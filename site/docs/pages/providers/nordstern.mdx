@@ -1,0 +1,44 @@
+import { Button } from 'vocs/components'
+import { Callout } from 'vocs/components'
+
+# Nordstern
+
+<div className="flex flex-row gap-4">
+  <Button href="https://nordstern.finance">Homepage</Button>
+  <Button href="https://docs.nordstern.finance/en/latest/usage.html">Docs</Button>
+</div>
+
+## Configuration
+
+<Callout type="info">
+  Nordstern supports `exactIn` quotes and integrator fees (forwarded as Nordstern's
+  `convenienceFee`). It does not support exact-output quotes.
+</Callout>
+
+```ts twoslash
+import { createConfig, nordstern } from "@spandex/core";
+
+export const config = createConfig({
+  providers: [
+    nordstern({
+      // Optional, override the API base URL
+      baseUrl: undefined,
+    }),
+    // ...
+  ],
+});
+```
+
+## Notes
+
+- Nordstern is live on 140+ EVM-compatible chains. Use the
+  [`/chains` endpoint](https://api.nordstern.finance/chains) to see
+  current support.
+- Slippage is sent to Nordstern as a percentage. spanDEX converts the standard
+  `slippageBps` (basis points) value automatically (`slippageBps / 100`).
+- When `integratorSwapFeeBps` and `integratorFeeAddress` are set, spanDEX
+  forwards them as Nordstern's `convenienceFee` and `convenienceFeeRecipient`.
+- Nordstern's response does not include a gas-price estimate, so `networkFee`
+  is reported as `0n`. Estimate gas yourself before submission if you need it.
+- Approvals must target the Nordstern router (`tx.to` from the response);
+  spanDEX surfaces this on the `approval` field of the returned quote.

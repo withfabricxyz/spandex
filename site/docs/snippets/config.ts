@@ -1,4 +1,4 @@
-import { createConfig, fabric, kyberswap, odos } from "@spandex/core";
+import { createConfig, fabric, kyberswap, nordstern, odos } from "@spandex/core";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
@@ -11,6 +11,7 @@ const baseClient = createPublicClient({
 export const config = createConfig({
   providers: [
     fabric({ appId: "your app id" }),
+    nordstern({}),
     odos({ referralCode: 1234 }),
     kyberswap({ clientId: "your client id" }),
   ],

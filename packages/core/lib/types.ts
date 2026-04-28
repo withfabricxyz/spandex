@@ -4,6 +4,7 @@ import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js"
 import type { Aggregator } from "./aggregators/index.js";
 import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
 import type { LifiConfig, LifiQuoteResponse } from "./aggregators/lifi.js";
+import type { NordsternConfig, NordsternQuoteResponse } from "./aggregators/nordstern.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
 import type { RelayConfig, RelayQuoteResponse } from "./aggregators/relay.js";
 import type { VeloraConfig, VeloraQuoteResponse } from "./aggregators/velora.js";
@@ -28,6 +29,10 @@ export type ProviderDefinitions = {
   lifi: {
     config: LifiConfig;
     quote: LifiQuoteResponse;
+  };
+  nordstern: {
+    config: NordsternConfig;
+    quote: NordsternQuoteResponse;
   };
   odos: {
     config: OdosConfig;
