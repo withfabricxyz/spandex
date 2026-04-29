@@ -3,6 +3,7 @@ import {
   defaultSwapParams,
   nativeInputSwap,
   nativeOutputSwap,
+  recordDefaultSimulation,
   recordOutput,
 } from "../../test/utils.js";
 import {
@@ -59,6 +60,16 @@ describe("Nordstern", () => {
       throw new Error("Failed to fetch quote");
     }
     expect(quote.outputAmount).toBeGreaterThan(0n);
+  }, 30_000);
+
+  it("simulates", async () => {
+    const quote = await recordDefaultSimulation(nordstern());
+    expect(quote).toBeDefined();
+    console.log(quote.performance);
+    expect(quote.simulation.success).toBe(true);
+    expect(quote.simulation.outputAmount).toBeGreaterThan(0n);
+    expect(quote.simulation.gasUsed).toBeGreaterThan(0);
+    expect(quote.simulation.latency).toBeGreaterThan(0);
   }, 30_000);
 
   it("builds a route DAG", () => {
