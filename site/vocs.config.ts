@@ -207,6 +207,10 @@ export default defineConfig({
           link: "/providers/lifi",
         },
         {
+          text: "Nordstern",
+          link: "/providers/nordstern",
+        },
+        {
           text: "Relay",
           link: "/providers/relay",
         },

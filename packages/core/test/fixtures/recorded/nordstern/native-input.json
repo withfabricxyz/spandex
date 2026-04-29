@@ -1,0 +1,87 @@
+{
+  "success": true,
+  "provider": "nordstern",
+  "details": {
+    "tx": {
+      "from": "0xDeaD00000000000000000000000000000000BEEf",
+      "to": "0xC87De04e2EC1F4282dFF2933A2D58199f688fC3d",
+      "value": "1000000000000000000",
+      "data": "0x3f0bde255fde6d691fb41ca5f030422251bcb19944bd8d8cb09400000000000000000de0b6b3a76400000000000000000000000000008743a738076d691fb41ca5f030422251bcb19944bd8d8cb094dead00000000000000000000000000000000beefeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee833589fcd6edb6e08f4c7c32d4f71b54bda02913420000000000000000000000000000000000000655555522005bcae1c2424d474bfd5ed477749e3e2bfd1fc5e25a8f55c2e849492ad7966ea8a0dd9e7404f805f104f304f00403008d031088a006ffb748710301ff"
+    },
+    "src": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    "dst": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "fromAmount": "1000000000000000000",
+    "toAmount": "2292280687",
+    "swaps": [
+      {
+        "amountIn": "1000000000000000000",
+        "amountOut": "2292160013",
+        "route": [
+          {
+            "amountOut": "2292160013",
+            "pool": "0xf524C1Bc1C64A2C99bc7eccf19EDe9a1d89d5a7C",
+            "tokenIn": "0x4200000000000000000000000000000000000006",
+            "tokenOut": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            "type": "tessera",
+            "direction": "0_1",
+            "amountIn": "1000000000000000000"
+          }
+        ],
+        "hops": 1,
+        "gasUnits": 1340146
+      }
+    ],
+    "gasEstimate": "1628320",
+    "simulationBlock": 45306215
+  },
+  "latency": 280.58489999999983,
+  "inputChainId": 8453,
+  "outputChainId": 8453,
+  "execution": "atomic",
+  "inputAmount": {
+    "__bigint__": "1000000000000000000"
+  },
+  "outputAmount": {
+    "__bigint__": "2292280687"
+  },
+  "networkFee": {
+    "__bigint__": "0"
+  },
+  "txData": {
+    "to": "0xC87De04e2EC1F4282dFF2933A2D58199f688fC3d",
+    "data": "0x3f0bde255fde6d691fb41ca5f030422251bcb19944bd8d8cb09400000000000000000de0b6b3a76400000000000000000000000000008743a738076d691fb41ca5f030422251bcb19944bd8d8cb094dead00000000000000000000000000000000beefeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee833589fcd6edb6e08f4c7c32d4f71b54bda02913420000000000000000000000000000000000000655555522005bcae1c2424d474bfd5ed477749e3e2bfd1fc5e25a8f55c2e849492ad7966ea8a0dd9e7404f805f104f304f00403008d031088a006ffb748710301ff",
+    "value": {
+      "__bigint__": "1000000000000000000"
+    }
+  },
+  "route": {
+    "nodes": [
+      {
+        "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+      },
+      {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      },
+      {
+        "address": "0x4200000000000000000000000000000000000006"
+      }
+    ],
+    "edges": [
+      {
+        "source": "0x4200000000000000000000000000000000000006",
+        "target": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "address": "0xf524C1Bc1C64A2C99bc7eccf19EDe9a1d89d5a7C",
+        "key": "0xf524C1Bc1C64A2C99bc7eccf19EDe9a1d89d5a7C-0-0",
+        "value": 1000000000000000000
+      }
+    ]
+  },
+  "pricing": {
+    "inputToken": {
+      "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+    },
+    "outputToken": {
+      "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    }
+  }
+}

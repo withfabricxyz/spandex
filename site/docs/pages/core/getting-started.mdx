@@ -1,6 +1,6 @@
 # Getting Started - Core
 
-To get started we will create a shared meta aggregator instance with three providers, default settings, and support for base. Then, we will fetch the best quote for a swap and execute it.
+To get started we will create a shared meta aggregator instance with four providers, default settings, and support for base. Then, we will fetch the best quote for a swap and execute it.
 
 ## 1. Install
 
@@ -25,7 +25,7 @@ bun i viem @spandex/core
 See the [configuration reference](/configuration) for all options.
 
 ```ts filename="config.ts" twoslash
-import { createConfig, fabric, kyberswap, odos } from "@spandex/core";
+import { createConfig, fabric, kyberswap, nordstern, odos } from "@spandex/core";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
@@ -37,7 +37,12 @@ const baseClient = createPublicClient({
 
 // The aggregator instance can be shared across your application
 export const config = createConfig({
-  providers: [fabric({ appId: "test" }), odos({}), kyberswap({ clientId: "test" })],
+  providers: [
+    fabric({ appId: "test" }),
+    odos({}),
+    kyberswap({ clientId: "test" }),
+    nordstern({}),
+  ],
   clients: [baseClient] as PublicClient[],
 });
 ```

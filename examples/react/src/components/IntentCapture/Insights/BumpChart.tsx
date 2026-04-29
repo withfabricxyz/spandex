@@ -23,6 +23,7 @@ export const COLORS: Record<string, string> = {
   "0x": "var(--color-fabric-red)",
   odos: "var(--color-fabric-pink)",
   kyberswap: "var(--color-fabric-green)",
+  nordstern: "var(--color-fabric-light-blue)",
   fallback: "#ddd",
   secondary: "var(--color-border)",
   tertiary: "var(--color-outline)",

@@ -16,6 +16,7 @@ import { KyberSwapLogo } from "./logo/kyberswap";
 import { LifiLogo } from "./logo/lifi";
 import { LiskLogo } from "./logo/lisk";
 import { ModeLogo } from "./logo/mode";
+import { NordsternLogo } from "./logo/nordstern";
 import { OdosLogo } from "./logo/odos";
 import { OkuLogo } from "./logo/oku";
 import { OptimismLogo } from "./logo/optimism";
@@ -32,7 +33,7 @@ import { XdcLogo } from "./logo/xdc";
 import Marquee from "./Marquee";
 
 const logoLink =
-  "text-secondary transition-colors duration-[125ms] ease-out hover:text-primary no-underline [&>svg]:max-md:[zoom:0.8]";
+  "text-secondary transition-colors duration-[125ms] ease-out hover:text-primary no-underline [&>svg]:max-md:[zoom:0.8] [&>img]:max-md:[zoom:0.8]";
 
 const chainLogos = [
   { name: "Base", href: "https://base.org", Logo: BaseLogo },
@@ -59,7 +60,7 @@ export function ProviderMarquee() {
   return (
     <div className="flex flex-col gap-10">
       <section className="flex flex-col gap-10">
-        <span className="agg">7 Aggregators—</span>
+        <span className="agg">8 Aggregators—</span>
         <Marquee direction="rtl" gap={40}>
           <a href="https://0x.org" target="_blank" rel="noopener noreferrer" className={logoLink}>
             <Logo0x />
@@ -93,6 +94,14 @@ export function ProviderMarquee() {
           </a>
           <a href="https://odos.xyz" target="_blank" rel="noopener noreferrer" className={logoLink}>
             <OdosLogo />
+          </a>
+          <a
+            href="https://nordstern.finance"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={logoLink}
+          >
+            <NordsternLogo />
           </a>
           <a
             href="https://velora.xyz"

@@ -1,4 +1,12 @@
-import { createConfig, fabric, kyberswap, odos, type SwapParams, zeroX } from "@spandex/core";
+import {
+  createConfig,
+  fabric,
+  kyberswap,
+  nordstern,
+  odos,
+  type SwapParams,
+  zeroX,
+} from "@spandex/core";
 import { createPublicClient } from "viem";
 import { z } from "zod";
 import { configuredChains } from "@/config/onchain";
@@ -7,6 +15,7 @@ export const proxyConfig = createConfig({
   providers: [
     odos({}),
     kyberswap({ clientId: "spandex_ui" }),
+    nordstern({}),
     fabric({ appId: "spandex_ui" }),
     process.env.ZEROX_API_KEY ? zeroX({ apiKey: process.env.ZEROX_API_KEY }) : undefined,
   ].filter((p): p is NonNullable<typeof p> => Boolean(p)),
