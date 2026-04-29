@@ -1,5 +1,13 @@
 # @spandex/react
 
+## 0.7.1
+
+### Patch Changes
+
+- 3953c37: Add nordstern finance aggregator to provider set
+- Updated dependencies [3953c37]
+  - @spandex/core@0.7.1
+
 ## 0.7.0
 
 ### Minor Changes
