@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.7.1
+
+### Patch Changes
+
+- 3953c37: Add nordstern finance aggregator to provider set
+
 ## 0.7.0
 
 ### Minor Changes
