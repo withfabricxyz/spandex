@@ -58,7 +58,7 @@
     "@types/bun": "latest",
     "@types/react": "^19.2.8",
     "happy-dom": "^20.3.0",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.5"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.17",
