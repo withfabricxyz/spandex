@@ -66,7 +66,7 @@
     },
     "packages/core": {
       "name": "@spandex/core",
-      "version": "0.7.1",
+      "version": "0.7.2",
       "devDependencies": {
         "@types/bun": "latest",
         "prool": "^0.2.1",
@@ -82,7 +82,7 @@
     },
     "packages/react": {
       "name": "@spandex/react",
-      "version": "0.7.1",
+      "version": "0.7.2",
       "dependencies": {
         "@spandex/core": "workspace:*",
       },
