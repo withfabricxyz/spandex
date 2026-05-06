@@ -48,17 +48,16 @@
     "README.md"
   ],
   "scripts": {
-    "build": "bun ../../scripts/build-packages.ts core"
+    "build": "bun --cwd ../.. ./scripts/build-packages.ts core"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "prool": "^0.2.1"
-  },
-  "dependencies": {
+    "prool": "^0.2.1",
     "viem": "^2.40"
   },
   "peerDependencies": {
-    "typescript": ">=5.0.4"
+    "typescript": ">=5.0.4",
+    "viem": ">=2 <3"
   },
   "peerDependenciesMeta": {
     "typescript": {

@@ -84,4 +84,56 @@ describe("prepareQuotes", () => {
     expect(quotes).toHaveLength(1);
     expect(quotes[0]?.provider).toBe("relay");
   });
+
+  it("resolves dynamic integrator fees once per swap before fetching provider quotes", async () => {
+    const first = new MockAggregator(quoteSuccess, {
+      features: ["exactIn", "integratorFees"],
+    });
+    const second = new MockAggregator(quoteSuccess, {
+      features: ["exactIn"],
+    });
+    let calls = 0;
+    const config: Config = createConfig({
+      providers: [first, second],
+      options: {
+        integratorFeeFn: async (params) => {
+          calls++;
+          expect(params).toMatchObject({
+            chainId: 8453,
+            inputAmount: 500_000_000n,
+          });
+          return {
+            feeAddress: "0xFee00000000000000000000000000000000000fee",
+            swapFeeBps: 25,
+            tokenPreference: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          };
+        },
+      },
+    });
+
+    const prepared = await prepareQuotes({
+      config,
+      swap: {
+        chainId: 8453,
+        inputToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        outputToken: "0x4200000000000000000000000000000000000006",
+        inputAmount: 500_000_000n,
+        slippageBps: 100,
+        swapperAccount: "0xdead00000000000000000000000000000000beef",
+        mode: "exactIn",
+      },
+      mapFn: async (quote: Quote) => quote,
+    });
+
+    const quotes = await Promise.all(prepared);
+    expect(calls).toBe(1);
+    expect(first.lastOptions).toMatchObject({
+      integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",
+      integratorSwapFeeBps: 25,
+      integratorFeeTokenPreference: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    });
+    expect(second.lastOptions?.integratorSwapFeeBps).toBe(25);
+    expect(quotes[0]?.success && quotes[0].activatedFeatures).toEqual(["integratorFees"]);
+    expect(quotes[1]?.success && quotes[1].activatedFeatures).toEqual([]);
+  });
 });

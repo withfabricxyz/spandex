@@ -1,4 +1,5 @@
 import type { Address } from "viem";
+import { resolveSwapOptions } from "../resolveOptions.js";
 import {
   type AggregationOptions,
   type AggregatorFeature,
@@ -89,6 +90,16 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
     return token;
   }
 
+  protected resolveTokenOptions(options: SwapOptions): SwapOptions {
+    if (!options.integratorFeeTokenPreference) {
+      return options;
+    }
+    return {
+      ...options,
+      integratorFeeTokenPreference: this.resolveTokenAddress(options.integratorFeeTokenPreference),
+    };
+  }
+
   /**
    * Optional attributes provided by the integrator for logging and analytics purposes.
    */
@@ -129,16 +140,18 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
    * @returns Successful or failed quote result.
    */
   async fetchQuote(params: SwapParams, options?: AggregationOptions): Promise<Quote> {
+    const resolvedOptions = await resolveSwapOptions(params, options);
     const resolvedParams: SwapParams = {
       ...params,
       inputToken: this.resolveTokenAddress(params.inputToken),
       outputToken: this.resolveTokenAddress(params.outputToken),
     };
 
+    const providerOptions = this.resolveTokenOptions(resolvedOptions);
     const effectiveOptions =
       this.config.timeoutMs === undefined
-        ? options
-        : { ...(options ?? {}), deadlineMs: this.config.timeoutMs };
+        ? providerOptions
+        : { ...providerOptions, deadlineMs: this.config.timeoutMs };
     const { delayMs, numRetries, deadlineMs } = resolveTimingControls(effectiveOptions);
 
     const quoteCall = async () => {

@@ -1,11 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import {
-  defaultSwapParams,
-  recordedSimulation,
-  testConfig,
-  USDC_WHALE,
-} from "packages/core/test/utils.js";
 import type { Address } from "viem";
+import { defaultSwapParams, recordedSimulation, testConfig, USDC_WHALE } from "../../test/utils.js";
 import { zeroX } from "../aggregators/0x.js";
 import { fabric } from "../aggregators/fabric.js";
 import { kyberswap } from "../aggregators/kyber.js";

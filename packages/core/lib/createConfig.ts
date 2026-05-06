@@ -4,6 +4,7 @@ import type { Aggregator } from "./aggregators/index.js";
 import { kyberswap } from "./aggregators/kyber.js";
 import { nordstern } from "./aggregators/nordstern.js";
 import { odos } from "./aggregators/odos.js";
+import { validateStaticFeeOptions } from "./resolveOptions.js";
 import type {
   AggregationOptions,
   ConfigParams,
@@ -119,21 +120,5 @@ function createClientLookupFunction(
 }
 
 function validateOptions(options: AggregationOptions): void {
-  if (
-    ((options.integratorSwapFeeBps || 0) > 0 || (options.integratorSurplusBps || 0) > 0) &&
-    !options.integratorFeeAddress
-  ) {
-    throw new Error(
-      "Swap fees or surplus bps provided without an integrator fee address. Set `integratorFeeAddress` in AggregationOptions.",
-    );
-  }
-  if (
-    options.integratorFeeAddress &&
-    !options.integratorSwapFeeBps &&
-    !options.integratorSurplusBps
-  ) {
-    throw new Error(
-      "Integrator fee address provided without swap fees or surplus bps. Set `integratorSwapFeeBps` or `integratorSurplusBps` in AggregationOptions.",
-    );
-  }
+  validateStaticFeeOptions(options);
 }

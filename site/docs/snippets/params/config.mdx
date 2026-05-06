@@ -99,6 +99,12 @@ Swap fee for the integrator (in basis points). Only applicable if the provider s
 
 Surplus share for the integrator (in basis points). Only applicable if the provider supports surplus sharing.
 
+#### options.integratorFeeFn
+`((params: SwapParams) => FeeSettings | null | undefined | Promise<FeeSettings | null | undefined>) | undefined`
+
+Dynamic fee selector invoked once per swap request. Use this instead of static fee options when
+fee address, fee bps, surplus bps, or fee-token preference depend on the swap parameters.
+
 Fee and surplus settings are optimistic: providers that do not support the requested features may
 still return quotes, and selection will prefer quotes with more activated fee features before
 applying the secondary strategy (best price, lowest gas, etc).

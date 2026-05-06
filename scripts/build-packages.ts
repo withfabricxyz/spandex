@@ -143,7 +143,7 @@ function buildOutputs(pkg: PackageInfo): void {
     "--module",
     "CommonJS",
     "--moduleResolution",
-    "Node10",
+    "Bundler",
     "--target",
     "ES2021",
     "--outDir",

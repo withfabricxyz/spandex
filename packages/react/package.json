@@ -49,27 +49,30 @@
     "README.md"
   ],
   "scripts": {
-    "build": "bun ../../scripts/build-packages.ts wagmi",
+    "build": "bun --cwd ../.. ./scripts/build-packages.ts react",
     "test": "bun test --preload ./test-setup.ts"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.1",
     "@testing-library/react-hooks": "^8.0.1",
+    "@tanstack/react-query": "^5.90.17",
     "@types/bun": "latest",
     "@types/react": "^19.2.8",
     "happy-dom": "^20.3.0",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "viem": "^2.40",
+    "wagmi": "^3.3.2"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.17",
-    "@spandex/core": "workspace:*",
-    "wagmi": "^3.3.2",
-    "viem": "^2.40"
+    "@spandex/core": "workspace:*"
   },
   "peerDependencies": {
+    "@tanstack/react-query": ">=5 <6",
     "react": "^19",
     "react-dom": "^19",
-    "typescript": "^5.9.3"
+    "typescript": ">=5.0.4",
+    "viem": ">=2 <3",
+    "wagmi": ">=3 <4"
   },
   "peerDependenciesMeta": {
     "typescript": {

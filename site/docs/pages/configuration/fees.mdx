@@ -35,6 +35,7 @@ spanDEX supports two integrator fee-capture controls for applications that sourc
 
 - Fixed swap fee (`integratorSwapFeeBps`)
 - Surplus share (`integratorSurplusBps`)
+- Dynamic swap-time fee selection (`integratorFeeFn`)
 
 These requests are passed optimistically to providers. Each quote reports `activatedFeatures` so
 selection can prefer quotes that actually activated requested features.
@@ -81,6 +82,60 @@ const config = createConfig({
   },
 });
 ```
+
+## Dynamic Fee Decisions
+
+Use `integratorFeeFn` when fee settings depend on the swap route, token pair, chain, user, or
+amount. The function runs once per swap request before provider quote requests are sent, and the
+returned settings are forwarded to providers using the same fee controls as static configuration.
+
+```ts
+import { createConfig, zeroX } from "@spandex/core";
+
+const baseTokenPreferenceStack = [
+  "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+  "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2", // USDT
+  "0x4200000000000000000000000000000000000006", // WETH
+  "0x0000000000000000000000000000000000000000", // ETH
+  "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf", // cbBTC
+] as const;
+
+const config = createConfig({
+  providers: [zeroX({ apiKey: "YOUR_0X_API_KEY" })],
+  options: {
+    integratorFeeFn: async (swap) => {
+      if (swap.chainId !== 8453) {
+        return undefined;
+      }
+
+      const inputIndex = baseTokenPreferenceStack.findIndex(
+        (token) => token.toLowerCase() === swap.inputToken.toLowerCase(),
+      );
+      const outputIndex = baseTokenPreferenceStack.findIndex(
+        (token) => token.toLowerCase() === swap.outputToken.toLowerCase(),
+      );
+
+      const selectedToken =
+        inputIndex >= 0 && (outputIndex < 0 || inputIndex <= outputIndex)
+          ? baseTokenPreferenceStack[inputIndex]
+          : baseTokenPreferenceStack[outputIndex];
+
+      if (!selectedToken) {
+        return undefined;
+      }
+
+      return {
+        feeAddress: "0xFee00000000000000000000000000000000000fee",
+        swapFeeBps: 10,
+        tokenPreference: selectedToken,
+      };
+    },
+  },
+});
+```
+
+`integratorFeeFn` is mutually exclusive with static fee settings like `integratorFeeAddress` and
+`integratorSwapFeeBps`. Return `null` or `undefined` to request no integrator fee for a swap.
 
 ## Integrator Fee Support by Provider
 
