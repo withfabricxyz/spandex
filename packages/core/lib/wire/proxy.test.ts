@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { defaultSwapParams, recordedQuotes, testConfig } from "packages/core/test/utils.js";
 import type { Address } from "viem";
+import { defaultSwapParams, recordedQuotes, testConfig } from "../../test/utils.js";
 import { fabric } from "../aggregators/fabric.js";
 import { createConfig } from "../createConfig.js";
 import { getQuote } from "../getQuote.js";

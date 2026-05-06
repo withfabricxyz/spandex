@@ -53,7 +53,7 @@ function ContractAddressInput() {
 
   // once we have the token, set it in context and close the drawer
   useEffect(() => {
-    if (!inputValid || !data || processedRef.current === inputValue || !!error) return;
+    if (!inputValid || !data || processedRef.current === inputValue || error) return;
 
     const [symbolResult, decimalsResult] = data;
 

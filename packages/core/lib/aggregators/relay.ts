@@ -21,6 +21,7 @@ import { Aggregator } from "./index.js";
  */
 export type RelayConfig = ProviderConfig & {
   url?: string;
+  apiKey?: string;
 };
 
 /**
@@ -58,7 +59,7 @@ export class RelayAggregator extends Aggregator<RelayConfig> {
     const payload = buildRequest(request, options);
     const response = await fetch(`${this.config.url || "https://api.relay.link"}/quote`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: this.headers(),
       body: JSON.stringify(payload),
     });
 
@@ -129,6 +130,18 @@ export class RelayAggregator extends Aggregator<RelayConfig> {
       metrics,
       ...mode,
     };
+  }
+
+  private headers(): Record<string, string> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.config.apiKey) {
+      headers["x-api-key"] = this.config.apiKey;
+    }
+
+    return headers;
   }
 }
 

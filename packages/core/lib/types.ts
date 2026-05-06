@@ -479,9 +479,42 @@ export type TimingOptions = {
 };
 
 /**
- * Options for configuring integrator fees and surplus sharing.
+ * Fee settings returned from a dynamic integrator fee function.
  */
-export type FeeOptions = {
+export type FeeSettings = {
+  /**
+   * Address that should receive the integrator fee.
+   */
+  feeAddress: Address;
+  /**
+   * Swap fee for the integrator (in basis points).
+   */
+  swapFeeBps?: number;
+  /**
+   * Surplus share for the integrator (in basis points).
+   */
+  surplusFeeBps?: number;
+  /**
+   * Address that should receive the integrator surplus. Defaults to `feeAddress` if not specified.
+   */
+  surplusAddress?: Address;
+  /**
+   * Preferred token address for providers that support fee-token selection.
+   */
+  tokenPreference?: Address;
+};
+
+/**
+ * Dynamic function for selecting integrator fee settings from the swap request.
+ */
+export type IntegratorFeeFn = (
+  params: SwapParams,
+) => FeeSettings | null | undefined | Promise<FeeSettings | null | undefined>;
+
+/**
+ * Static options for configuring integrator fees and surplus sharing.
+ */
+export type StaticFeeOptions = {
   /**
    * Address that should receive the integrator fee.
    */
@@ -498,12 +531,45 @@ export type FeeOptions = {
    * Address that should receive the integrator surplus. Defaults to `integratorFeeAddress` if not specified.
    */
   integratorSurplusAddress?: Address;
+  /**
+   * Dynamic fee functions are mutually exclusive with static integrator fee options.
+   */
+  integratorFeeFn?: never;
 };
 
 /**
- * Optional parameters for aggregator quote requests.
+ * Dynamic options for selecting integrator fees at swap time.
  */
-export type SwapOptions = FeeOptions;
+export type DynamicFeeOptions = {
+  /**
+   * Function invoked once per swap request to determine fee settings from the swap parameters.
+   */
+  integratorFeeFn: IntegratorFeeFn;
+  integratorFeeAddress?: never;
+  integratorSwapFeeBps?: never;
+  integratorSurplusBps?: never;
+  integratorSurplusAddress?: never;
+};
+
+/**
+ * Options for configuring integrator fees and surplus sharing.
+ */
+export type FeeOptions = StaticFeeOptions | DynamicFeeOptions;
+
+/**
+ * Resolved fee options passed to providers after dynamic fee settings are evaluated.
+ */
+export type ResolvedFeeOptions = StaticFeeOptions & {
+  /**
+   * Preferred token address for providers that support fee-token selection.
+   */
+  integratorFeeTokenPreference?: Address;
+};
+
+/**
+ * Resolved parameters for provider quote requests.
+ */
+export type SwapOptions = TimingOptions & ResolvedFeeOptions;
 
 /**
  * Combined aggregation options.

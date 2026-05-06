@@ -30,6 +30,45 @@ describe("Relay", () => {
     }
   }, 30_000);
 
+  it("passes the api key header when configured", async () => {
+    const originalFetch = globalThis.fetch;
+    let requestHeaders: Headers | undefined;
+    globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+      requestHeaders = new Headers(init?.headers);
+      return new Response(
+        JSON.stringify({
+          steps: [
+            {
+              id: "swap",
+              items: [
+                {
+                  data: {
+                    to: "0x0000000000000000000000000000000000000001",
+                    data: "0x",
+                    value: "0",
+                  },
+                },
+              ],
+            },
+          ],
+          details: {
+            currencyIn: { amount: defaultSwapParams.inputAmount.toString() },
+            currencyOut: { amount: "900000" },
+          },
+        }),
+      );
+    }) as typeof fetch;
+
+    try {
+      await relay({ apiKey: "relay-test-key" }).fetchQuote(defaultSwapParams);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+
+    expect(requestHeaders?.get("x-api-key")).toBe("relay-test-key");
+    expect(requestHeaders?.get("Content-Type")).toBe("application/json");
+  });
+
   it("supports native in", async () => {
     const quote = await recordOutput("relay/native-input", async () => {
       return relay().fetchQuote(nativeInputSwap);

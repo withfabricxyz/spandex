@@ -10,6 +10,7 @@ export default defineConfig({
     dark: "/logo-dark.svg",
   },
   description: "DEX meta-aggregator library for optimal token swaps",
+  twoslash: false,
   ogImageUrl: {
     "/": "https://spandex.sh/og.jpg",
   },

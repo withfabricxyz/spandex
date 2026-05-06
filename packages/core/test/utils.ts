@@ -10,6 +10,7 @@ import type {
   Quote,
   SuccessfulQuote,
   SuccessfulSimulatedQuote,
+  SwapOptions,
   SwapParams,
 } from "../lib/types.js";
 
@@ -78,6 +79,7 @@ export class MockAggregator extends Aggregator {
     };
   }
   private counter = 0;
+  private capturedOptions: SwapOptions | undefined;
   constructor(
     private readonly quote: Quote,
     private readonly overrides: MockOverrides = {},
@@ -89,6 +91,10 @@ export class MockAggregator extends Aggregator {
 
   get count() {
     return this.counter;
+  }
+
+  get lastOptions() {
+    return this.capturedOptions;
   }
 
   name(): ProviderKey {
@@ -103,8 +109,9 @@ export class MockAggregator extends Aggregator {
     return this.overrides.features || ["exactIn"];
   }
 
-  async tryFetchQuote(_: SwapParams): Promise<SuccessfulQuote> {
+  async tryFetchQuote(_: SwapParams, options: SwapOptions): Promise<SuccessfulQuote> {
     this.counter++;
+    this.capturedOptions = options;
     if (this.overrides.delay) {
       await new Promise((resolve) => setTimeout(resolve, this.overrides.delay));
     }

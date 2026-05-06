@@ -1,5 +1,6 @@
 import type { Config } from "./createConfig.js";
-import type { AggregationOptions, AggregatorFeature, Quote, SwapParams } from "./types.js";
+import { resolveSwapOptions } from "./resolveOptions.js";
+import type { AggregatorFeature, Quote, SwapOptions, SwapParams } from "./types.js";
 import { isCrossChain } from "./util/helpers.js";
 
 /**
@@ -27,7 +28,7 @@ export async function prepareQuotes<T>({
     );
   }
 
-  const options = config.options;
+  const options = await resolveSwapOptions(swap, config.options);
 
   // Required features for this request (hard filters)
   const requiredFeatures = queryFeatures(swap);
@@ -50,7 +51,7 @@ export async function prepareQuotes<T>({
   );
 }
 
-function feeFeatures(options?: AggregationOptions): AggregatorFeature[] {
+function feeFeatures(options?: SwapOptions): AggregatorFeature[] {
   const features: AggregatorFeature[] = [];
   if ((options?.integratorSwapFeeBps || 0) > 0) {
     features.push("integratorFees");

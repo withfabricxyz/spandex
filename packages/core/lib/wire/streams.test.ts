@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams, testConfig } from "packages/core/test/utils.js";
+import { defaultSwapParams, testConfig } from "../../test/utils.js";
 import { fabric } from "../aggregators/fabric.js";
 import { relay } from "../aggregators/relay.js";
 import { prepareQuotes } from "../prepareQuotes.js";

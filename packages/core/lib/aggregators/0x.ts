@@ -155,6 +155,9 @@ function extractQueryParams(
     result.swapFeeRecipient = options.integratorFeeAddress;
     if (options.integratorSwapFeeBps !== undefined) {
       result.swapFeeBps = options.integratorSwapFeeBps.toString();
+      if (options.integratorFeeTokenPreference !== undefined) {
+        result.swapFeeToken = options.integratorFeeTokenPreference;
+      }
     }
     if (options.integratorSurplusBps) {
       result.tradeSurplusRecipient = options.integratorFeeAddress;

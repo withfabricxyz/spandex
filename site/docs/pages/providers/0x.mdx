@@ -31,3 +31,9 @@ export const config = createConfig({
   ],
 });
 ```
+
+## Fee Token Preference
+
+0x supports fee-token selection through `swapFeeToken`. spanDEX forwards
+dynamic `tokenPreference` from `integratorFeeFn` to that field when an integrator swap fee is
+configured. 0x requires the token to be either the sell token or buy token.
