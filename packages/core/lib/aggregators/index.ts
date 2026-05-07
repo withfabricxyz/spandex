@@ -200,10 +200,26 @@ export abstract class Aggregator<C extends ProviderConfig = ProviderConfig> {
     };
 
     if (deadlineMs > 0) {
-      return Promise.race([
-        quoteCall(),
-        deadline({ deadlineMs, aggregator: this.name(), attributes: this.config.attributes }),
-      ]);
+      let timeout: ReturnType<typeof setTimeout> | undefined;
+      const deadlineQuote = new Promise<Quote>((resolve) => {
+        timeout = setTimeout(() => {
+          log("debug", "Quote deadline exceeded", { provider: this.name(), deadlineMs });
+          resolve({
+            success: false,
+            provider: this.name(),
+            error: new QuoteError(`MetaAggregator deadline exceeded after ${deadlineMs}ms`, ""),
+            providerAttributes: this.config.attributes,
+          });
+        }, deadlineMs);
+      });
+
+      try {
+        return await Promise.race([quoteCall(), deadlineQuote]);
+      } finally {
+        if (timeout !== undefined) {
+          clearTimeout(timeout);
+        }
+      }
     }
 
     return quoteCall();

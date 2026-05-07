@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { defaultSwapParams, MockAggregator, quoteFailure } from "../../test/utils.js";
+import { defaultSwapParams, MockAggregator, quoteFailure, quoteSuccess } from "../../test/utils.js";
 import type { FailedQuote } from "../types.js";
 import { deadline } from "./index.js";
 
@@ -45,5 +45,27 @@ describe("aggregator", () => {
     expect(mock.count).toBe(1); // Retry should be skipped due to deadline
     expect(quote.success).toBe(false);
     expect((quote as FailedQuote).error?.message).toMatch(/Aggregator deadline exceeded/);
+  }, 500);
+
+  it("clears the deadline timer when the quote resolves first", async () => {
+    const mock = new MockAggregator(quoteSuccess);
+    const originalClearTimeout = globalThis.clearTimeout;
+    let cleared = false;
+
+    globalThis.clearTimeout = ((timeout) => {
+      cleared = true;
+      return originalClearTimeout(timeout);
+    }) as typeof clearTimeout;
+
+    try {
+      const quote = await mock.fetchQuote(defaultSwapParams, {
+        deadlineMs: 10_000,
+      });
+
+      expect(quote.success).toBe(true);
+      expect(cleared).toBe(true);
+    } finally {
+      globalThis.clearTimeout = originalClearTimeout;
+    }
   }, 500);
 });
