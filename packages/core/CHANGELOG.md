@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.7.3
+
+### Patch Changes
+
+- 1aeef35: Clear quote deadline timer after race
+
 ## 0.7.2
 
 ### Patch Changes

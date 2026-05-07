@@ -1,5 +1,12 @@
 # @spandex/react
 
+## 0.7.3
+
+### Patch Changes
+
+- Updated dependencies [1aeef35]
+  - @spandex/core@0.7.3
+
 ## 0.7.2
 
 ### Patch Changes
