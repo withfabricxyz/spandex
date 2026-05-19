@@ -5,11 +5,15 @@ import ConfigParams from '../../../snippets/params/config.mdx'
 Create a configuration object to customize providers and options for all aggregation functions.
 
 ```ts
-import { createConfig, fabric, kyberswap, nordstern, odos, zeroX } from "@spandex/core";
+import { createConfig, fabric, kyberswap, nordstern, o1, odos, zeroX } from "@spandex/core";
 
 export const config = createConfig({
   providers: [
     zeroX({ apiKey: "YOUR_0X_API_KEY" }),
+    o1({
+      baseUrl: "https://api.example.com",
+      apiKey: "YOUR_O1_API_KEY",
+    }),
     fabric({ appId: "YOUR_FABRIC_APP_ID" }),
     nordstern({}),
     odos({}),
