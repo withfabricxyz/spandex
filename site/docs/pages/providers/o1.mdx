@@ -1,0 +1,46 @@
+import { Button } from 'vocs/components'
+import { Callout } from 'vocs/components'
+
+# o1
+
+<div className="flex flex-row gap-4">
+  <Button href="https://o1.exchange">Homepage</Button>
+  <Button href="https://docs.o1.exchange/api/dex-aggregator">Docs</Button>
+</div>
+
+## Configuration
+
+<Callout type="info">
+  o1 supports `exactIn` quotes through its `/execute` endpoint. It does not
+  support exact-output or cross-chain quotes in spanDEX.
+</Callout>
+
+```ts twoslash
+import { createConfig, o1 } from "@spandex/core";
+
+export const config = createConfig({
+  providers: [
+    o1({
+      baseUrl: "https://api.example.com",
+      apiKey: "YOUR_O1_API_KEY",
+      // Optional. Defaults to Base.
+      supportedChains: [8453],
+    }),
+    // ...
+  ],
+});
+```
+
+## Notes
+
+- The adapter defaults to Base (`8453`), matching the public o1 DEX Aggregator
+  API. Override `supportedChains` only if your o1 deployment has different chain
+  coverage.
+- spanDEX calls o1's `/execute` endpoint so returned quotes include
+  broadcast-ready calldata.
+- o1 uses one `user` value for the transaction sender and recipient. Quotes
+  with a separate `recipientAccount` are rejected by the adapter.
+- The adapter does not advertise integrator fee support by default because
+  o1 accepts `feeBps` but not a per-request fee recipient. Only enable
+  `negotiatedFeatures: ["integratorFees"]` for deployments with fee recipient
+  handling configured server-side.

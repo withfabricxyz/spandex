@@ -5,6 +5,7 @@ import type { Aggregator } from "./aggregators/index.js";
 import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
 import type { LifiConfig, LifiQuoteResponse } from "./aggregators/lifi.js";
 import type { NordsternConfig, NordsternQuoteResponse } from "./aggregators/nordstern.js";
+import type { O1Config, O1QuoteResponse } from "./aggregators/o1.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
 import type { RelayConfig, RelayQuoteResponse } from "./aggregators/relay.js";
 import type { VeloraConfig, VeloraQuoteResponse } from "./aggregators/velora.js";
@@ -33,6 +34,10 @@ export type ProviderDefinitions = {
   nordstern: {
     config: NordsternConfig;
     quote: NordsternQuoteResponse;
+  };
+  o1: {
+    config: O1Config;
+    quote: O1QuoteResponse;
   };
   odos: {
     config: OdosConfig;

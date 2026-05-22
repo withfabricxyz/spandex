@@ -3,6 +3,7 @@ import { FabricAggregator, fabric } from "./lib/aggregators/fabric.js";
 import { KyberAggregator, kyberswap } from "./lib/aggregators/kyber.js";
 import { LifiAggregator, lifi } from "./lib/aggregators/lifi.js";
 import { NordsternAggregator, nordstern } from "./lib/aggregators/nordstern.js";
+import { O1Aggregator, o1 } from "./lib/aggregators/o1.js";
 import { OdosAggregator, odos } from "./lib/aggregators/odos.js";
 import { RelayAggregator, relay } from "./lib/aggregators/relay.js";
 import { VeloraAggregator, velora } from "./lib/aggregators/velora.js";
@@ -40,7 +41,9 @@ export {
   lifi,
   NordsternAggregator,
   nordstern,
+  O1Aggregator,
   OdosAggregator,
+  o1,
   odos,
   RelayAggregator,
   relay,

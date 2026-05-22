@@ -17,11 +17,14 @@ Create an `.env` file in `examples/react` with:
 ```
 VITE_WALLET_CONNECT_PROJECT_ID=...
 VITE_BASE_RPC_URLS=...
+O1_BASE_URL=...
+O1_API_KEY=...
 ```
-Both variables are optional.
+All variables are optional.
 
 `VITE_WALLET_CONNECT_PROJECT_ID` is optional. If omitted, WalletConnect will be disabled.
 `VITE_BASE_RPC_URLS` is optional and accepts a comma-separated list of HTTPS RPC endpoints. If omitted, falls back to `http()`.
+`O1_BASE_URL` and `O1_API_KEY` enable the o1 provider on the server-side quote proxy route.
 
 All `VITE_*` variables are public and readable from the client, so do not include any secrets.
 

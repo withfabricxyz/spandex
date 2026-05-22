@@ -212,6 +212,10 @@ export default defineConfig({
           link: "/providers/nordstern",
         },
         {
+          text: "o1",
+          link: "/providers/o1",
+        },
+        {
           text: "Relay",
           link: "/providers/relay",
         },
