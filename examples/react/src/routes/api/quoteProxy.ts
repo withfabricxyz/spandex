@@ -1,4 +1,4 @@
-import { createConfig, defaultProviders, o1, zeroX, type SwapParams } from "@spandex/core";
+import { createConfig, defaultProviders, o1, type SwapParams, zeroX } from "@spandex/core";
 import { createPublicClient } from "viem";
 import { z } from "zod";
 import { configuredChains } from "@/config/onchain";

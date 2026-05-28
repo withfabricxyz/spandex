@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.8.0
+
+### Minor Changes
+
+- 0611ab9: Add o1 provider adapter support.
+
 ## 0.7.3
 
 ### Patch Changes
