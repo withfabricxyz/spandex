@@ -1,7 +1,14 @@
-import type { SimulatedQuote } from "@spandex/core";
-import { useQuotes } from "@spandex/react";
+import {
+  buildCalls,
+  type SimulationFailure,
+  type SuccessfulQuote,
+  type SuccessfulSimulatedQuote,
+  type SwapParams,
+} from "@spandex/core";
+import { useQuotes, useSpandexConfig } from "@spandex/react";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
-import { type Address, encodeFunctionData, erc20Abi, type Hex, maxUint256 } from "viem";
+import type { Address, Hex } from "viem";
 import { useConnection } from "wagmi";
 import { getExplorerLink } from "@/config/onchain";
 import { useAllowance } from "@/hooks/useAllowance";
@@ -35,61 +42,10 @@ export type TxData = {
   gas?: bigint;
 };
 
-function prepareCalls({
-  chainId,
-  bestQuote,
-  needsApproval,
-  sellTokenAddress,
-}: {
-  chainId?: number;
-  bestQuote?: SimulatedQuote;
-  needsApproval: boolean;
-  sellTokenAddress: Address;
-}): TxData[] {
-  if (!chainId || !bestQuote?.success) return [];
-
-  const calls: TxData[] = [];
-
-  if (bestQuote.txData.data) {
-    const spender = bestQuote.txData.to;
-
-    if (needsApproval) {
-      const approvalData = encodeFunctionData({
-        abi: erc20Abi,
-        functionName: "approve",
-        args: [spender, maxUint256],
-      });
-
-      calls.push({
-        to: sellTokenAddress,
-        name: "APPROVE",
-        data: approvalData,
-        chainId,
-        value: 0n,
-      });
-    }
-
-    const swapCall: TxData = {
-      to: bestQuote.txData.to,
-      name: "SELL",
-      data: bestQuote.txData.data,
-      chainId,
-      value: BigInt(bestQuote.txData.value || 0),
-    };
-
-    // specify gasLimit with 50% buffer using the simulated `gasUsed`.
-    // if the `gasUsed` is indeed undefined, we can fall back to the wallet's gas estimation.
-    if (bestQuote.simulation.success) {
-      const { gasUsed } = bestQuote.simulation;
-      const gasLimit = gasUsed ? (gasUsed * 150n) / 100n : undefined;
-      swapCall.gas = gasLimit;
-    }
-
-    calls.push(swapCall);
-  }
-
-  return calls;
-}
+// a quote that returned successfully but whose simulation reverted; narrowing
+// FailedSimulatedQuote (an intersection containing the Quote union) through
+// `success` checks is unreliable across TS versions, so name the shape directly
+type FailedSimulationQuote = SuccessfulQuote & { simulation: SimulationFailure };
 
 const QUOTE_REFRESH_INTERVAL_MS = 10_000;
 
@@ -97,6 +53,7 @@ export function IntentCapture() {
   const { sellToken, setSellToken, buyToken, setBuyToken, onSuccessfulTx } = useTokenSelect();
   const { address, chainId, isConnected } = useConnection();
   const { isSupportedChain } = useSupportedChain();
+  const spandexConfig = useSpandexConfig();
   const [prevSellToken, setPrevSellToken] = useState(sellToken);
   const [numSellTokens, setNumSellTokens] = useState<string>(sellToken.defaultInput);
   const [selectedMetric, setSelectedMetric] = useState<Metric>("price");
@@ -176,22 +133,23 @@ export function IntentCapture() {
     metric: selectedMetric,
   });
 
+  // when nothing is executable, surface a quote whose simulation reverted to explain why
+  const failedSimQuote = !bestQuote
+    ? quotes?.find((q): q is FailedSimulationQuote => q.success && !q.simulation.success)
+    : undefined;
+
+  // allowance is only read to explain simulation failures; approvals are
+  // built by buildCalls below
+  const allowanceQuote = bestQuote ?? failedSimQuote;
   const { data: allowance } = useAllowance({
     chainId: sellToken.chainId,
     owner: address,
     token: sellToken.address,
-    spender: bestQuote?.success ? bestQuote.txData.to : undefined,
+    spender: allowanceQuote
+      ? (allowanceQuote.approval?.spender ?? allowanceQuote.txData.to)
+      : undefined,
     enabled: isSupportedChain,
   });
-
-  const needsApproval = useMemo(() => {
-    if (!bestQuote?.success) return false;
-
-    const inputAmount = BigInt(bestQuote.inputAmount || 0);
-    const currentAllowance = allowance || 0n;
-
-    return inputAmount > 0n && currentAllowance < inputAmount;
-  }, [bestQuote, allowance]);
 
   // derive all swap errors
   const errors: SwapErrorState = useMemo(() => {
@@ -231,7 +189,7 @@ export function IntentCapture() {
       });
     }
 
-    if (quotes?.length && !bestQuote) {
+    if (quotes?.length && !bestQuote && !failedSimQuote) {
       state.quote.push({
         title: "No valid quotes available",
         description: "All aggregators failed to return a quote",
@@ -239,13 +197,13 @@ export function IntentCapture() {
       });
     }
 
-    if (bestQuote?.success && !bestQuote.simulation.success) {
-      const reason = getSimulationFailureReason(bestQuote, allowance);
+    if (failedSimQuote) {
+      const reason = getSimulationFailureReason(failedSimQuote, allowance);
       state.simulation.push({
         title: reason || "Simulation failed",
         description: "This swap will likely fail if executed",
-        details: bestQuote.simulation.error?.message,
-        cause: bestQuote.simulation,
+        details: failedSimQuote.simulation.error.message,
+        cause: failedSimQuote.simulation,
       });
     }
 
@@ -264,6 +222,7 @@ export function IntentCapture() {
     quotes,
     quotesQueryError,
     bestQuote,
+    failedSimQuote,
     allowance,
     txError,
   ]);
@@ -272,15 +231,37 @@ export function IntentCapture() {
     errors.input.length || errors.quote.length || errors.simulation.length,
   );
 
-  const calls = useMemo(
-    () =>
-      prepareCalls({
-        chainId: sellToken.chainId,
-        bestQuote,
-        needsApproval,
-        sellTokenAddress: sellToken.address,
+  // build approval + swap calls with core's buildCalls: it checks the onchain
+  // allowance, encodes the approval when needed, and applies simulated gas buffers
+  const { data: builtCalls } = useQuery({
+    queryKey: [
+      "spandex",
+      "buildCalls",
+      bestQuote?.provider ?? null,
+      bestQuote?.txData.to ?? null,
+      bestQuote?.txData.data ?? null,
+      swap.chainId,
+      swap.swapperAccount,
+      swap.inputAmount.toString(),
+    ],
+    queryFn: () =>
+      buildCalls({
+        quote: bestQuote as SuccessfulSimulatedQuote,
+        swap: swap as SwapParams,
+        config: spandexConfig,
+        allowanceMode: "unlimited",
       }),
-    [bestQuote, needsApproval, sellToken],
+    enabled: Boolean(bestQuote),
+  });
+
+  const calls: TxData[] = useMemo(
+    () =>
+      (builtCalls ?? []).map((call) => ({
+        ...call.txn,
+        name: call.type === "approval" ? "APPROVE" : "SELL",
+        chainId: swap.chainId,
+      })),
+    [builtCalls, swap.chainId],
   );
 
   const onSwitchTokens = useCallback(() => {

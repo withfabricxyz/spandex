@@ -9,17 +9,23 @@ type ChainConfig = {
   executorBlockNumber?: bigint; // Optional block number for the executor
 };
 
+const customBaseRpcUrl = import.meta.env.VITE_BASE_RPC_URL;
+
 export const configuredChains: ChainConfig[] = [
   {
     chain: base,
-    transport: fallback([
-      http("https://base.drpc.org", {
-        batch: true,
-      }),
-      http("https://1rpc.io/base", {
-        batch: true,
-      }),
-    ]),
+    transport: fallback(
+      [
+        // public RPC's rate limit; option for our own paid RPC url
+        customBaseRpcUrl ? http(customBaseRpcUrl, { batch: true }) : undefined,
+        http("https://base.drpc.org", {
+          batch: true,
+        }),
+        http("https://1rpc.io/base", {
+          batch: true,
+        }),
+      ].filter((t) => t !== undefined),
+    ),
   },
 ];
 

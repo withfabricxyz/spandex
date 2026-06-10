@@ -49,7 +49,7 @@ export function getBestQuoteByMetric({
 }: {
   quotes?: SimulatedQuote[];
   metric: Metric;
-}): SimulatedQuote | undefined {
+}): SuccessfulSimulatedQuote | undefined {
   if (!quotes || quotes.length === 0) return undefined;
 
   const successfulQuotes = quotes.filter(
