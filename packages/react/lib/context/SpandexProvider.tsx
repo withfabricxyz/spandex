@@ -1,6 +1,6 @@
 import { createConfig } from "@spandex/core";
 import { createContext, useContext, useMemo } from "react";
-import type { PublicClient } from "viem";
+import { type PublicClient, publicActions } from "viem";
 import { useConfig } from "wagmi";
 import type { SpandexContextValue, SpandexProviderProps } from "../types.js";
 
@@ -12,7 +12,10 @@ export function SpandexProvider({ config, children }: SpandexProviderProps) {
   const spandexConfig = useMemo(() => {
     return createConfig({
       ...config,
-      clients: (chainId: number) => getClient({ chainId }) as PublicClient | undefined,
+      // wagmi's getClient returns a bare viem Client; core expects a
+      // PublicClient with decorated actions (e.g. readContract in buildCalls)
+      clients: (chainId: number) =>
+        getClient({ chainId })?.extend(publicActions) as PublicClient | undefined,
     });
   }, [config, getClient]);
 
