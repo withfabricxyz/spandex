@@ -150,8 +150,8 @@ export default defineConfig({
               link: "/react/hooks/useQuotes",
             },
             {
-              text: "useQuoteExecutor",
-              link: "/react/hooks/useQuoteExecutor",
+              text: "useExecuteQuote",
+              link: "/react/hooks/useExecuteQuote",
             },
           ],
         },

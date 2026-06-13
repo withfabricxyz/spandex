@@ -1,0 +1,89 @@
+# useExecuteQuote
+
+Execute a selected quote with the connected wallet using spanDEX core's execution flow.
+
+## Example
+
+```ts twoslash
+import { useExecuteQuote, useQuote } from "@spandex/react";
+
+function App() {
+  const { data: quote } = useQuote({
+    swap: {
+      inputToken: "0x4200000000000000000000000000000000000006", // WETH
+      outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
+      mode: "exactIn",
+      inputAmount: 1_000_000_000_000_000_000n, // 1 WETH
+      slippageBps: 50,
+    },
+    strategy: "bestPrice",
+  });
+
+  const { executeQuoteAsync, data, isPending, error } = useExecuteQuote({
+    allowanceMode: "exact",
+  });
+
+  async function onSubmit() {
+    if (!quote) return;
+
+    await executeQuoteAsync({
+      swap: {
+        inputToken: "0x4200000000000000000000000000000000000006",
+        outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        mode: "exactIn",
+        inputAmount: 1_000_000_000_000_000_000n,
+        slippageBps: 50,
+      },
+      quote,
+    });
+  }
+}
+```
+
+## Returns
+
+```ts
+{
+  executeQuote: (variables) => void;
+  executeQuoteAsync: (variables) => Promise<{ transactionHash: `0x${string}` }>;
+  data: { transactionHash: `0x${string}` } | undefined;
+  isPending: boolean;
+  error: Error | null;
+  // ...other React Query mutation return values
+}
+```
+
+## Params
+
+### allowanceMode
+
+Optional default approval mode for executions triggered through this hook. Supported values are
+`"exact"` and `"unlimited"`. You can override this per call by passing `allowanceMode` to
+`executeQuote` or `executeQuoteAsync`.
+
+### mutation
+
+Optional React Query mutation overrides such as `onSuccess`, `onError`, `retry`, or
+`mutationKey`. The mutation function is managed by spanDEX and cannot be replaced.
+
+## Execution Variables
+
+### swap
+
+Swap parameters for the quote you want to execute. `chainId` and `swapperAccount` are optional and
+will be inferred from the current Wagmi connection when omitted.
+
+### quote
+
+A `SuccessfulSimulatedQuote`, typically returned by `useQuote` or selected from `useQuotes`.
+
+### allowanceMode
+
+Optional per-call override for the approval mode.
+
+## Notes
+
+- The hook reads spanDEX config from `useSpandexConfig`.
+- It uses Wagmi's connected wallet client for execution.
+- It resolves the public client from the active Wagmi config for the swap chain.
+- The selected quote must already be successful and simulated.
