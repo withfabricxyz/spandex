@@ -145,23 +145,36 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
       | undefined;
   }, [wagmiConfig, resolvedSwapResult.swap]);
 
+  const defaultAllowanceMode = allowanceMode ?? "exact";
+  const walletError =
+    !walletClient && !resolvedSwapResult.error && resolvedSwapResult.swap
+      ? new Error("No WalletClient available from wagmi. Connect a wallet before executing.")
+      : null;
+
   const progressKey = useMemo(() => {
     const resolvedSwap = resolvedSwapResult.swap;
     return JSON.stringify({
+      walletClientUid: walletClient?.uid ?? null,
       chainId: resolvedSwap?.chainId ?? null,
+      outputChainId: resolvedSwap?.outputChainId ?? null,
       swapperAccount: resolvedSwap?.swapperAccount ?? null,
+      recipientAccount: resolvedSwap?.recipientAccount ?? null,
       inputToken: resolvedSwap?.inputToken ?? null,
       outputToken: resolvedSwap?.outputToken ?? null,
       mode: resolvedSwap?.mode ?? null,
+      slippageBps: resolvedSwap?.slippageBps ?? null,
       inputAmount: resolvedSwap?.mode === "exactIn" ? resolvedSwap.inputAmount.toString() : null,
       outputAmount:
         resolvedSwap?.mode === "targetOut" ? resolvedSwap.outputAmount.toString() : null,
-      allowanceMode: allowanceMode ?? "exact",
+      allowanceMode: defaultAllowanceMode,
       provider: quote.provider,
       quoteTo: quote.txData.to,
       quoteData: quote.txData.data,
     });
-  }, [resolvedSwapResult.swap, allowanceMode, quote]);
+  }, [walletClient?.uid, resolvedSwapResult.swap, defaultAllowanceMode, quote]);
+
+  const isPreparationEnabled =
+    Boolean(resolvedSwapResult.swap && walletClient) && (preparation?.enabled ?? true);
 
   const preparedPlan = useQuery<PreparedExecutionPlan, Error>({
     queryKey: ["spandex", "executeQuote", "plan", progressKey],
@@ -172,7 +185,10 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
       }
 
       if (!walletClient) {
-        throw new Error("No WalletClient available from wagmi. Connect a wallet before executing.");
+        throw (
+          walletError ??
+          new Error("No WalletClient available from wagmi. Connect a wallet before executing.")
+        );
       }
 
       return buildPreparedExecutionPlan({
@@ -181,10 +197,10 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
         swap: resolvedSwap,
         walletClient: walletClient as WalletClient,
         publicClient,
-        allowanceMode: allowanceMode ?? "exact",
+        allowanceMode: defaultAllowanceMode,
       });
     },
-    enabled: Boolean(resolvedSwapResult.swap && walletClient),
+    enabled: isPreparationEnabled,
     retry: 0,
     ...preparation,
   });
@@ -204,7 +220,10 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
       }
 
       if (!walletClient) {
-        throw new Error("No WalletClient available from wagmi. Connect a wallet before executing.");
+        throw (
+          walletError ??
+          new Error("No WalletClient available from wagmi. Connect a wallet before executing.")
+        );
       }
 
       assertWalletChain({
@@ -212,16 +231,19 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
         chainId: resolvedSwap.chainId,
       });
 
+      const executionAllowanceMode = variables?.allowanceMode ?? defaultAllowanceMode;
+      const shouldRebuildPlan = executionAllowanceMode !== defaultAllowanceMode;
       const plan =
-        preparedPlan.data ??
-        (await buildPreparedExecutionPlan({
-          config,
-          quote,
-          swap: resolvedSwap,
-          walletClient: walletClient as WalletClient,
-          publicClient,
-          allowanceMode: variables?.allowanceMode ?? allowanceMode ?? "exact",
-        }));
+        !shouldRebuildPlan && preparedPlan.data
+          ? preparedPlan.data
+          : await buildPreparedExecutionPlan({
+              config,
+              quote,
+              swap: resolvedSwap,
+              walletClient: walletClient as WalletClient,
+              publicClient,
+              allowanceMode: executionAllowanceMode,
+            });
 
       if (plan.mode === "batched") {
         const transactionHash = await executeBatched({
@@ -264,7 +286,15 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
     onSuccess: async (data, variables, context, mutationContext) => {
       setProgress((current) => {
         if (data.mode === "batched") {
-          return { completedCount: data.totalSteps, hashes: current.hashes };
+          return {
+            completedCount: data.totalSteps,
+            hashes: Object.fromEntries(
+              Array.from({ length: data.totalSteps }, (_, index) => [
+                index + 1,
+                data.transactionHash,
+              ]),
+            ),
+          };
         }
 
         return {
@@ -338,7 +368,7 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
     canAutoExecute: activePlan ? activePlan.mode !== "stepped" : false,
     isPreparing: preparedPlan.isLoading || preparedPlan.isFetching,
     isReady: Boolean(activePlan),
-    preparationError: resolvedSwapResult.error ?? preparedPlan.error ?? null,
+    preparationError: resolvedSwapResult.error ?? walletError ?? preparedPlan.error ?? null,
     executeQuote: (variables, options) => result.mutate(variables, options),
     executeQuoteAsync: (variables, options) => result.mutateAsync(variables, options),
   };

@@ -144,6 +144,95 @@ describe("useExecuteQuote", () => {
     });
   });
 
+  it("rebuilds the execution plan when a per-call allowance override changes it", async () => {
+    const quote = createMockSimulatedQuote();
+    mockBuildCalls.mockImplementation(() =>
+      Promise.resolve([
+        {
+          type: "swap",
+          txn: { to: TEST_ADDRESSES.weth, data: "0xswap", chainId: TEST_CHAINS.base.id },
+        },
+      ]),
+    );
+
+    const { result } = renderHook(() =>
+      useExecuteQuote({
+        swap: {
+          mode: "exactIn",
+          inputToken: TEST_ADDRESSES.usdc,
+          outputToken: TEST_ADDRESSES.weth,
+          inputAmount: 500_000_000n,
+          slippageBps: 100,
+        },
+        quote,
+        allowanceMode: "exact",
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockBuildCalls).toHaveBeenCalledTimes(1);
+      expect(mockBuildCalls.mock.calls[0]?.[0]?.allowanceMode).toBe("exact");
+    });
+
+    await act(async () => {
+      await result.current.executeQuoteAsync({ allowanceMode: "unlimited" });
+    });
+
+    await waitFor(() => {
+      expect(mockBuildCalls).toHaveBeenCalledTimes(2);
+      expect(mockBuildCalls.mock.calls[1]?.[0]?.allowanceMode).toBe("unlimited");
+    });
+  });
+
+  it("does not prepare calls until enabled when preparation is disabled", async () => {
+    const quote = createMockSimulatedQuote();
+    mockBuildCalls.mockImplementation(() =>
+      Promise.resolve([
+        {
+          type: "swap",
+          txn: { to: TEST_ADDRESSES.weth, data: "0xswap", chainId: TEST_CHAINS.base.id },
+        },
+      ]),
+    );
+
+    const { result } = renderHook(() =>
+      useExecuteQuote({
+        swap: {
+          mode: "exactIn",
+          inputToken: TEST_ADDRESSES.usdc,
+          outputToken: TEST_ADDRESSES.weth,
+          inputAmount: 500_000_000n,
+          slippageBps: 100,
+        },
+        quote,
+        preparation: {
+          enabled: false,
+        },
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.isReady).toBe(false);
+      expect(mockBuildCalls).not.toHaveBeenCalled();
+    });
+
+    await act(async () => {
+      await result.current.executeQuoteAsync();
+    });
+
+    await waitFor(() => {
+      expect(mockBuildCalls).toHaveBeenCalledTimes(1);
+      expect(result.current.data).toEqual({
+        transactionHash: transactionHashes.swap,
+        mode: "single",
+        stepIndex: 1,
+        totalSteps: 1,
+        action: "Swap",
+        completed: true,
+      });
+    });
+  });
+
   it("batches approval and swap when atomic execution is supported", async () => {
     const quote = createMockSimulatedQuote();
     mockGetCapabilities.mockImplementation(() =>
