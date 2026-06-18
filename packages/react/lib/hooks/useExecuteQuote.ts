@@ -120,6 +120,7 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
   const wagmiConfig = useConfig();
   const connection = useConnection();
   const { data: walletClient } = useWalletClient();
+  const [runtimePlan, setRuntimePlan] = useState<PreparedExecutionPlan | null>(null);
   const [progress, setProgress] = useState<StepProgress>({ completedCount: 0, hashes: {} });
 
   const resolvedSwapResult = useMemo(() => {
@@ -177,6 +178,7 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
     Boolean(resolvedSwapResult.swap && walletClient) && (preparation?.enabled ?? true);
 
   const preparedPlan = useQuery<PreparedExecutionPlan, Error>({
+    ...preparation,
     queryKey: ["spandex", "executeQuote", "plan", progressKey],
     queryFn: async () => {
       const resolvedSwap = resolvedSwapResult.swap;
@@ -201,8 +203,7 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
       });
     },
     enabled: isPreparationEnabled,
-    retry: 0,
-    ...preparation,
+    retry: preparation?.retry ?? 0,
   });
 
   const result = useMutation<
@@ -244,6 +245,8 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
               publicClient,
               allowanceMode: executionAllowanceMode,
             });
+
+      setRuntimePlan(plan);
 
       if (plan.mode === "batched") {
         const transactionHash = await executeBatched({
@@ -315,11 +318,12 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
 
   useEffect(() => {
     void progressKey;
+    setRuntimePlan(null);
     setProgress({ completedCount: 0, hashes: {} });
     result.reset();
   }, [progressKey, result.reset]);
 
-  const activePlan = preparedPlan.data;
+  const activePlan = preparedPlan.data ?? runtimePlan;
   const totalSteps = activePlan?.calls.length ?? 0;
   const currentStepIndex =
     activePlan && progress.completedCount < totalSteps ? progress.completedCount + 1 : null;

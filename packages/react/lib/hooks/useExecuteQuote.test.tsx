@@ -14,6 +14,26 @@ const transactionHashes = {
   batch: "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" as const,
 };
 
+let mockBuildCalls: ReturnType<typeof mock>;
+let mockGetCapabilities: ReturnType<typeof mock>;
+let mockSendTransactionSync: ReturnType<typeof mock>;
+let mockSendCallsSync: ReturnType<typeof mock>;
+
+const defaultSwap = {
+  mode: "exactIn" as const,
+  inputToken: TEST_ADDRESSES.usdc,
+  outputToken: TEST_ADDRESSES.weth,
+  inputAmount: 500_000_000n,
+  slippageBps: 100,
+};
+
+type TestSwap = typeof defaultSwap & {
+  chainId?: number;
+  outputChainId?: number;
+  swapperAccount?: `0x${string}`;
+  recipientAccount?: `0x${string}`;
+};
+
 function createMockSimulatedQuote(): SuccessfulSimulatedQuote {
   return {
     ...createMockQuote(),
@@ -38,12 +58,101 @@ function createMockSimulatedQuote(): SuccessfulSimulatedQuote {
   } as SuccessfulSimulatedQuote;
 }
 
-describe("useExecuteQuote", () => {
-  let mockBuildCalls: ReturnType<typeof mock>;
-  let mockGetCapabilities: ReturnType<typeof mock>;
-  let mockSendTransactionSync: ReturnType<typeof mock>;
-  let mockSendCallsSync: ReturnType<typeof mock>;
+function createSwap(overrides: Partial<TestSwap> = {}): TestSwap {
+  return {
+    ...defaultSwap,
+    ...overrides,
+  };
+}
 
+function createBuiltCall({
+  type,
+  data,
+  to,
+}: {
+  type: "approval" | "swap";
+  data: string;
+  to: `0x${string}`;
+}) {
+  return {
+    type,
+    txn: {
+      to,
+      data,
+      chainId: TEST_CHAINS.base.id,
+    },
+  };
+}
+
+function setupWagmi({
+  address = TEST_ADDRESSES.alice,
+  chainId = TEST_CHAINS.base.id,
+  hasWalletClient = true,
+  hasPublicClient = true,
+}: {
+  address?: `0x${string}` | null;
+  chainId?: number | null;
+  hasWalletClient?: boolean;
+  hasPublicClient?: boolean;
+} = {}) {
+  const resolvedAddress = address ?? undefined;
+  const resolvedChainId = chainId ?? undefined;
+
+  mock.module("wagmi", () => ({
+    useConnection: () => ({
+      address: resolvedAddress,
+      chain: resolvedChainId ? { id: resolvedChainId } : undefined,
+    }),
+    useWalletClient: () => ({
+      data: hasWalletClient
+        ? {
+            account: resolvedAddress,
+            chain: resolvedChainId ? { id: resolvedChainId } : undefined,
+            getCapabilities: mockGetCapabilities,
+            sendTransactionSync: mockSendTransactionSync,
+            sendCallsSync: mockSendCallsSync,
+            uid: "test-wallet-client",
+          }
+        : undefined,
+    }),
+    useConfig: () => ({
+      getClient: ({ chainId: requestedChainId }: { chainId: number }) => {
+        if (hasPublicClient && requestedChainId === TEST_CHAINS.base.id) {
+          return createPublicClient({
+            chain: base,
+            transport: http("https://base.drpc.org"),
+          }) as PublicClient;
+        }
+
+        return undefined;
+      },
+    }),
+  }));
+}
+
+function renderUseExecuteQuote({
+  swap,
+  quote = createMockSimulatedQuote(),
+  ...params
+}: {
+  swap?: Partial<TestSwap>;
+  quote?: SuccessfulSimulatedQuote;
+  allowanceMode?: "exact" | "unlimited";
+  preparation?: { enabled?: boolean };
+} = {}) {
+  return {
+    quote,
+    ...renderHook(() =>
+      useExecuteQuote({
+        swap: createSwap(swap),
+        quote,
+        ...params,
+      }),
+    ),
+  };
+}
+
+describe("useExecuteQuote", () => {
   beforeEach(() => {
     mockBuildCalls = mock();
     mockGetCapabilities = mock(() => Promise.resolve({ atomic: { status: "unsupported" } }));
@@ -62,59 +171,15 @@ describe("useExecuteQuote", () => {
     mock.module("@spandex/core", () => ({
       buildCalls: mockBuildCalls,
     }));
-
-    mock.module("wagmi", () => ({
-      useConnection: () => ({
-        address: TEST_ADDRESSES.alice,
-        chain: { id: TEST_CHAINS.base.id },
-      }),
-      useWalletClient: () => ({
-        data: {
-          account: TEST_ADDRESSES.alice,
-          chain: { id: TEST_CHAINS.base.id },
-          getCapabilities: mockGetCapabilities,
-          sendTransactionSync: mockSendTransactionSync,
-          sendCallsSync: mockSendCallsSync,
-        },
-      }),
-      useConfig: () => ({
-        getClient: ({ chainId }: { chainId: number }) => {
-          if (chainId === TEST_CHAINS.base.id) {
-            return createPublicClient({
-              chain: base,
-              transport: http("https://base.drpc.org"),
-            }) as PublicClient;
-          }
-
-          return undefined;
-        },
-      }),
-    }));
+    setupWagmi();
   });
 
   it("prepares and executes a single-call route", async () => {
-    const quote = createMockSimulatedQuote();
     mockBuildCalls.mockImplementation(() =>
-      Promise.resolve([
-        {
-          type: "swap",
-          txn: { to: TEST_ADDRESSES.weth, data: "0xswap", chainId: TEST_CHAINS.base.id },
-        },
-      ]),
+      Promise.resolve([createBuiltCall({ type: "swap", to: TEST_ADDRESSES.weth, data: "0xswap" })]),
     );
 
-    const { result } = renderHook(() =>
-      useExecuteQuote({
-        swap: {
-          mode: "exactIn",
-          inputToken: TEST_ADDRESSES.usdc,
-          outputToken: TEST_ADDRESSES.weth,
-          inputAmount: 500_000_000n,
-          slippageBps: 100,
-        },
-        quote,
-      }),
-    );
+    const { result } = renderUseExecuteQuote();
 
     await waitFor(() => {
       expect(result.current.mode).toBe("single");
@@ -145,29 +210,11 @@ describe("useExecuteQuote", () => {
   });
 
   it("rebuilds the execution plan when a per-call allowance override changes it", async () => {
-    const quote = createMockSimulatedQuote();
     mockBuildCalls.mockImplementation(() =>
-      Promise.resolve([
-        {
-          type: "swap",
-          txn: { to: TEST_ADDRESSES.weth, data: "0xswap", chainId: TEST_CHAINS.base.id },
-        },
-      ]),
+      Promise.resolve([createBuiltCall({ type: "swap", to: TEST_ADDRESSES.weth, data: "0xswap" })]),
     );
 
-    const { result } = renderHook(() =>
-      useExecuteQuote({
-        swap: {
-          mode: "exactIn",
-          inputToken: TEST_ADDRESSES.usdc,
-          outputToken: TEST_ADDRESSES.weth,
-          inputAmount: 500_000_000n,
-          slippageBps: 100,
-        },
-        quote,
-        allowanceMode: "exact",
-      }),
-    );
+    const { result } = renderUseExecuteQuote({ allowanceMode: "exact" });
 
     await waitFor(() => {
       expect(mockBuildCalls).toHaveBeenCalledTimes(1);
@@ -185,31 +232,15 @@ describe("useExecuteQuote", () => {
   });
 
   it("does not prepare calls until enabled when preparation is disabled", async () => {
-    const quote = createMockSimulatedQuote();
     mockBuildCalls.mockImplementation(() =>
-      Promise.resolve([
-        {
-          type: "swap",
-          txn: { to: TEST_ADDRESSES.weth, data: "0xswap", chainId: TEST_CHAINS.base.id },
-        },
-      ]),
+      Promise.resolve([createBuiltCall({ type: "swap", to: TEST_ADDRESSES.weth, data: "0xswap" })]),
     );
 
-    const { result } = renderHook(() =>
-      useExecuteQuote({
-        swap: {
-          mode: "exactIn",
-          inputToken: TEST_ADDRESSES.usdc,
-          outputToken: TEST_ADDRESSES.weth,
-          inputAmount: 500_000_000n,
-          slippageBps: 100,
-        },
-        quote,
-        preparation: {
-          enabled: false,
-        },
-      }),
-    );
+    const { result } = renderUseExecuteQuote({
+      preparation: {
+        enabled: false,
+      },
+    });
 
     await waitFor(() => {
       expect(result.current.isReady).toBe(false);
@@ -233,36 +264,82 @@ describe("useExecuteQuote", () => {
     });
   });
 
+  it("surfaces stepped UI state after on-demand plan building", async () => {
+    mockBuildCalls.mockImplementation(() =>
+      Promise.resolve([
+        createBuiltCall({ type: "approval", to: TEST_ADDRESSES.usdc, data: "0xapprove" }),
+        createBuiltCall({ type: "swap", to: TEST_ADDRESSES.weth, data: "0xswap" }),
+      ]),
+    );
+
+    const { result } = renderUseExecuteQuote({
+      preparation: {
+        enabled: false,
+      },
+    });
+
+    await waitFor(() => {
+      expect(result.current.mode).toBeNull();
+      expect(result.current.steps).toHaveLength(0);
+      expect(mockBuildCalls).not.toHaveBeenCalled();
+    });
+
+    await act(async () => {
+      await result.current.executeQuoteAsync();
+    });
+
+    await waitFor(() => {
+      expect(result.current.mode).toBe("stepped");
+      expect(result.current.currentActionLabel).toBe("Swap");
+      expect(result.current.currentStepIndex).toBe(2);
+      expect(result.current.currentStepText).toBe("Step 2 of 2");
+      expect(result.current.steps[0]).toMatchObject({
+        status: "complete",
+        hash: transactionHashes.approval,
+      });
+      expect(result.current.steps[1]?.status).toBe("active");
+    });
+  });
+
+  it("does not bypass wallet requirements when preparation.enabled is true", async () => {
+    setupWagmi({
+      address: null,
+      chainId: null,
+      hasWalletClient: false,
+      hasPublicClient: false,
+    });
+
+    const { result } = renderUseExecuteQuote({
+      swap: {
+        chainId: TEST_CHAINS.base.id,
+        swapperAccount: TEST_ADDRESSES.alice,
+      },
+      preparation: {
+        enabled: true,
+      },
+    });
+
+    await waitFor(() => {
+      expect(result.current.preparationError?.message).toBe(
+        "No WalletClient available from wagmi. Connect a wallet before executing.",
+      );
+      expect(result.current.isPreparing).toBe(false);
+      expect(mockBuildCalls).not.toHaveBeenCalled();
+    });
+  });
+
   it("batches approval and swap when atomic execution is supported", async () => {
-    const quote = createMockSimulatedQuote();
     mockGetCapabilities.mockImplementation(() =>
       Promise.resolve({ atomic: { status: "supported" } }),
     );
     mockBuildCalls.mockImplementation(() =>
       Promise.resolve([
-        {
-          type: "approval",
-          txn: { to: TEST_ADDRESSES.usdc, data: "0xapprove", chainId: TEST_CHAINS.base.id },
-        },
-        {
-          type: "swap",
-          txn: { to: TEST_ADDRESSES.weth, data: "0xswap", chainId: TEST_CHAINS.base.id },
-        },
+        createBuiltCall({ type: "approval", to: TEST_ADDRESSES.usdc, data: "0xapprove" }),
+        createBuiltCall({ type: "swap", to: TEST_ADDRESSES.weth, data: "0xswap" }),
       ]),
     );
 
-    const { result } = renderHook(() =>
-      useExecuteQuote({
-        swap: {
-          mode: "exactIn",
-          inputToken: TEST_ADDRESSES.usdc,
-          outputToken: TEST_ADDRESSES.weth,
-          inputAmount: 500_000_000n,
-          slippageBps: 100,
-        },
-        quote,
-      }),
-    );
+    const { result } = renderUseExecuteQuote();
 
     await waitFor(() => {
       expect(result.current.mode).toBe("batched");
@@ -290,32 +367,14 @@ describe("useExecuteQuote", () => {
   });
 
   it("steps through approval and swap when batching is unavailable", async () => {
-    const quote = createMockSimulatedQuote();
     mockBuildCalls.mockImplementation(() =>
       Promise.resolve([
-        {
-          type: "approval",
-          txn: { to: TEST_ADDRESSES.usdc, data: "0xapprove", chainId: TEST_CHAINS.base.id },
-        },
-        {
-          type: "swap",
-          txn: { to: TEST_ADDRESSES.weth, data: "0xswap", chainId: TEST_CHAINS.base.id },
-        },
+        createBuiltCall({ type: "approval", to: TEST_ADDRESSES.usdc, data: "0xapprove" }),
+        createBuiltCall({ type: "swap", to: TEST_ADDRESSES.weth, data: "0xswap" }),
       ]),
     );
 
-    const { result } = renderHook(() =>
-      useExecuteQuote({
-        swap: {
-          mode: "exactIn",
-          inputToken: TEST_ADDRESSES.usdc,
-          outputToken: TEST_ADDRESSES.weth,
-          inputAmount: 500_000_000n,
-          slippageBps: 100,
-        },
-        quote,
-      }),
-    );
+    const { result } = renderUseExecuteQuote();
 
     await waitFor(() => {
       expect(result.current.mode).toBe("stepped");
@@ -374,32 +433,14 @@ describe("useExecuteQuote", () => {
   });
 
   it("surfaces a clear preparation error when chainId and swapperAccount cannot be resolved", async () => {
-    mock.module("wagmi", () => ({
-      useConnection: () => ({
-        address: undefined,
-        chain: undefined,
-      }),
-      useWalletClient: () => ({
-        data: undefined,
-      }),
-      useConfig: () => ({
-        getClient: () => undefined,
-      }),
-    }));
+    setupWagmi({
+      address: null,
+      chainId: null,
+      hasWalletClient: false,
+      hasPublicClient: false,
+    });
 
-    const quote = createMockSimulatedQuote();
-    const { result } = renderHook(() =>
-      useExecuteQuote({
-        swap: {
-          mode: "exactIn",
-          inputToken: TEST_ADDRESSES.usdc,
-          outputToken: TEST_ADDRESSES.weth,
-          inputAmount: 500_000_000n,
-          slippageBps: 100,
-        },
-        quote,
-      }),
-    );
+    const { result } = renderUseExecuteQuote();
 
     await waitFor(() => {
       expect(result.current.preparationError?.message).toBe(
