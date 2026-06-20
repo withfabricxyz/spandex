@@ -18,6 +18,9 @@ let mockBuildCalls: ReturnType<typeof mock>;
 let mockGetCapabilities: ReturnType<typeof mock>;
 let mockSendTransactionSync: ReturnType<typeof mock>;
 let mockSendCallsSync: ReturnType<typeof mock>;
+let mockCapabilitiesData:
+  | { atomic?: { status: "supported" | "ready" | "unsupported" } }
+  | undefined;
 
 const defaultSwap = {
   mode: "exactIn" as const,
@@ -54,6 +57,16 @@ function createMockSimulatedQuote(): SuccessfulSimulatedQuote {
       outputAmount: 1_000_000n,
       priceDelta: 0,
       accuracy: 0,
+    },
+  } as SuccessfulSimulatedQuote;
+}
+
+function createMockQuoteWithTxData(data: string): SuccessfulSimulatedQuote {
+  return {
+    ...createMockSimulatedQuote(),
+    txData: {
+      ...createMockQuote().txData,
+      data,
     },
   } as SuccessfulSimulatedQuote;
 }
@@ -102,6 +115,9 @@ function setupWagmi({
     useConnection: () => ({
       address: resolvedAddress,
       chain: resolvedChainId ? { id: resolvedChainId } : undefined,
+    }),
+    useCapabilities: () => ({
+      data: mockCapabilitiesData,
     }),
     useWalletClient: () => ({
       data: hasWalletClient
@@ -167,6 +183,11 @@ describe("useExecuteQuote", () => {
         receipts: [{ transactionHash: transactionHashes.batch }],
       }),
     );
+    mockCapabilitiesData = {
+      atomic: {
+        status: "unsupported",
+      },
+    };
 
     mock.module("@spandex/core", () => ({
       buildCalls: mockBuildCalls,
@@ -329,9 +350,11 @@ describe("useExecuteQuote", () => {
   });
 
   it("batches approval and swap when atomic execution is supported", async () => {
-    mockGetCapabilities.mockImplementation(() =>
-      Promise.resolve({ atomic: { status: "supported" } }),
-    );
+    mockCapabilitiesData = {
+      atomic: {
+        status: "supported",
+      },
+    };
     mockBuildCalls.mockImplementation(() =>
       Promise.resolve([
         createBuiltCall({ type: "approval", to: TEST_ADDRESSES.usdc, data: "0xapprove" }),
@@ -363,6 +386,28 @@ describe("useExecuteQuote", () => {
         action: "Approve & Swap",
         completed: true,
       });
+    });
+  });
+
+  it("treats atomic ready as batch-capable", async () => {
+    mockCapabilitiesData = {
+      atomic: {
+        status: "ready",
+      },
+    };
+    mockBuildCalls.mockImplementation(() =>
+      Promise.resolve([
+        createBuiltCall({ type: "approval", to: TEST_ADDRESSES.usdc, data: "0xapprove" }),
+        createBuiltCall({ type: "swap", to: TEST_ADDRESSES.weth, data: "0xswap" }),
+      ]),
+    );
+
+    const { result } = renderUseExecuteQuote();
+
+    await waitFor(() => {
+      expect(result.current.mode).toBe("batched");
+      expect(result.current.canAutoExecute).toBe(true);
+      expect(result.current.currentActionLabel).toBe("Approve & Swap");
     });
   });
 
@@ -429,6 +474,67 @@ describe("useExecuteQuote", () => {
         action: "Swap",
         completed: true,
       });
+    });
+  });
+
+  it("keeps stepped progress when a new quote arrives between clicks", async () => {
+    mockBuildCalls.mockImplementation(({ quote }: { quote: SuccessfulSimulatedQuote }) =>
+      Promise.resolve([
+        createBuiltCall({ type: "approval", to: TEST_ADDRESSES.usdc, data: "0xapprove" }),
+        createBuiltCall({ type: "swap", to: TEST_ADDRESSES.weth, data: quote.txData.data }),
+      ]),
+    );
+
+    const firstQuote = createMockQuoteWithTxData("0xswap1");
+    const secondQuote = createMockQuoteWithTxData("0xswap2");
+
+    const { result, rerender } = renderHook(
+      ({ quote }: { quote: SuccessfulSimulatedQuote }) =>
+        useExecuteQuote({
+          swap: createSwap(),
+          quote,
+        }),
+      {
+        initialProps: {
+          quote: firstQuote,
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.mode).toBe("stepped");
+      expect(result.current.currentActionLabel).toBe("Approve");
+      expect(result.current.currentStepIndex).toBe(1);
+    });
+
+    await act(async () => {
+      await result.current.executeQuoteAsync();
+    });
+
+    await waitFor(() => {
+      expect(result.current.currentActionLabel).toBe("Swap");
+      expect(result.current.currentStepIndex).toBe(2);
+      expect(result.current.steps[0]?.hash).toBe(transactionHashes.approval);
+    });
+
+    await act(async () => {
+      rerender({ quote: secondQuote });
+    });
+
+    await waitFor(() => {
+      expect(result.current.currentActionLabel).toBe("Swap");
+      expect(result.current.currentStepIndex).toBe(2);
+      expect(result.current.steps[0]?.hash).toBe(transactionHashes.approval);
+      expect(result.current.steps[1]?.status).toBe("active");
+    });
+
+    await act(async () => {
+      await result.current.executeQuoteAsync();
+    });
+
+    await waitFor(() => {
+      expect(mockSendTransactionSync).toHaveBeenCalledTimes(2);
+      expect(mockSendTransactionSync.mock.calls[1]?.[0]?.data).toBe("0xswap1");
     });
   });
 

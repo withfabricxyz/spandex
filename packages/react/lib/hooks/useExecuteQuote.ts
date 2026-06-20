@@ -13,9 +13,9 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { type Hash, type PublicClient, publicActions, type WalletClient } from "viem";
-import { useConfig, useConnection, useWalletClient } from "wagmi";
+import { useCapabilities, useConfig, useConnection, useWalletClient } from "wagmi";
 import { useSpandexConfig } from "../context/SpandexProvider.js";
 
 type UseSwapParams = (
@@ -120,6 +120,7 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
   const wagmiConfig = useConfig();
   const connection = useConnection();
   const { data: walletClient } = useWalletClient();
+  const [frozenQuote, setFrozenQuote] = useState<SuccessfulSimulatedQuote | null>(null);
   const [runtimePlan, setRuntimePlan] = useState<PreparedExecutionPlan | null>(null);
   const [progress, setProgress] = useState<StepProgress>({ completedCount: 0, hashes: {} });
 
@@ -147,10 +148,29 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
   }, [wagmiConfig, resolvedSwapResult.swap]);
 
   const defaultAllowanceMode = allowanceMode ?? "exact";
+  const activeQuote = frozenQuote ?? quote;
   const walletError =
     !walletClient && !resolvedSwapResult.error && resolvedSwapResult.swap
       ? new Error("No WalletClient available from wagmi. Connect a wallet before executing.")
       : null;
+  const { data: capabilities } = useCapabilities({
+    account: connection.address,
+    chainId: resolvedSwapResult.swap?.chainId,
+    query: {
+      enabled: Boolean(connection.address && resolvedSwapResult.swap?.chainId),
+    },
+  });
+
+  const canBatch = useMemo(() => {
+    if (!capabilities || !resolvedSwapResult.swap) return false;
+
+    return isAtomicBatchReady(
+      getAtomicCapabilityStatus({
+        capabilities,
+        chainId: resolvedSwapResult.swap.chainId,
+      }),
+    );
+  }, [capabilities, resolvedSwapResult.swap]);
 
   const progressKey = useMemo(() => {
     const resolvedSwap = resolvedSwapResult.swap;
@@ -168,11 +188,12 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
       outputAmount:
         resolvedSwap?.mode === "targetOut" ? resolvedSwap.outputAmount.toString() : null,
       allowanceMode: defaultAllowanceMode,
-      provider: quote.provider,
-      quoteTo: quote.txData.to,
-      quoteData: quote.txData.data,
+      provider: activeQuote.provider,
+      quoteTo: activeQuote.txData.to,
+      quoteData: activeQuote.txData.data,
     });
-  }, [walletClient?.uid, resolvedSwapResult.swap, defaultAllowanceMode, quote]);
+  }, [walletClient?.uid, resolvedSwapResult.swap, defaultAllowanceMode, activeQuote]);
+  const lastResetKeyRef = useRef(progressKey);
 
   const isPreparationEnabled =
     Boolean(resolvedSwapResult.swap && walletClient) && (preparation?.enabled ?? true);
@@ -195,11 +216,11 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
 
       return buildPreparedExecutionPlan({
         config,
-        quote,
+        quote: activeQuote,
         swap: resolvedSwap,
-        walletClient: walletClient as WalletClient,
         publicClient,
         allowanceMode: defaultAllowanceMode,
+        canBatch,
       });
     },
     enabled: isPreparationEnabled,
@@ -239,13 +260,16 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
           ? preparedPlan.data
           : await buildPreparedExecutionPlan({
               config,
-              quote,
+              quote: activeQuote,
               swap: resolvedSwap,
-              walletClient: walletClient as WalletClient,
               publicClient,
               allowanceMode: executionAllowanceMode,
+              canBatch,
             });
 
+      if (plan.mode === "stepped") {
+        setFrozenQuote((current) => current ?? activeQuote);
+      }
       setRuntimePlan(plan);
 
       if (plan.mode === "batched") {
@@ -310,18 +334,26 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
       });
 
       await mutation?.onSuccess?.(data, variables, context, mutationContext);
+
+      if (data.completed) {
+        setFrozenQuote(null);
+      }
     },
     onError: async (error, variables, context, mutationContext) => {
+      setFrozenQuote(null);
       await mutation?.onError?.(error, variables, context, mutationContext);
     },
   });
 
   useEffect(() => {
-    void progressKey;
+    if (lastResetKeyRef.current === progressKey) return;
+    if (frozenQuote) return;
+
+    lastResetKeyRef.current = progressKey;
     setRuntimePlan(null);
     setProgress({ completedCount: 0, hashes: {} });
     result.reset();
-  }, [progressKey, result.reset]);
+  }, [frozenQuote, progressKey, result.reset]);
 
   const activePlan = preparedPlan.data ?? runtimePlan;
   const totalSteps = activePlan?.calls.length ?? 0;
@@ -382,16 +414,16 @@ async function buildPreparedExecutionPlan({
   config,
   quote,
   swap,
-  walletClient,
   publicClient,
   allowanceMode,
+  canBatch,
 }: {
   config: ReturnType<typeof useSpandexConfig>;
   quote: SuccessfulSimulatedQuote;
   swap: ExactInSwapParams | TargetOutSwapParams;
-  walletClient: WalletClient;
   publicClient?: PublicClient;
   allowanceMode: AllowanceMode;
+  canBatch: boolean;
 }): Promise<PreparedExecutionPlan> {
   const calls = await buildCalls({
     config,
@@ -401,7 +433,6 @@ async function buildPreparedExecutionPlan({
     allowanceMode,
   });
 
-  const canBatch = await isBatchSupported(walletClient);
   return {
     mode: resolveExecutionMode({ calls, canBatch }),
     calls,
@@ -426,13 +457,25 @@ function resolveExecutionMode({
   return "stepped";
 }
 
-async function isBatchSupported(client: WalletClient): Promise<boolean> {
-  try {
-    const capabilities = await client.getCapabilities({ chainId: client.chain?.id || 0 });
-    return capabilities.atomic?.status === "supported";
-  } catch {
-    return false;
+function isAtomicBatchReady(status?: string): boolean {
+  return status === "supported" || status === "ready";
+}
+
+function getAtomicCapabilityStatus({
+  capabilities,
+  chainId,
+}: {
+  capabilities: NonNullable<ReturnType<typeof useCapabilities>["data"]>;
+  chainId: number;
+}): string | undefined {
+  // `useCapabilities` can return either a chain-scoped capability object or a chain-keyed map.
+  // biome-ignore lint/suspicious/noExplicitAny: Capability shape is a wagmi/viem union here.
+  const directCapabilities = capabilities as any;
+  if (directCapabilities?.atomic?.status) {
+    return directCapabilities.atomic.status;
   }
+
+  return directCapabilities?.[chainId]?.atomic?.status;
 }
 
 async function executeBatched({

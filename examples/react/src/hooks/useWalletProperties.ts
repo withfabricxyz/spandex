@@ -32,7 +32,7 @@ export function useWalletProperties({ chainId }: { chainId: number }) {
     // biome-ignore lint/suspicious/noExplicitAny: <>
     const chainCapabilities: any = capabilities[chainId];
     if (chainCapabilities) {
-      result.batching = chainCapabilities?.atomic?.status === "supported";
+      result.batching = isAtomicBatchReady(chainCapabilities?.atomic?.status);
       result.paymasterSupport = chainCapabilities?.paymasterService?.supported === true;
     }
 
@@ -45,4 +45,8 @@ export function useWalletProperties({ chainId }: { chainId: number }) {
 function isInjected(connector?: Connector): boolean {
   // TODO: What else can we do here?
   return connector?.type === "injected" || connector?.type === "metaMask";
+}
+
+function isAtomicBatchReady(status?: string): boolean {
+  return status === "supported" || status === "ready";
 }
