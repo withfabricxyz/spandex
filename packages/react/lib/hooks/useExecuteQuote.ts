@@ -88,6 +88,7 @@ export type UseExecuteQuoteResult<TOnMutateResult = unknown> = UseMutationResult
   canAutoExecute: boolean;
   isPreparing: boolean;
   isReady: boolean;
+  isExecuting: boolean;
   preparationError: Error | null;
   executeQuote: (
     variables?: ExecuteQuoteVariables,
@@ -359,6 +360,7 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
   const totalSteps = activePlan?.calls.length ?? 0;
   const currentStepIndex =
     activePlan && progress.completedCount < totalSteps ? progress.completedCount + 1 : null;
+  const isExecuting = result.isPending || Boolean(frozenQuote);
   const currentCall = currentStepIndex ? activePlan?.calls[currentStepIndex - 1] : null;
 
   const steps: ExecuteQuoteStep[] = (activePlan?.calls ?? []).map((call, index) => {
@@ -404,6 +406,7 @@ export function useExecuteQuote<TOnMutateResult = unknown>({
     canAutoExecute: activePlan ? activePlan.mode !== "stepped" : false,
     isPreparing: preparedPlan.isLoading || preparedPlan.isFetching,
     isReady: Boolean(activePlan),
+    isExecuting,
     preparationError: resolvedSwapResult.error ?? walletError ?? preparedPlan.error ?? null,
     executeQuote: (variables, options) => result.mutate(variables, options),
     executeQuoteAsync: (variables, options) => result.mutateAsync(variables, options),
