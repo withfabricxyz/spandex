@@ -121,13 +121,23 @@ export function getQuoteInaccuracy(quote?: SimulatedQuote): number | null {
   return Math.round((diff / quotedOutput) * 10000);
 }
 
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object" && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string") return message;
+  }
+  return "";
+}
+
 export function getSimulationFailureReason(
   quote: SimulatedQuote,
   currentAllowance?: bigint,
 ): string | null {
   if (!quote.success || quote.simulation.success) return null;
 
-  const errorMessage = quote.simulation.error.message.toLowerCase();
+  const errorMessage = getErrorMessage(quote.simulation.error).toLowerCase();
 
   if (errorMessage.includes("transfer_from_failed") || errorMessage.includes("transferfrom")) {
     if (currentAllowance !== undefined && quote.inputAmount > currentAllowance) {
