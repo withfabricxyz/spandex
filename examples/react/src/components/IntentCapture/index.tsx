@@ -23,6 +23,7 @@ import {
 } from "@/utils/errors";
 import {
   getBestQuoteByMetric,
+  getErrorMessage,
   getSimulationFailureReason,
   type Metric,
 } from "@/utils/quoteHelpers";
@@ -199,10 +200,11 @@ export function IntentCapture() {
 
     if (failedSimQuote) {
       const reason = getSimulationFailureReason(failedSimQuote, allowance);
+      const details = getErrorMessage(failedSimQuote.simulation.error);
       state.simulation.push({
         title: reason || "Simulation failed",
         description: "This swap will likely fail if executed",
-        details: failedSimQuote.simulation.error.message,
+        details: details || "Simulation failed",
         cause: failedSimQuote.simulation,
       });
     }
