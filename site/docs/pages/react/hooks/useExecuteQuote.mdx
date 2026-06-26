@@ -1,0 +1,121 @@
+# useExecuteQuote
+
+Prepare and execute a selected quote with UI-friendly execution state.
+
+This hook builds the underlying calls up front so your UI can tell whether the route will:
+
+- submit a single swap transaction
+- batch approval and swap into one wallet flow
+- step through approval and swap as separate user actions
+
+## Example
+
+```ts twoslash
+import { useExecuteQuote, useQuote } from "@spandex/react";
+
+function App() {
+  const swap = {
+    inputToken: "0x4200000000000000000000000000000000000006", // WETH
+    outputToken: "0xd9AAEC86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
+    mode: "exactIn" as const,
+    inputAmount: 1_000_000_000_000_000_000n, // 1 WETH
+    slippageBps: 50,
+  };
+
+  const { data: quote } = useQuote({
+    swap,
+    strategy: "bestPrice",
+  });
+
+  const execution = useExecuteQuote({
+    swap,
+    quote: quote!,
+    allowanceMode: "exact",
+  });
+
+  async function onSubmit() {
+    await execution.executeQuoteAsync();
+  }
+}
+```
+
+## Returns
+
+```ts
+{
+  mode: "single" | "batched" | "stepped" | null;
+  calls: BuiltCall[];
+  steps: Array<{
+    index: number;
+    type: "approval" | "swap";
+    label: string;
+    status: "pending" | "active" | "complete";
+    hash?: `0x${string}`;
+  }>;
+  totalSteps: number;
+  currentStepIndex: number | null;
+  currentActionLabel: string | null;
+  currentStepText: string | null;
+  canAutoExecute: boolean;
+  isPreparing: boolean;
+  isReady: boolean;
+  preparationError: Error | null;
+  executeQuote: (variables?: { allowanceMode?: "exact" | "unlimited" }) => void;
+  executeQuoteAsync: (
+    variables?: { allowanceMode?: "exact" | "unlimited" },
+  ) => Promise<{
+    transactionHash: `0x${string}`;
+    mode: "single" | "batched" | "stepped";
+    stepIndex: number;
+    totalSteps: number;
+    action: string;
+    completed: boolean;
+  }>;
+  data: {
+    transactionHash: `0x${string}`;
+    mode: "single" | "batched" | "stepped";
+    stepIndex: number;
+    totalSteps: number;
+    action: string;
+    completed: boolean;
+  } | undefined;
+  isPending: boolean;
+  error: Error | null;
+  // ...other React Query mutation return values
+}
+```
+
+## Params
+
+### swap
+
+Swap parameters for the quote you want to execute. `chainId` and `swapperAccount` are optional and
+will be inferred from the current Wagmi connection when omitted.
+
+### quote
+
+A `SuccessfulSimulatedQuote`, typically returned by `useQuote` or selected from `useQuotes`.
+
+### allowanceMode
+
+Optional default approval mode. Supported values are `"exact"` and `"unlimited"`. You can override
+this per execution call.
+
+### mutation
+
+Optional React Query mutation overrides such as `onSuccess`, `onError`, or `retry`. The mutation
+function is managed by spanDEX and cannot be replaced.
+
+### preparation
+
+Optional React Query query overrides for the execution plan preparation step. This is useful if you
+want to tune when the hook precomputes execution calls.
+
+## Notes
+
+- `mode === "single"` means the route can execute in one transaction.
+- `mode === "batched"` means the wallet supports sending all calls together.
+- `mode === "stepped"` means the UI should walk the user through multiple clicks.
+- In the stepped path, each `executeQuote` call advances one step.
+- `currentActionLabel` and `currentStepText` are intended for button labels and helper text such as
+  `Approve` and `Step 1 of 2`.
