@@ -1,5 +1,15 @@
 # @spandex/react
 
+## 0.9.0
+
+### Minor Changes
+
+- 4510078: Add a `useExecuteQuote` mutation hook for executing selected quotes with Wagmi-backed wallet and public clients.
+
+### Patch Changes
+
+- @spandex/core@0.9.0
+
 ## 0.8.1
 
 ### Patch Changes
