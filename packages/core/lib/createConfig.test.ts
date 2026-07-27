@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { zeroX } from "./aggregators/0x.js";
-import { createConfig } from "./createConfig.js";
+import { createConfig, defaultProviders } from "./createConfig.js";
 
 describe("createConfig", () => {
   it("throws on misconfiguration", async () => {
@@ -19,6 +19,14 @@ describe("createConfig", () => {
     expect(config).toBeDefined();
     expect(config.aggregators.length).toEqual(1);
     expect(config.aggregators[0]?.name()).toEqual("0x");
+  });
+
+  it("does not include the deprecated Odos provider by default", () => {
+    expect(defaultProviders({ appId: "test" }).map((provider) => provider.name())).toEqual([
+      "kyberswap",
+      "fabric",
+      "nordstern",
+    ]);
   });
 
   it("supports dynamic integrator fee configuration", async () => {

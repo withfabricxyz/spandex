@@ -17,7 +17,6 @@ import { LifiLogo } from "./logo/lifi";
 import { LiskLogo } from "./logo/lisk";
 import { ModeLogo } from "./logo/mode";
 import { NordsternLogo } from "./logo/nordstern";
-import { OdosLogo } from "./logo/odos";
 import { OkuLogo } from "./logo/oku";
 import { OptimismLogo } from "./logo/optimism";
 import { PlasmaLogo } from "./logo/plasma";
@@ -60,7 +59,7 @@ export function ProviderMarquee() {
   return (
     <div className="flex flex-col gap-10">
       <section className="flex flex-col gap-10">
-        <span className="agg">8 Aggregators—</span>
+        <span className="agg">7 Aggregators—</span>
         <Marquee direction="rtl" gap={40}>
           <a href="https://0x.org" target="_blank" rel="noopener noreferrer" className={logoLink}>
             <Logo0x />
@@ -91,9 +90,6 @@ export function ProviderMarquee() {
             className={logoLink}
           >
             <RelayLogo />
-          </a>
-          <a href="https://odos.xyz" target="_blank" rel="noopener noreferrer" className={logoLink}>
-            <OdosLogo />
           </a>
           <a
             href="https://nordstern.finance"
