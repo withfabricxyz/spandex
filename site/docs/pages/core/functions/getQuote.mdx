@@ -32,7 +32,7 @@ console.log(quote.provider, quote.simulation.outputAmount);
 ```
 
 ```ts [config] filename="config.ts" twoslash
-import { createConfig, fabric, odos } from "@spandex/core";
+import { createConfig, fabric, kyberswap } from "@spandex/core";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
@@ -42,7 +42,7 @@ const client = createPublicClient({
 });
 
 export const config = createConfig({
-  providers: [fabric({ appId: "your app id" }), odos({})],
+  providers: [fabric({ appId: "your app id" }), kyberswap({ clientId: "your client id" })],
   clients: [client] as PublicClient[],
 });
 ```

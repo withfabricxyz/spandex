@@ -1,10 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import {
-  defaultSwapParams,
-  nativeInputSwap,
-  nativeOutputSwap,
-  recordOutput,
-} from "../../test/utils.js";
+import { defaultSwapParams } from "../../test/utils.js";
+import { QuoteError, type SwapParams } from "../types.js";
 import { OdosAggregator, odos } from "./odos.js";
 
 describe("Odos", () => {
@@ -19,37 +15,71 @@ describe("Odos", () => {
     expect(metadata.docsUrl).toMatch(/odos/);
   });
 
-  it("generates a quote", async () => {
-    const quoter = new OdosAggregator();
-    const quote = await quoter.fetchQuote(defaultSwapParams);
-    expect(quote).toBeDefined();
-    expect(quote.provider).toBe("odos");
-    if (quote.success) {
-      expect(quote.outputAmount).toBeGreaterThan(0n);
-      expect(quote.networkFee).toBeGreaterThan(0n);
-      expect(quote.txData).toBeDefined();
-      expect(quote.txData.to).toBeDefined();
-      expect(quote.txData.data).toBeDefined();
-    }
-  }, 30_000);
+  it("warns on construction", () => {
+    const originalWarn = console.warn;
+    const warnings: unknown[][] = [];
+    console.warn = (...args: unknown[]) => {
+      warnings.push(args);
+    };
 
-  it("supports native in", async () => {
-    const quote = await recordOutput("odos/native-input", async () => {
-      return odos().fetchQuote(nativeInputSwap);
-    }).then((r) => r.result);
-    if (!quote?.success || quote.provider !== "odos") {
-      throw new Error("Failed to fetch quote");
+    try {
+      odos();
+    } finally {
+      console.warn = originalWarn;
     }
-    expect(quote.outputAmount).toBeGreaterThan(0n);
-  }, 30_000);
 
-  it("supports native out", async () => {
-    const quote = await recordOutput("odos/native-output", async () => {
-      return odos().fetchQuote(nativeOutputSwap);
-    }).then((r) => r.result);
-    if (!quote?.success || quote.provider !== "odos") {
-      throw new Error("Failed to fetch quote");
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]?.[0]).toMatch(/Odos provider is deprecated/);
+    expect(warnings[0]?.[0]).toMatch(/Remove odos\(\)/);
+  });
+
+  it("always returns a failed quote immediately without making a request", async () => {
+    const originalFetch = globalThis.fetch;
+    let fetchCalls = 0;
+    globalThis.fetch = (() => {
+      fetchCalls += 1;
+      throw new Error("Odos should not make a request");
+    }) as typeof fetch;
+
+    const requests: SwapParams[] = [
+      defaultSwapParams,
+      {
+        chainId: defaultSwapParams.chainId,
+        inputToken: defaultSwapParams.inputToken,
+        outputToken: defaultSwapParams.outputToken,
+        slippageBps: defaultSwapParams.slippageBps,
+        swapperAccount: defaultSwapParams.swapperAccount,
+        mode: "targetOut",
+        outputAmount: 1n,
+      },
+    ];
+    const quoter = new OdosAggregator({ attributes: { legacy: true } });
+
+    try {
+      for (const request of requests) {
+        const pendingQuote = quoter.fetchQuote(request, {
+          deadlineMs: 120_000,
+          initialRetryDelayMs: 10_000,
+          numRetries: 10,
+        });
+        let settled = false;
+        pendingQuote.then(() => {
+          settled = true;
+        });
+        await Promise.resolve();
+
+        expect(settled).toBe(true);
+        const quote = await pendingQuote;
+        expect(quote.success).toBe(false);
+        expect(quote.provider).toBe("odos");
+        expect(quote.providerAttributes).toEqual({ legacy: true });
+        expect(quote.error).toBeInstanceOf(QuoteError);
+        expect(quote.error?.message).toMatch(/Odos provider is deprecated/);
+      }
+    } finally {
+      globalThis.fetch = originalFetch;
     }
-    expect(quote.outputAmount).toBeGreaterThan(0n);
-  }, 30_000);
+
+    expect(fetchCalls).toBe(0);
+  });
 });

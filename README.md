@@ -22,7 +22,7 @@ Expand tokens, pools, and chains beyond any single aggregator. Fetch multiple qu
 - Optimize for your use case: pick best price, fastest quote, or lowest estimated gas.
 - Built-in simulation to validate quotes before execution.
 - Minimal dependencies (core is lightweight and ESM-ready).
-- Multiple provider integrations (0x, KyberSwap, Odos, Relay, LiFi, Fabric).
+- Multiple provider integrations (0x, KyberSwap, Relay, LiFi, Fabric).
 - Proxy support to defer quote fetching to a remote server (CORS-friendly).
 - React hooks for fast UI integration.
 - Metrics extraction (latency, gas, price impact, net outputs).

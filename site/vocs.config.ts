@@ -200,7 +200,7 @@ export default defineConfig({
           link: "/providers/kyberswap",
         },
         {
-          text: "Odos",
+          text: "Odos (deprecated)",
           link: "/providers/odos",
         },
         {

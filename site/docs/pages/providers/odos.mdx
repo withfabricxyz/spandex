@@ -1,29 +1,22 @@
-import { Button } from 'vocs/components'
-import { Callout } from 'vocs/components'
+import { Callout } from "vocs/components";
 
-# Odos
+# Odos (deprecated)
 
-<div className="flex flex-row gap-4">
-  <Button href="https://www.odos.xyz/">Homepage</Button>
-  <Button href="https://docs.odos.xyz/api/sor/quoter">Docs</Button>
-</div>
+<Callout type="warning">
+  Odos is shutting down. The `odos()` provider remains available temporarily so existing
+  applications continue to start, but constructing it logs a deprecation warning and every quote
+  fails immediately without making a network request. Remove it from your provider configuration.
+</Callout>
 
-## Configuration
+## Migration
 
 ```ts twoslash
-import { createConfig, odos } from "@spandex/core";
+import { createConfig, fabric } from "@spandex/core";
 
 export const config = createConfig({
   providers: [
-    odos({
-      // Optional. Use for attribution
-      referralCode: undefined,
-      // Optional. Use it if you got it
-      apiKey: undefined,
-      // Optional. Enable fees and surplus if negotiated with Odos.
-      // negotiatedFeatures: ["integratorSurplus", "integratorFees"],
-    }),
-    // ...
+    fabric({ appId: "your app id" }),
+    // Add other active providers here.
   ],
 });
 ```

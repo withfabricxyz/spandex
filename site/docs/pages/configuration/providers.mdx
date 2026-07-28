@@ -30,10 +30,6 @@ under real load. No single aggregator wins every trade or delivers 100% uptime.
     <span className="provider-card__logo"><KyberSwapLogo /></span>
     <span className="provider-card__name">KyberSwap</span>
   </a>
-  <a className="provider-card" href="/providers/odos">
-    <span className="provider-card__logo"><OdosLogo /></span>
-    <span className="provider-card__name">Odos</span>
-  </a>
   <a className="provider-card" href="/providers/nordstern">
     <span className="provider-card__logo"><NordsternLogo /></span>
     <span className="provider-card__name">Nordstern</span>
@@ -55,6 +51,20 @@ under real load. No single aggregator wins every trade or delivers 100% uptime.
     <span className="provider-card__name">Velora</span>
   </a>
 </div>
+
+## Deprecated Providers
+
+<div className="provider-grid">
+  <a className="provider-card" href="/providers/odos">
+    <span className="provider-card__logo"><OdosLogo /></span>
+    <span className="provider-card__name">Odos (deprecated)</span>
+  </a>
+</div>
+
+<Callout type="warning">
+  Odos is shutting down. Its compatibility provider warns on construction and returns a failed
+  quote immediately. Remove `odos()` from your configuration.
+</Callout>
 
 <Callout type="info">
   If you would like to include your aggregator in spanDEX, [submit a PR](https://github.com/withfabricxyz/spandex/blob/main/CONTRIBUTING.md).
