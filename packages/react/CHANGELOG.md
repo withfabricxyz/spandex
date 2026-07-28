@@ -1,5 +1,12 @@
 # @spandex/react
 
+## 0.9.1
+
+### Patch Changes
+
+- Updated dependencies [0b32378]
+  - @spandex/core@0.9.1
+
 ## 0.9.0
 
 ### Minor Changes
