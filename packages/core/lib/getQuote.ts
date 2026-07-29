@@ -2,7 +2,12 @@ import type { PublicClient } from "viem";
 import type { Config } from "./createConfig.js";
 import { prepareSimulatedQuotes } from "./prepareSimulatedQuotes.js";
 import { selectQuote } from "./selectQuote.js";
-import type { QuoteSelectionStrategy, SuccessfulSimulatedQuote, SwapParams } from "./types.js";
+import type {
+  QuoteSelectionStrategy,
+  SimulationOptions,
+  SuccessfulSimulatedQuote,
+  SwapParams,
+} from "./types.js";
 
 /**
  * Fetches quotes, simulates them, and selects a winner using the provided strategy.
@@ -12,6 +17,7 @@ import type { QuoteSelectionStrategy, SuccessfulSimulatedQuote, SwapParams } fro
  * @param params.swap - Swap request parameters.
  * @param params.strategy - Strategy used to pick the winning quote.
  * @param params.client - Optional public client used for simulation.
+ * @param params.simulationOptions - Optional simulation controls, including state overrides.
  * @returns Winning quote, or `null` if no provider succeeds.
  */
 export async function getQuote({
@@ -19,16 +25,19 @@ export async function getQuote({
   swap,
   strategy,
   client,
+  simulationOptions,
 }: {
   config: Config;
   swap: SwapParams;
   strategy: QuoteSelectionStrategy;
   client?: PublicClient;
+  simulationOptions?: SimulationOptions;
 }): Promise<SuccessfulSimulatedQuote | null> {
   const quotes = await prepareSimulatedQuotes({
     config,
     swap,
     client,
+    simulationOptions,
   });
   return selectQuote({
     strategy,

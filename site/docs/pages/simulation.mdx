@@ -30,3 +30,32 @@ To enable onchain simulation, you'll need:
 1. a viem `PublicClient` connected to the target chain
 2. a `MetaAggregator` instance from the core spanDEX package with your desired aggregators configured
 
+## Indicative Quotes with State Overrides
+
+For an indicative quote, the swapper account may not hold the input token. Pass viem state
+overrides through `simulationOptions` after resolving the token's balance storage slot:
+
+```ts
+const quote = await getQuote({
+  config,
+  swap,
+  strategy: "bestPrice",
+  simulationOptions: {
+    stateOverrides: [
+      {
+        address: swap.inputToken,
+        stateDiff: [
+          {
+            slot: balanceSlot,
+            value: simulatedBalance,
+          },
+        ],
+      },
+    ],
+  },
+});
+```
+
+spanDEX retains its default native balance for simulation gas unless the caller explicitly
+overrides that balance. State changes are used only for simulation and are not included in
+transaction execution.

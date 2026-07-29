@@ -1,12 +1,13 @@
 import { zValidator } from "@hono/zod-validator";
 import {
+  deserializeWithBigInt,
   newStream,
   prepareQuotes,
   prepareSimulatedQuotes,
   quoteStreamErrorHandler,
   simulatedQuoteStreamErrorHandler,
   type Quote,
-  type SwapParams,
+  type SimulationOptions,
 } from "@spandex/core";
 import { Hono } from "hono";
 import { stream } from "hono/streaming";
@@ -28,6 +29,7 @@ const baseSchema = z.object({
   slippageBps: z.coerce.number().int().nonnegative().max(10000),
   swapperAccount: addressSchema,
   recipientAccount: addressSchema.optional(),
+  simulationOptions: z.string().optional(),
 });
 
 const querySchema = z.discriminatedUnion("mode", [
@@ -45,7 +47,7 @@ const querySchema = z.discriminatedUnion("mode", [
 
 // Stream raw quotes as they are fetched
 app.get("/api/v1/prepareQuotes", zValidator("query", querySchema), async (c) => {
-  const swap = c.req.valid("query") satisfies SwapParams;
+  const { simulationOptions: _, ...swap } = c.req.valid("query");
   return stream(c, async (stream) => {
     const prepared = await prepareQuotes<Quote>({
       swap,
@@ -58,11 +60,15 @@ app.get("/api/v1/prepareQuotes", zValidator("query", querySchema), async (c) => 
 
 // Stream simulated quotes as they are fetched and simulated
 app.get("/api/v1/prepareSimulatedQuotes", zValidator("query", querySchema), async (c) => {
-  const swap = c.req.valid("query") satisfies SwapParams;
+  const { simulationOptions: encodedSimulationOptions, ...swap } = c.req.valid("query");
+  const simulationOptions = encodedSimulationOptions
+    ? deserializeWithBigInt<SimulationOptions>(encodedSimulationOptions)
+    : undefined;
   return stream(c, async (stream) => {
     const prepared = await prepareSimulatedQuotes({
       swap,
       config,
+      simulationOptions,
     });
     await stream.pipe(newStream(prepared, simulatedQuoteStreamErrorHandler));
   });

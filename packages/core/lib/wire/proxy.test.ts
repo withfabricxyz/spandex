@@ -6,8 +6,9 @@ import { createConfig } from "../createConfig.js";
 import { getQuote } from "../getQuote.js";
 import { getQuotes } from "../getQuotes.js";
 import { getRawQuotes } from "../getRawQuotes.js";
-import type { Quote, SimulatedQuote, SwapParams } from "../types.js";
+import type { Quote, SimulatedQuote, SimulationOptions, SwapParams } from "../types.js";
 import { proxy } from "./proxy.js";
+import { deserializeWithBigInt } from "./serde.js";
 import { newStream, quoteStreamErrorHandler, simulatedQuoteStreamErrorHandler } from "./streams.js";
 
 function makeSimulatedQuote(outputAmount: bigint): SimulatedQuote {
@@ -205,7 +206,36 @@ describe("proxy", () => {
 
     expect(quotes).toHaveLength(1);
     expect(quotes[0]?.simulation).toBeDefined();
-    expect(new URL(requests[0]?.url || "").pathname).toBe("/api/prepareSimulatedQuotes");
+    const url = new URL(requests[0]?.url || "");
+    expect(url.pathname).toBe("/api/prepareSimulatedQuotes");
+    expect(url.searchParams.get("simulationOptions")).toBeNull();
+  }, 10_000);
+
+  it("forwards bigint-aware simulationOptions to delegated simulation", async () => {
+    enqueueSimulated();
+    const simulationOptions: SimulationOptions = {
+      stateOverrides: [
+        {
+          address: defaultSwapParams.inputToken,
+          balance: 123n,
+          stateDiff: [{ slot: "0x01", value: "0x02" }],
+        },
+      ],
+    };
+
+    await getQuotes({
+      config: createConfig({
+        proxy: proxy({ pathOrUrl: baseUrl, delegatedActions }),
+      }),
+      swap: defaultSwapParams,
+      simulationOptions,
+    });
+
+    const request = requests[0];
+    expect(request).toBeDefined();
+    const encoded = new URL(request?.url || "").searchParams.get("simulationOptions");
+    expect(encoded).not.toBeNull();
+    expect(deserializeWithBigInt<SimulationOptions>(encoded as string)).toEqual(simulationOptions);
   }, 10_000);
 
   it("selects quotes locally from streamed simulated proxy results", async () => {

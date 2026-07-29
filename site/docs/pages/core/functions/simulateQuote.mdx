@@ -32,6 +32,14 @@ const simulated = await simulateQuote({
   quote: first,
   swap,
   client,
+  simulationOptions: {
+    stateOverrides: [
+      {
+        address: swap.inputToken,
+        stateDiff: [{ slot: balanceSlot, value: simulatedBalance }],
+      },
+    ],
+  },
 });
 
 if (simulated.success && simulated.simulation.success) {
@@ -55,6 +63,12 @@ Swap parameters associated with the quote. See [SwapParams reference](/reference
 `Quote`
 
 Quote to simulate.
+
+### simulationOptions
+`SimulationOptions | undefined`
+
+Optional simulation controls forwarded to viem's `simulateCalls`. Overrides are merged by account
+address with spanDEX's built-in native-balance override, with caller values winning conflicts.
 
 ## Returns
 

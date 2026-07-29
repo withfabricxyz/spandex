@@ -1,4 +1,12 @@
-import { createConfig, defaultProviders, o1, type SwapParams, zeroX } from "@spandex/core";
+import {
+  createConfig,
+  defaultProviders,
+  deserializeWithBigInt,
+  o1,
+  type SimulationOptions,
+  type SwapParams,
+  zeroX,
+} from "@spandex/core";
 import { createPublicClient } from "viem";
 import { z } from "zod";
 import { configuredChains } from "@/config/onchain";
@@ -30,6 +38,7 @@ const baseSchema = z.object({
   slippageBps: z.coerce.number().int().nonnegative().max(10000),
   swapperAccount: addressSchema,
   recipientAccount: addressSchema.optional(),
+  simulationOptions: z.string().optional(),
 });
 
 export const quoteQuerySchema = z.discriminatedUnion("mode", [
@@ -44,7 +53,17 @@ export const quoteQuerySchema = z.discriminatedUnion("mode", [
 ]);
 
 export function parseSwapFromRequest(request: Request): SwapParams {
-  return quoteQuerySchema.parse(
-    Object.fromEntries(new URL(request.url).searchParams),
-  ) satisfies SwapParams;
+  const { simulationOptions: _, ...swap } = parseQuoteQuery(request);
+  return swap;
+}
+
+export function parseSimulationOptionsFromRequest(request: Request): SimulationOptions | undefined {
+  const { simulationOptions } = parseQuoteQuery(request);
+  return simulationOptions
+    ? deserializeWithBigInt<SimulationOptions>(simulationOptions)
+    : undefined;
+}
+
+function parseQuoteQuery(request: Request) {
+  return quoteQuerySchema.parse(Object.fromEntries(new URL(request.url).searchParams));
 }
