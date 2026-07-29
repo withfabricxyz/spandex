@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.10.0
+
+### Minor Changes
+
+- 4fb4589: Add caller-provided state overrides to quote simulation, including delegated proxy simulation.
+
 ## 0.9.1
 
 ### Patch Changes
