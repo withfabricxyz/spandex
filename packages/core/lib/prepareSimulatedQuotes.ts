@@ -2,7 +2,7 @@ import type { PublicClient } from "viem";
 import type { Config } from "./createConfig.js";
 import { prepareQuotes } from "./prepareQuotes.js";
 import { simulateQuote } from "./simulateQuote.js";
-import type { Quote, SimulatedQuote, SwapParams } from "./types.js";
+import type { Quote, SimulatedQuote, SimulationOptions, SwapParams } from "./types.js";
 
 /**
  * Prepares simulated quotes by fetching quotes from all configured aggregators then simulating them.
@@ -11,19 +11,22 @@ import type { Quote, SimulatedQuote, SwapParams } from "./types.js";
  * @param params.config - Meta-aggregator configuration.
  * @param params.swap - Swap request parameters.
  * @param params.client - Public client used to simulate quote transaction data.
+ * @param params.simulationOptions - Optional simulation controls, including state overrides.
  * @returns Quotes enriched with simulation metadata.
  */
 export async function prepareSimulatedQuotes({
   config,
   swap,
   client,
+  simulationOptions,
 }: {
   config: Config;
   swap: SwapParams;
   client?: PublicClient;
+  simulationOptions?: SimulationOptions;
 }): Promise<Promise<SimulatedQuote>[]> {
   if (config.proxy?.isDelegatedAction("prepareSimulatedQuotes")) {
-    return config.proxy.prepareSimulatedQuotes(swap);
+    return config.proxy.prepareSimulatedQuotes(swap, simulationOptions);
   }
 
   if (config.proxy && config.aggregators.length === 0) {
@@ -44,6 +47,7 @@ export async function prepareSimulatedQuotes({
       client: resolved as PublicClient,
       swap,
       quote,
+      simulationOptions,
     });
   };
 

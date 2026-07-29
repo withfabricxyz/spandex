@@ -1,4 +1,4 @@
-import type { Address, Block, PublicClient, SimulateCallsReturnType } from "viem";
+import type { Address, Block, PublicClient, SimulateCallsReturnType, StateOverride } from "viem";
 import { encodeFunctionData, erc20Abi, parseEther } from "viem";
 import { simulateCalls } from "viem/actions";
 import type {
@@ -67,18 +67,20 @@ export class SimulationRevertError extends Error {
  * @param args.swap - Swap parameters shared across all quotes.
  * @param args.client - Public client used to perform the simulations.
  * @param args.quotes - Quotes that should be simulated.
+ * @param args.simulationOptions - Optional simulation controls, including state overrides.
  * @returns Quotes decorated with their simulation results.
  */
 export async function simulateQuotes(
   args: Omit<SimulationArgs, "quote"> & { quotes: Quote[] },
 ): Promise<SimulatedQuote[]> {
-  const { swap, client, quotes } = args;
+  const { swap, client, quotes, simulationOptions } = args;
   return Promise.all(
     quotes.map(async (quote: Quote) => {
       return simulateQuote({
         client,
         swap,
         quote,
+        simulationOptions,
       });
     }),
   );
@@ -91,6 +93,7 @@ export async function simulateQuotes(
  * @param args.client - Client used to issue the simulation.
  * @param args.swap - Swap parameters attached to the quote.
  * @param args.quote - Quote instance to simulate.
+ * @param args.simulationOptions - Optional simulation controls, including state overrides.
  * @returns Quote data merged with its simulation result.
  */
 export async function simulateQuote(args: SimulationArgs): Promise<SimulatedQuote> {
@@ -112,6 +115,7 @@ async function performSimulation({
   client,
   swap,
   quote,
+  simulationOptions,
 }: SimulationArgs): Promise<SimulationResult> {
   if (!quote.success) {
     return {
@@ -152,12 +156,10 @@ async function performSimulation({
     const { results, block } = await simulateCalls(client, {
       account: swap.swapperAccount,
       calls,
-      stateOverrides: [
-        {
-          address: swap.swapperAccount,
-          balance: parseEther("10000"), // large amount to cover gas costs + swap value
-        },
-      ],
+      stateOverrides: simulationStateOverrides(
+        swap.swapperAccount,
+        simulationOptions?.stateOverrides,
+      ),
     });
     const latency = performance.now() - time;
 
@@ -202,6 +204,7 @@ async function performCrossChainSimulation({
   client,
   swap,
   quote,
+  simulationOptions,
 }: SimulationArgs): Promise<SimulationResult> {
   if (!quote.success) {
     return {
@@ -230,12 +233,10 @@ async function performCrossChainSimulation({
     const { results, block } = await simulateCalls(client, {
       account: swap.swapperAccount,
       calls,
-      stateOverrides: [
-        {
-          address: swap.swapperAccount,
-          balance: parseEther("10000"), // large amount to cover gas costs + swap value
-        },
-      ],
+      stateOverrides: simulationStateOverrides(
+        swap.swapperAccount,
+        simulationOptions?.stateOverrides,
+      ),
     });
     const latency = performance.now() - time;
     const swapResult = results[results.length - 1];
@@ -262,6 +263,88 @@ async function performCrossChainSimulation({
 }
 
 /// Utils ///
+
+function simulationStateOverrides(
+  swapperAccount: Address,
+  stateOverrides?: StateOverride,
+): StateOverride {
+  return mergeSimulationStateOverrides(
+    [
+      {
+        address: swapperAccount,
+        balance: parseEther("10000"), // large amount to cover gas costs + swap value
+      },
+    ],
+    stateOverrides,
+  );
+}
+
+export function mergeSimulationStateOverrides(
+  base: StateOverride,
+  extra?: StateOverride,
+): StateOverride {
+  if (!extra || extra.length === 0) {
+    return base;
+  }
+
+  const merged = new Map<string, StateOverride[number]>();
+  for (const item of [...base, ...extra]) {
+    const key = item.address.toLowerCase();
+    const existing = merged.get(key);
+    merged.set(key, existing ? mergeAccountOverride(existing, item) : item);
+  }
+  return [...merged.values()];
+}
+
+function mergeAccountOverride(
+  existing: StateOverride[number],
+  incoming: StateOverride[number],
+): StateOverride[number] {
+  const merged = {
+    ...existing,
+    ...incoming,
+  } as StateOverride[number] & {
+    state?: StateOverride[number]["state"];
+    stateDiff?: StateOverride[number]["stateDiff"];
+  };
+
+  if ("state" in incoming && incoming.state !== undefined) {
+    merged.state = incoming.state;
+    delete merged.stateDiff;
+    return merged;
+  }
+
+  if ("stateDiff" in incoming && incoming.stateDiff !== undefined) {
+    const current = "stateDiff" in existing ? existing.stateDiff : undefined;
+    merged.stateDiff = mergeStateMappings(current, incoming.stateDiff);
+    delete merged.state;
+    return merged;
+  }
+
+  if ("state" in existing && existing.state !== undefined) {
+    merged.state = existing.state;
+    delete merged.stateDiff;
+  } else if ("stateDiff" in existing && existing.stateDiff !== undefined) {
+    merged.stateDiff = existing.stateDiff;
+    delete merged.state;
+  }
+
+  return merged;
+}
+
+function mergeStateMappings(
+  current?: StateOverride[number]["stateDiff"],
+  incoming?: StateOverride[number]["stateDiff"],
+): NonNullable<StateOverride[number]["stateDiff"]> {
+  const merged = new Map<string, NonNullable<StateOverride[number]["stateDiff"]>[number]>();
+  for (const mapping of current ?? []) {
+    merged.set(mapping.slot.toLowerCase(), mapping);
+  }
+  for (const mapping of incoming ?? []) {
+    merged.set(mapping.slot.toLowerCase(), mapping);
+  }
+  return [...merged.values()];
+}
 
 function buildBalanceCall({
   client,

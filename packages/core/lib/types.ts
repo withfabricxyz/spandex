@@ -1,4 +1,4 @@
-import type { Address, PublicClient, SimulateCallsReturnType } from "viem";
+import type { Address, PublicClient, SimulateCallsReturnType, StateOverride } from "viem";
 import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x.js";
 import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js";
 import type { Aggregator } from "./aggregators/index.js";
@@ -650,6 +650,19 @@ export type ConfigParams = DirectConfigParams | ProxyConfigParams;
 ///////////////////// Simulation Types /////////////////////
 
 /**
+ * Optional controls for quote simulation behavior.
+ *
+ * @public
+ */
+export type SimulationOptions = {
+  /**
+   * Account and storage overrides forwarded to `simulateCalls`.
+   * Caller-provided values take precedence over spanDEX simulation defaults.
+   */
+  stateOverrides?: StateOverride;
+};
+
+/**
  * Parameters required to simulate a single quote.
  *
  * @public
@@ -661,6 +674,8 @@ export type SimulationArgs = {
   swap: SwapParams;
   /** Quote to simulate, including the encoded transaction data. */
   quote: Quote;
+  /** Optional simulation controls, including caller-provided state overrides. */
+  simulationOptions?: SimulationOptions;
 };
 
 /**

@@ -89,10 +89,12 @@ type QuoteSelectionFn = (
 
 Optional custom PublicClient to use for onchain simulations. If not provided, the configured clients in the `config` will be used.
 
-### simulate
-`typeof simulateQuote | undefined`
+### simulationOptions
+`SimulationOptions | undefined`
 
-Optional override for the simulation function used on each quote.
+Optional simulation controls. Use `stateOverrides` to provide viem account or storage overrides for
+indicative quotes where the swapper does not have the required onchain balance. Caller-provided
+values take precedence over spanDEX's built-in native-balance override.
 
 ## Returns
 

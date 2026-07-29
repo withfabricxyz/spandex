@@ -71,6 +71,12 @@ Parameters defining the swap operation. See [SwapParams reference](/reference/Sw
 
 Optional custom PublicClient to use for onchain simulations. If not provided, the configured clients in the `config` will be used.
 
+### simulationOptions
+
+`SimulationOptions | undefined`
+
+Optional simulation controls. Its `stateOverrides` field accepts viem account and storage
+overrides, including ERC-20 balance storage slots for indicative quotes.
 
 ## Returns
 

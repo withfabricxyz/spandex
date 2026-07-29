@@ -6,13 +6,23 @@ import { getQuote } from "./getQuote.js";
 import { prepareSimulatedQuotes } from "./prepareSimulatedQuotes.js";
 import type {
   SimulationArgs,
+  SimulationOptions,
   SimulationSuccess,
   SuccessfulSimulatedQuote,
   SwapParams,
 } from "./types.js";
 
 const mockPrepareSimulatedQuotes = mock(
-  ({ config, swap, client }: { config: Config; swap: SwapParams; client?: PublicClient }) => {
+  ({
+    config,
+    swap,
+    client,
+  }: {
+    config: Config;
+    swap: SwapParams;
+    client?: PublicClient;
+    simulationOptions?: SimulationOptions;
+  }) => {
     const resolvedClient = client ?? ({} as PublicClient);
     return config.aggregators.map((aggregator) =>
       aggregator
@@ -114,5 +124,34 @@ describe("getQuote", () => {
     });
     expect(best).toBeDefined();
     expect(best?.simulation.outputAmount).toBe(900_001n);
+  });
+
+  it("passes simulationOptions to simulation preparation", async () => {
+    const config: Config = {
+      aggregators: [new MockAggregator(quoteSuccess)],
+      options: {},
+      clientLookup: () => undefined,
+    };
+    const simulationOptions: SimulationOptions = {
+      stateOverrides: [
+        {
+          address: defaultSwapParams.swapperAccount,
+          balance: 123n,
+        },
+      ],
+    };
+
+    await getQuote({
+      config,
+      swap: defaultSwapParams,
+      strategy: "fastest",
+      client: {} as PublicClient,
+      simulationOptions,
+    });
+
+    const lastCall = mockPrepareSimulatedQuotes.mock.calls.at(-1)?.[0] as {
+      simulationOptions?: SimulationOptions;
+    };
+    expect(lastCall?.simulationOptions).toEqual(simulationOptions);
   });
 });

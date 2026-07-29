@@ -1,4 +1,5 @@
-import type { Quote, SimulatedQuote, SwapParams } from "../types.js";
+import type { Quote, SimulatedQuote, SimulationOptions, SwapParams } from "../types.js";
+import { serializeWithBigInt } from "./serde.js";
 import { decodeStream } from "./streams.js";
 
 export type ProxyDelegatedAction = "prepareQuotes" | "prepareSimulatedQuotes";
@@ -58,11 +59,18 @@ export class AggregatorProxy {
   /**
    * Request simulated quotes from the configured proxy endpoint.
    * @param params - Swap parameters to retrieve quotes for
+   * @param simulationOptions - Optional controls forwarded to server-side simulation.
    * @returns Promises that resolve to individual simulated quote results as they stream in.
    */
-  async prepareSimulatedQuotes(params: SwapParams): Promise<Array<Promise<SimulatedQuote>>> {
+  async prepareSimulatedQuotes(
+    params: SwapParams,
+    simulationOptions?: SimulationOptions,
+  ): Promise<Array<Promise<SimulatedQuote>>> {
     this.assertDelegatedAction("prepareSimulatedQuotes");
     const query = quoteQueryParams(params);
+    if (simulationOptions !== undefined) {
+      query.append("simulationOptions", serializeWithBigInt(simulationOptions));
+    }
     return this.fetchStream<SimulatedQuote>(
       `${this.baseUrl}/prepareSimulatedQuotes?${query.toString()}`,
       decodeStream,
