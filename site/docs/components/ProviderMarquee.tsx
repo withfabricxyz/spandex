@@ -10,11 +10,13 @@ import { DackieLogo } from "./logo/dackie";
 import { FabricLogo } from "./logo/fabric";
 import { FarcasterLogo } from "./logo/farcaster";
 import { FlareLogo } from "./logo/flare";
+import { FyndLogo } from "./logo/fynd";
 import { GnosisLogo } from "./logo/gnosis";
 import { InkLogo } from "./logo/ink";
 import { KyberSwapLogo } from "./logo/kyberswap";
 import { LifiLogo } from "./logo/lifi";
 import { LiskLogo } from "./logo/lisk";
+import { MobulaLogo } from "./logo/mobula";
 import { ModeLogo } from "./logo/mode";
 import { NordsternLogo } from "./logo/nordstern";
 import { OkuLogo } from "./logo/oku";
@@ -59,7 +61,7 @@ export function ProviderMarquee() {
   return (
     <div className="flex flex-col gap-10">
       <section className="flex flex-col gap-10">
-        <span className="agg">7 Aggregators—</span>
+        <span className="agg">9 Aggregators—</span>
         <Marquee direction="rtl" gap={40}>
           <a href="https://0x.org" target="_blank" rel="noopener noreferrer" className={logoLink}>
             <Logo0x />
@@ -106,6 +108,17 @@ export function ProviderMarquee() {
             className={logoLink}
           >
             <VeloraLogo />
+          </a>
+          <a href="https://fynd.xyz" target="_blank" rel="noopener noreferrer" className={logoLink}>
+            <FyndLogo />
+          </a>
+          <a
+            href="https://mobula.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={logoLink}
+          >
+            <MobulaLogo />
           </a>
         </Marquee>
       </section>
