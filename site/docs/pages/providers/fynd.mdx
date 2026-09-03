@@ -1,0 +1,80 @@
+import { Button } from 'vocs/components'
+import { Callout } from 'vocs/components'
+
+# Fynd
+
+<div className="flex flex-row gap-4">
+  <Button href="https://fynd.xyz">Homepage</Button>
+  <Button href="https://docs.fynd.xyz/get-started/hosted-api">Docs</Button>
+</div>
+
+## Configuration
+
+<Callout type="info">
+  Fynd is PropellerHeads' open-source solver. It supports `exactIn` quotes on
+  EVM chains and returns router calldata in the same request. It does not
+  support exact-output or cross-chain quotes in spanDEX, and it is not part of
+  the default provider set.
+</Callout>
+
+Fynd can be used in two ways: the hosted API (requires an API key from the
+`@fynd_portal_bot` on Telegram) or a self-hosted `fynd serve` instance that you
+run yourself.
+
+### Hosted
+
+```ts twoslash
+import { createConfig, fynd } from "@spandex/core";
+
+export const config = createConfig({
+  providers: [
+    fynd({
+      apiKey: "YOUR_FYND_API_KEY",
+      // Optional. Add or override hosted chain path segments.
+      chains: { 130: "unichain" },
+    }),
+    // ...
+  ],
+});
+```
+
+### Self-hosted
+
+A self-hosted server serves exactly one chain at `/v1/quote` with no
+authentication. Provide the base URL and the chain it is configured for.
+
+```ts twoslash
+import { createConfig, fynd } from "@spandex/core";
+
+export const config = createConfig({
+  providers: [
+    fynd({
+      baseUrl: "http://localhost:8080",
+      chainId: 8453,
+    }),
+    // ...
+  ],
+});
+```
+
+## Notes
+
+- Solver settings are left at Fynd's server defaults. You can optionally set
+  `timeoutMsSolver`, `minResponses`, and `maxGas` on the config; when
+  `timeoutMsSolver` is omitted, the aggregation `deadlineMs` is forwarded as
+  Fynd's `timeout_ms`.
+- Fynd uses the zero address for native input, matching spanDEX. The router
+  wraps native tokens automatically, so no approval is needed for native input.
+- ERC-20 input swaps require an approval to the router address returned in the
+  transaction. Permit2 flows are not used by this adapter.
+- The adapter does not set a gas limit from Fynd's `gas_estimate`, since the estimate is
+  too tight and causes reverts when used verbatim. Gas is estimated at simulation and
+  execution time instead.
+- Fynd charges a small router fee in the output token. It is reported on the
+  quote as an `aggregator` fee.
+- Integrator fees are not advertised. Fynd's client fees require an EIP-712
+  signature from a registered client vault, which is outside the scope of a
+  per-request quote.
+- A separate `recipientAccount` is forwarded as the order `receiver`.
+- A `200` response whose order status is anything other than `success` (for
+  example `no_route_found`) is surfaced as a failed quote.

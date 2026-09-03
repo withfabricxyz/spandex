@@ -1,0 +1,56 @@
+import { Button } from 'vocs/components'
+import { Callout } from 'vocs/components'
+
+# Mobula
+
+<div className="flex flex-row gap-4">
+  <Button href="https://mobula.io">Homepage</Button>
+  <Button href="https://docs.mobula.io/guides/complete-swap-guide">Docs</Button>
+</div>
+
+## Configuration
+
+<Callout type="info">
+  Mobula supports `exactIn` quotes on EVM chains through its `/swap/quoting`
+  endpoint. It does not support exact-output or cross-chain quotes in spanDEX.
+  Mobula is not part of the default provider set; add it explicitly.
+</Callout>
+
+An API key is required. Create one at [admin.mobula.io](https://admin.mobula.io).
+
+```ts twoslash
+import { createConfig, mobula } from "@spandex/core";
+
+export const config = createConfig({
+  providers: [
+    mobula({
+      apiKey: "YOUR_MOBULA_API_KEY",
+      // Optional DEX / upstream router filters.
+      onlyProtocols: ["uniswap-v3"],
+      excludedProtocols: [],
+      onlyRouters: ["kyberswap", "lifi"],
+    }),
+    // ...
+  ],
+});
+```
+
+## Notes
+
+- Quotes are fetched from `GET /swap/quoting`, which returns an unsigned EVM
+  transaction alongside the quote, so every quote includes broadcast-ready
+  calldata.
+- No chain allow list is maintained client-side. Requests for chains Mobula does
+  not support are rejected by the API and returned as failed quotes. See
+  Mobula's docs for current chain coverage.
+- Mobula uses the EIP-7528 sentinel (`0xEeee…EEeE`) for native tokens. spanDEX
+  translates its zero-address native convention automatically.
+- ERC-20 input swaps require an approval to the address Mobula reports in
+  `approvalAddress` (falling back to the router `to` address).
+- Integrator fees are supported: `integratorSwapFeeBps` and
+  `integratorFeeAddress` map to Mobula's `feePercentages` / `feeWallets`
+  parameters. Mobula retains a share of referral fees; see their docs.
+- A separate `recipientAccount` is forwarded as `recipientAddress`.
+- Routing failures are returned by Mobula as HTTP 200 with a `null` data payload
+  and an `error` message. The adapter surfaces these as failed quotes.
+- Override `baseUrl` only if you are pointed at a non-default Mobula deployment.

@@ -196,6 +196,10 @@ export default defineConfig({
           link: "/providers/0x",
         },
         {
+          text: "Fynd",
+          link: "/providers/fynd",
+        },
+        {
           text: "KyberSwap",
           link: "/providers/kyberswap",
         },
@@ -206,6 +210,10 @@ export default defineConfig({
         {
           text: "LiFi",
           link: "/providers/lifi",
+        },
+        {
+          text: "Mobula",
+          link: "/providers/mobula",
         },
         {
           text: "Nordstern",

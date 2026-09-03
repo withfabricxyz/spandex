@@ -1,9 +1,11 @@
 import type { Address, PublicClient, SimulateCallsReturnType, StateOverride } from "viem";
 import type { ZeroXConfig, ZeroXQuoteResponse } from "./aggregators/0x.js";
 import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js";
+import type { FyndConfig, FyndQuoteResponse } from "./aggregators/fynd.js";
 import type { Aggregator } from "./aggregators/index.js";
 import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
 import type { LifiConfig, LifiQuoteResponse } from "./aggregators/lifi.js";
+import type { MobulaConfig, MobulaQuoteResponse } from "./aggregators/mobula.js";
 import type { NordsternConfig, NordsternQuoteResponse } from "./aggregators/nordstern.js";
 import type { O1Config, O1QuoteResponse } from "./aggregators/o1.js";
 import type { OdosConfig, OdosQuoteResponse } from "./aggregators/odos.js";
@@ -23,6 +25,10 @@ export type ProviderDefinitions = {
     config: ZeroXConfig;
     quote: ZeroXQuoteResponse;
   };
+  fynd: {
+    config: FyndConfig;
+    quote: FyndQuoteResponse;
+  };
   kyberswap: {
     config: KyberConfig;
     quote: KyberQuoteResponse;
@@ -30,6 +36,10 @@ export type ProviderDefinitions = {
   lifi: {
     config: LifiConfig;
     quote: LifiQuoteResponse;
+  };
+  mobula: {
+    config: MobulaConfig;
+    quote: MobulaQuoteResponse;
   };
   nordstern: {
     config: NordsternConfig;

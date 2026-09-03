@@ -25,6 +25,8 @@ export const COLORS: Record<string, string> = {
   kyberswap: "var(--color-fabric-green)",
   nordstern: "var(--color-fabric-light-blue)",
   o1: "var(--color-fabric-yellow)",
+  mobula: "#f97316",
+  fynd: "#14b8a6",
   fallback: "#ddd",
   secondary: "var(--color-border)",
   tertiary: "var(--color-outline)",

@@ -1,11 +1,12 @@
 import {
   createConfig,
-  defaultProviders,
   deserializeWithBigInt,
-  o1,
+  fabric,
+  fynd,
+  kyberswap,
+  mobula,
   type SimulationOptions,
   type SwapParams,
-  zeroX,
 } from "@spandex/core";
 import { createPublicClient } from "viem";
 import { z } from "zod";
@@ -13,13 +14,10 @@ import { configuredChains } from "@/config/onchain";
 
 export const proxyConfig = createConfig({
   providers: [
-    ...defaultProviders({
-      appId: "spandex_ui",
-    }),
-    process.env.O1_BASE_URL && process.env.O1_API_KEY
-      ? o1({ baseUrl: process.env.O1_BASE_URL, apiKey: process.env.O1_API_KEY })
-      : undefined,
-    process.env.ZEROX_API_KEY ? zeroX({ apiKey: process.env.ZEROX_API_KEY }) : undefined,
+    fabric({ appId: "spandex_ui" }),
+    kyberswap({ clientId: "spandex_ui" }),
+    process.env.FYND_API_KEY ? fynd({ apiKey: process.env.FYND_API_KEY }) : undefined,
+    process.env.MOBULA_API_KEY ? mobula({ apiKey: process.env.MOBULA_API_KEY }) : undefined,
   ].filter((p): p is NonNullable<typeof p> => Boolean(p)),
   options: {
     deadlineMs: 5_000,
