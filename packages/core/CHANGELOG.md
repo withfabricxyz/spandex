@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.11.0
+
+### Minor Changes
+
+- fda0900: Add fynd (hosted and self-hosted) and mobula to provider set.
+
 ## 0.10.0
 
 ### Minor Changes
