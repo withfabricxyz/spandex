@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { fail } from "node:assert";
+import { createServer } from "node:net";
 import { afterEach } from "node:test";
 import { Instance, Server } from "prool";
 import { createPublicClient, createWalletClient, erc20Abi, http, type PublicClient } from "viem";
@@ -24,7 +25,27 @@ const swap: SwapParams = {
 };
 
 let server: Server.CreateServerReturnType | null = null;
+let forkRpcUrl = "";
+
+/**
+ * Asks the OS for an unused port so parallel or leftover anvil processes on a
+ * fixed port cannot make the suite fail.
+ */
+function getFreePort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const probe = createServer();
+    probe.once("error", reject);
+    probe.listen(0, "127.0.0.1", () => {
+      const address = probe.address();
+      const port = typeof address === "object" && address ? address.port : undefined;
+      probe.close(() => (port ? resolve(port) : reject(new Error("Could not allocate a port"))));
+    });
+  });
+}
+
 async function createFork(forkBlockNumber: bigint) {
+  const port = await getFreePort();
+  forkRpcUrl = `http://127.0.0.1:${port}/1`;
   server = Server.create({
     instance: Instance.anvil({
       forkUrl: `https://rpc.ankr.com/base/${ANKR_API_KEY}`,
@@ -32,7 +53,7 @@ async function createFork(forkBlockNumber: bigint) {
       autoImpersonate: true,
     }),
     host: "127.0.0.1",
-    port: 31337,
+    port,
     limit: 1,
   });
   await server.start();
@@ -44,10 +65,12 @@ const baseClient = createPublicClient({
   transport: http(`https://rpc.ankr.com/base/${ANKR_API_KEY}`),
 }) as PublicClient;
 
-const forkClient = createPublicClient({
-  chain: base,
-  transport: http(`http://127.0.0.1:31337/1`),
-}) as PublicClient;
+function forkClient(): PublicClient {
+  return createPublicClient({
+    chain: base,
+    transport: http(forkRpcUrl),
+  }) as PublicClient;
+}
 
 describe("executeQuote", () => {
   afterEach(async () => {
@@ -59,7 +82,7 @@ describe("executeQuote", () => {
 
   it("forks correctly", async () => {
     await createFork(41166265n);
-    const forkBlockNumber = await forkClient.getBlockNumber();
+    const forkBlockNumber = await forkClient().getBlockNumber();
     expect(forkBlockNumber).toEqual(41166265n);
   });
 
@@ -75,14 +98,15 @@ describe("executeQuote", () => {
       throw new Error("Quote or simulation failed");
 
     await createFork(BigInt((quote.details as FabricQuoteResponse).blockNumber));
+    const publicClient = forkClient();
 
     const walletClient = createWalletClient({
       account: swap.swapperAccount,
       chain: base,
-      transport: http(`http://127.0.0.1:31337/1`),
+      transport: http(forkRpcUrl),
     });
 
-    const beforeBalance = await forkClient.readContract({
+    const beforeBalance = await publicClient.readContract({
       address: swap.outputToken,
       abi: erc20Abi,
       functionName: "balanceOf",
@@ -93,14 +117,14 @@ describe("executeQuote", () => {
       quote,
       swap,
       walletClient: walletClient,
-      publicClient: forkClient,
+      publicClient,
       config,
     }).catch((error) => {
       console.log(error);
       fail("Execution failed");
     });
 
-    const afterBalance = await await forkClient.readContract({
+    const afterBalance = await publicClient.readContract({
       address: swap.outputToken,
       abi: erc20Abi,
       functionName: "balanceOf",
