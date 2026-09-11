@@ -22,7 +22,7 @@ const config: Config = {
 
 const baseQuote: SuccessfulSimulatedQuote = {
   success: true,
-  provider: "fabric",
+  provider: "nordstern",
   details: {} as never,
   latency: 1,
   outputAmount: 2000n,

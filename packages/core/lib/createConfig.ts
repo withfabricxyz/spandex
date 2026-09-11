@@ -1,5 +1,4 @@
 import type { PublicClient } from "viem";
-import { fabric } from "./aggregators/fabric.js";
 import type { Aggregator } from "./aggregators/index.js";
 import { kyberswap } from "./aggregators/kyber.js";
 import { nordstern } from "./aggregators/nordstern.js";
@@ -38,7 +37,7 @@ export type Config = {
  * @returns Provider list with default aggregators enabled.
  */
 export function defaultProviders(params: { appId: string }): DirectConfigParams["providers"] {
-  return [kyberswap({ clientId: params.appId }), fabric({ appId: params.appId }), nordstern({})];
+  return [kyberswap({ clientId: params.appId }), nordstern({})];
 }
 
 /**

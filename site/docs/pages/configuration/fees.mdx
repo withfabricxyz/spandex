@@ -18,7 +18,6 @@ subject to negotiation.
 
 | Provider | Swap Fee | Surplus | More |
 | --- | --- | --- | --- |
-| Fabric | 0-0.1% | 0-100% | - |
 | 0x | 0.15% | 100% (1% Cap) | [Details](https://0x.org/pricing) |
 | KyberSwap | 0% | 100% | [Details](https://docs.kyberswap.com/kyberswap-solutions/fee-schedule) |
 | LI.FI | 0.25% | 100% | [Details](https://docs.li.fi/faqs/fees-monetization) |
@@ -49,10 +48,10 @@ selection can prefer quotes that actually activated requested features.
 Use a fixed bps fee when you want predictable revenue on eligible swaps.
 
 ```ts
-import { createConfig, fabric, relay } from "@spandex/core";
+import { createConfig, nordstern, relay } from "@spandex/core";
 
 const config = createConfig({
-  providers: [fabric({ appId: "YOUR_FABRIC_APP_ID" }), relay({})],
+  providers: [nordstern({}), relay({})],
   options: {
     integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",
     integratorSwapFeeBps: 25, // 0.25%
@@ -70,10 +69,10 @@ Surplus can be requested with `integratorSurplusBps` for providers that support 
 </Callout>
 
 ```ts
-import { createConfig, fabric, velora } from "@spandex/core";
+import { createConfig, velora } from "@spandex/core";
 
 const config = createConfig({
-  providers: [fabric({ appId: "YOUR_FABRIC_APP_ID" }), velora({})],
+  providers: [velora({})],
   options: {
     integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",
     integratorSwapFeeBps: 20,
@@ -143,7 +142,6 @@ still depend on provider plans/terms.
 
 | Provider | Swap Fee Control | Surplus Control | Negotiability |
 | --- | --- | --- | --- |
-| Fabric | ✓ | ✓ | ✓ |
 | 0x | ✓ | x | ✓ |
 | KyberSwap | ✓ | x | ✓ |
 | LI.FI | ✓ | x | ✓ |

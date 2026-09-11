@@ -22,7 +22,7 @@ under real load. No single aggregator wins every trade or delivers 100% uptime.
 <div className="provider-grid">
   <a className="provider-card" href="/providers/fabric">
     <span className="provider-card__logo"><FabricLogo /></span>
-    <span className="provider-card__name">Fabric</span>
+    <span className="provider-card__name">Fabric (deprecated)</span>
   </a>
   <a className="provider-card" href="/providers/0x">
     <span className="provider-card__logo"><Logo0x /></span>
@@ -110,17 +110,17 @@ region to keep quote latency lower and improve reliability. If you have any regi
 data for providers, please contribute.
 
 ```ts
-import { createConfig, fabric, relay, velora } from "@spandex/core";
+import { createConfig, nordstern, relay, velora } from "@spandex/core";
 
 export function configForRegion(region: string) {
   if (region.startsWith("eu")) {
     return createConfig({
-      providers: [fabric({ appId: "..." }), relay({})],
+      providers: [nordstern({}), relay({})],
     });
   }
 
   return createConfig({
-    providers: [fabric({ appId: "..." }), velora({})],
+    providers: [nordstern({}), velora({})],
   });
 }
 ```

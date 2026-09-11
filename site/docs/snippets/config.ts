@@ -1,4 +1,4 @@
-import { createConfig, fabric, kyberswap, nordstern } from "@spandex/core";
+import { createConfig, kyberswap, nordstern } from "@spandex/core";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
@@ -9,11 +9,7 @@ const baseClient = createPublicClient({
 });
 
 export const config = createConfig({
-  providers: [
-    fabric({ appId: "your app id" }),
-    nordstern({}),
-    kyberswap({ clientId: "your client id" }),
-  ],
+  providers: [nordstern({}), kyberswap({ clientId: "your client id" })],
   options: {
     deadlineMs: 5_000,
     integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",

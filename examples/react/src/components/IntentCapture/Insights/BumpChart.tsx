@@ -19,7 +19,6 @@ type BumpChartProps = {
 };
 
 export const COLORS: Record<string, string> = {
-  fabric: "var(--color-fabric-purple)",
   "0x": "var(--color-fabric-red)",
   odos: "var(--color-fabric-pink)",
   kyberswap: "var(--color-fabric-green)",

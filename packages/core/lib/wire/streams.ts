@@ -205,7 +205,7 @@ export function quoteStreamErrorHandler(error: unknown): Quote {
 
   return {
     success: false,
-    provider: "fabric",
+    provider: "nordstern",
     error: error instanceof QuoteError ? error : new QuoteError("Quote promise rejected", error),
   };
 }

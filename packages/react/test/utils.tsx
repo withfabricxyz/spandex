@@ -1,4 +1,4 @@
-import { fabric } from "@spandex/core";
+import { nordstern } from "@spandex/core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   type RenderHookOptions,
@@ -22,7 +22,7 @@ const wagmiConfig = createConfig({
 });
 
 export const DEFAULT_TEST_CONFIG: SpandexProviderProps["config"] = {
-  providers: [fabric({ appId: "test" })],
+  providers: [nordstern({})],
 };
 
 export function createWrapper(config?: SpandexProviderProps["config"]) {

@@ -178,7 +178,7 @@ describe("useQuote", () => {
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
       expect(result.current.data).toBeDefined();
-      expect(result.current.data).toEqual("fabric");
+      expect(result.current.data).toEqual("nordstern");
     });
   });
 

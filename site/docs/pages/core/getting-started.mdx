@@ -25,7 +25,7 @@ bun i viem @spandex/core
 See the [configuration reference](/configuration) for all options.
 
 ```ts filename="config.ts" twoslash
-import { createConfig, fabric, kyberswap, nordstern } from "@spandex/core";
+import { createConfig, kyberswap, nordstern } from "@spandex/core";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { base } from "viem/chains";
 
@@ -38,7 +38,6 @@ const baseClient = createPublicClient({
 // The aggregator instance can be shared across your application
 export const config = createConfig({
   providers: [
-    fabric({ appId: "test" }),
     kyberswap({ clientId: "test" }),
     nordstern({}),
   ],

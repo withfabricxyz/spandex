@@ -1,22 +1,20 @@
 import { type Address, type Hex, zeroAddress } from "viem";
 import {
+  type AggregationOptions,
   type AggregatorFeature,
   type AggregatorMetadata,
-  type Fee,
   type ProviderConfig,
   type ProviderKey,
   QuoteError,
-  type QuoteMetrics,
   type RouteGraph,
   type SuccessfulQuote,
   type SwapOptions,
   type SwapParams,
-  type TokenPricing,
 } from "../types.js";
-import { amountToNumber } from "../util/pricing.js";
 import { Aggregator } from "./index.js";
 
-const DEFAULT_URL = "https://route.withfabric.xyz";
+const FABRIC_DEPRECATION_MESSAGE =
+  "The Fabric provider is deprecated and shuts down on September 16, 2026. Remove fabric() from your spanDEX provider configuration and use nordstern() or another active provider.";
 
 export type FabricQuoteResponse = {
   blockNumber: number;
@@ -72,6 +70,8 @@ type Route = {
 
 /**
  * Configuration options for the Fabric aggregator.
+ *
+ * @deprecated Fabric shuts down on September 16, 2026. Use Nordstern or another active provider.
  */
 export type FabricConfig = ProviderConfig & {
   /** App ID for accessing the Fabric API. */
@@ -83,9 +83,16 @@ export type FabricConfig = ProviderConfig & {
 };
 
 /**
- * Aggregator implementation that queries the Fabric routing API.
+ * Compatibility stub for the deprecated Fabric routing API.
+ *
+ * @deprecated Fabric shuts down on September 16, 2026. Quote requests always reject.
  */
 export class FabricAggregator extends Aggregator<FabricConfig> {
+  constructor(config: FabricConfig) {
+    super(config);
+    console.warn(`[spanDEX] ${FABRIC_DEPRECATION_MESSAGE}`);
+  }
+
   /**
    * @inheritdoc
    */
@@ -116,80 +123,16 @@ export class FabricAggregator extends Aggregator<FabricConfig> {
     return ["exactIn", "targetOut", "integratorFees", "integratorSurplus"];
   }
 
-  /**
-   * @inheritdoc
-   */
-  protected override async tryFetchQuote(
-    request: SwapParams,
-    options: SwapOptions,
-  ): Promise<SuccessfulQuote> {
-    const response = await this.makeRequest(request, options);
-    const inputAmount = BigInt(response.amountIn);
-    const outputAmount = BigInt(response.amountOut);
-    const tokenLookup = buildTokenLookup(response.tokens);
-    const inputToken = buildTokenPricing(request.inputToken, tokenLookup);
-    const outputToken = buildTokenPricing(request.outputToken, tokenLookup);
-
-    const fees = buildFees(response.fees);
-    const metrics = buildFabricMetrics(
-      response,
-      inputAmount,
-      outputAmount,
-      inputToken,
-      outputToken,
-    );
-
-    return {
-      success: true,
-      provider: "fabric",
-      details: response,
-      latency: 0, // Filled in by MetaAggregator
-      inputChainId: request.chainId,
-      outputChainId: request.chainId,
-      execution: "atomic",
-      inputAmount,
-      outputAmount,
-      networkFee: 0n, // TODO
-      txData: {
-        to: response.transaction.to,
-        data: response.transaction.data,
-        value: BigInt(response.transaction.value),
-      },
-      approval: response.approval,
-      route: fabricRouteGraph(response),
-      pricing: {
-        inputToken,
-        outputToken,
-      },
-      fees,
-      metrics,
-    };
+  /** Rejects immediately without resolving options, retrying, or making a network request. */
+  override async fetchQuote(_params: SwapParams, _options?: AggregationOptions): Promise<never> {
+    throw new QuoteError(FABRIC_DEPRECATION_MESSAGE);
   }
 
-  private async makeRequest(
-    params: SwapParams,
-    options: SwapOptions,
-  ): Promise<FabricQuoteResponse> {
-    const query = new URLSearchParams(extractQueryParams(params, options));
-
-    const headers: Record<string, string> = {
-      accept: "application/json",
-      "x-app-id": this.config.appId,
-    };
-
-    if (this.config.apiKey) {
-      headers["x-api-key"] = this.config.apiKey;
-    }
-
-    return await fetch(`${this.config.url || DEFAULT_URL}/v1/quote?${query.toString()}`, {
-      headers,
-    }).then(async (response) => {
-      const body = await response.json();
-      if (!response.ok) {
-        throw new QuoteError(`Fabric API request failed with status ${response.status}`, body);
-      }
-      return body as FabricQuoteResponse;
-    });
+  protected override async tryFetchQuote(
+    _request: SwapParams,
+    _options: SwapOptions,
+  ): Promise<SuccessfulQuote> {
+    throw new QuoteError(FABRIC_DEPRECATION_MESSAGE);
   }
 }
 
@@ -198,6 +141,8 @@ export class FabricAggregator extends Aggregator<FabricConfig> {
  *
  * @param config - Fabric configuration (app id, base URL, API key).
  * @returns FabricAggregator instance.
+ *
+ * @deprecated Fabric shuts down on September 16, 2026. Use Nordstern or another active provider.
  */
 export function fabric(config: FabricConfig): FabricAggregator {
   return new FabricAggregator(config);
@@ -218,100 +163,4 @@ export function fabricRouteGraph(quote: FabricQuoteResponse): RouteGraph {
     nodes,
     edges,
   };
-}
-
-function buildTokenLookup(tokens: TokenData[]): Map<string, TokenData> {
-  const map = new Map<string, TokenData>();
-  for (const token of tokens) {
-    map.set(token.address.toLowerCase(), token);
-  }
-  return map;
-}
-
-function buildTokenPricing(address: Address, lookup: Map<string, TokenData>): TokenPricing {
-  const token = lookup.get(address.toLowerCase());
-  return {
-    address,
-    symbol: token?.symbol,
-    decimals: token?.decimals,
-    usdPrice: token?.priceUsd,
-  };
-}
-
-function buildFees(fees: FabricFee[]): Fee[] | undefined {
-  if (fees.length === 0) {
-    return undefined;
-  }
-
-  return fees.map((fee) => ({
-    type: "other",
-    token: fee.token,
-    amount: BigInt(fee.amount),
-  }));
-}
-
-function buildFabricMetrics(
-  response: FabricQuoteResponse,
-  inputAmount: bigint,
-  outputAmount: bigint,
-  inputToken: TokenPricing,
-  outputToken: TokenPricing,
-): QuoteMetrics | undefined {
-  const spotPrice = response.price;
-  if (!Number.isFinite(spotPrice) || spotPrice === 0) {
-    return undefined;
-  }
-
-  const inputNormalized = amountToNumber(inputAmount, inputToken.decimals);
-  const outputNormalized = amountToNumber(outputAmount, outputToken.decimals);
-
-  if (inputNormalized === null || outputNormalized === null) {
-    return undefined;
-  }
-
-  const executionPrice = outputNormalized / inputNormalized;
-  if (!Number.isFinite(executionPrice)) {
-    return undefined;
-  }
-
-  const impact = Math.abs(spotPrice - executionPrice) / spotPrice;
-  return {
-    priceImpactBps: Math.round(impact * 10_000),
-  };
-}
-
-function extractQueryParams(params: SwapParams, options: SwapOptions): Record<string, string> {
-  const recipientAccount = params.recipientAccount ?? params.swapperAccount;
-  const result: Record<string, string> = {
-    chainId: params.chainId.toString(),
-    buyToken: params.outputToken,
-    sellToken: params.inputToken,
-    slippageBps: params.slippageBps.toString(),
-    receiver: recipientAccount,
-  };
-
-  if (params.mode === "exactIn") {
-    result.sellAmount = params.inputAmount.toString();
-  } else {
-    result.buyAmount = params.outputAmount.toString();
-  }
-
-  if (options.integratorFeeAddress) {
-    result.feeRecipient = options.integratorFeeAddress;
-  }
-
-  if (options.integratorSwapFeeBps !== undefined) {
-    result.feeBps = options.integratorSwapFeeBps.toString();
-  }
-
-  if (
-    options.integratorSurplusBps !== undefined &&
-    (options.integratorFeeAddress || options.integratorSurplusAddress)
-  ) {
-    result.surplusFeeBps = options.integratorSurplusBps.toString();
-    result.surplusFeeRecipient =
-      options.integratorSurplusAddress || options.integratorFeeAddress || "";
-  }
-
-  return result;
 }

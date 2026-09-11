@@ -11,7 +11,7 @@ provider to test alternate configurations.
 | Factory | API Key Required? | Config Docs |
 |----------|-----------|----------|
 | `zeroX` | yes | [View](/providers/0x) |
-| `fabric` | no | [View](/providers/fabric) |
+| `fabric` (deprecated; always rejects) | no | [Migration details](/providers/fabric) |
 | `fynd` | hosted: yes, self-hosted: no | [View](/providers/fynd) |
 | `kyberswap` | no | [View](/providers/kyberswap) |
 | `odos` (deprecated; always fails) | no | [Migration details](/providers/odos) |
@@ -25,7 +25,7 @@ provider to test alternate configurations.
 Example:
 
 ```ts
-import { fabric, zeroX } from "@spandex/core";
+import { nordstern, zeroX } from "@spandex/core";
 
 const providers = [
   zeroX({
@@ -33,9 +33,7 @@ const providers = [
     timeoutMs: 12_000,
     negotiatedFeatures: ["integratorFees"],
   }),
-  fabric({
-    appId: "YOUR_FABRIC_APP_ID",
-  }),
+  nordstern({}),
 ];
 ```
 
@@ -151,10 +149,10 @@ arguments from the library.
 Example:
 
 ```ts
-import { createConfig, fabric } from "@spandex/core";
+import { createConfig, nordstern } from "@spandex/core";
 
 const config = createConfig({
-  providers: [fabric({ appId: "YOUR_FABRIC_APP_ID" })],
+  providers: [nordstern({})],
   logging: {
     level: "debug",
     fn: (level, ...args) => {

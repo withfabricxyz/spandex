@@ -1,20 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import type { Address } from "viem";
-import { toHex } from "viem";
-import { fabric, getQuote, getRawQuotes, kyberswap } from "../index.js";
+import { getRawQuotes, kyberswap } from "../index.js";
 import { defaultSwapParams, testConfig, USDC_WHALE } from "../test/utils.js";
 import { simulateQuotes } from "./simulateQuote.js";
 import type { SimulatedQuote } from "./types.js";
 
-const FABRIC_VANITY_ACCOUNT: Address = "0x0fabfabfabfabfabfabfabfabfabfabfabfabfab";
-const FABRIC_VANITY_USDC_BALANCE_SLOT =
-  "0xaaabaa18f16f048d904f82d05042c130143069b2ff150f1c4b085d0d21e2c9b2";
-
 describe("simulateQuote", () => {
-  const config = testConfig([
-    kyberswap({ clientId: "spandex-test-env" }),
-    fabric({ appId: "spandex-test-env" }),
-  ]);
+  const config = testConfig([kyberswap({ clientId: "spandex-test-env" })]);
   const client = config.clientLookup(defaultSwapParams.chainId);
   if (!client) {
     throw new Error("Base PublicClient is not configured");
@@ -47,43 +38,6 @@ describe("simulateQuote", () => {
       }
     }
   }, 30000);
-
-  it("simulates an indicative Base swap with a USDC balance override", async () => {
-    const swapParams = {
-      ...defaultSwapParams,
-      swapperAccount: FABRIC_VANITY_ACCOUNT,
-    };
-    if (swapParams.mode !== "exactIn") {
-      throw new Error("Expected the default swap to use exact-input mode");
-    }
-
-    const quote = await getQuote({
-      config: testConfig([fabric({ appId: "spandex-test-env" })]),
-      swap: swapParams,
-      strategy: "fastest",
-      simulationOptions: {
-        stateOverrides: [
-          {
-            address: swapParams.inputToken,
-            stateDiff: [
-              {
-                slot: FABRIC_VANITY_USDC_BALANCE_SLOT,
-                value: toHex(swapParams.inputAmount, { size: 32 }),
-              },
-            ],
-          },
-        ],
-      },
-    });
-
-    expect(quote).not.toBeNull();
-    if (!quote) {
-      throw new Error("Expected a successful simulated quote");
-    }
-    expect(quote.simulation.outputAmount).toBeGreaterThan(0n);
-    expect(quote.simulation.gasUsed ?? 0n).toBeGreaterThan(0n);
-    expect(quote.simulation.approvalGasUsed ?? 0n).toBeGreaterThan(0n);
-  }, 30_000);
 });
 
 function summarize(quote: SimulatedQuote) {

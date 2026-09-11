@@ -7,7 +7,6 @@ import { BlastLogo } from "./logo/blast";
 import { BnbChainLogo } from "./logo/bnbchain";
 import { ClankerLogo } from "./logo/clanker";
 import { DackieLogo } from "./logo/dackie";
-import { FabricLogo } from "./logo/fabric";
 import { FarcasterLogo } from "./logo/farcaster";
 import { FlareLogo } from "./logo/flare";
 import { FyndLogo } from "./logo/fynd";
@@ -61,21 +60,13 @@ export function ProviderMarquee() {
   return (
     <div className="flex flex-col gap-10">
       <section className="flex flex-col gap-10">
-        <span className="agg">9 Aggregators—</span>
+        <span className="agg">8 Aggregators—</span>
         <Marquee direction="rtl" gap={40}>
           <a href="https://0x.org" target="_blank" rel="noopener noreferrer" className={logoLink}>
             <Logo0x />
           </a>
           <a href="https://li.fi" target="_blank" rel="noopener noreferrer" className={logoLink}>
             <LifiLogo />
-          </a>
-          <a
-            href="https://withfabric.xyz"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={logoLink}
-          >
-            <FabricLogo />
           </a>
           <a
             href="https://kyberswap.com"

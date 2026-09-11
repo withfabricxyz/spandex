@@ -182,7 +182,7 @@ describe("useQuotes", () => {
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
       expect(result.current.data).toBeDefined();
-      expect(result.current.data?.[0]).toEqual("fabric");
+      expect(result.current.data?.[0]).toEqual("nordstern");
     });
   });
 
@@ -208,7 +208,7 @@ describe("useQuotes", () => {
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
       expect(result.current.data).toBeDefined();
-      expect(result.current.data?.[0]).toEqual("fabric");
+      expect(result.current.data?.[0]).toEqual("nordstern");
     });
   });
 });

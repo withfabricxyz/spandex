@@ -11,11 +11,11 @@ import { Callout } from "vocs/components";
 ## Migration
 
 ```ts twoslash
-import { createConfig, fabric } from "@spandex/core";
+import { createConfig, nordstern } from "@spandex/core";
 
 export const config = createConfig({
   providers: [
-    fabric({ appId: "your app id" }),
+    nordstern({}),
     // Add other active providers here.
   ],
 });

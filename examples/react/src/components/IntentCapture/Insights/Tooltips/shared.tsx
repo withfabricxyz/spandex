@@ -5,7 +5,7 @@ import { Skeleton } from "../../../Skeleton";
 import { Tooltip } from "../../../Tooltip";
 import { COLORS } from "../BumpChart";
 
-export const PROVIDERS = ["fabric", "fynd", "mobula", "kyberswap"] as const;
+export const PROVIDERS = ["nordstern", "fynd", "mobula", "kyberswap"] as const;
 
 export type BaseRow = { provider: string; color: string };
 

@@ -21,10 +21,9 @@ describe("createConfig", () => {
     expect(config.aggregators[0]?.name()).toEqual("0x");
   });
 
-  it("does not include the deprecated Odos provider by default", () => {
+  it("includes only active providers by default", () => {
     expect(defaultProviders({ appId: "test" }).map((provider) => provider.name())).toEqual([
       "kyberswap",
-      "fabric",
       "nordstern",
     ]);
   });
