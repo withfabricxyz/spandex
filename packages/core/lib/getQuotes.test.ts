@@ -3,9 +3,9 @@ import type { PublicClient } from "viem";
 import { createPublicClient, http, parseEther, zeroAddress } from "viem";
 import { base } from "viem/chains";
 import {
-  fabric,
   getQuotes,
   kyberswap,
+  nordstern,
   odos,
   type SuccessfulQuote,
   type SuccessfulSimulatedQuote,
@@ -39,7 +39,7 @@ describe("getQuotes", () => {
     providers: [
       odos({}),
       kyberswap({ clientId: "spandex" }),
-      fabric({ appId: "spandex" }),
+      nordstern({}),
       zeroX({ apiKey: process.env.ZEROX_API_KEY || "" }),
     ],
     clients: [client] as PublicClient[],

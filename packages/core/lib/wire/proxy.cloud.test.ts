@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { usdcBalanceSwap } from "../../test/utils.js";
-import type { FabricQuoteResponse } from "../aggregators/fabric.js";
+import type { NordsternQuoteResponse } from "../aggregators/nordstern.js";
 import type { Quote, SimulatedQuote } from "../types.js";
 import { spandexCloud } from "./proxy.js";
 import { newStream, quoteStreamErrorHandler, simulatedQuoteStreamErrorHandler } from "./streams.js";
 
 const quote: Quote = {
   success: true,
-  provider: "fabric",
-  details: {} as FabricQuoteResponse,
+  provider: "nordstern",
+  details: {} as NordsternQuoteResponse,
   latency: 0,
   inputAmount: 1_000_000n,
   outputAmount: 900_000n,
@@ -65,7 +65,7 @@ describe("spandexCloud", () => {
     const quotes = await Promise.all(await cloud.prepareQuotes(usdcBalanceSwap));
 
     expect(quotes).toHaveLength(1);
-    expect(quotes[0]?.provider).toBe("fabric");
+    expect(quotes[0]?.provider).toBe("nordstern");
     expect(new URL(requests[0]?.url || "").pathname).toBe("/api/v1/prepareQuotes");
     expect(requests[0]?.headers.get("X-Api-Key")).toBe("testing");
   });

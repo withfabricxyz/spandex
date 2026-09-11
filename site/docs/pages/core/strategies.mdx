@@ -157,7 +157,7 @@ const quote = await getQuote({
   strategy: {
     collect: {
       type: "benchmark",
-      provider: "fabric",
+      provider: "nordstern",
       minQuotes: 2,
     },
     rank: "bestPrice",
@@ -167,7 +167,7 @@ const quote = await getQuote({
 
 This means:
 
-- wait for a successful `fabric` quote
+- wait for a successful `nordstern` quote
 - also wait for at least 2 successful quotes total
 - then choose the best-priced quote among that collected subset
 

@@ -4,7 +4,7 @@ import type { SuccessfulQuote } from "./types.js";
 
 const baseQuote: SuccessfulQuote = {
   success: true,
-  provider: "fabric",
+  provider: "nordstern",
   details: {} as never,
   latency: 1,
   inputAmount: 1_000_000n,
@@ -20,7 +20,7 @@ describe("getPricing", () => {
   it("averages usd prices across quotes", () => {
     const quoteA: SuccessfulQuote = {
       ...baseQuote,
-      provider: "fabric",
+      provider: "nordstern",
       pricing: {
         inputToken: {
           address: "0x00000000000000000000000000000000000000aa",
@@ -56,6 +56,6 @@ describe("getPricing", () => {
 
     expect(summary.inputToken?.usdPrice).toBeCloseTo(3);
     expect(summary.outputToken?.usdPrice).toBeCloseTo(5.5);
-    expect(summary.sources.sort()).toEqual(["fabric", "kyberswap"]);
+    expect(summary.sources.sort()).toEqual(["kyberswap", "nordstern"]);
   });
 });

@@ -1,17 +1,17 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { fabric } from "../aggregators/fabric.js";
+import { nordstern } from "../aggregators/nordstern.js";
 import { createConfig } from "../createConfig.js";
 import { log } from "./logger.js";
 
 describe("logger", () => {
   afterEach(() => {
-    createConfig({ providers: [fabric({ appId: "test-app" })] });
+    createConfig({ providers: [nordstern({})] });
   });
 
   it("custom logger", () => {
     const entries: Array<{ level: string; args: unknown[] }> = [];
     createConfig({
-      providers: [fabric({ appId: "test-app" })],
+      providers: [nordstern({})],
       logging: {
         level: "debug",
         fn: (level, ...args) => {
@@ -39,7 +39,7 @@ describe("logger", () => {
 
     try {
       createConfig({
-        providers: [fabric({ appId: "test-app" })],
+        providers: [nordstern({})],
         logging: {
           level: "info",
         },

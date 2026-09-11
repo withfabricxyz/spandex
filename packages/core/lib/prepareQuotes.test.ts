@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { MockAggregator, quoteSuccess } from "../test/utils.js";
 import { zeroX } from "./aggregators/0x.js";
-import { fabric } from "./aggregators/fabric.js";
+import { nordstern } from "./aggregators/nordstern.js";
 import { type Config, createConfig } from "./createConfig.js";
 import { prepareQuotes } from "./prepareQuotes.js";
 import type { Quote } from "./types.js";
@@ -9,7 +9,7 @@ import type { Quote } from "./types.js";
 describe("prepareQuotes", () => {
   it("prepares an array of promises", async () => {
     const config: Config = createConfig({
-      providers: [zeroX({ apiKey: "test" }), fabric({ appId: "test" })],
+      providers: [zeroX({ apiKey: "test" }), nordstern({})],
     });
 
     const prepared = await prepareQuotes({

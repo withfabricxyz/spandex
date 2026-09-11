@@ -1,5 +1,5 @@
 import { describe, expect, it, mock } from "bun:test";
-import { fabric, zeroX } from "@spandex/core";
+import { nordstern, zeroX } from "@spandex/core";
 import { render, screen } from "../../test/utils.js";
 import { useSpandexConfig } from "./SpandexProvider.js";
 
@@ -25,7 +25,7 @@ describe("SpandexProvider", () => {
   it("should provide metaAggregator to children", () => {
     render(<TestComponent />, {
       spandexConfig: {
-        providers: [zeroX({ apiKey: "test" }), fabric({ appId: "test" })],
+        providers: [zeroX({ apiKey: "test" }), nordstern({})],
       },
     });
 
@@ -38,7 +38,7 @@ describe("SpandexProvider", () => {
   it("should provide public clients with decorated actions", () => {
     render(<ClientProbe chainId={8453} />, {
       spandexConfig: {
-        providers: [fabric({ appId: "test" })],
+        providers: [nordstern({})],
       },
     });
 

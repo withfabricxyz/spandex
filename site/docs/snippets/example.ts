@@ -1,7 +1,7 @@
-import { createConfig, fabric, getQuote, kyberswap, nordstern } from "@spandex/core";
+import { createConfig, getQuote, kyberswap, nordstern } from "@spandex/core";
 
 export const config = createConfig({
-  providers: [fabric({ appId: "spandex" }), kyberswap({ clientId: "spandex" }), nordstern({})],
+  providers: [kyberswap({ clientId: "spandex" }), nordstern({})],
   options: {
     deadlineMs: 10_000,
     integratorFeeAddress: "0xFee00000000000000000000000000000000000fee",

@@ -28,10 +28,10 @@ See the [configuration reference](/configuration) for all options.
 import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "./wagmiConfig.js";
 import { SpandexProvider } from "@spandex/react";
-import { fabric, zeroX } from "@spandex/core";
+import { nordstern, zeroX } from "@spandex/core";
 
 const config = {
-  providers: [fabric({ appId: "YOUR_FABRIC_APP_ID" }), zeroX({ apiKey: "YOUR_0X_API_KEY" })],
+  providers: [nordstern({}), zeroX({ apiKey: "YOUR_0X_API_KEY" })],
 };
 
 export function App() {

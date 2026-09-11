@@ -1,10 +1,10 @@
 import {
   createConfig,
   deserializeWithBigInt,
-  fabric,
   fynd,
   kyberswap,
   mobula,
+  nordstern,
   type SimulationOptions,
   type SwapParams,
 } from "@spandex/core";
@@ -14,7 +14,7 @@ import { configuredChains } from "@/config/onchain";
 
 export const proxyConfig = createConfig({
   providers: [
-    fabric({ appId: "spandex_ui" }),
+    nordstern({}),
     kyberswap({ clientId: "spandex_ui" }),
     process.env.FYND_API_KEY ? fynd({ apiKey: process.env.FYND_API_KEY }) : undefined,
     process.env.MOBULA_API_KEY ? mobula({ apiKey: process.env.MOBULA_API_KEY }) : undefined,

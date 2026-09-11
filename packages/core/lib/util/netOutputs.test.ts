@@ -2,35 +2,11 @@ import { describe, expect, it } from "bun:test";
 import type { Address } from "viem";
 import { defaultSwapParams, recordedSimulation, testConfig, USDC_WHALE } from "../../test/utils.js";
 import { zeroX } from "../aggregators/0x.js";
-import { fabric } from "../aggregators/fabric.js";
 import { kyberswap } from "../aggregators/kyber.js";
 import type { SwapParams } from "../types.js";
 import { netOutputs } from "./netOutputs.js";
 
 describe("netOutputs", () => {
-  it("extracts proper output amounts for ERC20 tokens", async () => {
-    const swap = {
-      ...defaultSwapParams,
-      inputAmount: 50_000_000_000n,
-      swapperAccount: USDC_WHALE,
-    } as SwapParams;
-
-    const quote = await recordedSimulation(
-      "netOutputs-erc20-out",
-      swap,
-      testConfig([fabric({ appId: "spandex" })]),
-    );
-
-    const net = netOutputs({
-      logs: quote.simulation.swapResult?.logs ?? [],
-      swap,
-    });
-
-    expect(net.outputToken.get(swap.swapperAccount.toLowerCase() as Address)).toBeGreaterThan(
-      (quote.outputAmount * 98n) / 100n,
-    );
-  });
-
   it("extracts proper output amounts for Kyber", async () => {
     const swap = {
       ...defaultSwapParams,

@@ -31,11 +31,6 @@ export function getMetricWinner(quotes: SimulatedQuote[], metric: Metric): strin
 }
 
 // TODO: how should we do this? re: generic quote details
-function isFabricQuote(
-  quote: SimulatedQuote,
-): quote is Extract<SimulatedQuote, { provider: "fabric" }> {
-  return quote.success && quote.provider === "fabric";
-}
 
 function isOdosQuote(
   quote: SimulatedQuote,
@@ -72,10 +67,6 @@ export function getBestQuoteByMetric({
 export function getQuoteFees(quote?: SimulatedQuote): bigint | null {
   if (!quote?.success) return null;
 
-  if (isFabricQuote(quote) && quote.details.fees?.length > 0) {
-    return quote.details.fees.reduce((sum, fee) => sum + BigInt(fee.amount), 0n);
-  }
-
   return quote.networkFee ? BigInt(quote.networkFee) : 0n;
 }
 
@@ -99,9 +90,7 @@ export function getQuotePriceImpact(quote?: SimulatedQuote): number | null {
   if (!quote?.success) return null;
 
   // use provider-supplied price impact if available
-  if (isFabricQuote(quote)) {
-    return quote.details.price;
-  } else if (isOdosQuote(quote)) {
+  if (isOdosQuote(quote)) {
     return quote.details.priceImpact;
   }
 

@@ -43,7 +43,7 @@ export function createMockQuote(overrides?: {
 }) {
   return {
     success: true,
-    provider: overrides?.provider || "fabric",
+    provider: overrides?.provider || "nordstern",
     outputAmount: overrides?.outputAmount || 1000000n,
     inputAmount: overrides?.inputAmount || 500000000n,
     networkFee: overrides?.networkFee || 100000n,

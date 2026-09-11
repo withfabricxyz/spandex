@@ -1,8 +1,8 @@
 import { createPublicClient, http, type PublicClient, parseEther, zeroAddress } from "viem";
 import { base } from "viem/chains";
 import { type Config, createConfig, getQuote, getRawQuotes } from "../index.js";
-import type { FabricQuoteResponse } from "../lib/aggregators/fabric.js";
 import { Aggregator } from "../lib/aggregators/index.js";
+import type { NordsternQuoteResponse } from "../lib/aggregators/nordstern.js";
 import type {
   AggregatorFeature,
   AggregatorMetadata,
@@ -47,8 +47,8 @@ export const nativeOutputSwap: SwapParams = {
 
 export const quoteSuccess: SuccessfulQuote = {
   success: true,
-  provider: "fabric",
-  details: {} as FabricQuoteResponse,
+  provider: "nordstern",
+  details: {} as NordsternQuoteResponse,
   latency: 100,
   inputChainId: 8453,
   outputChainId: 8453,
@@ -61,7 +61,7 @@ export const quoteSuccess: SuccessfulQuote = {
 
 export const quoteFailure: Quote = {
   success: false,
-  provider: "fabric",
+  provider: "nordstern",
   error: new Error("Failed to get quote"),
 };
 
