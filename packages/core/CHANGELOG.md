@@ -1,5 +1,11 @@
 # @spandex/core
 
+## 0.11.1
+
+### Patch Changes
+
+- 0362b5c: Deprecate the Fabric aggregator ahead of its September 16, 2026 shutdown. Construction now logs a warning and quote requests immediately reject with a deprecation error. Remove Fabric from the default providers; use Nordstern or another active provider instead.
+
 ## 0.11.0
 
 ### Minor Changes
