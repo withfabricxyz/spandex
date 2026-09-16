@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
-    "start": "bun run server.ts",
+    "start": "bun .output/server/index.mjs",
     "preview": "vite preview",
     "test": "vitest run"
   },
@@ -23,6 +23,7 @@
     "@tanstack/react-table": "^8.21.2",
     "@wagmi/core": "^3.2.2",
     "animejs": "^4.2.2",
+    "nitro": "^3.0.260903-beta",
     "radix-ui": "^1.4.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

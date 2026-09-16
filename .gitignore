@@ -4,6 +4,9 @@ node_modules
 # output
 out
 dist
+.output
+.vercel
+.nitro
 *.tgz
 
 # code coverage
