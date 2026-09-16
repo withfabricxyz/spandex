@@ -30,7 +30,7 @@
     "@changesets/cli": "^2.31.1"
   },
   "overrides": {
-    "seroval": "1.5.3",
+    "seroval": "1.6.7",
     "tar": "7.5.22"
   }
 }
