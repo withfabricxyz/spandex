@@ -1,14 +1,9 @@
-import { describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { nordstern, zeroX } from "@spandex/core";
+import { createClient, http } from "viem";
+import { base } from "viem/chains";
 import { render, screen } from "../../test/utils.js";
 import { useSpandexConfig } from "./SpandexProvider.js";
-
-mock.module("wagmi", () => ({
-  useConnection: () => ({
-    address: undefined,
-    chain: undefined,
-  }),
-}));
 
 function TestComponent() {
   const config = useSpandexConfig();
@@ -22,6 +17,18 @@ function ClientProbe({ chainId }: { chainId: number }) {
 }
 
 describe("SpandexProvider", () => {
+  beforeEach(() => {
+    // Other hook tests replace wagmi exports; reset the client for every test.
+    // Use a bare client so this suite actually verifies publicActions decoration.
+    const client = createClient({ chain: base, transport: http("https://base.drpc.org") });
+    mock.module("wagmi", () => ({
+      useConfig: () => ({
+        getClient: ({ chainId }: { chainId: number }) => (chainId === base.id ? client : undefined),
+      }),
+      useConnection: () => ({ address: undefined, chain: undefined }),
+    }));
+  });
+
   it("should provide metaAggregator to children", () => {
     render(<TestComponent />, {
       spandexConfig: {
