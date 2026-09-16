@@ -1,9 +1,9 @@
 import { newStream, prepareSimulatedQuotes, simulatedQuoteStreamErrorHandler } from "@spandex/core";
 import { createFileRoute } from "@tanstack/react-router";
 import {
+  getProxyConfig,
   parseSimulationOptionsFromRequest,
   parseSwapFromRequest,
-  proxyConfig,
   quoteQuerySchema,
 } from "./quoteProxy";
 
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/api/prepareSimulatedQuotes")({
         const simulationOptions = parseSimulationOptionsFromRequest(request);
         const promises = await prepareSimulatedQuotes({
           swap,
-          config: proxyConfig,
+          config: getProxyConfig(),
           simulationOptions,
         });
         return new Response(newStream(promises, simulatedQuoteStreamErrorHandler));

@@ -38,4 +38,4 @@ jobs:
         run: bun test
         env:
           ZEROX_API_KEY: ${{ secrets.ZEROX_API_KEY }}
-          ANKR_API_KEY: ${{ secrets.ANKR_API_KEY }}
+          DRPC_API_KEY: ${{ secrets.DRPC_API_KEY }}

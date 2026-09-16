@@ -14,7 +14,10 @@ import type {
   SwapParams,
 } from "../lib/types.js";
 
-const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
+const DRPC_API_KEY = process.env.DRPC_API_KEY;
+export const TEST_RPC_URL = DRPC_API_KEY
+  ? `https://lb.drpc.live/base/${encodeURIComponent(DRPC_API_KEY)}`
+  : "https://base.drpc.org";
 export const ETH_WHALE = "0x611f7bf868a6212f871e89f7e44684045ddfb09d";
 export const USDC_WHALE = "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055";
 
@@ -129,7 +132,7 @@ export function testConfig(providers: Aggregator[]) {
     clients: [
       createPublicClient({
         chain: base,
-        transport: http(`https://rpc.ankr.com/base/${ANKR_API_KEY}`),
+        transport: http(TEST_RPC_URL),
       }) as PublicClient,
     ],
   });

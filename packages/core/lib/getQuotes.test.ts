@@ -12,7 +12,7 @@ import {
   type SwapParams,
   zeroX,
 } from "../index.js";
-import { nativeOutputSwap } from "../test/utils.js";
+import { nativeOutputSwap, TEST_RPC_URL } from "../test/utils.js";
 import { createConfig } from "./createConfig.js";
 
 const defaultSwapParams: SwapParams = {
@@ -25,14 +25,13 @@ const defaultSwapParams: SwapParams = {
   mode: "exactIn",
 };
 
-const ANKR_API_KEY = process.env.ANKR_API_KEY || "";
 const ETH_WHALE = "0x611f7bf868a6212f871e89f7e44684045ddfb09d";
 const USDC_WHALE = "0xEe7aE85f2Fe2239E27D9c1E23fFFe168D63b4055";
 
 describe("getQuotes", () => {
   const client = createPublicClient({
     chain: base,
-    transport: http(`https://rpc.ankr.com/base/${ANKR_API_KEY}`),
+    transport: http(TEST_RPC_URL),
   }) as PublicClient;
 
   const config = createConfig({

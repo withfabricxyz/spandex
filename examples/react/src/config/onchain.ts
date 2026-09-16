@@ -1,31 +1,18 @@
 import type { Chain } from "viem";
-import { fallback, http } from "wagmi";
+import { http } from "wagmi";
 import { base } from "wagmi/chains";
 
 // Single configuration of multiple chains
 type ChainConfig = {
   chain: Chain;
-  transport: ReturnType<typeof http | typeof fallback>;
+  transport: ReturnType<typeof http>;
   executorBlockNumber?: bigint; // Optional block number for the executor
 };
-
-const customBaseRpcUrl = import.meta.env.VITE_BASE_RPC_URL;
 
 export const configuredChains: ChainConfig[] = [
   {
     chain: base,
-    transport: fallback(
-      [
-        // public RPC's rate limit; option for our own paid RPC url
-        customBaseRpcUrl ? http(customBaseRpcUrl, { batch: true }) : undefined,
-        http("https://base.drpc.org", {
-          batch: true,
-        }),
-        http("https://1rpc.io/base", {
-          batch: true,
-        }),
-      ].filter((t) => t !== undefined),
-    ),
+    transport: http("https://base.drpc.org", { batch: true }),
   },
 ];
 
