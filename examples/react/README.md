@@ -7,7 +7,7 @@ Here we are using [TanStack Start](https://tanstack.com/start), but the core fun
 ## Requirements
 
 - Node.js 24+
-- RPC URLs for the desired networks that support `eth_simulatev1` (optional if you use the default public provider)
+- A dRPC API key for server-side quote simulation (optional if you use public dRPC)
 - A WalletConnect Project ID (optional if you don't need WalletConnect)
 
 ## Environment
@@ -16,14 +16,14 @@ Create an `.env` file in `examples/react` with:
 
 ```
 VITE_WALLET_CONNECT_PROJECT_ID=...
-VITE_BASE_RPC_URLS=...
+DRPC_API_KEY=...
 MOBULA_API_KEY=...
 FYND_API_KEY=...
 ```
 All variables are optional.
 
 `VITE_WALLET_CONNECT_PROJECT_ID` is optional. If omitted, WalletConnect will be disabled.
-`VITE_BASE_RPC_URLS` is optional and accepts a comma-separated list of HTTPS RPC endpoints. If omitted, falls back to `http()`.
+`DRPC_API_KEY` is used only on the server for quote simulation. If omitted, the server uses public dRPC. Browser RPC calls always use public dRPC; the key is never exposed to the client. No other RPC providers are used.
 `MOBULA_API_KEY` enables the Mobula provider on the server-side quote proxy route.
 `FYND_API_KEY` enables the hosted Fynd provider on the server-side quote proxy route.
 

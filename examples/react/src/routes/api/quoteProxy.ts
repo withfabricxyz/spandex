@@ -8,22 +8,34 @@ import {
   type SimulationOptions,
   type SwapParams,
 } from "@spandex/core";
-import { createPublicClient } from "viem";
+import { createServerOnlyFn } from "@tanstack/react-start";
+import { createPublicClient, http } from "viem";
 import { z } from "zod";
 import { configuredChains } from "@/config/onchain";
 
-export const proxyConfig = createConfig({
-  providers: [
-    nordstern({}),
-    kyberswap({ clientId: "spandex_ui" }),
-    process.env.FYND_API_KEY ? fynd({ apiKey: process.env.FYND_API_KEY }) : undefined,
-    process.env.MOBULA_API_KEY ? mobula({ apiKey: process.env.MOBULA_API_KEY }) : undefined,
-  ].filter((p): p is NonNullable<typeof p> => Boolean(p)),
-  options: {
-    deadlineMs: 5_000,
-  },
-  clients: configuredChains.map((c) => createPublicClient(c)),
-});
+export const getProxyConfig = createServerOnlyFn(() =>
+  createConfig({
+    providers: [
+      nordstern({}),
+      kyberswap({ clientId: "spandex_ui" }),
+      process.env.FYND_API_KEY ? fynd({ apiKey: process.env.FYND_API_KEY }) : undefined,
+      process.env.MOBULA_API_KEY ? mobula({ apiKey: process.env.MOBULA_API_KEY }) : undefined,
+    ].filter((p): p is NonNullable<typeof p> => Boolean(p)),
+    options: {
+      deadlineMs: 5_000,
+    },
+    clients: configuredChains.map((c) =>
+      createPublicClient({
+        ...c,
+        transport: process.env.DRPC_API_KEY
+          ? http(`https://lb.drpc.live/base/${encodeURIComponent(process.env.DRPC_API_KEY)}`, {
+              batch: true,
+            })
+          : c.transport,
+      }),
+    ),
+  }),
+);
 
 const addressSchema = z.custom<`0x${string}`>((val) => {
   return typeof val === "string" && /^0x[a-fA-F0-9]{40}$/.test(val);

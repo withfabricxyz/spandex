@@ -122,7 +122,7 @@ When using proxy mode, server-streamed simulated quotes do not require a local c
 `getQuotes`/`getQuote`. Local clients are still useful if you call lower-level simulation utilities
 directly.
 
-Note: The public client is used to simulate quotes and validate them onchain. This requires an RPC provider which supports this, and many public providers do not. Please ensure your viem client is setup with a compatible RPC provider (e.g. Alchemy, Infura, etc). Additionally, you can setup RPC failover in your client configuration to improve reliability of quote fetching and simulation. See [viem documentation](https://viem.sh/docs/clients/transports/fallback) for more details.
+Note: The public client is used to simulate quotes and validate them onchain. This requires an RPC provider which supports this, and many public providers do not. Please ensure your viem client is setup with a compatible RPC provider (e.g. dRPC). Additionally, you can setup RPC failover in your client configuration to improve reliability of quote fetching and simulation. See [viem documentation](https://viem.sh/docs/clients/transports/fallback) for more details.
 
 ---
 
