@@ -4,6 +4,7 @@ import type { FabricConfig, FabricQuoteResponse } from "./aggregators/fabric.js"
 import type { FyndConfig, FyndQuoteResponse } from "./aggregators/fynd.js";
 import type { Aggregator } from "./aggregators/index.js";
 import type { KyberConfig, KyberQuoteResponse } from "./aggregators/kyber.js";
+import type { LcxConfig, LcxQuoteResponse } from "./aggregators/lcx.js";
 import type { LifiConfig, LifiQuoteResponse } from "./aggregators/lifi.js";
 import type { MobulaConfig, MobulaQuoteResponse } from "./aggregators/mobula.js";
 import type { NordsternConfig, NordsternQuoteResponse } from "./aggregators/nordstern.js";
@@ -32,6 +33,10 @@ export type ProviderDefinitions = {
   kyberswap: {
     config: KyberConfig;
     quote: KyberQuoteResponse;
+  };
+  lcx: {
+    config: LcxConfig;
+    quote: LcxQuoteResponse;
   };
   lifi: {
     config: LifiConfig;

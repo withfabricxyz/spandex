@@ -204,6 +204,10 @@ export default defineConfig({
           link: "/providers/kyberswap",
         },
         {
+          text: "LCX Liberty DEX",
+          link: "/providers/lcx",
+        },
+        {
           text: "Odos (deprecated)",
           link: "/providers/odos",
         },

@@ -33,7 +33,7 @@ git checkout -b <branch-name>
 
 3) Build and test:
 
-Set `DRPC_API_KEY` in your environment or root `.env` for authenticated Base RPC calls in integration tests. Without it, tests use public dRPC, and the Fynd/Mobula integration suites are skipped. Those suites also require `FYND_API_KEY` / `MOBULA_API_KEY`, respectively. CI reads the repository secret `DRPC_API_KEY`.
+Set `DRPC_API_KEY` in your environment or root `.env` for authenticated Base RPC calls in integration tests. Without it, tests use public dRPC, and the Fynd/Mobula/LCX Liberty DEX integration suites are skipped. Those suites also require `FYND_API_KEY` / `MOBULA_API_KEY` / `LCX_API_KEY`, respectively. CI reads the repository secret `DRPC_API_KEY`.
 
 ```
 bun run build

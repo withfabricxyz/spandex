@@ -2,6 +2,7 @@ import { ZeroXAggregator, zeroX } from "./lib/aggregators/0x.js";
 import { FabricAggregator, fabric } from "./lib/aggregators/fabric.js";
 import { FyndAggregator, fynd } from "./lib/aggregators/fynd.js";
 import { KyberAggregator, kyberswap } from "./lib/aggregators/kyber.js";
+import { LcxAggregator, lcx } from "./lib/aggregators/lcx.js";
 import { LifiAggregator, lifi } from "./lib/aggregators/lifi.js";
 import { MobulaAggregator, mobula } from "./lib/aggregators/mobula.js";
 import { NordsternAggregator, nordstern } from "./lib/aggregators/nordstern.js";
@@ -41,7 +42,9 @@ export {
   fynd,
   KyberAggregator,
   kyberswap,
+  LcxAggregator,
   LifiAggregator,
+  lcx,
   lifi,
   MobulaAggregator,
   mobula,
