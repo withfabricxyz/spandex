@@ -368,11 +368,16 @@ describe("lcx", () => {
 
   const acceptedCalldata: Array<[string, Hex]> = [
     ["swapSplit", swapSplitData()],
+    ["swapSplitWithFee", swapSplitWithFeeData()],
     ["swapSplitWithPropAMMSplit", propAmmSplitData()],
     ["swapSplit with a higher floor", swapSplitData({ minAmountOut: FLOOR + 1n })],
     [
       "makerSwap with a Bebop maker leg",
       makerSwapData({ target: BEBOP_ROUTER, spender: BEBOP_SETTLEMENT }),
+    ],
+    [
+      "makerSwap with an empty maker leg",
+      makerSwapData({ target: zeroAddress, spender: zeroAddress, amountIn: 0n }),
     ],
   ];
 
@@ -437,6 +442,31 @@ describe("lcx", () => {
         }),
       },
       /maker leg exceeds/,
+    ],
+    [
+      "a non-Bebop maker leg that spends nothing",
+      { data: makerSwapData({ target: OTHER, spender: OTHER, amountIn: 0n }) },
+      /non-Bebop/,
+    ],
+    [
+      "a zero-address maker leg that still spends",
+      { data: makerSwapData({ target: zeroAddress, spender: zeroAddress, amountIn: 1n }) },
+      /non-Bebop/,
+    ],
+    [
+      "a non-zero integrator",
+      { data: propAmmSplitData({}, { integrator: OTHER }) },
+      /names an integrator/,
+    ],
+    [
+      "a non-zero integrator on swapSplitWithFee",
+      { data: swapSplitWithFeeData(OTHER) },
+      /names an integrator/,
+    ],
+    [
+      "a prop-AMM leg larger than the input",
+      { data: propAmmSplitData({}, { venueIn: swap.inputAmount + 1n }) },
+      /prop-AMM leg exceeds/,
     ],
   ];
 
@@ -646,16 +676,28 @@ function swapSplitData(overrides: Partial<CallFields> = {}): Hex {
   });
 }
 
-function propAmmSplitData(overrides: Partial<CallFields> = {}): Hex {
+function swapSplitWithFeeData(integrator: Address = zeroAddress): Hex {
+  const f = callFields({});
+  return encodeFunctionData({
+    abi: LCX_ROUTER_ABI,
+    functionName: "swapSplitWithFee",
+    args: [{ ...f, integrator }, legs(f)],
+  });
+}
+
+function propAmmSplitData(
+  overrides: Partial<CallFields> = {},
+  wrapper: { integrator?: Address; venueIn?: bigint } = {},
+): Hex {
   const f = callFields(overrides);
   return encodeFunctionData({
     abi: LCX_ROUTER_ABI,
     functionName: "swapSplitWithPropAMMSplit",
     args: [
-      { ...f, integrator: zeroAddress },
+      { ...f, integrator: wrapper.integrator ?? zeroAddress },
       legs(f),
       legs(f),
-      { venue: OTHER, venueIn: f.totalIn / 2n, venueMinOut: 1n },
+      { venue: OTHER, venueIn: wrapper.venueIn ?? f.totalIn / 2n, venueMinOut: 1n },
     ],
   });
 }

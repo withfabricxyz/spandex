@@ -423,8 +423,9 @@ function validateBuild(
 /**
  * Decodes the router call that will be signed and rejects it unless it sells exactly the
  * requested amount of the requested token, pays the intended recipient, keeps at least the
- * quoted floor, attaches the right value and has not expired. A maker leg may only call
- * Bebop's contracts. These are the checks the LCX Liberty DEX app applies before signing.
+ * quoted floor, attaches the right value and has not expired. Wrapper calls may not name an
+ * integrator, and a maker leg must call Bebop's contracts or be empty. These are the checks
+ * the LCX Liberty DEX app applies before signing.
  */
 function verifyCalldata(request: ExactInSwapParams, quote: LcxQuote, swap: LcxBuild["swap"]) {
   const call = decodeRouterCall(swap.data);
@@ -454,12 +455,26 @@ function verifyCalldata(request: ExactInSwapParams, quote: LcxQuote, swap: LcxBu
   if (call.deadline <= BigInt(Math.floor(Date.now() / 1000))) {
     throw new QuoteError("LCX Liberty DEX calldata deadline has passed", swap);
   }
+  // No integrator is requested, so none may take a fee.
+  if (call.integrator !== undefined && !sameAddress(call.integrator, zeroAddress)) {
+    throw new QuoteError("LCX Liberty DEX calldata names an integrator", swap);
+  }
+  // The prop-AMM venue needs no allowlist: the router reverts unless the recipient receives
+  // minAmountOut, which is checked against the quote's floor above.
+  if (call.venueIn !== undefined && call.venueIn > call.totalIn) {
+    throw new QuoteError("LCX Liberty DEX calldata prop-AMM leg exceeds the input amount", swap);
+  }
   const maker = call.maker;
-  if (maker && maker.amountIn > 0n) {
-    if (
-      !BEBOP_CONTRACTS.has(maker.target.toLowerCase()) ||
-      !BEBOP_CONTRACTS.has(maker.spender.toLowerCase())
-    ) {
+  if (maker) {
+    const bebop =
+      BEBOP_CONTRACTS.has(maker.target.toLowerCase()) &&
+      BEBOP_CONTRACTS.has(maker.spender.toLowerCase());
+    const empty =
+      maker.amountIn === 0n &&
+      sameAddress(maker.target, zeroAddress) &&
+      sameAddress(maker.spender, zeroAddress) &&
+      maker.data === "0x";
+    if (!bebop && !empty) {
       throw new QuoteError("LCX Liberty DEX calldata maker leg names a non-Bebop contract", swap);
     }
     if (maker.amountIn > call.totalIn) {
@@ -468,11 +483,26 @@ function verifyCalldata(request: ExactInSwapParams, quote: LcxQuote, swap: LcxBu
   }
 }
 
+type RouterCall = {
+  tokenIn: Address;
+  tokenOut: Address;
+  totalIn: bigint;
+  minAmountOut: bigint;
+  recipient: Address;
+  deadline: bigint;
+  /** Set by the three wrapper entrypoints. */
+  integrator?: Address;
+  /** Set by `swapSplitWithPropAMMSplit`. */
+  venueIn?: bigint;
+  /** Set by `makerSwap`. */
+  maker?: { target: Address; spender: Address; amountIn: bigint; data: Hex };
+};
+
 /**
- * Reads the six swap fields from any router entrypoint, wherever they sit in its arguments.
+ * Reads the swap fields from any router entrypoint, wherever they sit in its arguments.
  * Returns undefined for calldata that does not decode against the router ABI.
  */
-function decodeRouterCall(data: Hex) {
+function decodeRouterCall(data: Hex): RouterCall | undefined {
   let decoded: DecodeFunctionDataReturnType<typeof LCX_ROUTER_ABI>;
   try {
     decoded = decodeFunctionData({ abi: LCX_ROUTER_ABI, data });
@@ -482,14 +512,21 @@ function decodeRouterCall(data: Hex) {
   switch (decoded.functionName) {
     case "swapSplit": {
       const [tokenIn, tokenOut, totalIn, minAmountOut, recipient, deadline] = decoded.args;
-      return { tokenIn, tokenOut, totalIn, minAmountOut, recipient, deadline, maker: undefined };
+      return { tokenIn, tokenOut, totalIn, minAmountOut, recipient, deadline };
     }
     case "makerSwap": {
       const [a, , maker] = decoded.args;
       return { ...a, totalIn: a.amountIn, maker };
     }
+    case "swapSplitWithPropAMMSplit": {
+      const [a, , , s] = decoded.args;
+      return { ...a, venueIn: s.venueIn };
+    }
+    case "swapSplitWithFee":
+    case "swapSplitViaPropAMM":
+      return { ...decoded.args[0] };
     default:
-      return { ...decoded.args[0], maker: undefined };
+      return undefined;
   }
 }
 

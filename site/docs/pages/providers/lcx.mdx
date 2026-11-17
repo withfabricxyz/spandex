@@ -44,8 +44,9 @@ export const config = createConfig({
 - The calldata itself is decoded against the router's five entrypoints and must
   sell exactly the requested amount of the requested token, pay the intended
   recipient, keep at least the quoted floor and carry a deadline in the future.
-  A market-maker leg may only call Bebop's contracts. Any mismatch in these
-  checks is returned as a failed quote.
+  Wrapper entrypoints may not name an integrator, and a market-maker leg must
+  either call Bebop's contracts or be empty. Any mismatch in these checks is
+  returned as a failed quote.
 - Supported chains: Ethereum, OP Mainnet, Base, Arbitrum, BNB Chain, Polygon,
   Avalanche, Robinhood Chain, Unichain, Monad, HyperEVM, Arc, World Chain,
   Cronos, Ink, Linea, Soneium, Plasma, MegaETH, Gnosis, Sonic and ZKsync Era.
