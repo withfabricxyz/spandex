@@ -1,0 +1,56 @@
+import { Button } from 'vocs/components'
+import { Callout } from 'vocs/components'
+
+# LCX Liberty DEX
+
+<div className="flex flex-row gap-4">
+  <Button href="https://dex.lcx.com">Homepage</Button>
+  <Button href="https://dex.lcx.com/docs">Docs</Button>
+</div>
+
+## Configuration
+
+<Callout type="info">
+  LCX Liberty DEX supports same-chain `exactIn` quotes on EVM chains. It does not
+  support exact-output or cross-chain quotes in spanDEX. It is not part of the
+  default provider set; add it explicitly.
+</Callout>
+
+An API key is required. Create a free key at
+[dex.lcx.com/dashboard](https://dex.lcx.com/dashboard).
+
+```ts twoslash
+import { createConfig, lcx } from "@spandex/core";
+
+export const config = createConfig({
+  providers: [
+    lcx({ apiKey: "YOUR_LCX_API_KEY" }),
+    // ...
+  ],
+});
+```
+
+## Notes
+
+- Each quote is two requests: `POST /v1/quote` prices the trade, then
+  `POST /v1/build` turns the returned `quoteId` into router calldata that pays
+  `recipientAccount` (or `swapperAccount` when no recipient is set).
+- Before a quote is returned, the adapter checks that the quote's spender and
+  the built transaction's `to` are the published LCX Liberty DEX router for the
+  chain, that the build is for the requested chain and the router is deployed
+  there, that the input amount and both tokens match the request, that the
+  build's `minAmountOut` equals the quote's `minimumAmount`, and that the
+  transaction value is the input amount for a native sell and zero otherwise.
+  Any mismatch is returned as a failed quote.
+- Supported chains: Ethereum, OP Mainnet, Base, Arbitrum, BNB Chain, Polygon,
+  Avalanche, Robinhood Chain, Unichain, Monad, HyperEVM, Arc, World Chain,
+  Cronos, Ink, Linea, Soneium, Plasma, MegaETH, Gnosis, Sonic and ZKsync Era.
+  Requests for other chains fail without calling the API.
+- LCX Liberty DEX uses the zero address for the native coin. spanDEX also
+  translates the `0xEeee…EEeE` sentinel automatically.
+- ERC-20 sells require an approval to the router, which is the quote's
+  `spender`.
+- Integrator fees are not supported by this adapter.
+- A `quoteId` can be built for 120 seconds. The built transaction carries its
+  own deadline, returned in `details.build.deadline`.
+- Override `baseUrl` only if you are pointed at a non-default deployment.

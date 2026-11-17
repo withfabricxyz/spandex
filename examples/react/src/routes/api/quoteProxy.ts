@@ -3,6 +3,7 @@ import {
   deserializeWithBigInt,
   fynd,
   kyberswap,
+  lcx,
   mobula,
   nordstern,
   type SimulationOptions,
@@ -20,6 +21,7 @@ export const getProxyConfig = createServerOnlyFn(() =>
       kyberswap({ clientId: "spandex_ui" }),
       process.env.FYND_API_KEY ? fynd({ apiKey: process.env.FYND_API_KEY }) : undefined,
       process.env.MOBULA_API_KEY ? mobula({ apiKey: process.env.MOBULA_API_KEY }) : undefined,
+      process.env.LCX_API_KEY ? lcx({ apiKey: process.env.LCX_API_KEY }) : undefined,
     ].filter((p): p is NonNullable<typeof p> => Boolean(p)),
     options: {
       deadlineMs: 5_000,
