@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { zeroAddress } from "viem";
+import { type Address, encodeFunctionData, type Hex, toFunctionSelector, zeroAddress } from "viem";
 import {
   defaultSwapParams,
   nativeInputSwap,
@@ -9,14 +9,31 @@ import {
 } from "../../test/utils.js";
 import { getQuote } from "../getQuote.js";
 import type { ExactInSwapParams } from "../types.js";
-import { LcxAggregator, type LcxBuild, type LcxQuote, lcx, lcxRouteGraph } from "./lcx.js";
+import {
+  LCX_ROUTER_ABI,
+  LcxAggregator,
+  type LcxBuild,
+  type LcxQuote,
+  lcx,
+  lcxRouteGraph,
+} from "./lcx.js";
 
 const ROUTER = "0x0000000000b1ae06c96aB73FF4360d7AeAaB56F0";
-const OTHER = "0x1111111111111111111111111111111111111111";
-const POOL = "0x2222222222222222222222222222222222222222";
+const OTHER: Address = "0x1111111111111111111111111111111111111111";
+const POOL: Address = "0x2222222222222222222222222222222222222222";
 const RECIPIENT = "0x0000000000000000000000000000000000000001";
+const BEBOP_ROUTER: Address = "0xbeb0009aca35087ce7ccf11637e24dd1aad3bf2a";
+const BEBOP_SETTLEMENT: Address = "0xbbbbbbb520d69a9775e85b458c58c648259fad5f";
 const NATIVE_AMOUNT = 10n ** 18n;
+const FLOOR = 122_222_221_110_000_000n;
+const FUTURE = 4_102_444_800n;
 const swap = defaultSwapParams as ExactInSwapParams;
+const nativeCall = {
+  tokenIn: zeroAddress,
+  tokenOut: nativeInputSwap.outputToken,
+  totalIn: NATIVE_AMOUNT,
+  minAmountOut: 2_970_000_000n,
+};
 
 type FetchInput = Parameters<typeof fetch>[0];
 type FetchInit = Parameters<typeof fetch>[1];
@@ -116,7 +133,7 @@ describe("lcx", () => {
       expect(quote.inputAmount).toBe(500_000_000n);
       expect(quote.outputAmount).toBe(123_456_789_000_000_000n);
       expect(quote.networkFee).toBe(32_641_663_210_000n);
-      expect(quote.txData).toEqual({ to: ROUTER, data: "0x5e98574a" });
+      expect(quote.txData).toEqual({ to: ROUTER, data: swapSplitData() });
       expect(quote.approval).toEqual({ token: swap.inputToken, spender: ROUTER });
       expect(quote.metrics?.priceImpactBps).toBe(12);
       expect(quote.pricing?.inputToken?.usdPrice).toBeCloseTo(1, 6);
@@ -144,7 +161,10 @@ describe("lcx", () => {
       { body: quoteEnvelope(nativeQuote) },
       {
         body: buildEnvelope(
-          mockBuild({ value: NATIVE_AMOUNT.toString() }, { minAmountOut: "2970000000" }),
+          mockBuild(
+            { value: NATIVE_AMOUNT.toString(), data: swapSplitData(nativeCall) },
+            { minAmountOut: "2970000000" },
+          ),
         ),
       },
     );
@@ -170,7 +190,10 @@ describe("lcx", () => {
   });
 
   it("builds for a separate recipient", async () => {
-    const { requests, restore } = mockApi({ body: quoteEnvelope(mockQuote()) });
+    const { requests, restore } = mockApi(
+      { body: quoteEnvelope(mockQuote()) },
+      { body: buildEnvelope(mockBuild({ data: swapSplitData({ recipient: RECIPIENT }) })) },
+    );
     try {
       const quote = await lcx({ apiKey: "test-key" }).fetchQuote({
         ...defaultSwapParams,
@@ -279,7 +302,6 @@ describe("lcx", () => {
     ["build chain", mockQuote(), mockBuild({ chainId: 1 }), /different chain/],
     ["router deployment", mockQuote(), mockBuild({}, { routerDeployed: false }), /not deployed/],
     ["minimum output", mockQuote(), mockBuild({}, { minAmountOut: "1" }), /minimum output/],
-    ["value on a token sell", mockQuote(), mockBuild({ value: "1" }), /value/],
   ];
 
   for (const [field, quoteBody, buildBody, message] of mismatches) {
@@ -313,7 +335,14 @@ describe("lcx", () => {
     });
     const { restore } = mockApi(
       { body: quoteEnvelope(nativeQuote) },
-      { body: buildEnvelope(mockBuild({ value: "0" }, { minAmountOut: "2970000000" })) },
+      {
+        body: buildEnvelope(
+          mockBuild(
+            { value: "0", data: swapSplitData(nativeCall) },
+            { minAmountOut: "2970000000" },
+          ),
+        ),
+      },
     );
     try {
       const quote = await lcx({ apiKey: "test-key" }).fetchQuote(nativeInputSwap, {
@@ -321,11 +350,114 @@ describe("lcx", () => {
       });
       expect(quote.success).toBe(false);
       if (quote.success) throw new Error("Expected failure");
-      expect(quote.error?.message).toMatch(/value/);
+      expect(quote.error?.message).toMatch(/build value/);
     } finally {
       restore();
     }
   });
+
+  it("pins the router entrypoint selectors", () => {
+    expect(LCX_ROUTER_ABI.map((item) => toFunctionSelector(item))).toEqual([
+      "0xfc54261d",
+      "0x5e98574a",
+      "0x195e648e",
+      "0x31ab353b",
+      "0xa565fdcc",
+    ]);
+  });
+
+  const acceptedCalldata: Array<[string, Hex]> = [
+    ["swapSplit", swapSplitData()],
+    ["swapSplitWithPropAMMSplit", propAmmSplitData()],
+    ["swapSplit with a higher floor", swapSplitData({ minAmountOut: FLOOR + 1n })],
+    [
+      "makerSwap with a Bebop maker leg",
+      makerSwapData({ target: BEBOP_ROUTER, spender: BEBOP_SETTLEMENT }),
+    ],
+  ];
+
+  for (const [name, data] of acceptedCalldata) {
+    it(`accepts ${name} calldata`, async () => {
+      const { restore } = mockApi(
+        { body: quoteEnvelope(mockQuote()) },
+        { body: buildEnvelope(mockBuild({ data })) },
+      );
+      try {
+        const quote = await lcx({ apiKey: "test-key" }).fetchQuote(defaultSwapParams, {
+          numRetries: 0,
+        });
+        if (!quote.success) throw quote.error ?? new Error("Expected success");
+        expect(quote.txData.data).toBe(data);
+      } finally {
+        restore();
+      }
+    });
+  }
+
+  const refusedCalldata: Array<[string, Partial<LcxBuild["swap"]>, RegExp]> = [
+    [
+      "a different recipient",
+      { data: swapSplitData({ recipient: OTHER }) },
+      /calldata pays a different recipient/,
+    ],
+    [
+      "a lower floor",
+      { data: swapSplitData({ minAmountOut: FLOOR - 1n }) },
+      /calldata minimum output is below the quote/,
+    ],
+    [
+      "a different totalIn",
+      { data: swapSplitData({ totalIn: swap.inputAmount + 1n }) },
+      /calldata input amount/,
+    ],
+    [
+      "swapped tokens",
+      { data: swapSplitData({ tokenIn: swap.outputToken, tokenOut: swap.inputToken }) },
+      /calldata tokens/,
+    ],
+    [
+      "an unknown selector",
+      { data: `0xdeadbeef${swapSplitData().slice(10)}` },
+      /not a known router call/,
+    ],
+    ["a wrong value", { value: "1" }, /build value/],
+    ["an expired deadline", { data: swapSplitData({ deadline: 1n }) }, /deadline has passed/],
+    [
+      "a maker leg with a non-Bebop target",
+      { data: makerSwapData({ target: OTHER, spender: BEBOP_SETTLEMENT }) },
+      /non-Bebop/,
+    ],
+    [
+      "a maker leg larger than the input",
+      {
+        data: makerSwapData({
+          target: BEBOP_ROUTER,
+          spender: BEBOP_ROUTER,
+          amountIn: swap.inputAmount + 1n,
+        }),
+      },
+      /maker leg exceeds/,
+    ],
+  ];
+
+  for (const [name, swapOverrides, message] of refusedCalldata) {
+    it(`refuses calldata with ${name}`, async () => {
+      const { restore } = mockApi(
+        { body: quoteEnvelope(mockQuote()) },
+        { body: buildEnvelope(mockBuild(swapOverrides)) },
+      );
+      try {
+        const quote = await lcx({ apiKey: "test-key" }).fetchQuote(defaultSwapParams, {
+          numRetries: 0,
+        });
+        expect(quote.success).toBe(false);
+        if (quote.success) throw new Error("Expected failure");
+        expect(quote.error?.message).toMatch(message);
+      } finally {
+        restore();
+      }
+    });
+  }
 
   it("does not request unsupported chains", async () => {
     const { requests, restore } = mockApi({ body: quoteEnvelope(mockQuote()) });
@@ -463,7 +595,7 @@ function mockBuild(
     swap: {
       chainId: 8453,
       to: ROUTER,
-      data: "0x5e98574a",
+      data: swapSplitData(),
       value: "0",
       ...swapOverrides,
     },
@@ -473,6 +605,76 @@ function mockBuild(
     simulation: { status: "skipped", why: "awaiting_allowance" },
     ...overrides,
   };
+}
+
+type CallFields = {
+  tokenIn: Address;
+  tokenOut: Address;
+  totalIn: bigint;
+  minAmountOut: bigint;
+  recipient: Address;
+  deadline: bigint;
+};
+
+function callFields(overrides: Partial<CallFields>): CallFields {
+  return {
+    tokenIn: swap.inputToken,
+    tokenOut: swap.outputToken,
+    totalIn: swap.inputAmount,
+    minAmountOut: FLOOR,
+    recipient: swap.swapperAccount,
+    deadline: FUTURE,
+    ...overrides,
+  };
+}
+
+function legs(f: CallFields) {
+  return [
+    {
+      amountIn: f.totalIn,
+      hops: [{ family: 1, pool: POOL, tokenIn: f.tokenIn, tokenOut: f.tokenOut, aux: 0n }],
+    },
+  ];
+}
+
+function swapSplitData(overrides: Partial<CallFields> = {}): Hex {
+  const f = callFields(overrides);
+  return encodeFunctionData({
+    abi: LCX_ROUTER_ABI,
+    functionName: "swapSplit",
+    args: [f.tokenIn, f.tokenOut, f.totalIn, f.minAmountOut, f.recipient, f.deadline, legs(f)],
+  });
+}
+
+function propAmmSplitData(overrides: Partial<CallFields> = {}): Hex {
+  const f = callFields(overrides);
+  return encodeFunctionData({
+    abi: LCX_ROUTER_ABI,
+    functionName: "swapSplitWithPropAMMSplit",
+    args: [
+      { ...f, integrator: zeroAddress },
+      legs(f),
+      legs(f),
+      { venue: OTHER, venueIn: f.totalIn / 2n, venueMinOut: 1n },
+    ],
+  });
+}
+
+function makerSwapData(
+  maker: { target: Address; spender: Address; amountIn?: bigint },
+  overrides: Partial<CallFields> = {},
+): Hex {
+  const { totalIn, ...f } = callFields(overrides);
+  return encodeFunctionData({
+    abi: LCX_ROUTER_ABI,
+    functionName: "makerSwap",
+    args: [
+      { ...f, amountIn: totalIn },
+      legs({ ...f, totalIn: totalIn / 2n }),
+      { amountIn: totalIn / 2n, minOut: 1n, data: "0x", ...maker },
+      legs({ ...f, totalIn }),
+    ],
+  });
 }
 
 const LCX_API_KEY = process.env.LCX_API_KEY;

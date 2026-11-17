@@ -1,4 +1,10 @@
-import { type Address, type Hex, zeroAddress } from "viem";
+import {
+  type Address,
+  type DecodeFunctionDataReturnType,
+  decodeFunctionData,
+  type Hex,
+  zeroAddress,
+} from "viem";
 import {
   type AggregatorFeature,
   type AggregatorMetadata,
@@ -52,6 +58,145 @@ const LCX_ROUTERS: Record<number, Address> = {
   57073: ROUTER_2, // Ink
   59144: ROUTER_2, // Linea
 };
+
+/**
+ * The only contracts a `makerSwap` maker leg may call or approve: Bebop's RFQ router and its
+ * settlement contract.
+ */
+const BEBOP_CONTRACTS = new Set([
+  "0xbeb0009aca35087ce7ccf11637e24dd1aad3bf2a",
+  "0xbbbbbbb520d69a9775e85b458c58c648259fad5f",
+]);
+
+const LEGS = {
+  name: "legs",
+  type: "tuple[]",
+  components: [
+    { name: "amountIn", type: "uint256" },
+    {
+      name: "hops",
+      type: "tuple[]",
+      components: [
+        { name: "family", type: "uint8" },
+        { name: "pool", type: "address" },
+        { name: "tokenIn", type: "address" },
+        { name: "tokenOut", type: "address" },
+        { name: "aux", type: "uint256" },
+      ],
+    },
+  ],
+} as const;
+
+const FEE_SWAP_ARGS = {
+  name: "a",
+  type: "tuple",
+  components: [
+    { name: "tokenIn", type: "address" },
+    { name: "tokenOut", type: "address" },
+    { name: "totalIn", type: "uint256" },
+    { name: "minAmountOut", type: "uint256" },
+    { name: "recipient", type: "address" },
+    { name: "deadline", type: "uint256" },
+    { name: "integrator", type: "address" },
+  ],
+} as const;
+
+const AMOUNT_OUT = [{ name: "amountOut", type: "uint256" }] as const;
+
+/**
+ * Router entrypoints `/v1/build` can return. Calldata for any other function is rejected.
+ * Selectors: swapSplit 0xfc54261d, swapSplitWithFee 0x5e98574a, swapSplitViaPropAMM 0x195e648e,
+ * swapSplitWithPropAMMSplit 0x31ab353b, makerSwap 0xa565fdcc.
+ */
+export const LCX_ROUTER_ABI = [
+  {
+    name: "swapSplit",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [
+      { name: "tokenIn", type: "address" },
+      { name: "tokenOut", type: "address" },
+      { name: "totalIn", type: "uint256" },
+      { name: "minAmountOut", type: "uint256" },
+      { name: "recipient", type: "address" },
+      { name: "deadline", type: "uint256" },
+      LEGS,
+    ],
+    outputs: AMOUNT_OUT,
+  },
+  {
+    name: "swapSplitWithFee",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [FEE_SWAP_ARGS, LEGS],
+    outputs: AMOUNT_OUT,
+  },
+  {
+    name: "swapSplitViaPropAMM",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [
+      FEE_SWAP_ARGS,
+      LEGS,
+      { name: "venue", type: "address" },
+      { name: "coreNetOut", type: "uint256" },
+    ],
+    outputs: AMOUNT_OUT,
+  },
+  {
+    name: "swapSplitWithPropAMMSplit",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [
+      FEE_SWAP_ARGS,
+      { ...LEGS, name: "splitLegs" },
+      { ...LEGS, name: "fullLegs" },
+      {
+        name: "s",
+        type: "tuple",
+        components: [
+          { name: "venue", type: "address" },
+          { name: "venueIn", type: "uint256" },
+          { name: "venueMinOut", type: "uint256" },
+        ],
+      },
+    ],
+    outputs: AMOUNT_OUT,
+  },
+  {
+    name: "makerSwap",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [
+      {
+        name: "a",
+        type: "tuple",
+        components: [
+          { name: "tokenIn", type: "address" },
+          { name: "tokenOut", type: "address" },
+          { name: "amountIn", type: "uint256" },
+          { name: "minAmountOut", type: "uint256" },
+          { name: "recipient", type: "address" },
+          { name: "deadline", type: "uint256" },
+        ],
+      },
+      { ...LEGS, name: "poolLegs" },
+      {
+        name: "m",
+        type: "tuple",
+        components: [
+          { name: "target", type: "address" },
+          { name: "spender", type: "address" },
+          { name: "amountIn", type: "uint256" },
+          { name: "minOut", type: "uint256" },
+          { name: "data", type: "bytes" },
+        ],
+      },
+      { ...LEGS, name: "fallbackLegs" },
+    ],
+    outputs: AMOUNT_OUT,
+  },
+] as const;
 
 /**
  * Configuration options for the LCX Liberty DEX aggregator.
@@ -246,8 +391,8 @@ function validateQuote(request: ExactInSwapParams, quote: LcxQuote, router: Addr
 }
 
 /**
- * Rejects built calldata that targets another contract or chain, or whose floor or value
- * differs from the quote.
+ * Rejects a build that targets another contract or chain, or whose floor differs from the quote,
+ * then checks the calldata itself.
  */
 function validateBuild(
   request: ExactInSwapParams,
@@ -272,12 +417,79 @@ function validateBuild(
   if (minAmountOut === undefined || minAmountOut !== parseBigInt(quote.output.minimumAmount)) {
     throw new QuoteError("LCX Liberty DEX build minimum output does not match the quote", build);
   }
-  const expectedValue = isNativeToken(request.inputToken) ? request.inputAmount : 0n;
-  if (parseBigInt(swap.value) !== expectedValue) {
-    throw new QuoteError("LCX Liberty DEX build value does not match the input amount", build);
+  verifyCalldata(request, quote, swap);
+}
+
+/**
+ * Decodes the router call that will be signed and rejects it unless it sells exactly the
+ * requested amount of the requested token, pays the intended recipient, keeps at least the
+ * quoted floor, attaches the right value and has not expired. A maker leg may only call
+ * Bebop's contracts. These are the checks the LCX Liberty DEX app applies before signing.
+ */
+function verifyCalldata(request: ExactInSwapParams, quote: LcxQuote, swap: LcxBuild["swap"]) {
+  const call = decodeRouterCall(swap.data);
+  if (!call) {
+    throw new QuoteError("LCX Liberty DEX calldata is not a known router call", swap);
   }
-  if (typeof swap.data !== "string" || !swap.data.startsWith("0x")) {
-    throw new QuoteError("LCX Liberty DEX build has no calldata", build);
+  if (!sameAddress(call.recipient, request.recipientAccount ?? request.swapperAccount)) {
+    throw new QuoteError("LCX Liberty DEX calldata pays a different recipient", swap);
+  }
+  if (call.totalIn !== request.inputAmount) {
+    throw new QuoteError("LCX Liberty DEX calldata input amount does not match the request", swap);
+  }
+  if (
+    !sameAddress(call.tokenIn, request.inputToken) ||
+    !sameAddress(call.tokenOut, request.outputToken)
+  ) {
+    throw new QuoteError("LCX Liberty DEX calldata tokens do not match the request", swap);
+  }
+  const floor = parseBigInt(quote.output.minimumAmount);
+  if (floor === undefined || call.minAmountOut < floor) {
+    throw new QuoteError("LCX Liberty DEX calldata minimum output is below the quote", swap);
+  }
+  const expectedValue = isNativeToken(request.inputToken) ? call.totalIn : 0n;
+  if (parseBigInt(swap.value) !== expectedValue) {
+    throw new QuoteError("LCX Liberty DEX build value does not match the input amount", swap);
+  }
+  if (call.deadline <= BigInt(Math.floor(Date.now() / 1000))) {
+    throw new QuoteError("LCX Liberty DEX calldata deadline has passed", swap);
+  }
+  const maker = call.maker;
+  if (maker && maker.amountIn > 0n) {
+    if (
+      !BEBOP_CONTRACTS.has(maker.target.toLowerCase()) ||
+      !BEBOP_CONTRACTS.has(maker.spender.toLowerCase())
+    ) {
+      throw new QuoteError("LCX Liberty DEX calldata maker leg names a non-Bebop contract", swap);
+    }
+    if (maker.amountIn > call.totalIn) {
+      throw new QuoteError("LCX Liberty DEX calldata maker leg exceeds the input amount", swap);
+    }
+  }
+}
+
+/**
+ * Reads the six swap fields from any router entrypoint, wherever they sit in its arguments.
+ * Returns undefined for calldata that does not decode against the router ABI.
+ */
+function decodeRouterCall(data: Hex) {
+  let decoded: DecodeFunctionDataReturnType<typeof LCX_ROUTER_ABI>;
+  try {
+    decoded = decodeFunctionData({ abi: LCX_ROUTER_ABI, data });
+  } catch {
+    return undefined;
+  }
+  switch (decoded.functionName) {
+    case "swapSplit": {
+      const [tokenIn, tokenOut, totalIn, minAmountOut, recipient, deadline] = decoded.args;
+      return { tokenIn, tokenOut, totalIn, minAmountOut, recipient, deadline, maker: undefined };
+    }
+    case "makerSwap": {
+      const [a, , maker] = decoded.args;
+      return { ...a, totalIn: a.amountIn, maker };
+    }
+    default:
+      return { ...decoded.args[0], maker: undefined };
   }
 }
 
